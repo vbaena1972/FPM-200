@@ -4,6 +4,7 @@
 #include "ui_widgets.h"
 #include "ui_theme.h"
 #include "ui_nav.h"
+#include "ui_cfg.h"
 #include "storage.h"
 #include <string.h>
 #include <stdlib.h>
@@ -51,6 +52,7 @@ static void cert_pills_refresh(void)
 static void cert_erase_cb(lv_event_t *e)
 {
     (void)e;
+    if (!ui_auth_can(APP_ROLE_ADMIN)) return;   /* acción crítica: solo administrador */
 #ifdef ESP_PLATFORM
     if (cert_store_erase_all() == ESP_OK)
         cert_pills_refresh();
@@ -62,6 +64,7 @@ static void cert_erase_cb(lv_event_t *e)
 static void save_cb(lv_event_t *e)
 {
     (void)e;
+    if (!ui_auth_can(APP_ROLE_ADMIN)) { ui_nav_back(); return; }  /* nube crítica: ADMIN */
     AppConfig *cfg = appcfg_cache_peek();
     if (!cfg) return;
 
@@ -83,6 +86,10 @@ void ui_netCloudScreen_screen_init(void)
     const AppConfig *cfg = appcfg_cache_peek();
     lv_obj_t *content;
     ui_netCloudScreen = ui_form_begin("Nube · MQTT", &content, save_cb);
+
+    bool admin = ui_auth_can(APP_ROLE_ADMIN);
+    if (!admin)
+        ui_notice(content, _t("Requiere administrador — cambios deshabilitados"));
 
     s_sw = ui_form_switch(content, _t("Telemetría a la nube"), _t("publica presión/flujo por MQTT"),
                           cfg && cfg->cloud.enabled);

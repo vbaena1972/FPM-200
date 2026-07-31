@@ -12,7 +12,16 @@
 
 lv_obj_t *ui_keypadScreen = NULL;
 static lv_obj_t *s_value_lbl = NULL;
-static char s_buf[8] = "0";
+static char s_buf[12] = "0";
+
+/* ¿La unidad en edición admite decimales? (bar/MPa quedan pequeños tras convertir;
+ * m³/h también es fraccionario). Los enteros — kPa, psi, L/min y minutos — no. */
+static bool allow_decimal(void)
+{
+    if (ui_edit_is_audio()) return false;
+    const char *u = ui_edit_unit();
+    return strcmp(u, "bar") == 0 || strcmp(u, "mpa") == 0 || strcmp(u, "m3h") == 0;
+}
 
 /* Aceptar: guarda el valor tecleado en la edición pendiente y abre el diálogo de confirmación. */
 static void accept_cb(lv_event_t *e)
@@ -32,6 +41,13 @@ static void key_cb(lv_event_t *e)
     size_t len = strlen(s_buf);
     if (k == 'C') { s_buf[0] = '\0'; }
     else if (k == '<') { if (len) s_buf[len - 1] = '\0'; }
+    else if (k == '.') {
+        /* un solo punto; si está vacío, arranca en "0." */
+        if (!strchr(s_buf, '.') && len < sizeof(s_buf) - 2) {
+            if (len == 0) { s_buf[len++] = '0'; }
+            s_buf[len] = '.'; s_buf[len + 1] = '\0';
+        }
+    }
     else if (k >= '0' && k <= '9') {
         if (len < sizeof(s_buf) - 1) { s_buf[len] = k; s_buf[len + 1] = '\0'; }
     }
@@ -56,7 +72,7 @@ static int32_t s_krow[] = { LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID
 
 void ui_keypadScreen_screen_init(void)
 {
-    snprintf(s_buf, sizeof(s_buf), "%.0f", ui_edit_new());  /* valor actual del umbral */
+    snprintf(s_buf, sizeof(s_buf), allow_decimal() ? "%.1f" : "%.0f", ui_edit_new());  /* valor actual */
     ui_keypadScreen = ui_screen_base();
     lv_obj_set_flex_flow(ui_keypadScreen, LV_FLEX_FLOW_ROW);
     lv_obj_set_style_pad_all(ui_keypadScreen, 12, 0);
@@ -130,7 +146,10 @@ void ui_keypadScreen_screen_init(void)
     const char *digits[9] = { "1","2","3","4","5","6","7","8","9" };
     for (int i = 0; i < 9; i++)
         key(pad, digits[i], NULL, (char)('1' + i), i % 3, i / 3, UI_C_TEXT);
-    key(pad, "C", NULL, 'C', 0, 3, UI_C_TEXT_2);
+    /* Inferior izquierda: punto decimal si la unidad lo admite, si no "C" (borrar todo).
+     * El backspace cubre el borrado cuando la tecla es el punto. */
+    if (allow_decimal()) key(pad, ".", NULL, '.', 0, 3, UI_C_TEXT);
+    else                 key(pad, "C", NULL, 'C', 0, 3, UI_C_TEXT_2);
     key(pad, "0", NULL, '0', 1, 3, UI_C_TEXT);
     key(pad, NULL, UI_SYM_BACKSPACE, '<', 2, 3, 0xcfd3d9);
 

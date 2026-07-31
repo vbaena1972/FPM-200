@@ -1,6 +1,14 @@
 #include "ui_nav.h"
 #include "ui_cfg.h"
 
+/* NOTA (2026-07-31): se quitaron las animaciones de transición de pantalla
+ * (`lv_screen_load_anim` -> `lv_screen_load`). En HW se colgaba `taskLVGL`
+ * dentro de `lv_anim_start` al navegar a una pantalla de config (watchdog;
+ * la construcción de la pantalla sí terminaba, el cuelgue era en la animación).
+ * El cambio instantáneo es más robusto y snappier para un HMI; si más adelante
+ * se quiere reintroducir animación, hacerlo con carga sin animación como
+ * respaldo y validando en HW bajo carga (WiFi+AWS activos). */
+
 #define UI_NAV_STACK_MAX 8
 
 static lv_obj_t *s_stack[UI_NAV_STACK_MAX];
@@ -17,7 +25,7 @@ void ui_nav_init(lv_obj_t *root)
 void ui_nav_show_root(void)
 {
     if (s_top >= 0)
-        lv_screen_load_anim(s_stack[0], LV_SCR_LOAD_ANIM_FADE_IN, 250, 0, false);
+        lv_screen_load(s_stack[0]);
     s_top = 0;
 }
 
@@ -37,7 +45,7 @@ void ui_nav_load(lv_obj_t *scr)
         s_stack[s_top] = scr;
     }
     ui_cfg_apply_visual_mode(scr);
-    lv_screen_load_anim(scr, LV_SCR_LOAD_ANIM_MOVE_LEFT, 180, 0, false);
+    lv_screen_load(scr);
 }
 
 void ui_nav_replace(lv_obj_t *scr)
@@ -46,14 +54,24 @@ void ui_nav_replace(lv_obj_t *scr)
     if (s_top < 0) s_top = 0;
     s_stack[s_top] = scr;
     ui_cfg_apply_visual_mode(scr);
-    lv_screen_load_anim(scr, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
+    lv_screen_load(scr);
 }
 
 void ui_nav_back(void)
 {
     if (s_top <= 0) return;   /* ya en la raíz */
     s_top--;
-    lv_screen_load_anim(s_stack[s_top], LV_SCR_LOAD_ANIM_MOVE_RIGHT, 180, 0, false);
+    /* Reaplica el tema por si cambió mientras estábamos en la pantalla hija
+     * (el tema claro/oscuro se pinta al construir; la pantalla padre es previa). */
+    ui_cfg_apply_visual_mode(s_stack[s_top]);
+    lv_screen_load(s_stack[s_top]);
+}
+
+void ui_nav_swap(lv_obj_t *old_scr, lv_obj_t *new_scr)
+{
+    if (!new_scr) return;
+    for (int i = 0; i <= s_top; i++)
+        if (s_stack[i] == old_scr) { s_stack[i] = new_scr; return; }
 }
 
 void ui_nav_pop_to(lv_obj_t *scr)
@@ -63,7 +81,7 @@ void ui_nav_pop_to(lv_obj_t *scr)
     for (int i = s_top; i >= 0; i--) {
         if (s_stack[i] == scr) {
             s_top = i;
-            lv_screen_load_anim(scr, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 200, 0, false);
+            lv_screen_load(scr);
             return;
         }
     }

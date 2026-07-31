@@ -3,10 +3,33 @@
 #include "ui_widgets.h"
 #include "ui_theme.h"
 #include "ui_nav.h"
+#ifdef ESP_PLATFORM
+#include "config_mode.h"
+#endif
 
-/* Configurar por app (BLE) (mockup 5f). */
+/* Configurar por app (BLE) (mockup 5f).
+ * Al MOSTRARSE esta pantalla se entra en "modo configuración": se apagan AWS y
+ * Wi-Fi para liberar RAM y se levanta el advertising BLE (patrón del hermano).
+ * Al salir (volver) se restauran Wi-Fi/AWS. El simulador no compila config_mode. */
 
 lv_obj_t *ui_bleAppScreen = NULL;
+
+/* Los callbacks existen siempre (para no romper el registro de eventos); solo
+ * hacen algo en el firmware real. */
+static void bleapp_loaded_cb(lv_event_t *e)
+{
+    (void)e;
+#ifdef ESP_PLATFORM
+    config_mode_enter();
+#endif
+}
+static void bleapp_unloaded_cb(lv_event_t *e)
+{
+    (void)e;
+#ifdef ESP_PLATFORM
+    config_mode_exit();
+#endif
+}
 
 void ui_bleAppScreen_screen_init(void)
 {
@@ -79,6 +102,10 @@ void ui_bleAppScreen_screen_init(void)
     lv_obj_set_style_radius(qr, UI_RADIUS_TILE, 0);
     lv_obj_center(ui_icon(qr, UI_SYM_QRCODE, UI_ICON_LG, 0x0f1115));
     ui_label(right, _t("Escanea para emparejar"), UI_FONT_XS, UI_C_TEXT_3);
+
+    /* Entrar/salir del modo configuración al mostrar/ocultar esta pantalla. */
+    lv_obj_add_event_cb(ui_bleAppScreen, bleapp_loaded_cb, LV_EVENT_SCREEN_LOADED, NULL);
+    lv_obj_add_event_cb(ui_bleAppScreen, bleapp_unloaded_cb, LV_EVENT_SCREEN_UNLOADED, NULL);
 }
 
 void ui_bleAppScreen_screen_destroy(void)

@@ -5,6 +5,7 @@
 #include "ui_theme.h"
 #include "ui_nav.h"
 #include "ui.h"
+#include "ui_cfg.h"
 #include "storage.h"
 #include <string.h>
 #include <stdlib.h>
@@ -29,6 +30,7 @@ static void set_str(char *dst, size_t cap, const char *src)
 static void save_cb(lv_event_t *e)
 {
     (void)e;
+    if (!ui_auth_can(APP_ROLE_ADMIN)) { ui_nav_back(); return; }  /* BLE operativo: ADMIN */
     AppConfig *cfg = appcfg_cache_peek();
     if (!cfg) return;
 
@@ -58,6 +60,9 @@ void ui_netBleScreen_screen_init(void)
     const AppConfig *cfg = appcfg_cache_peek();
     lv_obj_t *content;
     ui_netBleScreen = ui_form_begin("Bluetooth LE", &content, save_cb);
+
+    if (!ui_auth_can(APP_ROLE_ADMIN))
+        ui_notice(content, _t("Requiere administrador — cambios deshabilitados"));
 
     s_sw  = ui_form_switch(content, _t("Bluetooth habilitado"), _t("app de servicio por BLE"),
                            cfg && cfg->bt.enabled);

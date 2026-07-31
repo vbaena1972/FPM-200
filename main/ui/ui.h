@@ -29,6 +29,8 @@ extern "C" {
 #include "screens/ui_pinScreen.h"
 #include "screens/ui_loginScreen.h"
 #include "screens/ui_datetimeScreen.h"
+#include "screens/ui_usersScreen.h"
+#include "screens/ui_userEditScreen.h"
 #include "screens/ui_bleAppScreen.h"
 #include "screens/ui_netWifiScreen.h"
 #include "screens/ui_netEthScreen.h"
@@ -53,6 +55,8 @@ void ui_open_bleapp_cb(lv_event_t *e);
 void ui_open_pin_cb(lv_event_t *e);
 void ui_open_config_pin_cb(lv_event_t *e);
 void ui_open_login_cb(lv_event_t *e);
+void ui_open_users_cb(lv_event_t *e);
+void ui_open_useredit_cb(lv_event_t *e);
 void ui_open_keypad_cb(lv_event_t *e);
 void ui_open_confirm_cb(lv_event_t *e);
 void ui_open_net_wifi_cb(lv_event_t *e);

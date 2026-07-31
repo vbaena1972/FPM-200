@@ -53,6 +53,21 @@ bool ui_auth_active(void);
 app_user_role_t ui_auth_role(void);
 const char *ui_auth_current_user(void);
 
+/* --- Permisos por rol (sesión activa Y rol >= min) --- */
+bool ui_auth_can(app_user_role_t min);
+
+/* --- Gestión de usuarios (persisten en NVS; jerarquía TECH<ADMIN<FACTORY) ---
+ * Reglas: gestionar requiere ADMIN+; un ADMIN solo toca cuentas TÉCNICO; asignar
+ * o editar cuentas ADMIN requiere FABRICANTE. Devuelven false si falta permiso
+ * o los datos son inválidos. */
+bool ui_auth_can_manage(void);              /* la sesión puede abrir la gestión */
+bool ui_auth_can_edit_user(int index);      /* puede editar/borrar ESA cuenta */
+app_user_role_t ui_auth_max_assignable(void); /* rol máximo que la sesión puede asignar */
+bool ui_auth_user_add(const char *name, const char *pin, app_user_role_t role);
+bool ui_auth_user_update(int index, const char *name, const char *pin, app_user_role_t role);
+bool ui_auth_user_remove(int index);
+bool ui_auth_set_factory_pin(const char *pin);
+
 /* Lecturas para poblar las pantallas al cargarlas. */
 const char *ui_cfg_pressure_unit(void);
 const char *ui_cfg_flow_unit(void);

@@ -10,8 +10,9 @@ ESP32-S3 **N16R2**, pantalla ST7796 480×320 táctil (FT5x06), ESP-IDF 6.0.1, LV
 Reemplazar la HMI generada por **SquareLine Studio** por el diseño nuevo (16 mockups en `mockups/`),
 borrando todo rastro anterior e integrándola con el firmware existente.
 
-**Estado: las 16 pantallas están codificadas, navegables y con lógica de config real. Falta pulido y
-algunos ítems de backend (abajo).** Validado visualmente en un simulador de PC.
+**Estado: las pantallas están codificadas, navegables y con lógica de config real (16 del diseño original +
+login por rol, fecha/hora dedicada y gestión de usuarios agregadas después). Falta pulido y algunos ítems de
+backend (abajo).** Validado visualmente en un simulador de PC.
 
 ---
 
@@ -86,6 +87,13 @@ Pad 12 / gap 8 (en pantallas de 480×320 se aprieta a 8/4-5).
 | PIN | `ui_pinScreen` | confirm → Confirmar con PIN |
 | Config por app (QR) | `ui_bleAppScreen` | ble form → botón |
 | Form WiFi/Eth/Nube/BLE | `ui_net{Wifi,Eth,Cloud,Ble}Screen` | Conectividad → tocar tarjeta |
+| Login por usuario + rol | `ui_loginScreen` | Configuración → acceso (agregada 07-30) |
+| Fecha y hora | `ui_datetimeScreen` | general → Fecha y hora (agregada 07-30) |
+| Usuarios (lista) | `ui_usersScreen` | chip de usuario del header de general (ADMIN+, 07-31) |
+| Usuario (alta/edición) | `ui_userEditScreen` | usersScreen → fila / Agregar (07-31) |
+
+Gating por rol (07-31): Nube/MQTT y Bluetooth exigen **ADMIN** (banner + guardas en save/borrar certs);
+WiFi/Ethernet en **TÉCNICO**. Gestión de usuarios: ADMIN toca técnicos, FABRICANTE también administradores.
 
 **Flujo de umbral (completo, con persistencia):** sensorEdit → keypad (precargado) → confirm (antes→después
 reales) → PIN (valida `admin.pass`, default `1234`) → `ui_edit_apply()` guarda en NVS → vuelve a sensorEdit.
@@ -130,7 +138,7 @@ idf.py -p COMx flash monitor
 
 ---
 
-## 9. Estado de pendientes (actualizado 2026-07-22)
+## 9. Estado de pendientes (actualizado 2026-07-31)
 
 ### Hecho en la sesión 2026-07-22
 1. ✅ **`brightness`**: campo por todo el pipeline (struct, defaults, json↔cfg, `AppConfig.json`, stub sim,
@@ -198,10 +206,115 @@ idf.py -p COMx flash monitor
   y publica en `<topic_base>/telemetry`). Requisitos: certs importados por SD, `cloud.enabled`,
   red activa. **Contratos para la app Flutter**: AppConfig.json vía BLE (config) + MQTT (telemetría).
 
+### Sesión 2026-07-30 (previa, ya commiteada en `c03ba34`)
+- ✅ **Autenticación por USUARIO + PIN con roles** (`ui_loginScreen.c` nuevo): se elige la cuenta y luego
+  se valida el PIN de ESA cuenta. Modelo de usuarios en `storage.h` (`app_user_t`, jerarquía
+  `APP_ROLE_NONE<TECH<ADMIN<FACTORY`, cuenta `factory` oculta) + API `ui_auth_*` en `ui_cfg.c`
+  (login/logout/sesión con timeout 5 min/rol actual/usuario actual). Bloqueo tras 5 fallos (30 s).
+  Seed por defecto: 1 admin "Administrador" PIN 1234 + fabricante "Fabricante" passphrase `axira-2026`.
+- ✅ Arreglos de dashboard/menú/alarma + `ui_datetimeScreen.c` (fecha/hora dedicada).
+
+### Sesión 2026-07-31 (ESTA sesión — NO commiteada aún; sin compilar en este entorno, sin HW)
+1. ✅ **Gating por rol** (los roles ahora RESTRINGEN): helper `ui_auth_can(min)` + gating en las pantallas
+   de red críticas — **Nube/MQTT y Bluetooth = ADMIN** (banner `ui_notice()` de "requiere administrador" +
+   guardas en `save_cb` y en "Borrar certificados"). WiFi/Ethernet quedan en TÉCNICO (ya lo exige el login).
+2. ✅ **Gestión de usuarios en el equipo** (NO está en los mockups; complementa el login): dos pantallas
+   nuevas `ui_usersScreen.{c,h}` (lista con badges de rol; filas fuera de tu alcance salen con candado) y
+   `ui_userEditScreen.{c,h}` (alta/edición: nombre, PIN, rol; botón Eliminar). API en `ui_cfg`:
+   `ui_auth_user_add/update/remove`, `ui_auth_can_manage/can_edit_user/max_assignable`,
+   `ui_auth_set_factory_pin`. **Jerarquía**: ADMIN solo toca TÉCNICOS; asignar/editar ADMIN = FABRICANTE.
+   Persisten en NVS vía `appcfg_save`. **Acceso**: chip de usuario del header de "Ajustes generales"
+   (solo visible para ADMIN+). ⚠️ *El "Cambiar PIN de fabricante" y todo lo FACTORY están gateados pero
+   INERTES*: el login numérico no puede teclear la passphrase alfanumérica → falta un login de fabricante.
+3. ✅ **Datos reales en Conectividad** (`ui_connectivityScreen.c` reescrito): SSID/IP/modo/broker/nombre BLE
+   desde AppConfig; enlace en vivo (RSSI, IP obtenida, ETH up, BLE conectado, nube conectada) desde los
+   managers bajo `#ifdef ESP_PLATFORM` (`wifi_mgr_get_netinfo`, `eth_mgr_is_up`, `transport_ble_is_connected`,
+   `cloud_mgr_connected`); en el sim cae a la config. Se eliminaron los textos demo (Hospital-BIOMED, IPs,
+   MAC, broker.axira). *Nota: "diag" resultó ser la pantalla de Audio de alarmas, que YA estaba con datos
+   reales — la nota vieja estaba obsoleta.*
+4. ✅ **Keypad con decimales** (`ui_keypadScreen.c`): la tecla inferior izquierda pasa a `.` cuando la unidad
+   lo admite (bar/MPa/m³h; el borrado lo cubre el backspace) y el valor inicial usa 1 decimal. Un solo punto,
+   arranca en "0." si está vacío.
+5. ✅ **Pulido de idioma/tema al volver**: `ui_nav_back()` reaplica el modo visual (arregla el tema stale del
+   padre); nuevo `ui_nav_swap()` + `lang_cb` recrea la pantalla `general` apilada al cambiar idioma, así
+   "atrás" ya la muestra traducida.
+
+⚠️ **Al abrir el proyecto**: `main/CMakeLists.txt` usa `GLOB_RECURSE` → los 2 archivos nuevos
+(`ui_usersScreen.c`, `ui_userEditScreen.c`) exigen `idf.py reconfigure` (o fullclean) para detectarse.
+En el **sim** (repo hermano ClaudeHMI-Sim) hay que sumarlos a mano al `.vcxproj`/`.filters`.
+
+### Sesión 2026-07-31 (parte 2 — RAM/estabilidad + modo config BLE) — SIN COMPILAR NI HW
+
+Diagnóstico de un log de HW (`new 6.txt`): **watchdog de tarea sobre `taskLVGL`** al abrir la pantalla
+"Pantalla" (`ui_open_general_simple_cb → ui_nav_load → lv_screen_load_anim`), backtrace idéntico a 5 s
+(colgado, no lento). Contexto: RAM interna asfixiada (`free≈93 KB, mayor 43 KB, frag 55 %`) con
+WiFi+ETH+AWS+HTTP activos, y **`AppConfig.json` re-parseándose ~2 Hz**. AWS conectó OK (el "off-by-one"
+del cert CA es solo debug).
+
+**CAUSA DIRECTA (2º log `Log.txt`, mismo build):** el hang es **dentro de `lv_anim_start` (lv_anim.c:129)**
+llamado por `lv_screen_load_anim` — es decir, la **animación de transición** de pantalla, NO la construcción
+(que sí terminaba: la pantalla se creaba y sus decenas de allocs pasaban). El splash animó bien en el boot
+pero la navegación se colgó a los 84 s → problema en el subsistema de animación bajo carga/estado acumulado
+(no es concurrencia: `bsp_display_lock`→`lvgl_port_lock`, el mismo mutex que la tarea LVGL). **FIX:** se
+quitaron TODAS las animaciones de transición (`lv_screen_load_anim`→`lv_screen_load`) en `ui_nav.c` (5 sitios)
+y en el splash (`ui.c`, con borrado manual del splash ya que se pierde el `auto_del`). Cambio instantáneo de
+pantalla = sin `lv_anim_start` = sin la ruta del cuelgue. Los eventos `SCREEN_LOADED/UNLOADED` siguen
+disparándose (el modo config BLE sigue enganchado). Es una **mitigación de alta confianza** (elimina la ruta
+observada); si tras esto algún OTRO uso de animación (p.ej. transición de estado del tema al presionar) se
+colgara, el subsistema de animación estaría roto de raíz y habría que desactivar transiciones globalmente.
+Cambios adicionales:
+
+1. ✅ **Quitado el churn de config (probable causa de la fragmentación):** `alarm_mgr_process()` hacía
+   `appcfg_load()` (parseo profundo NVS+JSON, con malloc/free de buffers) **en cada muestra** → ahora usa
+   `appcfg_cache_get()` (memcpy del snapshot en RAM). Igual en `alarm_mgr_press_mute()`. Para que la caché
+   no quede vieja con config remota, `appcfg_set()/appcfg_patch()` (storage_extras) ahora llaman
+   `appcfg_cache_reload()` al persistir (también corrige que el dashboard no reflejaba cambios remotos).
+2. ✅ **Modo configuración por BLE (espejo del hermano `ClaudeHMI/ble_service.c`):** nuevo módulo
+   `main/config_mode.{c,h}` con `config_mode_enter()/exit()`. Enter: `transport_mqtt_stop()` (nuevo, en
+   `transport_mqtt.c/.h`: detiene+destruye el cliente MQTT y baja `s_is_connected`; la tarea `aws_pub` queda
+   viva pero inactiva, con handle `s_pub_task` para no duplicarla) + `wifi_mgr_stop()` + delay 150 ms +
+   `transport_ble_set_enabled(true)`+`start_adv()`. Exit: `stop_adv` + `wifi_mgr_start()` +
+   `transport_mqtt_on_time_ready()` (re-arma MQTT, idempotente por el guard `if(s_client)`).
+   **Cableado a `ui_bleAppScreen`** (Conectividad→Bluetooth→"Configurar por app"): entra en
+   `LV_EVENT_SCREEN_LOADED`, sale en `LV_EVENT_SCREEN_UNLOADED` (guardado con `#ifdef ESP_PLATFORM` para el
+   sim). Así, al ir a configurar por la app Flutter, se apagan AWS+WiFi y sube BLE — aunque BT estuviera
+   deshabilitado en config. Ethernet se deja como está (el hermano tampoco lo toca).
+   ⚠️ `config_mode.c` va **explícito** en `main/CMakeLists.txt` (el GLOB solo toma `main.c`+`ui/*.c`).
+   ⚠️ Enter/exit corren en el hilo LVGL y bloquean ~200-500 ms (freeze breve de UI durante la transición).
+
+3. ✅ **Dashboard alineado a los mockups `3a/3b/4b/4c`** (`ui_mainScreen.c`): la etiqueta central del eje
+   ahora muestra el **rango seguro** de presión (`min-max seguro`, p.ej. `500-2000 seguro`) y el **umbral
+   alto** de flujo (`<80% escala> alto`, p.ej. `1200 alto`) en vez de solo "seguro"/"alto"; se agregó el
+   **subtítulo del consumo** (`· desde 00:00`) como en el mockup. *La marca del header se dejó como está: el
+   código ya es data-driven (client/model desde AppConfig), mejor que el placeholder del mockup.*
+   ⚠️ **Acum. mes** (`· acum. mes 284 m³`) NO se agregó: necesita un contador mensual persistente (estilo
+   `metrics_store` del hermano); queda pendiente para no mostrar un dato inventado.
+
 ### Aún pendiente
 - **Flashear y probar en hardware** (nada de esta migración ha corrido aún en el ESP32-S3 real).
-- Pulido menor: pantalla `general` queda en idioma viejo hasta reabrir tras cambiar idioma; textos
-  demo de connectivity/diag sin cablear a datos reales; keypad sin decimales (bar/MPa).
+- **Login de FABRICANTE**: el pad del login es numérico; la passphrase del fabricante es alfanumérica.
+  Falta un acceso oculto (icono candado) que abra un teclado QWERTY y valide contra `general.factory.pin`
+  (fijar rol/usuario con `ui_auth_*`). Hasta entonces, las acciones FACTORY (cambiar PIN de fabricante,
+  gestionar administradores) están en el código pero no se pueden alcanzar.
+- **Compilar** (`idf.py reconfigure && idf.py build`) los cambios de esta sesión: no hay ESP-IDF en el
+  entorno donde se editó. Revisar warnings/`-Werror` si aplica.
+- **Validar en HW el fix del watchdog**: confirmar que al navegar a las pantallas de config (Pantalla, etc.)
+  YA NO se cuelga `taskLVGL` (ahora sin animación de transición). Si aún se colgara en `lv_anim_start` por
+  otra vía (transición de estado del tema), desactivar transiciones del tema.
+- **Validar en HW el modo config BLE**: confirmar que al entrar a "Configurar por app" caen WiFi/AWS, sube
+  el heap interno (ver logs `config_mode: heap interno [antes/después]`), la app Flutter empareja por BLE, y
+  al salir se reconecta WiFi+MQTT.
+- **Coherencia HMI ↔ app Flutter** (`ClaudeHMI/mobile`) y **"config mínima"** — DECISIÓN DEL USUARIO
+  (2026-07-31): en la HMI queda **ergonomía local + red básica** (brillo/tema, idioma, fecha/hora, audio de
+  alarmas, info/estado, y WiFi/Ethernet básico); el resto (nube/AWS, IoT, gestión avanzada) por la app. En
+  **sensores, dejar la HMI como el mockup** (`5b sensorScreen-Editable`: ver/editar unidades y umbrales; sin
+  calibración — los sensores traen su memoria de cal). Falta aplicar el recorte a las pantallas.
+- **Consumo mensual del dashboard** (`· acum. mes N m³`): falta un contador mensual persistente (NVS, con
+  rollover de mes) — estilo `metrics_store` del hermano. El diario ya funciona (RAM, reset a medianoche).
+- **Calibración**: en FW no hay pantalla de calibración (bien, los sensores traen su memoria de cal). Solo
+  queda una fecha en `ui_infoScreen.c` — quitar/renombrar si se confirma.
+- Pulido menor restante: login de FABRICANTE (arriba); i18n de textos nuevos (solo ES); "Tiempo en servicio"
+  del infoScreen; MAC BLE real en Conectividad.
 
 ---
 

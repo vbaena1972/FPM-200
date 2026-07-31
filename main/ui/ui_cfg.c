@@ -163,6 +163,85 @@ bool ui_auth_active(void)
 app_user_role_t ui_auth_role(void){return ui_auth_active()?s_auth_role:APP_ROLE_NONE;}
 const char *ui_auth_current_user(void){return ui_auth_active()?s_auth_user:"-";}
 
+/* ---------- permisos por rol ---------- */
+bool ui_auth_can(app_user_role_t min){ return ui_auth_active() && ui_auth_role() >= min; }
+
+/* Gestionar usuarios: ADMIN o superior. */
+bool ui_auth_can_manage(void){ return ui_auth_can(APP_ROLE_ADMIN); }
+
+/* Un rol solo puede tocar cuentas de rol ESTRICTAMENTE inferior:
+ * ADMIN -> técnicos; FABRICANTE -> técnicos y administradores. */
+bool ui_auth_can_edit_user(int index)
+{
+    const app_user_t *u = ui_auth_user_at(index);
+    if (!u || !ui_auth_can_manage()) return false;
+    return ui_auth_role() > u->role;
+}
+
+/* Rol máximo asignable = uno por debajo del rol de la sesión (ADMIN->TECH, FACTORY->ADMIN). */
+app_user_role_t ui_auth_max_assignable(void)
+{
+    app_user_role_t r = ui_auth_role();
+    return r >= APP_ROLE_ADMIN ? (app_user_role_t)(r - 1) : APP_ROLE_NONE;
+}
+
+static bool valid_pin(const char *pin){ return pin && strlen(pin) >= 4 && strlen(pin) < 24; }
+
+bool ui_auth_user_add(const char *name, const char *pin, app_user_role_t role)
+{
+    AppConfig *c = appcfg_cache_peek();
+    if (!c || !ui_auth_can_manage()) return false;
+    if (!name || !name[0] || !valid_pin(pin)) return false;
+    if (role < APP_ROLE_TECH || role > ui_auth_max_assignable()) return false;
+    if (c->general.users_count >= APP_MAX_USERS) return false;
+    app_user_t *u = &c->general.users[c->general.users_count];
+    memset(u, 0, sizeof(*u));
+    set_str(u->name, sizeof(u->name), name);
+    set_str(u->pin, sizeof(u->pin), pin);
+    u->role = role;
+    set_str(u->last, sizeof(u->last), "nunca");
+    c->general.users_count++;
+    (void)appcfg_save(c);
+    return true;
+}
+
+bool ui_auth_user_update(int index, const char *name, const char *pin, app_user_role_t role)
+{
+    AppConfig *c = appcfg_cache_peek();
+    if (!c || !ui_auth_can_edit_user(index)) return false;
+    if (!name || !name[0]) return false;
+    if (role < APP_ROLE_TECH || role > ui_auth_max_assignable()) return false;
+    app_user_t *u = &c->general.users[index];
+    set_str(u->name, sizeof(u->name), name);
+    if (pin && pin[0]) { if (!valid_pin(pin)) return false; set_str(u->pin, sizeof(u->pin), pin); }
+    u->role = role;
+    (void)appcfg_save(c);
+    return true;
+}
+
+bool ui_auth_user_remove(int index)
+{
+    AppConfig *c = appcfg_cache_peek();
+    if (!c || !ui_auth_can_edit_user(index)) return false;
+    for (int i = index; i < c->general.users_count - 1; i++)
+        c->general.users[i] = c->general.users[i + 1];
+    c->general.users_count--;
+    (void)appcfg_save(c);
+    return true;
+}
+
+/* Cambiar la passphrase del fabricante: solo el propio fabricante. */
+bool ui_auth_set_factory_pin(const char *pin)
+{
+    AppConfig *c = appcfg_cache_peek();
+    if (!c || !ui_auth_can(APP_ROLE_FACTORY)) return false;
+    if (!pin || strlen(pin) < 8 || strlen(pin) >= 24) return false;
+    set_str(c->general.factory.pin, sizeof(c->general.factory.pin), pin);
+    c->general.factory.must_change_pin = false;
+    (void)appcfg_save(c);
+    return true;
+}
+
 /* ---------- lecturas ---------- */
 const char *ui_cfg_pressure_unit(void){ const AppConfig *c=appcfg_cache_peek(); return c?c->sensors.pressure_unit:"kpa"; }
 const char *ui_cfg_flow_unit(void)    { const AppConfig *c=appcfg_cache_peek(); return c?c->sensors.flow_unit:"lpm"; }

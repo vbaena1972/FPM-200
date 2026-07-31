@@ -66,10 +66,12 @@ static void set_buzzer_acoustic(bool turn_on)
 void alarm_mgr_process(float current_pressure, float current_flow, uint32_t sensor_faults)
 {
     s_sensor_faults = sensor_faults;
-    // 1. Carga rÃƒÆ’Ã‚Â¡pida desde la cachÃƒÆ’Ã‚Â© o NVS protegida
+    // 1. Copia rápida del snapshot en RAM (memcpy, SIN parseo JSON de NVS).
+    //    Antes hacía appcfg_load() en CADA muestra -> re-parseaba AppConfig.json
+    //    ~1-2 Hz (visible en el log) y fragmentaba el heap. La caché se mantiene
+    //    fresca por el UI (peek+save) y por appcfg_set/patch (reload) en remoto.
     AppConfig cfg;
-    appcfg_defaults(&cfg);
-    appcfg_load(&cfg);
+    appcfg_cache_get(&cfg);
 
     int64_t now = esp_timer_get_time();
     s_volume = cfg.general.alarm.volume;
@@ -163,8 +165,7 @@ void alarm_mgr_press_mute(void)
     if (s_current_state == ALARM_STATE_NORMAL) return;
 
     AppConfig cfg;
-    appcfg_defaults(&cfg);
-    appcfg_load(&cfg);
+    appcfg_cache_get(&cfg);   // snapshot en RAM (sin re-parsear NVS)
 
     // Extraemos el tiempo exacto que el usuario configurÃƒÆ’Ã‚Â³ desde AWS o SD
     int timeout_seconds = 60 * ((s_current_state == ALARM_STATE_ALERT) ? cfg.general.alarm.max_silence_minutes : cfg.general.alarm.reannounce_minutes);

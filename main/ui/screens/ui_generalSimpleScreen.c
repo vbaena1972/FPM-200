@@ -4,11 +4,22 @@
 #include "ui_theme.h"
 #include "ui_cfg.h"
 #include "ui_nav.h"
+#include "ui_generalScreen.h"
 #include <string.h>
 lv_obj_t *ui_generalSimpleScreen=NULL;static lv_obj_t*s_pct;
 static const char s_espanol[] = {'E','s','p','a',(char)0xC3,(char)0xB1,'o','l',0};
 static void rebuild(void){lv_obj_t*o=ui_generalSimpleScreen;ui_generalSimpleScreen=NULL;s_pct=NULL;ui_generalSimpleScreen_screen_init();ui_nav_replace(ui_generalSimpleScreen);lv_obj_delete_delayed(o,250);}
-static void lang_cb(lv_event_t*e){const char *lang=(const char*)lv_event_get_user_data(e);ui_cfg_set_lang(lang);rebuild();}
+/* Al cambiar idioma, la pantalla padre "Ajustes generales" queda apilada con los
+ * textos viejos; la recreamos y sustituimos su puntero en la pila para que "atrás"
+ * la muestre ya traducida. */
+static void retranslate_parent_general(void){
+    lv_obj_t *old=ui_generalScreen;
+    if(!old) return;
+    ui_generalScreen_screen_destroy();
+    ui_generalScreen_screen_init();
+    ui_nav_swap(old, ui_generalScreen);
+}
+static void lang_cb(lv_event_t*e){const char *lang=(const char*)lv_event_get_user_data(e);ui_cfg_set_lang(lang);retranslate_parent_general();rebuild();}
 static void theme_cb(lv_event_t*e){ui_cfg_set_theme((const char*)lv_event_get_user_data(e));rebuild();}
 static void dim_cb(lv_event_t*e){ui_cfg_set_dim_minutes((int)(intptr_t)lv_event_get_user_data(e));rebuild();}
 static void bright_cb(lv_event_t*e){lv_obj_t*s=lv_event_get_target(e);int v=lv_slider_get_value(s);if(s_pct)lv_label_set_text_fmt(s_pct,"%d%%",v);if(lv_event_get_code(e)==LV_EVENT_RELEASED)ui_cfg_set_brightness(v);else ui_cfg_preview_brightness(v);}

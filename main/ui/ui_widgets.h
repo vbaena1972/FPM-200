@@ -52,6 +52,10 @@ lv_obj_t *ui_menu_row(lv_obj_t *parent, const char *sym, const char *title,
 /* Aplica estilo de "botón" del tema a un objeto (bg + radio + estado pressed). */
 void ui_style_button(lv_obj_t *obj, uint32_t bg_hex);
 
+/* Banner de aviso (estilo warn: fondo/borde ámbar + icono candado + texto).
+ * Útil para señalar "solo lectura / requiere rol superior". Devuelve la tarjeta. */
+lv_obj_t *ui_notice(lv_obj_t *parent, const char *msg);
+
 /* Utilidad: quitar scroll y padding de un objeto. */
 void ui_kill_scroll(lv_obj_t *obj);
 

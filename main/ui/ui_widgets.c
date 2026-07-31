@@ -135,6 +135,26 @@ void ui_style_button(lv_obj_t *obj, uint32_t bg_hex)
     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 }
 
+lv_obj_t *ui_notice(lv_obj_t *parent, const char *msg)
+{
+    lv_obj_t *c = ui_card(parent);
+    lv_obj_set_width(c, LV_PCT(100));
+    lv_obj_set_style_radius(c, 10, 0);
+    lv_obj_set_style_bg_color(c, ui_col(UI_C_WARN_BG), 0);
+    lv_obj_set_style_border_color(c, ui_col(UI_C_WARN_BORDER), 0);
+    lv_obj_set_style_border_opa(c, LV_OPA_COVER, 0);
+    lv_obj_set_style_pad_hor(c, 11, 0);
+    lv_obj_set_style_pad_ver(c, 8, 0);
+    lv_obj_set_flex_flow(c, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(c, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_column(c, 8, 0);
+    ui_icon(c, UI_SYM_LOCK, UI_ICON_SM, UI_C_WARN);
+    lv_obj_t *l = ui_label(c, msg, UI_FONT_XS, UI_C_WARN_SOFT);
+    lv_obj_set_flex_grow(l, 1);
+    lv_label_set_long_mode(l, LV_LABEL_LONG_WRAP);
+    return c;
+}
+
 lv_obj_t *ui_header_back(lv_obj_t *parent, const char *title, const char *subtitle,
                          lv_obj_t **out_back)
 {

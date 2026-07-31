@@ -15,6 +15,7 @@ static const char *TAG = "aws_mqtt";
 
 static esp_mqtt_client_handle_t s_client = NULL;
 static bool s_is_connected = false;
+static TaskHandle_t s_pub_task = NULL;   /* tarea aws_pub: se crea una sola vez */
 
 // === AGREGA ESTAS TRES LÍNEAS AQUÍ ===
 static char *s_safe_ca = NULL;
@@ -360,8 +361,27 @@ void transport_mqtt_on_time_ready(void)
     free(cfg_app);
 
     // Bajamos el stack a 4096 bytes (1024 palabras), suficiente para cJSON.
-    xTaskCreatePinnedToCore(aws_telemetry_task, "aws_pub", 4096, NULL, 5, NULL, 1);
+    // Se crea UNA sola vez: si el cliente se detiene y reinicia (modo config),
+    // la tarea sigue viva e inactiva (s_is_connected=false) para no duplicarla.
+    if (!s_pub_task)
+        xTaskCreatePinnedToCore(aws_telemetry_task, "aws_pub", 4096, NULL, 5, &s_pub_task, 1);
 }
 
 void transport_mqtt_on_net_down(void) {}
+
+// Detiene y libera el cliente MQTT (para el "modo configuración": libera RAM
+// de AWS/TLS). La tarea aws_pub queda viva pero inactiva (s_is_connected=false),
+// así no toca s_client. transport_mqtt_on_time_ready() lo re-inicializa luego.
+void transport_mqtt_stop(void)
+{
+    s_is_connected = false;                 // la tarea deja de publicar (no usa s_client)
+    if (s_client)
+    {
+        esp_mqtt_client_stop(s_client);
+        vTaskDelay(pdMS_TO_TICKS(50));       // deja salir cualquier publish en vuelo
+        esp_mqtt_client_destroy(s_client);
+        s_client = NULL;                    // resetea el guard de on_time_ready()
+        ESP_LOGW(TAG, "Cliente MQTT detenido y liberado (modo configuración)");
+    }
+}
 bool cloud_mgr_connected(void) { return s_is_connected; }

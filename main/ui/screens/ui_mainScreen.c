@@ -61,6 +61,7 @@ static lv_obj_t *s_brand_lbl, *s_sub_lbl, *s_clock_lbl, *s_date_lbl;
 static lv_obj_t *s_banner, *s_banner_icon, *s_banner_txt, *s_banner_sub, *s_banner_right, *s_banner_right_ic, *s_banner_right_tx;
 static lv_obj_t *s_consumo_val, *s_consumo_badge, *s_consumo_badge_tx;
 static lv_obj_t *s_consumo_cap = NULL;   /* caption "CONSUMO" (retraducible) */
+static lv_obj_t *s_consumo_sub = NULL;   /* subtítulo "· desde 00:00 ..." */
 static lv_obj_t *s_gas_banner, *s_gas_lbl;
 static lv_obj_t *s_menu_pop = NULL;
 static lv_obj_t *s_alarm_overlay = NULL;
@@ -391,6 +392,12 @@ void ui_mainScreen_screen_init(void)
     lv_obj_set_style_text_letter_space(s_consumo_cap, 1, 0);
     s_consumo_val = ui_label(cons, "-- m³ hoy", UI_FONT_XL, UI_C_TEXT_STRONG);
     lv_obj_set_style_margin_left(s_consumo_val, 4, 0);
+    /* Subtítulo como el mockup ("· desde 00:00 · acum. mes ...").
+     * El acumulado mensual necesita un contador persistente (pendiente); por
+     * ahora se muestra el origen del conteo diario. flex_grow empuja el badge. */
+    s_consumo_sub = ui_label(cons, _t("· desde 00:00"), UI_FONT_XS, UI_C_TEXT_MUTED);
+    lv_obj_set_style_margin_left(s_consumo_sub, 6, 0);
+    lv_obj_set_flex_grow(s_consumo_sub, 1);
     s_consumo_badge = ui_pill(cons, "--", UI_FONT_XS, UI_C_OK_DIM, UI_C_OK_BG, UI_C_OK_BORDER);
     lv_obj_set_style_margin_left(s_consumo_badge, 8, 0);
     s_consumo_badge_tx = lv_obj_get_child(s_consumo_badge, 0);
@@ -466,6 +473,7 @@ void ui_main_apply_config(const AppConfig *cfg)
     if (s_press.title)  lv_label_set_text(s_press.title, _t("PRESIÓN"));
     if (s_flow.title)   lv_label_set_text(s_flow.title, _t("FLUJO"));
     if (s_consumo_cap)  lv_label_set_text(s_consumo_cap, _t("CONSUMO"));
+    if (s_consumo_sub)  lv_label_set_text(s_consumo_sub, _t("· desde 00:00"));
 }
 
 /* Banner por estado */
@@ -539,7 +547,12 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         char ab[24];
         snprintf(ab, sizeof(ab), "%.0f", pressure_to_disp(axis_kpa, cfg->sensors.pressure_unit));
         lv_label_set_text(s_press.ax_right, ab);
-        lv_label_set_text(s_press.ax_mid, _t("seguro"));
+        /* Etiqueta central = rango seguro (como el mockup: "500-2000 seguro"). */
+        char pmb[36];
+        snprintf(pmb, sizeof(pmb), "%.0f-%.0f %s",
+                 (double)pressure_to_disp(p_min, cfg->sensors.pressure_unit),
+                 (double)pressure_to_disp(p_max, cfg->sensors.pressure_unit), _t("seguro"));
+        lv_label_set_text(s_press.ax_mid, pmb);
 
         /* --- Flujo --- */
         float f_disp = flow_to_disp(last->flow_lpm, cfg->sensors.flow_unit);
@@ -554,7 +567,11 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         char fb[24];
         snprintf(fb, sizeof(fb), "%.0f", flow_to_disp(f_axis, cfg->sensors.flow_unit));
         lv_label_set_text(s_flow.ax_right, fb);
-        lv_label_set_text(s_flow.ax_mid, _t("alto"));
+        /* Etiqueta central = umbral de "alto" (como el mockup: "1200 alto"). */
+        char fmb[36];
+        snprintf(fmb, sizeof(fmb), "%.0f %s",
+                 (double)flow_to_disp(f_axis * FLOW_HIGH_ZONE_FRAC, cfg->sensors.flow_unit), _t("alto"));
+        lv_label_set_text(s_flow.ax_mid, fmb);
 
         /* --- Consumo acumulado del día --- */
         if (s_consumo_prev_ts >= 0 && last->ts_ms > s_consumo_prev_ts) {

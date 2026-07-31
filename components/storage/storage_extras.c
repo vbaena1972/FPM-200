@@ -175,6 +175,7 @@ cfg_result_t appcfg_set(int base_rev, const char *cfg_json_full, const char *upd
     free(txt);
     // also keep compatibility with old key if someone calls appcfg_save
     appcfg_save(&next);
+    appcfg_cache_reload();   // refresca el snapshot en RAM (dashboard/alarmas ven el cambio remoto)
     return CFG_OK;
 }
 
@@ -219,5 +220,6 @@ cfg_result_t appcfg_patch(int base_rev, const char *patch_json, const char *upda
     free(txt);
     // compatibility write
     appcfg_save(&next);
+    appcfg_cache_reload();   // refresca el snapshot en RAM (dashboard/alarmas ven el patch remoto)
     return CFG_OK;
 }

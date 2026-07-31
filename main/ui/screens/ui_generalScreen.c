@@ -98,7 +98,22 @@ void ui_generalScreen_screen_init(void)
     lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(back, protected_back_cb, LV_EVENT_CLICKED, NULL);
     ui_label(hb, _t("Ajustes generales"), UI_FONT_TITLE, UI_C_TEXT);
-    ui_label(hdr, ui_auth_current_user(), UI_FONT_XS, UI_C_TEXT_3);
+
+    /* Chip de usuario. Para ADMIN+ es un acceso a la gestión de usuarios; para
+     * TÉCNICO es solo la identidad de sesión (no puede gestionar cuentas). */
+    if (ui_auth_can_manage()) {
+        lv_obj_t *chip = ui_box(hdr);
+        lv_obj_set_size(chip, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+        lv_obj_set_flex_flow(chip, LV_FLEX_FLOW_ROW);
+        lv_obj_set_flex_align(chip, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+        lv_obj_set_style_pad_column(chip, 5, 0);
+        lv_obj_add_flag(chip, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_add_event_cb(chip, ui_open_users_cb, LV_EVENT_CLICKED, NULL);
+        ui_label(chip, ui_auth_current_user(), UI_FONT_XS, UI_C_TEXT_3);
+        ui_icon(chip, UI_SYM_CHEVRON_RIGHT, UI_ICON_SM, UI_C_TEXT_MUTED);
+    } else {
+        ui_label(hdr, ui_auth_current_user(), UI_FONT_XS, UI_C_TEXT_3);
+    }
 
     /* grid 2x3 */
     lv_obj_t *grid = ui_box(ui_generalScreen);

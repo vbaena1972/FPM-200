@@ -33,6 +33,8 @@ static lv_obj_t *get_general_simple(void)
     return ui_generalSimpleScreen;
 }
 static lv_obj_t *get_datetime(void){ if(ui_datetimeScreen) ui_datetimeScreen_screen_destroy(); ui_datetimeScreen_screen_init(); return ui_datetimeScreen; }
+static lv_obj_t *get_users(void){ if(ui_usersScreen) ui_usersScreen_screen_destroy(); ui_usersScreen_screen_init(); return ui_usersScreen; }
+static lv_obj_t *fresh_useredit(void){ if(ui_userEditScreen) ui_userEditScreen_screen_destroy(); ui_userEditScreen_screen_init(); return ui_userEditScreen; }
 static lv_obj_t *get_connectivity(void)
 {
     if (ui_connectivityScreen) ui_connectivityScreen_screen_destroy();
@@ -95,8 +97,12 @@ static lv_obj_t *fresh_net_ble(void)   { if (ui_netBleScreen)   ui_netBleScreen_
 static void splash_done_cb(lv_timer_t *t)
 {
     (void)t;
-    lv_screen_load_anim(ui_mainScreen, LV_SCR_LOAD_ANIM_FADE_IN, 300, 0, true);
-    ui_splashScreen = NULL;   /* será liberado por LVGL; main ya es la raíz (s_top=0) */
+    /* Sin animación (ver nota en ui_nav.c): carga directa + borrado manual del
+     * splash (antes lo liberaba el auto_del de lv_screen_load_anim). */
+    lv_obj_t *old = ui_splashScreen;
+    lv_screen_load(ui_mainScreen);
+    ui_splashScreen = NULL;   /* main ya es la raíz (s_top=0) */
+    if (old) lv_obj_del(old);
 }
 
 static bool s_display_dimmed=false;
@@ -163,6 +169,8 @@ void ui_open_confirm_cb(lv_event_t *e)        { (void)e; ui_nav_load(fresh_confi
 void ui_open_pin_cb(lv_event_t *e)            { (void)e; ui_pinScreen_set_config_entry(false); ui_nav_load(fresh_pin()); }
 void ui_open_config_pin_cb(lv_event_t *e)     { (void)e; ui_nav_load(fresh_login()); }
 void ui_open_login_cb(lv_event_t *e)          { (void)e; ui_nav_load(fresh_login()); }
+void ui_open_users_cb(lv_event_t *e)          { (void)e; ui_nav_load(get_users()); }
+void ui_open_useredit_cb(lv_event_t *e)       { (void)e; ui_nav_load(fresh_useredit()); }
 void ui_open_net_wifi_cb(lv_event_t *e)       { (void)e; ui_nav_load(fresh_net_wifi()); }
 void ui_open_net_eth_cb(lv_event_t *e)        { (void)e; ui_nav_load(fresh_net_eth()); }
 void ui_open_net_cloud_cb(lv_event_t *e)      { (void)e; ui_nav_load(fresh_net_cloud()); }
