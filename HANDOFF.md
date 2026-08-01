@@ -113,28 +113,68 @@ tema globalmente. **Validar en HW.**
 ### F. El fix del watchdog (§3)
 - `ui_nav.c` + `ui.c`: sin animaciones de transición.
 
+### G. Coherencia con la app Sensvax — contrato BLE (EN CURSO)
+Estrategia (decisión del usuario 2026-07-31): **la app maneja los dos equipos** (MedGuard 12 y
+Axira/FPM), detecta el modelo al conectar (`info.model` contiene "axira") y **comparte TODO el
+esquema de config EXCEPTO `channels`**. En el FPM (Axira) los canales son **2 sensores FIJOS**
+(Presión con gas+unidad, Flujo con unidad), **sin calibración** (fija/preprogramada).
+- **HECHO — módulo de mapeo** `components/transport_ble/fpm_ble_config.{c,h}` (nuevo, en el CMake
+  del componente): traduce el `AppConfig` del FPM ⇄ el **esquema JSON exacto de la app**
+  (`mobile/medguard_config/lib/src/models/device_config.dart`: `ver, display, time, alarms,
+  network, modbus, cloud, bluetooth, ota, users, admin, channels[]`). Funciones:
+  `fpm_ble_info_json()` (identidad, model="Axira…" para la detección), `fpm_ble_config_read_json(redact)`
+  (config completa, secretos redactados, canales Axira 2 fijos), `fpm_ble_config_apply_json(json)`
+  (merge parcial → AppConfig → NVS + reload). Incluye conversión de unidades y gas↔color.
+- **HECHO — servicio GATT** (`components/transport_ble/transport_ble.c` reescrito): expone el servicio
+  `9f3c1000-…` + 7 características `1001–1007` (Info/WiFi/AWS/Estado/Control/Canal/Config) en vez del pipe
+  `0xF00D`. Dispatch `chr_access`: lecturas (Info/WiFi/Cloud/Status/Channel + Config **troceado** por
+  `mtu-3`, EOF=0 bytes), escrituras (WiFi/Cloud/Channel dedicadas), y ops de Control: `config_read`
+  (arma el snapshot con `fpm_ble_config_read_json(true)`), `set_config`→`fpm_ble_config_apply_json`,
+  `select_channel {id}`, `finish` (hook `s_finish_cb` opcional + corta la conexión). **Advertising**
+  actualizado: incluye el UUID de servicio de 128 bits (la app filtra por servicio) + nombre en
+  SCAN RESPONSE. Se agregaron las 6 funciones de característica dedicada a `fpm_ble_config`
+  (`fpm_ble_wifi/cloud/channel/status_read/apply`). Nuevo hook público
+  `transport_ble_set_finish_cb()`.
+- **HECHO — usuarios por BLE**: `fpm_ble_user_op_json()` (`user_upsert`/`user_remove` sobre
+  `general.users[]`, alta con PIN obligatorio, edición preserva PIN si viene vacío, rechaza dejar el
+  equipo sin admin). Cableado en el dispatch de Control.
+- **HECHO — `finish` cableado**: `main.c` registra `transport_ble_set_finish_cb(on_ble_finish)`; el cb
+  hace `lv_async_call(ble_finish_async)` → `ui_nav_show_root()` (dashboard) → al descargarse la pantalla
+  "Configurar por app" se dispara `config_mode_exit()` (restaura Wi-Fi/AWS). Deferido a la tarea LVGL
+  (el cb corre en la tarea host de NimBLE).
+- **FALTA en el GATT** (no bloquea lo básico): (a) `set_clock` sigue como TODO (log "no implementada")
+  — necesita un hook al RTC/`time_mgr`; (b) **cifrado/passkey**: v1 usa características SIN cifrado
+  (Just Works) para que la app lea/escriba sin PIN — pasar a `*_ENC` + passkey mostrado en la HMI como
+  el hermano (decisión de seguridad).
+
 **Archivos nuevos:** `main/config_mode.{c,h}`, `main/ui/screens/ui_usersScreen.{c,h}`,
-`main/ui/screens/ui_userEditScreen.{c,h}`.
+`main/ui/screens/ui_userEditScreen.{c,h}`, `components/transport_ble/fpm_ble_config.{c,h}`.
 
 ## 5. Lo que sigue / PENDIENTE
 
-### Prioridad 1 — validar en HW (tras compilar+flashear)
-- Confirmar que **el freeze desapareció** al navegar a las pantallas de config.
-- Probar el **modo config BLE**: al abrir "Configurar por app" deben caer WiFi/AWS (ver logs
-  `config_mode: heap interno [antes/después]`), la app Flutter empareja por BLE, y al salir se
-  reconecta WiFi+MQTT.
+### Prioridad 1 — compilar y validar en HW el contrato BLE (nuevo, grande)
+- **Compilar** `idf.py reconfigure && idf.py build` (nuevos `.c` en el componente `transport_ble`).
+  Revisar la API NimBLE (firmas de `ble_gap_adv_rsp_set_fields`, campo `uuids128` de
+  `ble_hs_adv_fields`, `ble_att_mtu`) — se siguió el patrón del hermano pero no se compiló aquí.
+- **Probar con la app Sensvax**: abrir en la HMI "Configurar por app" (entra en config_mode → BLE adv
+  con el servicio `9f3c1000`), la app debe **descubrir** el equipo (filtra por servicio), leer Info
+  (`model:"Axira…"` → detecta 2 variables), hacer `config_read`, editar WiFi/Cloud/canales/secciones y
+  que se **reflejen en la HMI** (la caché se recarga). Verificar la sección `channels` (2 fijos, sin cal).
+- **Completar el GATT** (ver §4.G "FALTA"): `set_clock`, `user_upsert/remove`, cifrado+passkey, y
+  cablear `transport_ble_set_finish_cb()` en `main.c` a `config_mode_exit()`+salir de la pantalla.
+- **App-side (repo hermano):** validar que el editor de canales soporte Axira (2 fijos, sin exigir cal).
+
+### Prioridad 2 — validar en HW el resto (ya implementado)
+- Confirmar que **el freeze desapareció** al navegar a las pantallas de config (fix de animaciones).
+- Modo config BLE: al abrir "Configurar por app" caen WiFi/AWS (logs `config_mode: heap interno
+  [antes/después]`) y al salir reconecta WiFi+MQTT.
 - Revisar warnings de compilación (`-Werror` si aplica).
 
-### Prioridad 2 — "Config mínima" (DECISIÓN DEL USUARIO 2026-07-31)
-En la HMI queda **ergonomía local + red básica**; el resto por la app Flutter:
-- **Se queda en HMI:** brillo/tema, idioma, fecha/hora, audio de alarmas, info/estado, y
-  **WiFi/Ethernet básico**.
-- **Se mueve a la app:** Nube/AWS (endpoint, certs, MQTT), IoT, gestión avanzada.
-- **Sensores: dejar como el mockup** `5b sensorScreen-Editable` (ver/editar unidades y umbrales;
-  **sin calibración** — los sensores traen su memoria de cal).
-- *Acción:* recortar/ocultar de la HMI las pantallas/campos que pasan a la app (empezar por
-  `ui_netCloudScreen` avanzado y lo que sobre); mantener la coherencia con lo que la app
-  (`ClaudeHMI/mobile`) espera escribir vía BLE (contrato = `AppConfig.json`).
+### Nota — "Config mínima" (decisión previa, ahora enmarcada en el contrato compartido)
+Con el contrato BLE compartido, la app configura TODO (incl. Nube/AWS/avanzado). En la HMI se puede
+mantener solo **ergonomía local + red básica** (brillo/tema, idioma, fecha/hora, audio, info, WiFi/Eth)
+y **sensores como el mockup** `5b` (unidades + umbrales, sin calibración). El recorte de pantallas de la
+HMI es OPCIONAL y va DESPUÉS de que el BLE funcione (si no, la Nube quedaría inconfigurable). No urge.
 
 ### Prioridad 3 — deuda/pulido
 - **Login de FABRICANTE:** el pad del login es numérico; la passphrase del fabricante es

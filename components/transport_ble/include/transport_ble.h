@@ -12,8 +12,12 @@ typedef void (*ble_cmd_handler_t)(const char *json, int len);
 
 /* Inicialización base del stack BLE */
 esp_err_t transport_ble_init(bool enable);
-/* Registrar handler de comandos entrantes */
+/* Registrar handler de comandos entrantes (OBSOLETO: el pipe RX/TX se reemplazó
+ * por el servicio GATT compatible con la app Sensvax). */
 void transport_ble_set_cmd_handler(ble_cmd_handler_t h);
+/* Hook opcional: se llama cuando la app envía la op de control "finish". main lo
+ * liga a config_mode_exit() + salir de la pantalla de configuración por app. */
+void transport_ble_set_finish_cb(void (*cb)(void));
 /* Encender / apagar completamente BLE */
 esp_err_t transport_ble_set_enabled(bool on);
 /* Nombre GAP / public name */

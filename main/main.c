@@ -555,6 +555,12 @@ static void screen_init_task(void *arg)
     vTaskSuspend(NULL);
 }
 
+/* La app envía la op "finish" por BLE (corre en la tarea host de NimBLE). Diferimos
+ * a la tarea LVGL: volver al dashboard descarga la pantalla "Configurar por app",
+ * lo que dispara config_mode_exit() (restaura Wi-Fi/AWS). */
+static void ble_finish_async(void *arg) { (void)arg; ui_nav_show_root(); }
+static void on_ble_finish(void) { lv_async_call(ble_finish_async, NULL); }
+
 static void ble_init_task(void *arg)
 {
     const AppConfig *cfg = (const AppConfig *)arg;
@@ -573,6 +579,7 @@ static void ble_init_task(void *arg)
     }
 
     transport_ble_set_cmd_handler(on_ble_json_shim);
+    transport_ble_set_finish_cb(on_ble_finish);   /* "finish" de la app -> volver al dashboard */
 
     ESP_ERROR_CHECK(transport_ble_set_enabled(cfg->bt.enabled));
 

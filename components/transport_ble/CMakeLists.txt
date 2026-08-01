@@ -1,9 +1,9 @@
 idf_component_register(
-    SRCS "transport_ble.c"
+    SRCS "transport_ble.c" "fpm_ble_config.c"
     INCLUDE_DIRS "include"
-    REQUIRES 
+    REQUIRES
         bt cjson
-    PRIV_REQUIRES 
+    PRIV_REQUIRES
         storage
 )
 # Agregar include de NimBLE HCI manualmente:
