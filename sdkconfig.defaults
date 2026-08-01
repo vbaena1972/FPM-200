@@ -64,3 +64,8 @@ CONFIG_VFS_SUPPORT_TERMIOS=y
 CONFIG_LV_FONT_MONTSERRAT_24=y
 CONFIG_LV_FONT_MONTSERRAT_28=y
 CONFIG_LV_FONT_MONTSERRAT_34=y
+# LVGL: usar el asignador del sistema (heap_caps de ESP) en vez del TLSF builtin
+# con pool fijo de 64 KB. El builtin se fragmentaba con el churn de realloc del
+# layout flex (grow_dsc en cada refresco) y entraba en BUCLE -> watchdog en
+# taskLVGL (find_track_end/lv_realloc). heap_caps es robusto y no hace loop.
+CONFIG_LV_USE_CLIB_MALLOC=y
