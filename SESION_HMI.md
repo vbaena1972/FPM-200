@@ -290,8 +290,38 @@ Cambios adicionales:
    ⚠️ **Acum. mes** (`· acum. mes 284 m³`) NO se agregó: necesita un contador mensual persistente (estilo
    `metrics_store` del hermano); queda pendiente para no mostrar un dato inventado.
 
+### Sesión 2026-08-01 — contrato BLE con la app + saga del watchdog (rama `feature/ble-app-contract`)
+
+Lo previo (2026-07-31) fue commiteado por el usuario en `66014fa`. Sobre eso, en la rama
+`feature/ble-app-contract`:
+
+1. ✅ **Contrato BLE FPM ↔ app Sensvax** (commit `711b463`). Decisión del usuario: la app maneja los DOS
+   equipos (MedGuard 12 y Axira/FPM), detecta el modelo al conectar y comparte TODO el esquema de config
+   EXCEPTO `channels` (Axira = 2 sensores fijos: Presión con gas+unidad, Flujo con unidad; SIN calibración).
+   - **`components/transport_ble/fpm_ble_config.{c,h}` (nuevo):** mapeo `AppConfig` ⇄ esquema JSON exacto
+     de la app (`device_config.dart`). info/config_read/set_config + dedicadas wifi/cloud/channel/status +
+     user_upsert/remove. Unidades y gas↔color; secretos redactados.
+   - **`transport_ble.c` reescrito:** servicio GATT `9f3c1000` + 7 características `1001–1007` (config
+     troceado por `mtu-3`), reemplaza el pipe `0xF00D`. Advertising con UUID de servicio + nombre en scan
+     response. Hook `transport_ble_set_finish_cb`.
+   - **`main.c`:** cablea "finish" → `ui_nav_show_root` → `config_mode_exit`.
+   - **FALTA:** `set_clock`, cifrado/passkey (v1 Just Works sin cifrado). Sin compilar/probar en HW.
+
+2. 🔴 **Watchdog en `taskLVGL` — CAUSA RAÍZ ENCONTRADA + FIX (commit `6e0b82c`).** Tras flashear, el HW
+   seguía colgándose (ahora en el dashboard a ~43 s, no al navegar). Diagnóstico definitivo (3 logs): el PC
+   está SIEMPRE exactamente en **`lv_realloc`** (`find_track_end`/flex) → el **asignador de LVGL atascado**,
+   no el layout. LVGL usaba su **TLSF builtin con pool FIJO de 64 KB**; el `grow_dsc` del flex se realloca
+   en cada refresco y ese pool chico se fragmenta de forma determinista hasta entrar en bucle. Los fixes
+   previos (quitar animaciones, quitar el churn de `appcfg_load`) solo movieron dónde se golpeaba el
+   asignador. **Fix:** `CONFIG_LV_USE_CLIB_MALLOC=y` (heap_caps de ESP, robusto, sin techo de 64 KB) en
+   `sdkconfig` + `sdkconfig.defaults`. **REQUIERE REBUILD** — el usuario había flasheado el binario viejo.
+   Pendiente validar en HW; si persiste, reducir el churn de relayout del dashboard.
+
+Ver `HANDOFF.md` (reescrito 2026-08-01) para el estado de arranque, comandos y prioridades.
+
 ### Aún pendiente
-- **Flashear y probar en hardware** (nada de esta migración ha corrido aún en el ESP32-S3 real).
+- **Validar en HW el fix del watchdog** (rebuild con `6e0b82c` = CLIB malloc) — es lo #1 (ver
+  `HANDOFF.md` §2). Ya corrió en HW pero seguía colgándose con el binario previo.
 - **Login de FABRICANTE**: el pad del login es numérico; la passphrase del fabricante es alfanumérica.
   Falta un acceso oculto (icono candado) que abra un teclado QWERTY y valide contra `general.factory.pin`
   (fijar rol/usuario con `ui_auth_*`). Hasta entonces, las acciones FACTORY (cambiar PIN de fabricante,
