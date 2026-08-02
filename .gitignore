@@ -32,3 +32,6 @@ Thumbs.db
 !/graphify-out/graph.html
 !/graphify-out/GRAPH_REPORT.md
 !/graphify-out/manifest.json
+# ===== Credenciales AWS IoT locales =====
+# Nunca versionar certificados ni claves privadas de dispositivos.
+/aws/

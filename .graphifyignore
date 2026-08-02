@@ -14,3 +14,10 @@ managed_components/
 mockups/
 exports/
 generated-docs/
+
+# Credenciales y certificados AWS IoT
+aws/
+
+# Backups locales del HMI
+hmi_squareline_backup.tar.gz
+hmi_squareline_backup.zip
