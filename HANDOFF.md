@@ -137,6 +137,23 @@ idf.py -p COM3 flash monitor
 4. **infoScreen:** quitar la fecha de calibración (este equipo no calibra).
 5. **Consumo mensual** del dashboard (contador persistente NVS + rollover, estilo `metrics_store`).
 6. **i18n** de los textos nuevos (solo ES); limpieza del DEBUG forense del cert en `transport_mqtt.c`.
+7. **🔴 Caché de config SIN sincronización (riesgo de concurrencia ALTO — confirmado leyendo el
+   código).** En `components/storage/storage.c`:
+   - `appcfg_cache_peek()` (`storage.c:707`) **devuelve un puntero directo** al snapshot estático
+     (`return &s_cfg_snapshot;` en `storage.c:714`; la estática es `static AppConfig s_cfg_snapshot;`
+     en `storage.c:679`).
+   - `appcfg_cache_get()` (`storage.c:693`) **copia** el snapshot (`memcpy(out, &s_cfg_snapshot, …)`
+     en `storage.c:703`).
+   - `appcfg_cache_reload()` (`storage.c:682`) reescribe la estática con `memcpy(&s_cfg_snapshot, …)`
+     (`storage.c:688`). **No hay mutex, sección crítica ni acceso atómico** en ninguna de las tres.
+   - **Riesgo ALTO:** un lector vía `peek` (tarea LVGL) puede observar el struct a medio sobrescribir
+     (torn read) mientras otra tarea llama a `reload` (p. ej. `fpm_ble_config_apply_json` en la tarea
+     host BLE). Incluso `get` puede copiar un estado parcialmente actualizado, porque los `memcpy` de
+     lectura (L703) y escritura (L688) no están serializados.
+   - **Antes de corregir:** localizar TODOS los consumidores de `appcfg_cache_peek()` y verificar si
+     **guardan el puntero** (retención peligrosa) o **solo lo usan temporalmente** (uso puntual).
+     Solo entonces decidir entre RW-lock en `storage`, devolver copia/snapshot inmutable, o forzar
+     que todo consumo UI pase por la fachada `ui_cfg.c`.
 
 ## 7. Gotchas que no re-descubrir
 

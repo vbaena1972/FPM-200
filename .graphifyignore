@@ -1,0 +1,16 @@
+graphify-out/
+.claude/
+.codex/
+.git/
+build/
+build_*/
+managed_components/
+
+*.log
+*.zip
+*.tar.gz
+
+# Excluir documentos visuales o generados cuando no sean necesarios
+mockups/
+exports/
+generated-docs/

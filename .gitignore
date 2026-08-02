@@ -12,10 +12,6 @@ sdkconfig.old
 *.svdat
 *.log
 
-# ===== Backup del HMI anterior (grande, no necesario en el repo) =====
-/hmi_squareline_backup.tar.gz
-/hmi_squareline_backup.zip
-
 # ===== Editor / SO =====
 .vscode/ipch/
 *.tmp
@@ -24,3 +20,15 @@ Thumbs.db
 
 # Nota: sdkconfig SÍ se versiona (contiene ajustes del proyecto).
 # sdkconfig.defaults es la fuente de verdad y también se versiona.
+
+# ===== Configuración local de Claude =====
+/.claude/settings.local.json
+
+# ===== Graphify =====
+# Solo se sincronizan los cuatro resultados útiles.
+/graphify-out/*
+
+!/graphify-out/graph.json
+!/graphify-out/graph.html
+!/graphify-out/GRAPH_REPORT.md
+!/graphify-out/manifest.json
