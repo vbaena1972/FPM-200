@@ -51,6 +51,16 @@ char *fpm_ble_status_read_json(int sel);
  * el equipo sin ningún administrador. El JSON incluye la clave "op". */
 bool fpm_ble_user_op_json(const char *json);
 
+/* Ajuste de reloj por BLE (op de control `set_clock`): {op,year,month,day,hour,
+ * minute[,second]} en hora LOCAL. Delega en el callback registrado. No toca AppConfig. */
+bool fpm_ble_set_clock_json(const char *json);
+
+/* Callback que aplica la hora (main lo conecta a time_mgr_set_datetime). Devuelve
+ * true si la hora se aplicó. Registrar con fpm_ble_config_set_clock_cb en el arranque. */
+typedef bool (*fpm_ble_clock_cb_t)(int year, int month, int day,
+                                   int hour, int minute, int second);
+void fpm_ble_config_set_clock_cb(fpm_ble_clock_cb_t cb);
+
 #ifdef __cplusplus
 }
 #endif

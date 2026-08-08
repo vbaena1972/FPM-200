@@ -43,6 +43,7 @@
 #include "cert_store.h"
 #include "sensors_runtime.h"
 #include "transport_ble.h"
+#include "fpm_ble_config.h"
 #include "state_pub.h"
 #include "http_api.h"
 #include "lwip/ip_addr.h"
@@ -561,6 +562,13 @@ static void screen_init_task(void *arg)
 static void ble_finish_async(void *arg) { (void)arg; ui_nav_show_root(); }
 static void on_ble_finish(void) { lv_async_call(ble_finish_async, NULL); }
 
+/* La app ajusta el reloj por BLE (op "set_clock"). Delegamos en time_mgr, que fija
+ * la hora del sistema + el RTC de hardware. Evita acoplar transport_ble a network_core. */
+static bool on_ble_set_clock(int y, int mo, int d, int h, int mi, int s)
+{
+    return time_mgr_set_datetime(y, mo, d, h, mi, s);
+}
+
 static void ble_init_task(void *arg)
 {
     const AppConfig *cfg = (const AppConfig *)arg;
@@ -580,6 +588,7 @@ static void ble_init_task(void *arg)
 
     transport_ble_set_cmd_handler(on_ble_json_shim);
     transport_ble_set_finish_cb(on_ble_finish);   /* "finish" de la app -> volver al dashboard */
+    fpm_ble_config_set_clock_cb(on_ble_set_clock); /* "set_clock" de la app -> time_mgr (sistema + RTC) */
 
     ESP_ERROR_CHECK(transport_ble_set_enabled(cfg->bt.enabled));
 

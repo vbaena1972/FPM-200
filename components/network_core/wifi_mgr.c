@@ -28,7 +28,7 @@ static wifi_status_cb_t s_cb = NULL;
 typedef struct
 {
     bool dhcp;
-    char ssid[17], password[33];
+    char ssid[33], password[65]; // alineado con AppConfig.wifi (SSID 32, pass WPA2 63)
     char ip[16], netmask[16], gw[16], dns1[16], dns2[16];
 } wifi_view_t;
 

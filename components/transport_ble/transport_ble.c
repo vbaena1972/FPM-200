@@ -156,8 +156,9 @@ static int chr_access(uint16_t conn, uint16_t attr_handle,
             } else if (strcmp(op->valuestring, "user_upsert") == 0 ||
                        strcmp(op->valuestring, "user_remove") == 0) {
                 fpm_ble_user_op_json(text);
+            } else if (strcmp(op->valuestring, "set_clock") == 0) {
+                fpm_ble_set_clock_json(text);   /* ajusta hora del sistema + RTC */
             } else {
-                /* TODO: set_clock (RTC). */
                 ESP_LOGW(TAG, "op de control no implementada: %s", op->valuestring);
             }
         }

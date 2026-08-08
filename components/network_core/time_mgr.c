@@ -4,6 +4,7 @@
 #include "esp_netif_sntp.h"
 #include "rtc_rv3028.h"
 #include <sys/time.h>
+#include <time.h>
 #include "storage.h"
 #include "transport_mqtt.h" // Para avisar a MQTT
 
@@ -82,4 +83,41 @@ void time_mgr_start_sntp(void)
 bool time_mgr_is_time_valid(void)
 {
     return s_time_valid;
+}
+
+bool time_mgr_set_datetime(int year, int month, int day,
+                           int hour, int minute, int second)
+{
+    struct tm t = {0};
+    t.tm_year  = year - 1900;
+    t.tm_mon   = month - 1;
+    t.tm_mday  = day;
+    t.tm_hour  = hour;
+    t.tm_min   = minute;
+    t.tm_sec   = second;
+    t.tm_isdst = -1;                 // deja que la TZ resuelva el horario de verano
+
+    time_t epoch = mktime(&t);       // interpreta los componentes como hora LOCAL
+    if (epoch <= 0) {
+        ESP_LOGW(TAG, "set_datetime: fecha/hora inválida");
+        return false;
+    }
+
+    // 1) Hora del sistema (UTC internamente)
+    struct timeval tv = { .tv_sec = epoch, .tv_usec = 0 };
+    settimeofday(&tv, NULL);
+
+    // 2) RTC de hardware en hora LOCAL (igual que la sincronización SNTP)
+    struct tm local;
+    localtime_r(&epoch, &local);
+    if (rtc_rv3028_set_time(&local) != ESP_OK)
+        ESP_LOGW(TAG, "set_datetime: no se pudo actualizar el RTC");
+
+    s_time_valid = true;
+    ESP_LOGI(TAG, "Reloj ajustado manualmente: %04d-%02d-%02d %02d:%02d:%02d",
+             year, month, day, hour, minute, second);
+
+    // Avisa a MQTT que ya hay hora válida (certificados TLS necesitan hora)
+    transport_mqtt_on_time_ready();
+    return true;
 }

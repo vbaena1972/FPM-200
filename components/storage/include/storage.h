@@ -55,10 +55,11 @@ extern "C"
         {
             char info_text[32]; // 20-25 chars
             char datetime[32];  // ISO8601 o epoch string
-            char timezone[32];  // "America/Bogota"
+            char timezone[48];  // "America/Bogota" (48 = ContractLimits.timezone+1)
             char lang[3];       // "es" | "en"
             int brightness;     // brillo de pantalla 10..100 (%)
             char theme[8];      // dark | light
+            // NOTE: timezone[48] alineado con ContractLimits.timezone (app) = 47 chars.
             int dim_minutes;    // 0, 1, 5 o 10; 0 = nunca
 
             // Identidad fija del Hardware (Solo lectura desde el exterior)
@@ -100,7 +101,8 @@ extern "C"
             char flow_unit[8];     // "lpm"|"slpm"|"nlpm"|"sccm"
             char gas_type[16];     // "o2"|"air_med"|...
             char color_code[8];    // "iso"|"nfpa"
-            float flow_fullscale_lpm; // fondo de escala del eje de flujo en main (L/min)
+            float flow_fullscale_lpm;    // fondo de escala del eje de flujo en main (L/min)
+            float pressure_fullscale_kpa; // fondo de escala del canal de presión (kPa)
             struct
             {
                 float pressure_offset, pressure_scale;
@@ -124,7 +126,7 @@ extern "C"
         {
             bool enabled;
             char ssid[33];
-            char password[33];
+            char password[65]; // 65 = ContractLimits.wifiPassword+1 (WPA2 hasta 63 chars)
             char ip_mode[8]; // "dhcp"|"static"
             char ip[16], mask[16], gw[16], dns1[16], dns2[16];
         } wifi;
@@ -135,7 +137,7 @@ extern "C"
             bool enabled;
             char ip_mode[8];
             char ip[16], mask[16], gw[16], dns1[16], dns2[16];
-            char hostname[33];
+            char hostname[40]; // 40 = ContractLimits.hostname+1
         } eth;
 
         // BLUETOOTH (placeholder mesh+classic)
@@ -158,7 +160,7 @@ extern "C"
             } mesh;
             struct
             {
-                char name[24];
+                char name[32]; // 32 = ContractLimits.bluetoothName+1
                 char pin[8];
                 app_bt_sec_mode_t sec_mode; // JW o PASSKEY
             } legacy;

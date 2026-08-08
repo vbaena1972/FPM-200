@@ -28,7 +28,7 @@ static bool s_link_up = false;
 typedef struct
 {
     bool dhcp;
-    char hostname[33];
+    char hostname[40]; // alineado con AppConfig.eth.hostname
     char ip[16], mask[16], gw[16], dns1[16], dns2[16];
 } eth_view_t;
 

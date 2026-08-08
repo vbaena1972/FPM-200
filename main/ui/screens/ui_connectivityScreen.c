@@ -29,7 +29,7 @@ typedef struct {
     bool eth_on, eth_up;
     char eth_ip[16];
     bool ble_on, ble_conn, ble_adv;
-    char ble_name[24];
+    char ble_name[32];
     bool cloud_on, cloud_conn;
     char broker[128];
 } conn_status_t;

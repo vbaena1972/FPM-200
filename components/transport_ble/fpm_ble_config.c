@@ -121,6 +121,9 @@ char *fpm_ble_info_json(void)
     cJSON_AddStringToObject(o, "fw", c ? c->general.fw_version : "");
     cJSON_AddStringToObject(o, "hostname", c ? c->eth.hostname : "");
     cJSON_AddNumberToObject(o, "channels", 2);   /* Axira: presión + flujo */
+    /* La app lee `enabled_channel_count` (ble_provisioning_screen.dart); se manda
+     * junto con `channels` por compatibilidad. */
+    cJSON_AddNumberToObject(o, "enabled_channel_count", 2);
     char *s = cJSON_PrintUnformatted(o);
     cJSON_Delete(o);
     return s;
@@ -186,6 +189,57 @@ static cJSON *build_channel_obj(const AppConfig *c, int id)
         cJSON_AddNumberToObject(am, "lo_limit", 0);
         cJSON_AddBoolToObject(am, "hi_enabled", c->sensors.alarm_limits.flow_high_enabled);
         cJSON_AddNumberToObject(am, "hi_limit", flow_to_disp(c->sensors.alarm_limits.flow_high_limit, c->sensors.flow_unit));
+    }
+    return ch;
+}
+
+/* Igual que build_channel_obj pero en esquema PLANO (BleChannelConfig.fromJson de
+ * la app): scale/alarma a nivel RAÍZ (range_min/range_max, lo_* / hi_*, hysteresis,
+ * delay_s, priority) y solo `cal` anidado. Es el payload de la característica de
+ * canal dedicada (1006). La escala se emite válida (min<max) usando los fondos de
+ * escala configurables para que la validación de la app (rangeMin<rangeMax) pase. */
+static cJSON *build_channel_flat(const AppConfig *c, int id)
+{
+    cJSON *ch = cJSON_CreateObject();
+    cJSON_AddNumberToObject(ch, "id", id);
+    cJSON_AddBoolToObject(ch, "enabled", true);
+    cJSON_AddStringToObject(ch, "location", c->general.info_text);
+    cJSON *cal = cJSON_AddObjectToObject(ch, "cal");   /* Axira: fija */
+    cJSON_AddNumberToObject(cal, "offset_ma", 0);
+    cJSON_AddNumberToObject(cal, "gain", 1);
+    cJSON_AddStringToObject(cal, "date", "");
+    cJSON_AddNumberToObject(ch, "hysteresis", 1);
+    cJSON_AddNumberToObject(ch, "delay_s", 0);
+    cJSON_AddNumberToObject(ch, "priority", 0);
+
+    if (id == 1) { /* Presión */
+        uint32_t gcol; bool gdark; gas_to_color(c->sensors.gas_type, &gcol, &gdark);
+        bool p_dec = strcmp(c->sensors.pressure_unit, "bar") == 0 || strcmp(c->sensors.pressure_unit, "mpa") == 0;
+        cJSON_AddStringToObject(ch, "name", "Presi\xC3\xB3n");
+        cJSON_AddNumberToObject(ch, "sensor_type", 0);
+        cJSON_AddStringToObject(ch, "unit", press_unit_app(c->sensors.pressure_unit));
+        cJSON_AddNumberToObject(ch, "gas_color", gcol);
+        cJSON_AddBoolToObject(ch, "dark_text", gdark);
+        cJSON_AddNumberToObject(ch, "decimals", p_dec ? 1 : 0);
+        cJSON_AddNumberToObject(ch, "range_min", 0);
+        cJSON_AddNumberToObject(ch, "range_max", press_to_disp(c->sensors.pressure_fullscale_kpa, c->sensors.pressure_unit));
+        cJSON_AddBoolToObject(ch, "lo_enabled", c->sensors.alarm_limits.pressure_min_enabled);
+        cJSON_AddNumberToObject(ch, "lo_limit", press_to_disp(c->sensors.alarm_limits.pressure_min, c->sensors.pressure_unit));
+        cJSON_AddBoolToObject(ch, "hi_enabled", c->sensors.alarm_limits.pressure_max_enabled);
+        cJSON_AddNumberToObject(ch, "hi_limit", press_to_disp(c->sensors.alarm_limits.pressure_max, c->sensors.pressure_unit));
+    } else { /* Flujo */
+        cJSON_AddStringToObject(ch, "name", "Flujo");
+        cJSON_AddNumberToObject(ch, "sensor_type", 4);
+        cJSON_AddStringToObject(ch, "unit", flow_unit_app(c->sensors.flow_unit));
+        cJSON_AddNumberToObject(ch, "gas_color", 0x0f6e56);
+        cJSON_AddBoolToObject(ch, "dark_text", false);
+        cJSON_AddNumberToObject(ch, "decimals", 0);
+        cJSON_AddNumberToObject(ch, "range_min", 0);
+        cJSON_AddNumberToObject(ch, "range_max", flow_to_disp(c->sensors.flow_fullscale_lpm, c->sensors.flow_unit));
+        cJSON_AddBoolToObject(ch, "lo_enabled", false);
+        cJSON_AddNumberToObject(ch, "lo_limit", 0);
+        cJSON_AddBoolToObject(ch, "hi_enabled", c->sensors.alarm_limits.flow_high_enabled);
+        cJSON_AddNumberToObject(ch, "hi_limit", flow_to_disp(c->sensors.alarm_limits.flow_high_limit, c->sensors.flow_unit));
     }
     return ch;
 }
@@ -333,12 +387,18 @@ static void apply_netif(const cJSON *n, bool *en, char *ip_mode, size_t im_cap,
     cpy(dns1, ip_cap, jstr(n, "dns", dns1));
 }
 
-/* Aplica un ChannelConfig (esquema app) al AppConfig: id 1 = Presión (unidad,
- * gas, límites), id 2 = Flujo (unidad, límite alto). Ignora scale/cal (Axira fija). */
+/* Aplica un ChannelConfig al AppConfig: id 1 = Presión (unidad, gas, límites),
+ * id 2 = Flujo (unidad, límite alto). Ignora scale/cal (Axira fija).
+ * Acepta AMBOS esquemas de la app:
+ *   - ANIDADO (documento de config completa, ChannelConfig.toJson): alarma en "alarm".
+ *   - PLANO (característica de canal dedicada, BleChannelConfig.toJson): alarma en la raíz.
+ * Por eso la fuente de los campos de alarma es el objeto "alarm" si existe, o el
+ * propio objeto del canal cuando vienen a nivel raíz. */
 static void apply_channel_obj(AppConfig *c, const cJSON *ch)
 {
     int id = (int)jnum(ch, "id", 0);
-    const cJSON *am = cJSON_GetObjectItemCaseSensitive(ch, "alarm");
+    const cJSON *nested = cJSON_GetObjectItemCaseSensitive(ch, "alarm");
+    const cJSON *am = nested ? nested : ch;
     if (id == 1) { /* Presión */
         char u[8]; press_unit_fpm(jstr(ch, "unit", c->sensors.pressure_unit), u, sizeof(u));
         cpy(c->sensors.pressure_unit, sizeof(c->sensors.pressure_unit), u);
@@ -361,11 +421,24 @@ static void apply_channel_obj(AppConfig *c, const cJSON *ch)
     }
 }
 
+/* R1 (concurrencia): en vez de mutar el snapshot vivo en sitio —que la tarea LVGL
+ * puede leer a medio escribir (torn read)—, los aplicadores trabajan sobre una
+ * COPIA en heap y solo al final persisten + recargan el snapshot de una vez
+ * (appcfg_cache_reload hace un único memcpy). Reduce la ventana de carrera al
+ * memcpy de reload. El usuario debe liberar con free(). */
+static AppConfig *cfg_dup(void)
+{
+    AppConfig *c = malloc(sizeof(AppConfig));
+    if (!c) return NULL;
+    if (appcfg_cache_get(c) != ESP_OK) { free(c); return NULL; }
+    return c;
+}
+
 bool fpm_ble_config_apply_json(const char *json)
 {
     cJSON *r = cJSON_Parse(json);
     if (!r) return false;
-    AppConfig *c = appcfg_cache_peek();
+    AppConfig *c = cfg_dup();
     if (!c) { cJSON_Delete(r); return false; }
 
     const cJSON *disp = cJSON_GetObjectItemCaseSensitive(r, "display");
@@ -429,6 +502,7 @@ bool fpm_ble_config_apply_json(const char *json)
     cJSON_Delete(r);
     (void)appcfg_save(c);       /* persiste NVS */
     (void)appcfg_cache_reload(); /* refresca snapshot (dashboard/alarmas lo ven) */
+    free(c);
     return true;
 }
 
@@ -457,7 +531,7 @@ bool fpm_ble_wifi_apply_json(const char *json)
 {
     cJSON *o = cJSON_Parse(json);
     if (!o) return false;
-    AppConfig *c = appcfg_cache_peek();
+    AppConfig *c = cfg_dup();
     if (!c) { cJSON_Delete(o); return false; }
     c->wifi.enabled = jbool(o, "enabled", c->wifi.enabled);
     c->eth.enabled  = jbool(o, "ethernet_enabled", c->eth.enabled);
@@ -474,6 +548,7 @@ bool fpm_ble_wifi_apply_json(const char *json)
     cJSON_Delete(o);
     (void)appcfg_save(c);
     (void)appcfg_cache_reload();
+    free(c);
     return true;
 }
 
@@ -499,7 +574,7 @@ bool fpm_ble_cloud_apply_json(const char *json)
 {
     cJSON *o = cJSON_Parse(json);
     if (!o) return false;
-    AppConfig *c = appcfg_cache_peek();
+    AppConfig *c = cfg_dup();
     if (!c) { cJSON_Delete(o); return false; }
     /* escritura parcial (la app manda enabled/endpoint/port y luego thing/client/topic) */
     if (cJSON_HasObjectItem(o, "enabled"))    c->cloud.enabled = jbool(o, "enabled", c->cloud.enabled);
@@ -510,6 +585,7 @@ bool fpm_ble_cloud_apply_json(const char *json)
     cJSON_Delete(o);
     (void)appcfg_save(c);
     (void)appcfg_cache_reload();
+    free(c);
     return true;
 }
 
@@ -517,7 +593,7 @@ char *fpm_ble_channel_read_json(int sel)
 {
     const AppConfig *c = appcfg_cache_peek();
     if (!c) return NULL;
-    cJSON *ch = build_channel_obj(c, sel == 1 ? 2 : 1);   /* sel 0=Presión(id1), 1=Flujo(id2) */
+    cJSON *ch = build_channel_flat(c, sel == 1 ? 2 : 1);   /* sel 0=Presión(id1), 1=Flujo(id2) */
     char *s = cJSON_PrintUnformatted(ch);
     cJSON_Delete(ch);
     return s;
@@ -527,12 +603,13 @@ bool fpm_ble_channel_apply_json(const char *json)
 {
     cJSON *o = cJSON_Parse(json);
     if (!o) return false;
-    AppConfig *c = appcfg_cache_peek();
+    AppConfig *c = cfg_dup();
     if (!c) { cJSON_Delete(o); return false; }
     apply_channel_obj(c, o);
     cJSON_Delete(o);
     (void)appcfg_save(c);
     (void)appcfg_cache_reload();
+    free(c);
     return true;
 }
 
@@ -555,7 +632,7 @@ bool fpm_ble_user_op_json(const char *json)
 {
     cJSON *root = cJSON_Parse(json);
     if (!root) return false;
-    AppConfig *c = appcfg_cache_peek();
+    AppConfig *c = cfg_dup();
     if (!c) { cJSON_Delete(root); return false; }
 
     const char *op = jstr(root, "op", "");
@@ -605,5 +682,39 @@ bool fpm_ble_user_op_json(const char *json)
 
     cJSON_Delete(root);
     if (ok) { (void)appcfg_save(c); (void)appcfg_cache_reload(); }
+    free(c);
     return ok;
+}
+
+/* Callback de ajuste de reloj. Se registra desde main (que sí depende de
+ * network_core/time_mgr) para evitar una dependencia circular
+ * transport_ble <-> network_core. */
+static fpm_ble_clock_cb_t s_clock_cb = NULL;
+void fpm_ble_config_set_clock_cb(fpm_ble_clock_cb_t cb) { s_clock_cb = cb; }
+
+/* Ajuste de reloj por BLE (op de control `set_clock`). La app manda componentes
+ * de hora LOCAL: {op,year,month,day,hour,minute} (segundos opcionales, precisión
+ * al minuto como la HMI). Delega en el callback registrado (main -> time_mgr).
+ * Devuelve false si faltan campos, quedan fuera de rango o no hay callback. */
+bool fpm_ble_set_clock_json(const char *json)
+{
+    cJSON *o = cJSON_Parse(json);
+    if (!o) return false;
+    int year   = (int)jnum(o, "year", 0);
+    int month  = (int)jnum(o, "month", 0);
+    int day    = (int)jnum(o, "day", 0);
+    int hour   = (int)jnum(o, "hour", -1);
+    int minute = (int)jnum(o, "minute", -1);
+    int second = (int)jnum(o, "second", 0);
+    cJSON_Delete(o);
+
+    if (year < 2024 || year > 2099) return false;
+    if (month < 1  || month > 12)   return false;
+    if (day < 1    || day > 31)     return false;
+    if (hour < 0   || hour > 23)    return false;
+    if (minute < 0 || minute > 59)  return false;
+    if (second < 0 || second > 59)  return false;
+    if (!s_clock_cb) return false;
+
+    return s_clock_cb(year, month, day, hour, minute, second);
 }
