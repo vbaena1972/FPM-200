@@ -22,6 +22,7 @@ static bool s_prev_eth_link = false;
 static bool s_prev_wifi_link = false;
 static int  s_prev_wifi_rssi = 0;
 static bool s_prev_ble_conn = false;
+static bool s_prev_ble_adv = false;
 static bool s_prev_cloud_conn = false;
 
 static inline void set_visible(lv_obj_t *o, bool on)
@@ -46,6 +47,7 @@ static void statusbar_timer_cb(lv_timer_t *t)
     (void)wifi_mgr_get_netinfo(&wi);
     bool eth = eth_mgr_is_up();
     bool ble = transport_ble_is_connected();
+    bool ble_adv = transport_ble_is_advertising();
     extern bool cloud_mgr_connected(void);
     bool cloud = cloud_mgr_connected();
 
@@ -54,6 +56,7 @@ static void statusbar_timer_cb(lv_timer_t *t)
         (wi.connected != s_prev_wifi_link) ||
         (wi.rssi_dbm != s_prev_wifi_rssi) ||
         (ble != s_prev_ble_conn) ||
+        (ble_adv != s_prev_ble_adv) ||
         (cloud != s_prev_cloud_conn);
 
     if (!changed && !s_vis_wifi && !s_vis_eth && !s_vis_bt && !s_vis_cloud)
@@ -63,12 +66,17 @@ static void statusbar_timer_cb(lv_timer_t *t)
     s_prev_wifi_link = wi.connected;
     s_prev_wifi_rssi = wi.rssi_dbm;
     s_prev_ble_conn = ble;
+    s_prev_ble_adv = ble_adv;
     s_prev_cloud_conn = cloud;
 
-    /* === BLUETOOTH === */
-    set_visible(ui_bluetoothStatusMain, s_vis_bt);
-    if (s_vis_bt)
-        set_glyph(ui_bluetoothStatusMain, UI_SYM_BLUETOOTH, ble ? UI_C_BLUE : UI_C_TEXT_MUTED);
+    /* === BLUETOOTH ===
+     * Visible si está configurado, anunciando o conectado (estado vivo). Verde =
+     * conectado, azul = anunciando, atenuado = inactivo. */
+    bool bt_show = s_vis_bt || ble_adv || ble;
+    set_visible(ui_bluetoothStatusMain, bt_show);
+    if (bt_show)
+        set_glyph(ui_bluetoothStatusMain, UI_SYM_BLUETOOTH,
+                  ble ? UI_C_OK : (ble_adv ? UI_C_BLUE : UI_C_TEXT_MUTED));
 
     /* === ETHERNET === */
     set_visible(ui_ethernetStatusMain, s_vis_eth);

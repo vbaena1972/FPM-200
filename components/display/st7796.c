@@ -83,10 +83,16 @@ lv_display_t *bsp_display_start(void)
             .mirror_y = false,
         },
         .flags = {
-            //.buff_dma = true, 
-            //.buff_spiram = false, 
-            .buff_dma = true, 
-            .buff_spiram = true, 
+            /* Draw buffer en DRAM interna DMA-capable (no en PSRAM).
+             * Con el buffer en PSRAM sobre un panel SPI, el driver debe
+             * reservar un "priv TX buffer" interno por cada transferencia;
+             * si la RAM interna se agota (p. ej. al entrar a Configuración
+             * con AWS/TLS activo) esa reserva falla, el flush no completa y
+             * taskLVGL se cuelga en wait_for_flushing -> task watchdog.
+             * En DRAM interna el DMA lee directo el buffer: sin reserva por
+             * frame y sin ese modo de fallo. Se reserva una sola vez al boot. */
+            .buff_dma = true,
+            .buff_spiram = false,
             .swap_bytes = 1}};
 
     lvgl_port_cfg_t lvgl_cfg = ESP_LVGL_PORT_INIT_CONFIG();

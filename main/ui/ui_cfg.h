@@ -24,8 +24,21 @@ void  ui_cfg_press_fmt(char *buf, size_t cap, float disp); /* decimales según u
 /* --- Setters directos (guardan en NVS y refrescan la pantalla principal) --- */
 void ui_cfg_set_pressure_unit(const char *unit);  /* "psi"|"bar"|"kpa"|"mpa" */
 void ui_cfg_set_flow_unit(const char *unit);      /* "lpm"|"sccm"|"m3h"|...  */
-void ui_cfg_set_gas(const char *gas_key);         /* "o2"|"air_med"|"n2o"|"vac" */
+void ui_cfg_set_gas(const char *gas_key);         /* "o2"|"n2o"|"co2"|... */
 void ui_cfg_set_lang(const char *lang);           /* "es"|"en" */
+
+/* --- Catálogo de gases (lista corta: medicinales/industriales con costo) ---
+ * Excluye aires (medicinal/instrumental/comprimido) y vacíos. Color por norma. */
+int         ui_cfg_gas_count(void);
+const char *ui_cfg_gas_name(int idx);             /* "Oxígeno" */
+const char *ui_cfg_gas_key(int idx);              /* "o2" */
+int         ui_cfg_gas_index(void);               /* índice del gas configurado (>=0) */
+uint32_t    ui_cfg_gas_color_at(int idx, bool iso, bool *dark); /* color NFPA/ISO */
+
+/* Norma de color del gas: "nfpa"|"iso" (campo sensors.color_code). */
+const char *ui_cfg_color_code(void);
+void        ui_cfg_set_color_code(const char *code);
+bool        ui_cfg_color_is_iso(void);
 
 /* Brillo de pantalla (10..100 %).
  * preview: aplica al backlight sin persistir (para arrastre del slider).

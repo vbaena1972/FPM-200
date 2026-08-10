@@ -174,26 +174,18 @@ void ui_connectivityScreen_screen_init(void)
     ui_label(cloud, st.cloud_conn ? _t("Publicando telemetría · QoS 1")
                                   : _t("Reintentando conexión…"), UI_FONT_XS, UI_C_TEXT_MUTED);
 
-    /* ---- Bluetooth LE ---- */
-    const char *ble_status = !st.ble_on ? _t("Desactivado")
-                             : st.ble_conn ? _t("Emparejado") : st.ble_adv ? _t("Anunciando")
-                                                                           : _t("Inactivo");
-    uint32_t ble_col = !st.ble_on ? UI_C_TEXT_MUTED : st.ble_conn ? UI_C_OK : UI_C_BLUE;
-    lv_obj_t *ble = conn_card(grid, UI_SYM_BLUETOOTH, ble_col,
-                              st.ble_on ? UI_C_BLUE : UI_C_BORDER,
-                              "Bluetooth LE", ble_status, ble_col, 0, 1, ui_open_net_ble_cb);
-    ui_label(ble, st.ble_name[0] ? st.ble_name : _t("Equipo sin nombre"), UI_FONT_SM, 0xcfd3d9);
-    lv_obj_t *sp2 = ui_box(ble); lv_obj_set_flex_grow(sp2, 1); lv_obj_set_width(sp2, LV_PCT(100));
-    ui_label(ble, st.ble_conn ? _t("App de servicio conectada")
-                              : _t("Sin dispositivo emparejado"), UI_FONT_XS, UI_C_TEXT_MUTED);
+    /* ---- Bluetooth LE ----
+     * El acceso a BLE ("Configurar por app") se movió al menú del dashboard
+     * (raíz) — ya no vive dentro de Configuración → Conectividad. */
 
-    /* ---- Ethernet ---- */
+    /* ---- Ethernet ---- (ocupa toda la fila inferior tras retirar la tarjeta BLE) */
     const char *eth_status = !st.eth_on ? _t("Desactivado")
                              : st.eth_up ? _t("Enlace activo") : _t("Sin cable");
     uint32_t eth_col = !st.eth_on ? UI_C_TEXT_MUTED : st.eth_up ? UI_C_OK : UI_C_TEXT_MUTED;
     lv_obj_t *eth = conn_card(grid, UI_SYM_NETWORK, eth_col,
                               st.eth_up ? UI_C_OK_BORDER : UI_C_BORDER,
-                              "Ethernet", eth_status, eth_col, 1, 1, ui_open_net_eth_cb);
+                              "Ethernet", eth_status, eth_col, 0, 1, ui_open_net_eth_cb);
+    lv_obj_set_grid_cell(eth, LV_GRID_ALIGN_STRETCH, 0, 2, LV_GRID_ALIGN_STRETCH, 1, 1);
     ui_label(eth, _t("Respaldo cableado (failover)"), UI_FONT_SM, UI_C_TEXT_3);
     lv_obj_t *sp3 = ui_box(eth); lv_obj_set_flex_grow(sp3, 1); lv_obj_set_width(sp3, LV_PCT(100));
     ui_label(eth, st.eth_up ? (st.eth_ip[0] ? st.eth_ip : "RJ45 · 100 Mbps") : _t("Inactivo"),

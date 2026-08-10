@@ -19,6 +19,16 @@ CONFIG_BT_NIMBLE_ENABLED=y
 CONFIG_BT_NIMBLE_MEM_ALLOC_MODE_EXTERNAL=y
 CONFIG_BT_NIMBLE_MAX_CONNECTIONS=1
 CONFIG_BT_NIMBLE_CRYPTO_STACK_MBEDTLS=y
+# QR real de emparejamiento en la pantalla "Configurar por app" (ui_bleAppScreen).
+CONFIG_LV_USE_QRCODE=y
+# La memoria de objetos de LVGL va a PSRAM (allocator custom en main/lv_port_mem.c).
+# Evita agotar la RAM interna al construir pantallas (crashes por OOM en config).
+# CONFIG_LV_USE_CLIB_MALLOC is not set
+CONFIG_LV_USE_CUSTOM_MALLOC=y
+# El handler de escritura GATT (chr_access) corre en la tarea nimble_host y
+# hace cJSON_Parse + appcfg_save (cJSON_Print + NVS). Con 5120 desbordaba el
+# canario al guardar config desde la app. 8192 da margen para parse+save.
+CONFIG_BT_NIMBLE_HOST_TASK_STACK_SIZE=8192
 CONFIG_BT_NIMBLE_TRANSPORT_ACL_FROM_LL_COUNT=12
 CONFIG_BT_NIMBLE_EXT_SCAN=y
 CONFIG_BLE_MESH=y
@@ -58,6 +68,11 @@ CONFIG_LWIP_TCP_OOSEQ_MAX_PBUFS=4
 CONFIG_MBEDTLS_THREADING_C=n
 CONFIG_MBEDTLS_SSL_KEEP_PEER_CERTIFICATE=y
 CONFIG_MBEDTLS_LARGE_KEY_SOFTWARE_MPI=n
+# Alojar los buffers de mbedTLS (TLS IN=16KB / OUT=4KB + handshake) en PSRAM,
+# no en DRAM interna. Evita agotar la RAM interna al conectar a AWS IoT, que
+# dejaba sin memoria al buffer DMA del LCD y colgaba la HMI en Configuracion.
+# CONFIG_MBEDTLS_INTERNAL_MEM_ALLOC is not set
+CONFIG_MBEDTLS_EXTERNAL_MEM_ALLOC=y
 CONFIG_ESP_PROTOCOMM_SUPPORT_SECURITY_VERSION_0=y
 CONFIG_ESP_PROTOCOMM_SUPPORT_SECURITY_VERSION_1=y
 CONFIG_VFS_SUPPORT_TERMIOS=y

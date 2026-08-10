@@ -125,7 +125,10 @@ static int chr_access(uint16_t conn, uint16_t attr_handle,
     uint16_t length = OS_MBUF_PKTLEN(ctxt->om);
     if (length == 0 || length >= BLE_JSON_MAX)
         return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
-    char text[BLE_JSON_MAX];
+    /* Estático (no en pila): chr_access sólo corre en la tarea nimble_host, que
+     * procesa las operaciones ATT en serie, así que nunca es reentrante. Evita
+     * gastar 640 B de la pila de nimble_host, ya ajustada por cJSON+appcfg_save. */
+    static char text[BLE_JSON_MAX];
     uint16_t copied = 0;
     if (ble_hs_mbuf_to_flat(ctxt->om, text, sizeof(text) - 1, &copied) != 0)
         return BLE_ATT_ERR_UNLIKELY;
@@ -219,6 +222,10 @@ static int gap_event(struct ble_gap_event *ev, void *arg)
         free_config_buffer();      /* libera el snapshot de config_read */
         s_finish_after_disc = false;
         ui_statusbar_request_refresh();
+        /* Re-anunciamos para que la app pueda reconectar. El "volver al dashboard"
+         * tras una desconexión iniciada por la app lo maneja el tick de la pantalla
+         * BLE (corre en la tarea LVGL): detecta que estábamos conectados y ahora no,
+         * y navega de forma segura. Aquí (tarea NimBLE) NO tocamos LVGL. */
         if (s_adv_on && !ble_gap_adv_active())
             ble_start_adv();
         return 0;

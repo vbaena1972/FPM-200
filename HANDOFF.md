@@ -6,6 +6,22 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 
 ---
 
+## Actualización 2026-08-09 (estabilización en HW + app)
+
+Sesión larga de depuración en hardware. **Resueltos varios crashes recurrentes; causa raíz común: agotamiento de RAM interna.**
+
+**Firmware (este repo):**
+- **Fix de raíz de los cuelgues de `taskLVGL`:** la memoria de objetos de LVGL vivía en RAM interna (`CONFIG_LV_USE_CLIB_MALLOC` + `SPIRAM_USE_CAPS_ALLOC`); se agotaba tras el ciclo config/reconexión y `lv_malloc` fallaba → `LV_USE_ASSERT_MALLOC` en bucle → watchdog (al abrir config, "Audio de alarmas"/sensorDiag, etc.). **Solución:** `CONFIG_LV_USE_CUSTOM_MALLOC=y` + `main/lv_port_mem.c` enruta LVGL a **PSRAM** (con `-Wl,-u,lv_malloc_core` en `main/CMakeLists.txt` para forzar el enlace del objeto). Supersede el viejo intento "CLIB heap_caps".
+- Crash al **guardar** config por BLE: stack de `nimble_host` 5120→**8192** + `text[]` estático (`transport_ble.c`).
+- Pantalla **"Configurar por app"** (`ui_bleAppScreen.c`): QR real de emparejamiento (`medguard://pair?...`, `LV_USE_QRCODE`), indicador vivo Anunciando/Conectado (badge cyan arriba-dcha), cuenta atrás de auto-apagado (120 s), botón "Apagar Bluetooth", y **al desconectar la app vuelve al dashboard** (lo maneja el tick de la pantalla, NO un `lv_async_call` desde la tarea NimBLE). El statusbar del dashboard refleja BLE vivo.
+- Pantalla **"Sensores"** (`ui_sensorEditScreen.c`): unidades completas (psi/bar/kPa/MPa · L/min/m³/h/SCCM) + **dropdown de gas** (catálogo corto en `ui_cfg`, gases con costo) + **norma NFPA/ISO** (`sensors.color_code`). El banner de gas del dashboard usa ese catálogo.
+
+**App Flutter (`ClaudeHMI/mobile/medguard_config`):** detección Axira robusta (`device.name`/`model`/`bleName`/`enabledChannels==2`); el FPM muestra **2 sensores** (no 12 canales), **1 relé**, sin Modbus; editor de sensor sin "Tipo de sensor", sin "Calibración", sin "Escala 4-20 mA" (rango fijo → va en la EEPROM del módulo de sensado).
+
+**Pendiente de validar en HW:** el último cambio (pantalla de Sensores) no se compiló en el entorno de edición; el usuario reflashea.
+
+---
+
 ## 0. Contexto
 
 - **Proyecto:** `ClaudeHMI-FW` = firmware del **medidor de flujo/presión** (FPM-200 / "Axira"),

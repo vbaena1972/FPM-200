@@ -157,6 +157,18 @@ void ui_destroy(void)
 /* ============ Dispatch de navegación ============ */
 void ui_open_general_cb(lv_event_t *e)        { (void)e; ui_nav_load(get_general()); }
 void ui_open_general_authenticated_cb(lv_event_t *e) { (void)e; ui_nav_replace(get_general()); }
+
+/* Destino tras login para el acceso "Bluetooth" del menú raíz: reemplaza la
+ * pantalla de login por "Configurar por app" (BLE), de modo que "volver" regresa
+ * al dashboard y no al teclado de PIN. */
+static void ui_after_login_bleapp(void) { ui_nav_replace(get_bleapp()); }
+void ui_open_config_ble_cb(lv_event_t *e)
+{
+    (void)e;
+    lv_obj_t *login = fresh_login();                 /* screen_init resetea el destino */
+    ui_login_set_destination(ui_after_login_bleapp); /* ...y aquí lo fijamos para esta apertura */
+    ui_nav_load(login);
+}
 void ui_open_general_simple_cb(lv_event_t *e) { (void)e; ui_nav_load(get_general_simple()); }
 void ui_open_datetime_cb(lv_event_t *e)       { (void)e; ui_nav_load(get_datetime()); }
 void ui_open_info_cb(lv_event_t *e)           { (void)e; ui_nav_load(get_info()); }

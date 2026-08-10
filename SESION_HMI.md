@@ -14,6 +14,13 @@ borrando todo rastro anterior e integrándola con el firmware existente.
 login por rol, fecha/hora dedicada y gestión de usuarios agregadas después). Falta pulido y algunos ítems de
 backend (abajo).** Validado visualmente en un simulador de PC.
 
+> **Actualización 2026-08-09:** sesión de estabilización en HW. Causa raíz de los cuelgues de
+> `taskLVGL` = memoria de LVGL en RAM interna (se agotaba); movida a **PSRAM**
+> (`CONFIG_LV_USE_CUSTOM_MALLOC` + `main/lv_port_mem.c`). Además: fix del guardado BLE (stack
+> `nimble_host` 8192), pantalla "Configurar por app" con QR real/timer/indicador/apagado, y
+> pantalla "Sensores" con unidades completas + dropdown de gas + norma NFPA/ISO. App: FPM
+> diferenciado (2 sensores, 1 relé, sin Modbus, editor recortado). Ver `HANDOFF.md`.
+
 ---
 
 ## 2. Repositorios (GitHub, cuenta vbaena1972)

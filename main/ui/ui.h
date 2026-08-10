@@ -54,6 +54,7 @@ void ui_open_connectivity_cb(lv_event_t *e);
 void ui_open_bleapp_cb(lv_event_t *e);
 void ui_open_pin_cb(lv_event_t *e);
 void ui_open_config_pin_cb(lv_event_t *e);
+void ui_open_config_ble_cb(lv_event_t *e);    /* menú raíz: login -> "Configurar por app" (BLE) */
 void ui_open_login_cb(lv_event_t *e);
 void ui_open_users_cb(lv_event_t *e);
 void ui_open_useredit_cb(lv_event_t *e);

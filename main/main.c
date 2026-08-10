@@ -559,8 +559,10 @@ static void screen_init_task(void *arg)
 /* La app envía la op "finish" por BLE (corre en la tarea host de NimBLE). Diferimos
  * a la tarea LVGL: volver al dashboard descarga la pantalla "Configurar por app",
  * lo que dispara config_mode_exit() (restaura Wi-Fi/AWS). */
-static void ble_finish_async(void *arg) { (void)arg; ui_nav_show_root(); }
-static void on_ble_finish(void) { lv_async_call(ble_finish_async, NULL); }
+/* La app puede mandar la op "finish" (corre en la tarea host de NimBLE). NO tocamos
+ * LVGL desde aquí (sería inseguro sin el lock): el cierre de la pantalla y el retorno
+ * al dashboard los maneja el tick de ui_bleAppScreen (tarea LVGL) al ver la desconexión. */
+static void on_ble_finish(void) { ESP_LOGW("app", "op finish recibida (la pantalla BLE cierra al desconectar)"); }
 
 /* La app ajusta el reloj por BLE (op "set_clock"). Delegamos en time_mgr, que fija
  * la hora del sistema + el RTC de hardware. Evita acoplar transport_ble a network_core. */

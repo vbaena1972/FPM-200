@@ -50,6 +50,59 @@ void ui_cfg_set_gas(const char *gas_key)
     save_and_refresh(c);
 }
 
+/* ---------- Catálogo de gases (lista corta: medicinales/industriales con costo)
+ * Colores NFPA 99 / ISO portados de GASES[] de la app. Excluye aires y vacíos. */
+typedef struct {
+    const char *key; const char *name;
+    uint32_t nfpa; uint32_t iso; bool nfpa_dark; bool iso_dark;
+} ui_gas_t;
+static const ui_gas_t s_gas_cat[] = {
+    { "o2",   "Oxígeno",            0x00843D, 0xf4f4f0, false, true  },
+    { "n2o",  "Óxido nitroso",      0x005EB8, 0x0E294B, false, false },
+    { "co2",  "Dióxido de carbono", 0x6B7280, 0x7D7F7D, false, true  },
+    { "n2",   "Nitrógeno",          0x14171c, 0x14171c, false, false },
+    { "ar",   "Argón",              0x287233, 0x287233, false, false },
+    { "he",   "Helio",              0x7A4A12, 0x6F4F28, false, false },
+    { "h2",   "Hidrógeno",          0xAF2B1E, 0xAF2B1E, false, false },
+    { "c2h2", "Acetileno",          0x6D342D, 0x6D342D, false, false },
+    { "xe",   "Xenón",              0x57A639, 0x57A639, true,  true  },
+};
+
+int ui_cfg_gas_count(void) { return (int)(sizeof(s_gas_cat) / sizeof(s_gas_cat[0])); }
+const char *ui_cfg_gas_name(int i) { return (i >= 0 && i < ui_cfg_gas_count()) ? s_gas_cat[i].name : ""; }
+const char *ui_cfg_gas_key(int i)  { return (i >= 0 && i < ui_cfg_gas_count()) ? s_gas_cat[i].key : "o2"; }
+
+int ui_cfg_gas_index(void)
+{
+    const char *g = ui_cfg_gas();
+    for (int i = 0; i < ui_cfg_gas_count(); i++)
+        if (g && strcmp(g, s_gas_cat[i].key) == 0) return i;
+    return 0;   /* O2 por defecto */
+}
+
+uint32_t ui_cfg_gas_color_at(int i, bool iso, bool *dark)
+{
+    if (i < 0 || i >= ui_cfg_gas_count()) i = 0;
+    if (dark) *dark = iso ? s_gas_cat[i].iso_dark : s_gas_cat[i].nfpa_dark;
+    return iso ? s_gas_cat[i].iso : s_gas_cat[i].nfpa;
+}
+
+const char *ui_cfg_color_code(void)
+{
+    const AppConfig *c = appcfg_cache_peek();
+    return (c && c->sensors.color_code[0]) ? c->sensors.color_code : "nfpa";
+}
+bool ui_cfg_color_is_iso(void) { return strcmp(ui_cfg_color_code(), "iso") == 0; }
+
+void ui_cfg_set_color_code(const char *code)
+{
+    AppConfig *c = appcfg_cache_peek();
+    if (!c || !code) return;
+    set_str(c->sensors.color_code, sizeof(c->sensors.color_code),
+            strcmp(code, "iso") == 0 ? "iso" : "nfpa");
+    save_and_refresh(c);
+}
+
 void ui_cfg_set_lang(const char *lang)
 {
     AppConfig *c = appcfg_cache_peek();

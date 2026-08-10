@@ -2,6 +2,7 @@
 #include "ui_i18n.h"
 #include "ui_widgets.h"
 #include "ui_theme.h"
+#include "ui_cfg.h"
 #include "ui.h"
 #include "alarm_mgr.h"
 #include <stdio.h>
@@ -269,14 +270,14 @@ static void alarm_overlay_open(void);
 static void banner_open_cb(lv_event_t *e) { (void)e; alarm_overlay_open(); }
 static void menu_close(void) { if (s_menu_pop) { lv_obj_delete_async(s_menu_pop); s_menu_pop = NULL; } }
 static void menu_scrim_cb(lv_event_t *e) { (void)e; menu_close(); }
-static void menu_item_cb(lv_event_t *e) { int w=(int)(intptr_t)lv_event_get_user_data(e); menu_close(); if(w==0) ui_open_info_cb(e); else if(w==2) ui_open_config_pin_cb(e); }
+static void menu_item_cb(lv_event_t *e) { int w=(int)(intptr_t)lv_event_get_user_data(e); menu_close(); if(w==0) ui_open_info_cb(e); else if(w==2) ui_open_config_pin_cb(e); else if(w==3) ui_open_config_ble_cb(e); }
 static void menu_add_item(lv_obj_t *p,const char *sym,const char *txt,int w,bool en)
 {
     lv_obj_t *r=ui_box(p); lv_obj_set_size(r,LV_PCT(100),38); lv_obj_set_flex_flow(r,LV_FLEX_FLOW_ROW); lv_obj_set_flex_align(r,LV_FLEX_ALIGN_START,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_CENTER); lv_obj_set_style_pad_hor(r,9,0); lv_obj_set_style_pad_column(r,9,0); lv_obj_set_style_radius(r,7,0); ui_label(r,sym,UI_FONT_SM,en?UI_C_TEXT_3:UI_C_TEXT_MUTED); ui_label(r,txt,UI_FONT_SM,en?UI_C_TEXT:UI_C_TEXT_MUTED); if(en){lv_obj_add_flag(r,LV_OBJ_FLAG_CLICKABLE);lv_obj_add_event_cb(r,menu_item_cb,LV_EVENT_CLICKED,(void*)(intptr_t)w);}
 }
 static void menu_open_cb(lv_event_t *e)
 {
-    (void)e; if(s_menu_pop){menu_close();return;} s_menu_pop=lv_obj_create(lv_layer_top()); lv_obj_remove_style_all(s_menu_pop); lv_obj_set_size(s_menu_pop,LV_PCT(100),LV_PCT(100)); lv_obj_add_flag(s_menu_pop,LV_OBJ_FLAG_CLICKABLE); lv_obj_clear_flag(s_menu_pop,LV_OBJ_FLAG_SCROLLABLE); lv_obj_add_event_cb(s_menu_pop,menu_scrim_cb,LV_EVENT_CLICKED,NULL); lv_obj_t *p=ui_card(s_menu_pop); lv_obj_set_size(p,190,LV_SIZE_CONTENT); lv_obj_set_pos(p,278,46); lv_obj_set_style_pad_all(p,6,0); lv_obj_set_style_pad_row(p,2,0); lv_obj_set_style_shadow_width(p,24,0); lv_obj_set_style_shadow_opa(p,LV_OPA_40,0); lv_obj_set_flex_flow(p,LV_FLEX_FLOW_COLUMN); menu_add_item(p,LV_SYMBOL_EYE_OPEN,"Información",0,true); menu_add_item(p,LV_SYMBOL_FILE,"Logs",1,true); menu_add_item(p,LV_SYMBOL_SETTINGS,"Configuración",2,true);
+    (void)e; if(s_menu_pop){menu_close();return;} s_menu_pop=lv_obj_create(lv_layer_top()); lv_obj_remove_style_all(s_menu_pop); lv_obj_set_size(s_menu_pop,LV_PCT(100),LV_PCT(100)); lv_obj_add_flag(s_menu_pop,LV_OBJ_FLAG_CLICKABLE); lv_obj_clear_flag(s_menu_pop,LV_OBJ_FLAG_SCROLLABLE); lv_obj_add_event_cb(s_menu_pop,menu_scrim_cb,LV_EVENT_CLICKED,NULL); lv_obj_t *p=ui_card(s_menu_pop); lv_obj_set_size(p,190,LV_SIZE_CONTENT); lv_obj_set_pos(p,278,46); lv_obj_set_style_pad_all(p,6,0); lv_obj_set_style_pad_row(p,2,0); lv_obj_set_style_shadow_width(p,24,0); lv_obj_set_style_shadow_opa(p,LV_OPA_40,0); lv_obj_set_flex_flow(p,LV_FLEX_FLOW_COLUMN); menu_add_item(p,LV_SYMBOL_EYE_OPEN,"Información",0,true); menu_add_item(p,LV_SYMBOL_FILE,"Logs",1,true); menu_add_item(p,LV_SYMBOL_SETTINGS,"Configuración",2,true); menu_add_item(p,LV_SYMBOL_BLUETOOTH,"Bluetooth",3,true);
 }
 static const char *alarm_condition(const AppConfig *c){if(s_alarm_faults)return "FALLA MODULO SENSORES";if(!s_alarm_have_last||!c)return "FALLA DE MEDICION";if(s_alarm_last.pressure_kpa<c->sensors.alarm_limits.pressure_min)return "PRESION BAJA";if(s_alarm_last.pressure_kpa>c->sensors.alarm_limits.pressure_max)return "PRESION ALTA";return "ALARMA DE FLUJO";}
 static void alarm_overlay_close(void){if(s_alarm_overlay){lv_obj_delete_async(s_alarm_overlay);s_alarm_overlay=NULL;}}
@@ -443,13 +444,15 @@ void ui_main_set_date(const char *date)
 float ui_main_get_consumo(void) { return s_consumo_m3; }
 void  ui_main_set_consumo(float m3) { if (m3 >= 0.f) s_consumo_m3 = m3; }
 
-/* Mapea gas_type -> etiqueta + color de banner */
-static void gas_label_color(const char *gas, const char **label, uint32_t *color)
+/* Mapea gas_type -> etiqueta + color de banner usando el catálogo de gases y la
+ * norma NFPA/ISO configurada (ui_cfg). dark = el texto debe ir oscuro (fondo claro). */
+static void gas_label_color(const char *gas, const char **label, uint32_t *color, bool *dark)
 {
-    if (gas && strcmp(gas, "air_med") == 0) { *label = _t("AIRE MEDICINAL"); *color = UI_C_GAS_AIR; return; }
-    if (gas && strcmp(gas, "n2o") == 0)     { *label = _t("ÓXIDO NITROSO");  *color = UI_C_GAS_N2O; return; }
-    if (gas && strcmp(gas, "vac") == 0)     { *label = _t("VACÍO");          *color = UI_C_GAS_VAC; return; }
-    *label = _t("OXÍGENO"); *color = UI_C_GAS_O2; /* o2 por defecto */
+    int idx = 0;
+    for (int i = 0; i < ui_cfg_gas_count(); i++)
+        if (gas && strcmp(gas, ui_cfg_gas_key(i)) == 0) { idx = i; break; }
+    *label = ui_cfg_gas_name(idx);
+    *color = ui_cfg_gas_color_at(idx, ui_cfg_color_is_iso(), dark);
 }
 
 void ui_main_apply_config(const AppConfig *cfg)
@@ -460,10 +463,11 @@ void ui_main_apply_config(const AppConfig *cfg)
     if (cfg->general.client[0]) lv_label_set_text(s_brand_lbl, cfg->general.client);
     if (cfg->general.model[0])  lv_label_set_text_fmt(s_sub_lbl, "Axira - %s", cfg->general.model);
 
-    const char *glabel; uint32_t gcolor;
-    gas_label_color(cfg->sensors.gas_type, &glabel, &gcolor);
+    const char *glabel; uint32_t gcolor; bool gdark = false;
+    gas_label_color(cfg->sensors.gas_type, &glabel, &gcolor, &gdark);
     lv_label_set_text(s_gas_lbl, glabel);
     set_bg(s_gas_banner, gcolor);
+    set_txt_color(s_gas_lbl, gdark ? 0x14171c : 0xffffff);
 
     if (cfg->sensors.pressure_unit[0]) lv_label_set_text(s_press.unit, cfg->sensors.pressure_unit);
     if (cfg->sensors.flow_unit[0])     lv_label_set_text(s_flow.unit, cfg->sensors.flow_unit);

@@ -1,12 +1,7 @@
 {
-  ".claude/settings.local.json": {
-    "mtime": 1785624947.6981192,
-    "ast_hash": "af3a3d3df4f108dfb27549bb197fbec8",
-    "semantic_hash": ""
-  },
   ".vscode/settings.json": {
-    "mtime": 1784734624.6124477,
-    "ast_hash": "93fc82ac061e5ac08ef9a29869a97cfe",
+    "mtime": 1786155926.2020082,
+    "ast_hash": "2bc2163e0eb849df10f24158fd691726",
     "semantic_hash": ""
   },
   "components/cert_store/cert_store.c": {
@@ -75,8 +70,8 @@
     "semantic_hash": ""
   },
   "components/display/st7796.c": {
-    "mtime": 1784734624.6124477,
-    "ast_hash": "ca4eaca62f4b4ed6e43567c625baa25a",
+    "mtime": 1786290882.3218887,
+    "ast_hash": "d37530da32b2da0bec82c9e003d27244",
     "semantic_hash": ""
   },
   "components/drivers/alarm_mgr.c": {
@@ -100,8 +95,8 @@
     "semantic_hash": ""
   },
   "components/network_core/eth_mgr.c": {
-    "mtime": 1784734624.62843,
-    "ast_hash": "9b41635dca9adabf9804d4285793a523",
+    "mtime": 1785686034.4415917,
+    "ast_hash": "cd27f5c9ce83c0b9f0160aea5cd47552",
     "semantic_hash": ""
   },
   "components/network_core/ethernet_init.c": {
@@ -125,8 +120,8 @@
     "semantic_hash": ""
   },
   "components/network_core/include/time_mgr.h": {
-    "mtime": 1784734624.62843,
-    "ast_hash": "e662d2936bd6e45a70b8c94189defcab",
+    "mtime": 1785686280.3146305,
+    "ast_hash": "2104fab84088ed2c53423bfb6d79a05d",
     "semantic_hash": ""
   },
   "components/network_core/include/transport_mqtt.h": {
@@ -145,8 +140,8 @@
     "semantic_hash": ""
   },
   "components/network_core/time_mgr.c": {
-    "mtime": 1784734624.62843,
-    "ast_hash": "361a657e1698dda71f4009512869000a",
+    "mtime": 1785686296.3047972,
+    "ast_hash": "7c97496c2d81146b6cd6ff4b56dae6c4",
     "semantic_hash": ""
   },
   "components/network_core/transport_mqtt.c": {
@@ -155,8 +150,8 @@
     "semantic_hash": ""
   },
   "components/network_core/wifi_mgr.c": {
-    "mtime": 1784734624.62843,
-    "ast_hash": "17b96a7b05d34370fc687e978670f70e",
+    "mtime": 1785686024.8337767,
+    "ast_hash": "9db84614c5f49d887c4786a18dc05362",
     "semantic_hash": ""
   },
   "components/sensors_runtime/include/sensors_runtime.h": {
@@ -185,8 +180,8 @@
     "semantic_hash": ""
   },
   "components/storage/include/storage.h": {
-    "mtime": 1784756162.1410377,
-    "ast_hash": "3e5f8150490856d0fc885c7ca31798a7",
+    "mtime": 1785685993.9546344,
+    "ast_hash": "474140fa271b07aee0788d9fee815717",
     "semantic_hash": ""
   },
   "components/storage/metrics_store.c": {
@@ -195,8 +190,8 @@
     "semantic_hash": ""
   },
   "components/storage/storage.c": {
-    "mtime": 1784756480.6164682,
-    "ast_hash": "4edd1e3123707ef8452bcd6569605b19",
+    "mtime": 1785686017.44453,
+    "ast_hash": "043ffff5159a7efc57bcfcbdcb7a319b",
     "semantic_hash": ""
   },
   "components/storage/storage_extras.c": {
@@ -215,13 +210,13 @@
     "semantic_hash": ""
   },
   "components/transport_ble/fpm_ble_config.c": {
-    "mtime": 1785629058.1867733,
-    "ast_hash": "bdf62e3d679edb3eec6e8b2048f493eb",
+    "mtime": 1786148462.060433,
+    "ast_hash": "141d2cb03335e6a30e4e9a4171b8efeb",
     "semantic_hash": ""
   },
   "components/transport_ble/include/fpm_ble_config.h": {
-    "mtime": 1785629058.1867733,
-    "ast_hash": "aea793bf743a45d127df356c59c00f3e",
+    "mtime": 1785686413.4583423,
+    "ast_hash": "3deb030bd9b25fac7b066ec78fccf4cc",
     "semantic_hash": ""
   },
   "components/transport_ble/include/transport_ble.h": {
@@ -230,8 +225,8 @@
     "semantic_hash": ""
   },
   "components/transport_ble/transport_ble.c": {
-    "mtime": 1785629058.1867733,
-    "ast_hash": "2fd08febd34ab48332fce18a75c23238",
+    "mtime": 1786314708.8812284,
+    "ast_hash": "fd548b291bfc9adb8f37ad61355da6a7",
     "semantic_hash": ""
   },
   "components/transport_http/http_api.c": {
@@ -265,8 +260,8 @@
     "semantic_hash": ""
   },
   "components/ui_bind/ui_statusbar_controller.c": {
-    "mtime": 1784734624.6441965,
-    "ast_hash": "a3751843bdeededafac9b36a86876723",
+    "mtime": 1786312877.385939,
+    "ast_hash": "01a955f22c1d6fc60cf76272a66321a8",
     "semantic_hash": ""
   },
   "components/ui_bind/ui_wifi_main_icon.c": {
@@ -295,8 +290,8 @@
     "semantic_hash": ""
   },
   "main/main.c": {
-    "mtime": 1785629058.1867733,
-    "ast_hash": "2b8cbbb53e976fafdbe2f56a5cd33ff2",
+    "mtime": 1786314869.8296278,
+    "ast_hash": "c2ee1d05771745e1b73544ffec9d9169",
     "semantic_hash": ""
   },
   "main/pinmap.h": {
@@ -350,8 +345,8 @@
     "semantic_hash": ""
   },
   "main/ui/screens/ui_bleAppScreen.c": {
-    "mtime": 1785517269.194668,
-    "ast_hash": "ea483b7cf53c94539f12eb18b847de7e",
+    "mtime": 1786314816.331722,
+    "ast_hash": "bf610f3b61092658ca7c07c273cbe993",
     "semantic_hash": ""
   },
   "main/ui/screens/ui_bleAppScreen.h": {
@@ -370,8 +365,8 @@
     "semantic_hash": ""
   },
   "main/ui/screens/ui_connectivityScreen.c": {
-    "mtime": 1785506606.165617,
-    "ast_hash": "04415230f10f236786eea6a0dfaeda08",
+    "mtime": 1786291341.109916,
+    "ast_hash": "a7498e39eca33dd423a1679f6cad4751",
     "semantic_hash": ""
   },
   "main/ui/screens/ui_connectivityScreen.h": {
@@ -430,18 +425,18 @@
     "semantic_hash": ""
   },
   "main/ui/screens/ui_loginScreen.c": {
-    "mtime": 1784755529.583839,
-    "ast_hash": "995a453301521d89853bb453ab8d8c2d",
+    "mtime": 1786291296.6917756,
+    "ast_hash": "af785bc2b7c4578d9a594030231eaa09",
     "semantic_hash": ""
   },
   "main/ui/screens/ui_loginScreen.h": {
-    "mtime": 1784750537.8266878,
-    "ast_hash": "48d274ffb873f5d4880af5e1883a1185",
+    "mtime": 1786291307.0403671,
+    "ast_hash": "e1e62aba6be78a4cc84289733cc41f57",
     "semantic_hash": ""
   },
   "main/ui/screens/ui_mainScreen.c": {
-    "mtime": 1785517758.0631335,
-    "ast_hash": "3bafdce69a955175b90bef5b043e0e0d",
+    "mtime": 1786319797.0743814,
+    "ast_hash": "be3e3205db2cd4809610928b8c34a2a9",
     "semantic_hash": ""
   },
   "main/ui/screens/ui_mainScreen.h": {
@@ -510,8 +505,8 @@
     "semantic_hash": ""
   },
   "main/ui/screens/ui_sensorEditScreen.c": {
-    "mtime": 1784759146.4907231,
-    "ast_hash": "3b0cd2db2324e1182c99bec12dc0a9a7",
+    "mtime": 1786319964.9565704,
+    "ast_hash": "3c7bb6f45139d8ae02debdb5b2474d43",
     "semantic_hash": ""
   },
   "main/ui/screens/ui_sensorEditScreen.h": {
@@ -550,23 +545,23 @@
     "semantic_hash": ""
   },
   "main/ui/ui.c": {
-    "mtime": 1785518847.5587301,
-    "ast_hash": "185232b2caa8237a43e3de9395051c46",
+    "mtime": 1786291263.8412757,
+    "ast_hash": "57a6240c8ee21792c0c23a766b7e88bb",
     "semantic_hash": ""
   },
   "main/ui/ui.h": {
-    "mtime": 1785506389.4150941,
-    "ast_hash": "bd4e6df6747ebc087107516e299d2b0a",
+    "mtime": 1786291273.7608404,
+    "ast_hash": "6d0982201465dd3aac4ba2775148920e",
     "semantic_hash": ""
   },
   "main/ui/ui_cfg.c": {
-    "mtime": 1785506220.6789837,
-    "ast_hash": "1cafd00fa162cd876136034bf32866d0",
+    "mtime": 1786319519.7243736,
+    "ast_hash": "80b5214ece7dbc75090cd59c3457c7f5",
     "semantic_hash": ""
   },
   "main/ui/ui_cfg.h": {
-    "mtime": 1785506203.39888,
-    "ast_hash": "a210427055d5b49049adf039f42ccc16",
+    "mtime": 1786319466.4760454,
+    "ast_hash": "54d20d9aa91d6abf3f05d90c4cd3e2f2",
     "semantic_hash": ""
   },
   "main/ui/ui_events.c": {
@@ -645,8 +640,8 @@
     "semantic_hash": ""
   },
   "HANDOFF.md": {
-    "mtime": 1785629058.1867733,
-    "ast_hash": "6e8c7812279afbe8a5f853b96c7961eb",
+    "mtime": 1786320127.0308478,
+    "ast_hash": "6d61f0a4df416a0012afa9eefdbd8a21",
     "semantic_hash": ""
   },
   "HMI_MIGRATION.md": {
@@ -655,8 +650,8 @@
     "semantic_hash": ""
   },
   "SESION_HMI.md": {
-    "mtime": 1785629058.1867733,
-    "ast_hash": "40af08774333e2304df350c84a10608d",
+    "mtime": 1786320145.9489055,
+    "ast_hash": "8b4d6a231acc7681f3f6a4facbf98f81",
     "semantic_hash": ""
   },
   "components/cert_store/CMakeLists.txt": {
@@ -720,7 +715,7 @@
     "semantic_hash": ""
   },
   "components/transport_ble/CMakeLists.txt": {
-    "mtime": 1785629058.1867733,
+    "mtime": 1785686381.2513258,
     "ast_hash": "2eda6a4648f398e67229511d8029eb3f",
     "semantic_hash": ""
   },
@@ -735,88 +730,33 @@
     "semantic_hash": ""
   },
   "main/CMakeLists.txt": {
-    "mtime": 1785517319.3143587,
-    "ast_hash": "90b4f598be16c4cb27032445d5a13548",
+    "mtime": 1786318522.56295,
+    "ast_hash": "9764bb8a6747383aa93dde63f92960e1",
     "semantic_hash": ""
   },
   "main/idf_component.yml": {
-    "mtime": 1784734624.6441965,
-    "ast_hash": "ab0d40661847f0b0a1a826d384d5f652",
+    "mtime": 1786155926.262785,
+    "ast_hash": "fac6f07bb7d6ad5323426a9dc32c8d34",
     "semantic_hash": ""
   },
-  "mockups/3a mainScreen-Normal.html": {
-    "mtime": 1784734624.6759481,
-    "ast_hash": "b8acb1930ecd6a54e56205fb7e74be8a",
+  "AGENTS.md": {
+    "mtime": 1785629281.2300637,
+    "ast_hash": "21ceb6533048be51308e69e7b74a35cf",
     "semantic_hash": ""
   },
-  "mockups/3b mainScreen-Alarma.html": {
-    "mtime": 1784734624.6759481,
-    "ast_hash": "f0cb21d252be85de4db460471ef2d98d",
+  "CLAUDE.md": {
+    "mtime": 1785629281.2300637,
+    "ast_hash": "8a6643a420fdad6bfb583523bc6cef16",
     "semantic_hash": ""
   },
-  "mockups/4a Splash.html": {
-    "mtime": 1784734624.6759481,
-    "ast_hash": "32cdf86d19f996901ec7063f59a42257",
+  "CONTRATO_BLE_FPM.md": {
+    "mtime": 1785692108.2770078,
+    "ast_hash": "6628d59eb5c14fd3b4e34d86026fe9e0",
     "semantic_hash": ""
   },
-  "mockups/4b mainScreen-Advertencia.html": {
-    "mtime": 1784734624.6759481,
-    "ast_hash": "c48adf4629f0f8547fe2c349d0f46b4b",
-    "semantic_hash": ""
-  },
-  "mockups/4c mainScreen-Alarma-Silenciada.html": {
-    "mtime": 1784734624.6759481,
-    "ast_hash": "c6d1c6e31208884b61432f4fa053085b",
-    "semantic_hash": ""
-  },
-  "mockups/4d sensorScreen.html": {
-    "mtime": 1784734624.6759481,
-    "ast_hash": "e16f4eecd33058c475b3b33b6ba69ec2",
-    "semantic_hash": ""
-  },
-  "mockups/4e generalScreen.html": {
-    "mtime": 1784734624.6759481,
-    "ast_hash": "b597db05345f32fdb48ebd6a969c1945",
-    "semantic_hash": ""
-  },
-  "mockups/4f infoScreen.html": {
-    "mtime": 1784734624.6759481,
-    "ast_hash": "4d7a82dacf1ca211073ed29c0bbf1ace",
-    "semantic_hash": ""
-  },
-  "mockups/4g Conectividad.html": {
-    "mtime": 1784734624.6759481,
-    "ast_hash": "686c7dd5a624ac60d3ff5bbe5173feba",
-    "semantic_hash": ""
-  },
-  "mockups/5a PinDialog.html": {
-    "mtime": 1784734624.6759481,
-    "ast_hash": "f45876a15ff1db02abdc6fff4cc3555b",
-    "semantic_hash": ""
-  },
-  "mockups/5b sensorScreen-Editable.html": {
-    "mtime": 1784734624.6759481,
-    "ast_hash": "b015695d489b3583f3728f491d42c013",
-    "semantic_hash": ""
-  },
-  "mockups/5c Keypad-Umbral.html": {
-    "mtime": 1784734624.6759481,
-    "ast_hash": "9c5c49741cf7d8131c204c25f8aa6258",
-    "semantic_hash": ""
-  },
-  "mockups/5d Confirmar-Cambio.html": {
-    "mtime": 1784734624.6759481,
-    "ast_hash": "211ca947b181d5ccb9a5f2deee886ff6",
-    "semantic_hash": ""
-  },
-  "mockups/5e generalScreen-Simple.html": {
-    "mtime": 1784734624.6759481,
-    "ast_hash": "9cf2389219edd8507d375ee686ee1ced",
-    "semantic_hash": ""
-  },
-  "mockups/5f Config-App-BLE.html": {
-    "mtime": 1784734624.6759481,
-    "ast_hash": "36ede9008cec90cb362ace759d6e7868",
+  "main/lv_port_mem.c": {
+    "mtime": 1786317268.3955915,
+    "ast_hash": "6527bc2ff713bb6c5e4baf2380dcf977",
     "semantic_hash": ""
   }
 }
