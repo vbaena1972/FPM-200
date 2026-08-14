@@ -52,14 +52,19 @@ lv_display_t *bsp_display_start(void)
     ESP_LOGI(TAG, "Install ST7796 panel driver");
     const esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = BSP_LCD_RST, // Set to -1 if not use
-        .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR,
+        /* Panel 4" ST7796 (nuevo): el orden de sub-píxeles es RGB. Con BGR se veía
+         * el azul como rojo (R y B intercambiados). Si en otro panel se invierte,
+         * volver a LCD_RGB_ELEMENT_ORDER_BGR. */
+        .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_RGB,
         .bits_per_pixel = 16, // Implemented by LCD command `3Ah` (16/18)
     };
     ESP_ERROR_CHECK(esp_lcd_new_panel_st7796(io_handle, &panel_config, &panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
     // ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, true));
-    ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, true));
+    /* Panel 4" ST7796 (nuevo): SIN inversión. Con invert=true el tema oscuro se
+     * veía claro (imagen invertida). Si otro panel se ve invertido, poner true. */
+    ESP_ERROR_CHECK(esp_lcd_panel_invert_color(panel_handle, false));
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
 
     /* Add LCD screen */
