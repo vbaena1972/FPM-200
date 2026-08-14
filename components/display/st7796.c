@@ -52,10 +52,10 @@ lv_display_t *bsp_display_start(void)
     ESP_LOGI(TAG, "Install ST7796 panel driver");
     const esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = BSP_LCD_RST, // Set to -1 if not use
-        /* Panel 4" ST7796 (nuevo): el orden de sub-píxeles es RGB. Con BGR se veía
-         * el azul como rojo (R y B intercambiados). Si en otro panel se invierte,
-         * volver a LCD_RGB_ELEMENT_ORDER_BGR. */
-        .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_RGB,
+        /* Panel 4" ST7796 (nuevo): orden de sub-píxeles BGR. El verde se ve bien y
+         * solo R/B se intercambiaban -> es este bit (no swap_bytes). Con RGB el rojo
+         * salía azul; con BGR queda correcto. La inversión va aparte (invert_color). */
+        .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR,
         .bits_per_pixel = 16, // Implemented by LCD command `3Ah` (16/18)
     };
     ESP_ERROR_CHECK(esp_lcd_new_panel_st7796(io_handle, &panel_config, &panel_handle));
