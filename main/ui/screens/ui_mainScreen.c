@@ -194,13 +194,17 @@ static void build_metric_card(lv_obj_t *parent, metric_card_t *m,
 /* Actualiza una tarjeta con valor + zonas + estado */
 typedef enum { CARD_OK = 0, CARD_WARN, CARD_ALARM } card_state_t;
 
+/* Decimales del valor grande del dashboard (0 o 1), lo fija ui_main_update
+ * desde cfg->sensors.decimals antes de refrescar las tarjetas. */
+static int s_decimals = 0;
+
 static void update_metric_card(metric_card_t *m, float value_disp, float frac,
                                float safe_lo_frac, float safe_hi_frac, bool low_zone,
                                card_state_t st, const char *state_txt,
                                float mn_disp, float mx_disp)
 {
     char buf[48];
-    snprintf(buf, sizeof(buf), "%.0f", value_disp);
+    snprintf(buf, sizeof(buf), "%.*f", s_decimals, value_disp);
     lv_label_set_text(m->value, buf);
 
     /* colores por estado */
@@ -244,7 +248,7 @@ static void update_metric_card(metric_card_t *m, float value_disp, float frac,
     lv_obj_set_style_bg_opa(m->pill, LV_OPA_40, 0);
     lv_label_set_text(m->pill_state, state_txt);
     set_txt_color(m->pill_state, accent);
-    snprintf(buf, sizeof(buf), "24H %.0f / %.0f", mn_disp, mx_disp);
+    snprintf(buf, sizeof(buf), "24H %.*f / %.*f", s_decimals, mn_disp, s_decimals, mx_disp);
     lv_label_set_text(m->pill_mm, buf);
 }
 
@@ -522,6 +526,7 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
 {
     if (!cfg) cfg = appcfg_cache_peek();
     if (!cfg) return;
+    s_decimals = (cfg->sensors.decimals > 0) ? 1 : 0;
     s_alarm_state = state;
     s_alarm_muted = muted;
     s_alarm_have_last = have_last;

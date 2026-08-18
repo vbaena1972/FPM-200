@@ -6,6 +6,57 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 
 ---
 
+## Actualización 2026-08-18 (tarde) — SFM leyendo, robustez I²C, calibración FS7 · **v1.4.0**
+
+Sesión de estabilización tras cablear el SFM3300 y poner los pull-ups. **Estado: firmware
+estable** — SFM leyendo, sin crashes, sin cuelgues de bus. Se sube `PROJECT_VER` a **1.4.0**
+(`CMakeLists.txt`).
+
+**Resuelto:**
+- **SFM3300 no leía → FIX CRC.** El SFM3300-D usa el chip Sensirion **SF05**, cuyo CRC-8
+  arranca en **init 0x00** (no 0xFF como SHT3x/SFM3019). Se copió la convención equivocada →
+  cada lectura fallaba el CRC. Confirmado con el código de referencia `sf05.c`. Ahora lee 0–71
+  slm limpio. Además el init reintenta el START 5× (NACKeaba el 1º tras power-on) y hay
+  auto-recuperación de medición continua si falla sostenido (`sfm3300_start_measurement()`).
+- **Presión "a 0" + falsa alarma.** `alarm_mgr` disparaba ALERT ante **cualquier** fault, y un
+  glitch del ADS (bus compartido) prendía `SENSOR_FAULT_MODULE_I2C`. Fix en `sensors_acq_task`:
+  reintento + **antirrebóte** (`SENSORS_FAULT_DEBOUNCE=3`, ~300 ms) + **retención del último
+  valor** (no publica 0 ante un miss transitorio).
+- **Reboot por el touch (crash).** `esp_lvgl_port` hacía `ESP_ERROR_CHECK` sobre la lectura I²C
+  del FT5x06 → `abort()`/reboot ante un solo glitch del bus 1. Se reemplazó `lvgl_port_add_touch`
+  por un `lv_indev` propio en `ft5x06.c` con read callback **tolerante** (error I²C = "sin toque").
+- **Recuperación de bus I²C 1.** Si MS5803+ADS fallan juntos de forma sostenida (bus colgado),
+  `sensors_acq_task` llama `i2c_master_bus_reset()` cada ~3 s. `main.c` pasa el handle vía
+  `sensors_runtime_set_bus()`. Timeouts de lectura MS5803/ADS bajados 100→50 ms.
+
+**Calibración FS7 (1er paso, empírica vs patrón SFM3300):** el default `fs7_u0=3.6` estaba por
+encima del voltaje CTA a flujo cero (medido ~3.46–3.52 V) → `diff<0` → flujo siempre 0. Nuevo
+modelo en `sensor_cfg_set_defaults()`: **`u0=3.522`, `n=1.0`, `k=1.0`, `flow_scale=222`**
+(≈lineal en 0–60 slm; satura >60).
+
+**Auto-cero (tara) + calibración de flujo en vivo (BLE):** el cero del FS7 **deriva** (3.46→3.52
+en warm-up), así que un `u0` fijo es frágil. Nuevas funciones en `sensors_runtime`:
+- `sensors_runtime_tare_flow()` — con la línea SIN flujo, fija el Ucta actual como `u0` (auto-cero).
+  Captura `s_last_ucta` en `sensor_flow_from_voltage`. Disparo BLE: **`{"flow_tare": true}`**.
+- `sensors_runtime_cal_flow_point(ref_slm)` — con un caudal CONOCIDO estable (del SFM3300) ajusta
+  `flow_scale` para coincidir. Disparo BLE: **`{"flow_cal_slm": <caudal>}`**. Flujo de campo:
+  tare a cero → cal_slm a un caudal estable (calibración de 2 puntos sin reflashear).
+
+⚠️ **La EEPROM AT24C256 no persiste** (WP del módulo de sensado protegido: ACKea lecturas, NACKea
+escrituras — es HW, no firmware). Por eso tara/cal viven **solo en RAM** hasta reboot, y la
+calibración base corre desde los defaults del código (que se usan al fallar el CRC de EEPROM).
+Para persistir en campo hay que arreglar el WP de la AT24C256 en la placa del módulo.
+
+**UI:** dashboard con **decimales configurables** (0 o 1) en Config→Sensores; nuevo campo
+`sensors.decimals` (storage + JSON + `ui_cfg_decimals/set_decimals`). Añadida unidad **slm**
+(=slpm, numéricamente = L/min) al selector de flujo.
+
+**Pendientes:** (1) EEPROM AT24C256 (pin WP del módulo) para persistir calibración en campo;
+(2) calibración fina definitiva con banco de caudales estables; (3) exponer `decimals`/`slm` y los
+comandos `flow_tare`/`flow_cal_slm` en la app Flutter.
+
+---
+
 ## Actualización 2026-08-18 (sensores reales — se elimina la simulación)
 
 Se reemplazó por completo la **tarea dummy** de `sensors_runtime` por adquisición real de hardware.

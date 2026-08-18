@@ -939,6 +939,9 @@ void app_main(void)
         memset(&cfg, 0, sizeof(cfg));
     }
 
+    // Registramos el bus I2C 1 para habilitar la recuperacion de bus si queda
+    // colgado (MS5803+ADS fallando juntos). Debe ir antes del init.
+    sensors_runtime_set_bus(bus_handle);
     sensors_runtime_init(&cfg);
     mem_diag_report("AFTER-SENSORS-RUNTIME");
 

@@ -6,6 +6,7 @@
 #include <stddef.h>
 
 #include "storage.h"  // Para AppConfig (cfg->sensors.*)
+#include "driver/i2c_master.h" // Para el handle del bus (recuperacion de bus)
 
 /**
  * Muestra bÃƒÂ¡sica de sensores en unidades internas (SI):
@@ -41,6 +42,14 @@ typedef struct
  *    desde tu propia tarea en vez de usar la dummy.
  */
 bool sensors_runtime_init(const AppConfig *cfg);
+
+/**
+ * Registra el handle del bus I2C 1 (sensores) para permitir la recuperacion
+ * del bus (reset del controlador) cuando se detecta que quedo colgado.
+ * Llamar antes de sensors_runtime_init. Opcional: si no se registra, la
+ * recuperacion de bus queda deshabilitada.
+ */
+void sensors_runtime_set_bus(i2c_master_bus_handle_t bus);
 
 /**
  * Actualiza la configuraciÃƒÂ³n (por si cambias calibraciÃƒÂ³n, etc).
@@ -83,6 +92,20 @@ esp_err_t sensors_runtime_set_pressure_gauge(bool gauge);
 
 /** true si el modo actual es gauge (manomÃ©trica). */
 bool sensors_runtime_is_pressure_gauge(void);
+
+/**
+ * Auto-cero (tara) del flujo: fija el voltaje CTA actual del FS7 como el cero
+ * (u0). Dispara con la lÃ­nea SIN flujo. El cero del FS7 deriva, asÃ­ que esto lo
+ * corrige sin reflashear. Devuelve ESP_OK si habÃ­a lectura vÃ¡lida.
+ */
+esp_err_t sensors_runtime_tare_flow(void);
+
+/**
+ * CalibraciÃ³n de 1 punto del flujo: con un caudal CONOCIDO (ref_slm, p.ej. del
+ * patrÃ³n SFM3300) ajusta flow_scale para que el FS7 coincida. Hacer la tara de
+ * flujo primero (cero), luego este a un caudal estable. Persiste en EEPROM.
+ */
+esp_err_t sensors_runtime_cal_flow_point(float ref_slm);
 
 /**
  * Calcula min y max de presiÃƒÂ³n y flujo en una ventana de tiempo [now - window_ms, now].

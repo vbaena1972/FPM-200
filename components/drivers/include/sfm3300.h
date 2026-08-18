@@ -40,6 +40,19 @@ bool sfm3300_is_ready(void);
  */
 esp_err_t sfm3300_read(float *slm);
 
+/**
+ * Reenvia el comando de arranque de medicion continua (0x1000). Util para
+ * recuperar el sensor si se reinicio o salio del modo continuo (lecturas
+ * fallando de forma sostenida). No re-agrega el dispositivo al bus.
+ */
+esp_err_t sfm3300_start_measurement(void);
+
+/**
+ * Copia los ultimos 3 bytes crudos leidos del sensor (MSB, LSB, CRC) para
+ * diagnostico. Validos si la ultima lectura I2C fue OK (aunque falle el CRC).
+ */
+void sfm3300_get_last_rx(uint8_t out[3]);
+
 #ifdef __cplusplus
 }
 #endif

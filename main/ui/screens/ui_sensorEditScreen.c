@@ -41,6 +41,22 @@ static void seg(lv_obj_t *p, const char *t, bool on, const char *k)
     lv_obj_add_event_cb(b, unit_cb, LV_EVENT_CLICKED, (void *)k);
 }
 
+/* ---- decimales del dashboard (0 o 1) ---- */
+static void dec_cb(lv_event_t *e)
+{
+    ui_cfg_set_decimals((int)(intptr_t)lv_event_get_user_data(e));
+    rebuild();
+}
+static void dec_seg(lv_obj_t *p, const char *t, bool on, int d)
+{
+    lv_obj_t *b = lv_button_create(p);
+    lv_obj_set_flex_grow(b, 1);
+    lv_obj_set_height(b, 28);
+    ui_style_button(b, on ? UI_C_OK_BG : UI_C_CARD_BG2);
+    lv_obj_center(ui_label(b, t, UI_FONT_XS, on ? UI_C_OK : UI_C_TEXT_2));
+    lv_obj_add_event_cb(b, dec_cb, LV_EVENT_CLICKED, (void *)(intptr_t)d);
+}
+
 /* ---- gas + norma ---- */
 static void gas_cb(lv_event_t *e)
 {
@@ -197,8 +213,14 @@ void ui_sensorEditScreen_screen_init(void)
     seg(pr, "MPa",  !strcmp(pu, "mpa"), "mpa");
     lv_obj_t *fr = unit_row(u, _t("Flujo"));
     seg(fr, "L/min", !strcmp(fu, "lpm"),  "lpm");
+    seg(fr, "slm",   !strcmp(fu, "slpm"), "slpm");
     seg(fr, "m³/h",  !strcmp(fu, "m3h"),  "m3h");
     seg(fr, "SCCM",  !strcmp(fu, "sccm"), "sccm");
+
+    /* ---- Decimales en el dashboard ---- */
+    lv_obj_t *dcr = unit_row(u, _t("Decimales"));
+    dec_seg(dcr, "0", ui_cfg_decimals() == 0, 0);
+    dec_seg(dcr, "1", ui_cfg_decimals() == 1, 1);
 
     /* ---- Gas + norma de color ---- */
     lv_obj_t *g = ui_card(ui_sensorEditScreen);

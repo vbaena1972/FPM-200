@@ -16,11 +16,14 @@ static const char *TAG = "sfm3300";
 
 static i2c_master_dev_handle_t s_dev = NULL;
 static bool s_ready = false;
+static uint8_t s_last_rx[3] = {0}; // ultimos bytes leidos (diagnostico)
 
-// CRC-8, polinomio 0x31 (x^8+x^5+x^4+1), init 0xFF, sin XOR final.
+// CRC-8, polinomio 0x31 (x^8+x^5+x^4+1), init 0x00, sin XOR final.
+// El SFM3300-D usa el chip Sensirion SF05, cuyo CRC arranca en 0x00 (ver
+// codigo de referencia SF05_CheckCrc). NO es el 0xFF de los SHT3x/SFM3019.
 static uint8_t sfm3300_crc8(const uint8_t *data, int len)
 {
-    uint8_t crc = 0xFF;
+    uint8_t crc = 0x00;
     for (int i = 0; i < len; i++)
     {
         crc ^= data[i];
@@ -60,8 +63,17 @@ esp_err_t sfm3300_init(i2c_master_bus_handle_t bus_handle)
     esp_err_t rst = sfm3300_send_cmd(SFM3300_CMD_SOFTRST);
     vTaskDelay(pdMS_TO_TICKS(100)); // tiempo de reset ~80 ms
 
-    // Arrancar la medicion continua
-    err = sfm3300_send_cmd(SFM3300_CMD_START);
+    // Arrancar la medicion continua. Tras el power-on / soft-reset el sensor
+    // puede tardar en responder y NACKea el primer START; reintentamos varias
+    // veces antes de rendirnos (i2cdetect confirma que 0x40 esta en el bus).
+    err = ESP_FAIL;
+    for (int i = 0; i < 5; i++)
+    {
+        err = sfm3300_send_cmd(SFM3300_CMD_START);
+        if (err == ESP_OK)
+            break;
+        vTaskDelay(pdMS_TO_TICKS(50));
+    }
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "SFM3300 no responde en 0x%02X (start): %s. Revisar 5V/pull-ups.",
@@ -87,6 +99,23 @@ bool sfm3300_is_ready(void)
     return s_ready;
 }
 
+void sfm3300_get_last_rx(uint8_t out[3])
+{
+    out[0] = s_last_rx[0];
+    out[1] = s_last_rx[1];
+    out[2] = s_last_rx[2];
+}
+
+esp_err_t sfm3300_start_measurement(void)
+{
+    if (!s_dev)
+        return ESP_ERR_INVALID_STATE;
+    esp_err_t err = sfm3300_send_cmd(SFM3300_CMD_START);
+    if (err == ESP_OK)
+        vTaskDelay(pdMS_TO_TICKS(100)); // start-up ~100 ms
+    return err;
+}
+
 esp_err_t sfm3300_read(float *slm)
 {
     if (!s_dev || !s_ready)
@@ -99,6 +128,12 @@ esp_err_t sfm3300_read(float *slm)
     esp_err_t err = i2c_master_receive(s_dev, rx, 3, 100);
     if (err != ESP_OK)
         return err; // NACK -> aun no hay dato nuevo valido
+
+    // Guardamos los bytes crudos para diagnostico (validos si la lectura I2C
+    // fue OK, aunque luego falle el CRC o el dato sea 0xFFFF).
+    s_last_rx[0] = rx[0];
+    s_last_rx[1] = rx[1];
+    s_last_rx[2] = rx[2];
 
     if (sfm3300_crc8(rx, 2) != rx[2])
         return ESP_ERR_INVALID_CRC;

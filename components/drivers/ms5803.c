@@ -29,7 +29,10 @@ static bool s_ready = false;
 
 static esp_err_t ms5803_send_cmd(uint8_t cmd)
 {
-    return i2c_master_transmit(s_dev, &cmd, 1, 100);
+    // Timeout corto: si el bus se cuelga, no queremos bloquear a los otros
+    // usuarios del bus 1 (touch/LVGL) por mucho tiempo. La recuperacion de
+    // bus y el antirrebote toleran un fallo puntual.
+    return i2c_master_transmit(s_dev, &cmd, 1, 50);
 }
 
 // Reintenta el reset varias veces (el datasheet advierte que la 1a transaccion
@@ -70,7 +73,7 @@ static esp_err_t ms5803_read_adc(uint32_t *out)
 {
     uint8_t cmd = MS5803_CMD_ADC_READ;
     uint8_t rx[3] = {0};
-    esp_err_t err = i2c_master_transmit_receive(s_dev, &cmd, 1, rx, 3, 100);
+    esp_err_t err = i2c_master_transmit_receive(s_dev, &cmd, 1, rx, 3, 50);
     if (err != ESP_OK)
         return err;
     *out = ((uint32_t)rx[0] << 16) | ((uint32_t)rx[1] << 8) | rx[2];

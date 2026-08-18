@@ -4,6 +4,7 @@ idf_component_register(
     REQUIRES
         freertos
         esp_timer
+        esp_driver_i2c
     PRIV_REQUIRES
         storage
         drivers

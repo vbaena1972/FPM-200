@@ -87,6 +87,7 @@ void appcfg_defaults(AppConfig *c)
     set_str(c->sensors.flow_unit, sizeof(c->sensors.flow_unit), "lpm");
     set_str(c->sensors.gas_type, sizeof(c->sensors.gas_type), "o2");
     set_str(c->sensors.color_code, sizeof(c->sensors.color_code), "iso");
+    c->sensors.decimals = 0;
     c->sensors.flow_fullscale_lpm = 100.f;
     c->sensors.pressure_fullscale_kpa = 1000.f;
     c->sensors.cal.pressure_offset = 0.f;
@@ -232,6 +233,7 @@ cJSON *json_from_cfg(const AppConfig *c)
     cJSON_AddStringToObject(sns, "flow_unit", c->sensors.flow_unit);
     cJSON_AddStringToObject(sns, "gas_type", c->sensors.gas_type);
     cJSON_AddStringToObject(sns, "color_code", c->sensors.color_code);
+    cJSON_AddNumberToObject(sns, "decimals", c->sensors.decimals);
     cJSON_AddNumberToObject(sns, "flow_fullscale_lpm", c->sensors.flow_fullscale_lpm);
     cJSON_AddNumberToObject(sns, "pressure_fullscale_kpa", c->sensors.pressure_fullscale_kpa);
     cJSON *cal = cJSON_AddObjectToObject(sns, "cal");
@@ -398,6 +400,9 @@ void cfg_from_json(AppConfig *c, const cJSON *root)
         getstr(c->sensors.flow_unit, sizeof(c->sensors.flow_unit), sensors, "flow_unit");
         getstr(c->sensors.gas_type, sizeof(c->sensors.gas_type), sensors, "gas_type");
         getstr(c->sensors.color_code, sizeof(c->sensors.color_code), sensors, "color_code");
+        const cJSON *dec = cJSON_GetObjectItemCaseSensitive(sensors, "decimals");
+        if (cJSON_IsNumber(dec))
+            c->sensors.decimals = (dec->valueint > 0) ? 1 : 0;
         const cJSON *ffs = cJSON_GetObjectItemCaseSensitive(sensors, "flow_fullscale_lpm");
         if (cJSON_IsNumber(ffs))
             c->sensors.flow_fullscale_lpm = ffs->valuedouble;

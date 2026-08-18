@@ -34,13 +34,14 @@ static bool s_ready = false;
 static esp_err_t ads1115_write_reg(uint8_t reg, uint16_t val)
 {
     uint8_t tx[3] = {reg, (uint8_t)(val >> 8), (uint8_t)(val & 0xFF)};
-    return i2c_master_transmit(s_dev, tx, 3, 100);
+    // Timeout corto para no bloquear el bus 1 compartido si se cuelga.
+    return i2c_master_transmit(s_dev, tx, 3, 50);
 }
 
 static esp_err_t ads1115_read_reg(uint8_t reg, uint16_t *val)
 {
     uint8_t rx[2] = {0};
-    esp_err_t err = i2c_master_transmit_receive(s_dev, &reg, 1, rx, 2, 100);
+    esp_err_t err = i2c_master_transmit_receive(s_dev, &reg, 1, rx, 2, 50);
     if (err != ESP_OK)
         return err;
     *val = ((uint16_t)rx[0] << 8) | rx[1];

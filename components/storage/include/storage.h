@@ -98,9 +98,10 @@ extern "C"
         struct
         {
             char pressure_unit[8]; // "bar"|"kpa"|"psi"
-            char flow_unit[8];     // "lpm"|"slpm"|"nlpm"|"sccm"
+            char flow_unit[8];     // "lpm"|"slpm"|"slm"|"nlpm"|"sccm"
             char gas_type[16];     // "o2"|"air_med"|...
             char color_code[8];    // "iso"|"nfpa"
+            int  decimals;         // decimales en el dashboard (0 o 1)
             float flow_fullscale_lpm;    // fondo de escala del eje de flujo en main (L/min)
             float pressure_fullscale_kpa; // fondo de escala del canal de presión (kPa)
             struct

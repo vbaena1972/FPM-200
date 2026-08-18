@@ -302,6 +302,8 @@ const char *ui_cfg_gas(void)          { const AppConfig *c=appcfg_cache_peek(); 
 const char *ui_cfg_lang(void)         { const AppConfig *c=appcfg_cache_peek(); return c?c->general.lang:"es"; }
 int  ui_cfg_brightness(void)          { const AppConfig *c=appcfg_cache_peek(); return c?c->general.brightness:80; }
 const char *ui_cfg_theme(void){ const AppConfig *c=appcfg_cache_peek(); return c&&strcmp(c->general.theme,"light")==0?"light":"dark"; }
+int  ui_cfg_decimals(void){ const AppConfig *c=appcfg_cache_peek(); return (c && c->sensors.decimals>0)?1:0; }
+void ui_cfg_set_decimals(int d){ AppConfig*c=appcfg_cache_peek(); if(!c)return; c->sensors.decimals=(d>0)?1:0; (void)appcfg_save(c); }
 int ui_cfg_dim_minutes(void){ const AppConfig *c=appcfg_cache_peek(); return c?c->general.dim_minutes:5; }
 void ui_cfg_set_dim_minutes(int m){ AppConfig*c=appcfg_cache_peek();if(!c)return;if(m!=0&&m!=1&&m!=5&&m!=10)m=5;c->general.dim_minutes=m;(void)appcfg_save(c); }
 static lv_color_t visual_color(lv_color_t in,bool light)

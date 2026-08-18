@@ -9,6 +9,36 @@ static esp_lcd_touch_handle_t tp; // LCD touch handle
 
 static SemaphoreHandle_t refresh_finish = NULL;
 
+// Lectura de touch TOLERANTE a errores de I2C. Reemplaza al read interno de
+// esp_lvgl_port (lvgl_port_touchpad_read), que hacia ESP_ERROR_CHECK sobre
+// esp_lcd_touch_read_data: un solo glitch del bus 1 compartido -> abort() y
+// REBOOT del equipo. Aqui un error I2C se trata como "sin toque".
+static void ft5x06_lvgl_read_cb(lv_indev_t *indev, lv_indev_data_t *data)
+{
+    (void)indev;
+    uint16_t x = 0, y = 0, strength = 0;
+    uint8_t cnt = 0;
+
+    if (esp_lcd_touch_read_data(tp) != ESP_OK)
+    {
+        // Glitch I2C: mantenemos el ultimo estado como "soltado" y seguimos.
+        data->state = LV_INDEV_STATE_RELEASED;
+        return;
+    }
+
+    bool pressed = esp_lcd_touch_get_coordinates(tp, &x, &y, &strength, &cnt, 1);
+    if (pressed && cnt > 0)
+    {
+        data->point.x = x;
+        data->point.y = y;
+        data->state = LV_INDEV_STATE_PRESSED;
+    }
+    else
+    {
+        data->state = LV_INDEV_STATE_RELEASED;
+    }
+}
+
 lv_indev_t *bsp_display_indev_init(lv_display_t *disp, i2c_master_bus_handle_t bus_handle)
 {
 
@@ -21,13 +51,17 @@ lv_indev_t *bsp_display_indev_init(lv_display_t *disp, i2c_master_bus_handle_t b
     }
     ESP_LOGI(TAG, "Touch FT5x06 inicializado");
 
-    /// Add touch input (for selected screen)
-    const lvgl_port_touch_cfg_t touch_cfg = {
-        .disp = disp,
-        .handle = tp,
-    };
+    // Registramos NUESTRO indev (en vez de lvgl_port_add_touch) para usar el
+    // read callback tolerante de arriba. El mutex de LVGL es recursivo, asi
+    // que tomarlo aqui es seguro aunque el caller ya lo tenga.
+    lvgl_port_lock(0);
+    disp_indev = lv_indev_create();
+    lv_indev_set_type(disp_indev, LV_INDEV_TYPE_POINTER);
+    lv_indev_set_read_cb(disp_indev, ft5x06_lvgl_read_cb);
+    lv_indev_set_display(disp_indev, disp);
+    lvgl_port_unlock();
 
-    return lvgl_port_add_touch(&touch_cfg);
+    return disp_indev;
 }
 
 lv_indev_t *bsp_display_get_input_dev(void)

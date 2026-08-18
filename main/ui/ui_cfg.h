@@ -27,6 +27,10 @@ void ui_cfg_set_flow_unit(const char *unit);      /* "lpm"|"sccm"|"m3h"|...  */
 void ui_cfg_set_gas(const char *gas_key);         /* "o2"|"n2o"|"co2"|... */
 void ui_cfg_set_lang(const char *lang);           /* "es"|"en" */
 
+/* Decimales del dashboard (0 o 1). */
+int  ui_cfg_decimals(void);
+void ui_cfg_set_decimals(int d);
+
 /* --- Catálogo de gases (lista corta: medicinales/industriales con costo) ---
  * Excluye aires (medicinal/instrumental/comprimido) y vacíos. Color por norma. */
 int         ui_cfg_gas_count(void);

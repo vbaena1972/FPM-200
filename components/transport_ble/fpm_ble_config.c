@@ -461,6 +461,22 @@ bool fpm_ble_config_apply_json(const char *json)
         ESP_LOGI(TAG_FPM, "Comando BLE 'pressure_mode'=%s -> %s", pmode, esp_err_to_name(merr));
     }
 
+    /* --- Comandos de flujo (FS7): auto-cero + calibración de 1 punto ---
+     *   {"flow_tare": true}         -> con la LÍNEA SIN FLUJO, fija el cero (u0)
+     *   {"flow_cal_slm": <caudal>}  -> con un CAUDAL CONOCIDO estable (del patrón
+     *                                  SFM3300), ajusta flow_scale para coincidir.
+     * Flujo típico: tare primero, luego cal_slm a un caudal estable. */
+    if (jbool(r, "flow_tare", false)) {
+        esp_err_t ferr = sensors_runtime_tare_flow();
+        ESP_LOGI(TAG_FPM, "Comando BLE 'flow_tare' -> %s", esp_err_to_name(ferr));
+    }
+    const cJSON *fcal = cJSON_GetObjectItemCaseSensitive(r, "flow_cal_slm");
+    if (cJSON_IsNumber(fcal)) {
+        esp_err_t cerr = sensors_runtime_cal_flow_point((float)fcal->valuedouble);
+        ESP_LOGI(TAG_FPM, "Comando BLE 'flow_cal_slm'=%.2f -> %s",
+                 fcal->valuedouble, esp_err_to_name(cerr));
+    }
+
     const cJSON *disp = cJSON_GetObjectItemCaseSensitive(r, "display");
     if (disp) {
         c->general.brightness = (int)jnum(disp, "brightness", c->general.brightness);

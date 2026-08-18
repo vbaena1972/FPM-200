@@ -8,6 +8,7 @@
 #include "freertos/semphr.h"
 #include "esp_timer.h"
 #include "esp_log.h"
+#include "driver/i2c_master.h" // i2c_master_bus_reset (recuperacion de bus)
 
 // Drivers reales de sensores/memoria
 #include "ms5803.h"
@@ -23,6 +24,21 @@
 #define SENSORS_DEFAULT_PERIOD_MS 100 // 10 Hz de adquisiciÃ³n real
 #define SENSORS_TASK_STACK 4096
 #define SENSORS_TASK_PRIO 5
+
+// AntirrebÃ³te de fault de I2C: un NACK puntual en el bus compartido
+// (MS5803/ADS/EEPROM) es comÃºn y NO debe disparar la alarma crÃ­tica ni
+// parpadear la lectura a 0. Solo declaramos fault tras N ciclos seguidos
+// fallidos (a 100 ms/ciclo, 3 = ~300 ms). Una pÃ©rdida sostenida sÃ­ alarma.
+#define SENSORS_FAULT_DEBOUNCE 3
+
+// Si el SFM3300 (bus 2) falla lecturas de forma sostenida, reintentamos
+// arrancar la medicion continua cada N ciclos (a 100 ms, 50 = ~5 s).
+#define SFM_RESTART_AFTER_MISSES 50
+
+// Recuperacion del bus I2C 1: si MS5803 y ADS fallan JUNTOS de forma sostenida
+// el bus quedo colgado (un esclavo con SDA en bajo). Reseteamos el controlador
+// cada N ciclos mientras siga caido (a 100 ms, 30 = ~3 s) para no spamear.
+#define BUS_RECOVER_EVERY 30
 
 // Hook de prueba: si es 1, hace una tara automÃ¡tica ~2 s despuÃ©s del arranque
 // (con la lÃ­nea a la atmÃ³sfera) para validar el modo gauge por log. Ponlo a 0
@@ -79,6 +95,10 @@ static bool s_scfg_valid = false;
 // Ãšltima presiÃ³n ABSOLUTA calibrada (kPa), la usa la tara. NAN si aÃºn no hay.
 static volatile float s_last_pressure_abs_kpa = NAN;
 
+// Ãšltimo voltaje CTA reconstruido del FS7 (U = Vain0/divider). Lo usa la tara
+// de flujo (auto-cero) y la calibraciÃ³n de 1 punto. NAN si aÃºn no hay lectura.
+static volatile float s_last_ucta = NAN;
+
 //------------------------------------------------------------------
 // Estado interno
 //------------------------------------------------------------------
@@ -93,6 +113,9 @@ static SemaphoreHandle_t s_lock = NULL;
 static AppConfig s_cfg_cache;
 static bool s_cfg_valid = false;
 static uint32_t s_reported_faults = SENSOR_FAULT_NONE;
+
+// Handle del bus I2C 1 para la recuperacion de bus (NULL = deshabilitada).
+static i2c_master_bus_handle_t s_i2c_bus = NULL;
 
 // Tarea de adquisiciÃ³n real
 static TaskHandle_t s_acq_task_handle = NULL;
@@ -144,10 +167,15 @@ static void sensor_cfg_set_defaults(sensor_eeprom_cfg_t *c)
 
     // Divisor R2/(R1+R2) = 100k/340k
     c->fs7_divider = 100.0f / (240.0f + 100.0f); // 0.294118
-    c->fs7_u0 = 3.6f;   // salida CTA a flujo cero
-    c->fs7_k = 0.91f;   // constante fluÃ­dica
-    c->fs7_n = 0.51f;   // exponente
-    c->flow_scale = 1.0f;  // v(m/s) -> L/min (calibrar in-situ)
+    // Calibracion 1er paso (2026-08-18) contra el patron SFM3300 (0-71 slm):
+    // el voltaje CTA reconstruido a flujo CERO mide ~3.46 V (no 3.6), y la
+    // respuesta flujo vs (U-U0) es casi LINEAL en este rango (no la potencia
+    // n=0.51 del datasheet). Modelo empirico: flujo[slm] = (U - 3.46) * 222.
+    // Pendiente: refinar con caudales estables y persistir en EEPROM.
+    c->fs7_u0 = 3.522f;     // salida CTA a flujo cero (medido 2026-08-18)
+    c->fs7_k = 1.0f;        // sin escalar aqui: la ganancia va en flow_scale
+    c->fs7_n = 1.0f;        // exponente empirico (~lineal en este rango)
+    c->flow_scale = 222.0f; // (U-U0) -> L/min (ajuste 1er paso vs SFM3300)
     c->flow_offset = 0.0f;
 
     c->flow_enabled = 1;   // FS7 conectado y calibrado (salida analog. a 3.6 V @ 0 flujo)
@@ -209,6 +237,7 @@ static float sensor_flow_from_voltage(float v_ain0, float *v_out_cta)
 {
     float divider = (s_scfg.fs7_divider > 1e-4f) ? s_scfg.fs7_divider : 0.294118f;
     float u = v_ain0 / divider; // salida CTA reconstruida
+    s_last_ucta = u;            // para la tara de flujo / calibraciÃ³n
     if (v_out_cta)
         *v_out_cta = u;
 
@@ -260,6 +289,53 @@ esp_err_t sensors_runtime_tare_pressure(void)
     ESP_LOGI(TAG, "TARA aplicada: referencia=%.2f kPa (%.2f psi). Modo=gauge. Persist=%s",
              p_abs, p_abs * 0.145038f, esp_err_to_name(err));
     return ESP_OK; // la tara queda activa aunque la persistencia falle
+}
+
+// Auto-cero del flujo (tara): fija el voltaje CTA ACTUAL como u0 (flujo cero).
+// El cero del FS7 deriva con temperatura/alimentaciÃ³n, asÃ­ que esto se dispara
+// con la lÃ­nea SIN flujo (por BLE al comisionar, como la tara de presiÃ³n).
+esp_err_t sensors_runtime_tare_flow(void)
+{
+    float u = s_last_ucta;
+    if (!isfinite(u))
+    {
+        ESP_LOGW(TAG, "Tara de flujo abortada: aÃºn no hay lectura del FS7");
+        return ESP_ERR_INVALID_STATE;
+    }
+    s_scfg.fs7_u0 = u;
+    esp_err_t err = sensor_cfg_persist();
+    ESP_LOGI(TAG, "TARA de flujo: u0=%.4f V (nuevo cero). Persist=%s",
+             u, esp_err_to_name(err));
+    return ESP_OK; // queda activa aunque falle la persistencia
+}
+
+// CalibraciÃ³n de 1 punto: con un caudal CONOCIDO (p.ej. el patrÃ³n SFM3300),
+// ajusta flow_scale para que la lectura del FS7 coincida con ref_slm.
+esp_err_t sensors_runtime_cal_flow_point(float ref_slm)
+{
+    float u = s_last_ucta;
+    if (!isfinite(u))
+        return ESP_ERR_INVALID_STATE;
+
+    float diff = u - s_scfg.fs7_u0;
+    if (diff <= 1e-4f || ref_slm <= 0.0f)
+    {
+        ESP_LOGW(TAG, "Cal de flujo abortada: aplica un caudal conocido > 0 (diff=%.4f, ref=%.2f)",
+                 diff, ref_slm);
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    float n = (fabsf(s_scfg.fs7_n) > 1e-3f) ? s_scfg.fs7_n : 1.0f;
+    float k = (fabsf(s_scfg.fs7_k) > 1e-3f) ? s_scfg.fs7_k : 1.0f;
+    float velocity = powf(diff / k, 1.0f / n);
+    if (velocity <= 1e-6f)
+        return ESP_ERR_INVALID_ARG;
+
+    s_scfg.flow_scale = (ref_slm - s_scfg.flow_offset) / velocity;
+    esp_err_t err = sensor_cfg_persist();
+    ESP_LOGI(TAG, "CAL flujo 1 punto: ref=%.2f slm @ U=%.4f -> flow_scale=%.2f. Persist=%s",
+             ref_slm, u, s_scfg.flow_scale, esp_err_to_name(err));
+    return ESP_OK;
 }
 
 esp_err_t sensors_runtime_set_pressure_gauge(bool gauge)
@@ -345,6 +421,11 @@ bool sensors_runtime_init(const AppConfig *cfg)
     ESP_LOGI(TAG, "Init ok (tarea adquisiciÃ³n %s)",
              s_acq_task_handle ? "ON" : "OFF");
     return true;
+}
+
+void sensors_runtime_set_bus(i2c_master_bus_handle_t bus)
+{
+    s_i2c_bus = bus;
 }
 
 void sensors_runtime_update_config(const AppConfig *cfg)
@@ -570,6 +651,16 @@ static void sensors_acq_task(void *arg)
     uint32_t boot_ticks = 0;
 #endif
 
+    // Estado persistente entre ciclos para el antirrebÃ³te de fault de I2C.
+    // Retenemos el Ãºltimo valor bueno para no parpadear a 0 ante un NACK puntual.
+    float last_good_pressure = NAN;
+    float last_good_temp = NAN;
+    float last_good_flow = NAN;
+    int ms5803_miss = 0;
+    int ads_miss = 0;
+    int sfm_miss = 0;
+    int bus_recover_wait = 0;
+
     while (1)
     {
         int64_t now_ms = esp_timer_get_time() / 1000;
@@ -589,6 +680,14 @@ static void sensors_acq_task(void *arg)
         {
             float p = 0.0f, t = 0.0f;
             esp_err_t err = ms5803_read(&p, &t);
+            if (err != ESP_OK && ms5803_miss < SENSORS_FAULT_DEBOUNCE)
+            {
+                // Un NACK puntual en el bus compartido es comÃºn: reintentamos 1 vez.
+                // Solo en la fase transitoria: si el fault ya esta latcheado (bus
+                // colgado) NO duplicamos trafico -> deja actuar al recovery.
+                vTaskDelay(pdMS_TO_TICKS(2));
+                err = ms5803_read(&p, &t);
+            }
             if (err == ESP_OK)
             {
                 // PresiÃ³n absoluta calibrada (para la tara y el modo absoluto)
@@ -597,16 +696,25 @@ static void sensors_acq_task(void *arg)
                 temp_c = t;
 
                 ms5803_read_ok = true;
+                ms5803_miss = 0;
 
                 // Modo gauge: restamos la referencia atmosfÃ©rica tarada
                 if (s_scfg.pressure_mode == PRESSURE_MODE_GAUGE)
                     pressure_kpa = p_abs - s_scfg.pressure_ref_kpa;
                 else
                     pressure_kpa = p_abs;
+
+                last_good_pressure = pressure_kpa;
+                last_good_temp = temp_c;
             }
             else
             {
-                faults |= SENSOR_FAULT_MODULE_I2C;
+                // Fallo transitorio: retenemos el Ãºltimo valor bueno y solo
+                // declaramos fault tras varios ciclos seguidos (antirrebÃ³te).
+                if (++ms5803_miss >= SENSORS_FAULT_DEBOUNCE)
+                    faults |= SENSOR_FAULT_MODULE_I2C;
+                if (isfinite(last_good_pressure)) pressure_kpa = last_good_pressure;
+                if (isfinite(last_good_temp)) temp_c = last_good_temp;
             }
         }
         else
@@ -625,15 +733,27 @@ static void sensors_acq_task(void *arg)
         {
             float v = 0.0f;
             esp_err_t err = ads1115_read_voltage(ADS1115_MUX_AIN0, &v);
+            if (err != ESP_OK && ads_miss < SENSORS_FAULT_DEBOUNCE)
+            {
+                // Reintento Ãºnico ante un NACK puntual (solo fase transitoria).
+                vTaskDelay(pdMS_TO_TICKS(2));
+                err = ads1115_read_voltage(ADS1115_MUX_AIN0, &v);
+            }
             if (err == ESP_OK)
             {
                 ads_read_ok = true;
+                ads_miss = 0;
                 v_ain0 = v;
                 flow_lpm = sensor_flow_from_voltage(v, &u_cta);
+                last_good_flow = flow_lpm;
             }
             else
             {
-                faults |= SENSOR_FAULT_MODULE_I2C;
+                // Fallo transitorio: retenemos el Ãºltimo flujo y solo declaramos
+                // fault tras varios ciclos seguidos (antirrebÃ³te anti-alarma).
+                if (++ads_miss >= SENSORS_FAULT_DEBOUNCE)
+                    faults |= SENSOR_FAULT_MODULE_I2C;
+                if (isfinite(last_good_flow)) flow_lpm = last_good_flow;
             }
         }
         else
@@ -642,11 +762,25 @@ static void sensors_acq_task(void *arg)
         }
 
         // --- Flujo de referencia (Sensirion SFM3300-D, para calibrar el FS7) ---
+        // Guardamos el codigo de error para diagnosticar en el log por que falla
+        // (NACK/timeout -> pull-ups del bus 2; CRC -> ruido; 0xFFFF -> warm-up).
+        esp_err_t sfm_err = ESP_OK;
         if (sfm3300_is_ready())
         {
             float ref = 0.0f;
-            if (sfm3300_read(&ref) == ESP_OK)
+            sfm_err = sfm3300_read(&ref);
+            if (sfm_err == ESP_OK)
+            {
                 sfm_slm = ref;
+                sfm_miss = 0;
+            }
+            else if (++sfm_miss >= SFM_RESTART_AFTER_MISSES)
+            {
+                // Fallo sostenido: reintentamos arrancar la medicion continua por
+                // si el sensor se reinicio o nunca entro en modo continuo.
+                sfm_miss = 0;
+                (void)sfm3300_start_measurement();
+            }
             // Un NACK/CRC puntual no es fault: solo significa "sin dato nuevo".
         }
 
@@ -660,6 +794,28 @@ static void sensors_acq_task(void *arg)
         };
         sensors_runtime_push_sample(&s);
         sensors_runtime_report_faults(faults);
+
+        // --- Recuperacion del bus I2C 1 (bus colgado) ---
+        // Si MS5803 y ADS fallan JUNTOS de forma sostenida, el bus quedo
+        // colgado. Reseteamos el controlador cada BUS_RECOVER_EVERY ciclos
+        // mientras siga caido. (Si el flujo esta deshabilitado no probamos el
+        // ADS, asi que basta con el MS5803 sostenido para inferir el cuelgue.)
+        bool ads_down = s_scfg.flow_enabled ? (ads_miss >= SENSORS_FAULT_DEBOUNCE) : true;
+        bool bus1_down = (ms5803_miss >= SENSORS_FAULT_DEBOUNCE) && ads_down;
+        if (bus1_down && s_i2c_bus)
+        {
+            if (++bus_recover_wait >= BUS_RECOVER_EVERY)
+            {
+                bus_recover_wait = 0;
+                esp_err_t r = i2c_master_bus_reset(s_i2c_bus);
+                ESP_LOGW(TAG, "Bus I2C 1 colgado (MS5803+ADS): i2c_master_bus_reset -> %s",
+                         esp_err_to_name(r));
+            }
+        }
+        else
+        {
+            bus_recover_wait = 0;
+        }
 
 #if SENSORS_TARE_ON_BOOT
         // Tara automÃ¡tica de prueba tras ~2 s con lectura vÃ¡lida.
@@ -681,13 +837,20 @@ static void sensors_acq_task(void *arg)
             const char *pmode = (s_scfg.pressure_mode == PRESSURE_MODE_GAUGE) ? "gauge" : "abs";
 
             // Referencia SFM3300: distinguimos "cero real" de "sin dato" (n/d)
-            char sfm_str[32];
+            char sfm_str[72];
             if (!sfm3300_is_ready())
                 snprintf(sfm_str, sizeof(sfm_str), " | SFM=noInit");
             else if (isfinite(sfm_slm))
                 snprintf(sfm_str, sizeof(sfm_str), " | SFMref=%.2f slm", sfm_slm);
             else
-                snprintf(sfm_str, sizeof(sfm_str), " | SFMref=n/d");
+            {
+                // Volcamos los bytes crudos para diagnosticar: FF FF FF = bus sin
+                // dato (0xFFFF), bytes reales con CRC malo = ruido/framing.
+                uint8_t rx[3];
+                sfm3300_get_last_rx(rx);
+                snprintf(sfm_str, sizeof(sfm_str), " | SFMref=n/d (%s) rx=%02X%02X%02X",
+                         esp_err_to_name(sfm_err), rx[0], rx[1], rx[2]);
+            }
 
             // Estado por sensor cuando hay fault: noInit (no arrancó) o rdErr (I2C read falló)
             char diag[56];
