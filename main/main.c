@@ -48,6 +48,10 @@
 #include "http_api.h"
 #include "lwip/ip_addr.h"
 #include "rtc_rv3028.h"
+#include "ms5803.h"
+#include "ads1115.h"
+#include "at24c256.h"
+#include "sfm3300.h"
 #include "alarm_mgr.h"
 #include "time_mgr.h"
 
@@ -94,6 +98,7 @@ static EventGroupHandle_t init_events;
 sdmmc_card_t *s_sd_card = NULL;
 
 i2c_master_bus_handle_t bus_handle;
+i2c_master_bus_handle_t sfm_bus_handle; // 2do bus I2C (SFM3300 en GPIO43/44)
 static const char *TAG = "app";
 extern void ui_wifi_main_icon_init(lv_obj_t *img_obj);
 
@@ -467,6 +472,52 @@ static void screen_init_task(void *arg)
     // Dentro de screen_init_task, justo despuÃƒÂ©s de bsp_i2c_init():
     rtc_rv3028_init(bus_handle); // Le pasamos el bus I2C que ya tienes creado
     time_mgr_init();             // Intenta cargar la hora local
+
+    // Sensores reales y EEPROM de calibraciÃ³n (comparten el mismo bus I2C).
+    // Los handles quedan estÃ¡ticos dentro de cada driver; sensors_runtime
+    // los usa mÃ¡s adelante en su tarea de adquisiciÃ³n.
+    // Escaneo del bus I2C para diagnostico (que direcciones responden ACK).
+    {
+        char found[128];
+        int n = 0;
+        found[0] = '\0';
+        for (uint16_t a = 0x08; a <= 0x77; a++)
+        {
+            if (i2c_master_probe(bus_handle, a, 50) == ESP_OK)
+            {
+                n += snprintf(found + n, sizeof(found) - n, "0x%02X ", a);
+                if (n >= (int)sizeof(found) - 6)
+                    break;
+            }
+        }
+        ESP_LOGI(TAG, "I2C scan: dispositivos detectados => %s", n ? found : "(ninguno)");
+    }
+
+    at24c256_init(bus_handle, 0); // EEPROM AT24C256C @ 0x50 (parametros de calibraciÃ³n)
+    ms5803_init(bus_handle);      // Sensor de presiÃ³n/temperatura MS5803-14BA @ 0x76
+    ads1115_init(bus_handle);     // ADC del sensor de flujo FS7 @ 0x48 (AIN0)
+
+    // Segundo bus I2C (GPIO43=SDA, GPIO44=SCL) para el caudalimetro de
+    // referencia Sensirion SFM3300-D (para calibrar/observar el FS7).
+    i2c_master_bus_config_t sfm_cfg = {
+        .clk_source = I2C_CLK_SRC_DEFAULT,
+        .i2c_port = SFM_I2C_PORT,
+        .scl_io_num = SFM_I2C_SCL,
+        .sda_io_num = SFM_I2C_SDA,
+        .glitch_ignore_cnt = 7,
+        .flags.enable_internal_pullup = true,
+    };
+    esp_err_t sfm_bus_err = i2c_new_master_bus(&sfm_cfg, &sfm_bus_handle);
+    if (sfm_bus_err == ESP_OK)
+    {
+        sfm3300_init(sfm_bus_handle); // caudalimetro de referencia @ 0x40
+    }
+    else
+    {
+        ESP_LOGE(TAG, "No se pudo crear el 2do bus I2C (SFM3300): %s",
+                 esp_err_to_name(sfm_bus_err));
+        sfm_bus_handle = NULL;
+    }
 
     lv_display_t *disp = bsp_display_start();
     if (!disp)
@@ -883,6 +934,10 @@ void app_main(void)
     mem_diag_report("AFTER-LVGL");
 
     static AppConfig cfg;
+    if (appcfg_cache_get(&cfg) != ESP_OK)
+    {
+        memset(&cfg, 0, sizeof(cfg));
+    }
 
     sensors_runtime_init(&cfg);
     mem_diag_report("AFTER-SENSORS-RUNTIME");

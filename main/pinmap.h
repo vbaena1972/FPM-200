@@ -40,4 +40,10 @@
 #define I2C_SHARED_SCL        GPIO_NUM_15
 #define I2C_SHARED_SDA        GPIO_NUM_16
 
+// Segundo bus I2C para el caudalimetro de referencia Sensirion SFM3300-D.
+// OJO: estos pines coinciden con RS232 (43/44), que NO se inicializa en el FW.
+#define SFM_I2C_PORT          I2C_NUM_0
+#define SFM_I2C_SDA           GPIO_NUM_43
+#define SFM_I2C_SCL           GPIO_NUM_44
+
 #define SD_CD_PIN             GPIO_NUM_42

@@ -18,6 +18,10 @@ sdkconfig.old
 Thumbs.db
 .DS_Store
 
+# ===== Scratch / trabajo temporal =====
+/tmp/
+sw_probe*.vbs
+
 # Nota: sdkconfig SÍ se versiona (contiene ajustes del proyecto).
 # sdkconfig.defaults es la fuente de verdad y también se versiona.
 

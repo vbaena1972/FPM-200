@@ -243,6 +243,16 @@ static void aws_telemetry_task(void *pvParameters)
         cJSON_AddNumberToObject(flow, "avg", f_avg);
         cJSON_AddItemToObject(root, "flow", flow);
 
+        // --- SUB-OBJETO: TEMPERATURA (del sensor de presion MS5803, en C) ---
+        float t_min = have_stats ? min_sample.temp_c : current_sample.temp_c;
+        float t_max = have_stats ? max_sample.temp_c : current_sample.temp_c;
+        cJSON *temp = cJSON_CreateObject();
+        cJSON_AddNumberToObject(temp, "current", current_sample.temp_c);
+        cJSON_AddNumberToObject(temp, "min", t_min);
+        cJSON_AddNumberToObject(temp, "max", t_max);
+        cJSON_AddNumberToObject(temp, "avg", (t_min + t_max) / 2.0f);
+        cJSON_AddItemToObject(root, "temperature", temp);
+
         // --- SUB-OBJETO: ALARMAS (Evaluación industrial en tiempo real) ---
         cJSON *alarms = cJSON_CreateObject();
         cJSON_AddBoolToObject(alarms, "pressure_low", (current_sample.pressure_kpa < p_lim_min));

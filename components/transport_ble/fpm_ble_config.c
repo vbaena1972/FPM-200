@@ -1,10 +1,14 @@
 #include "fpm_ble_config.h"
 #include "storage.h"
+#include "sensors_runtime.h"
 #include "cJSON.h"
+#include "esp_log.h"
 #include <string.h>
 #include <strings.h>
 #include <stdlib.h>
 #include <math.h>
+
+static const char *TAG_FPM = "fpm_ble_cfg";
 
 /* ================= helpers de unidad (mismos factores que ui_cfg.c) ================= */
 /* Internamente el FPM guarda presión en kPa y flujo en L/min. La app edita/muestra
@@ -440,6 +444,22 @@ bool fpm_ble_config_apply_json(const char *json)
     if (!r) return false;
     AppConfig *c = cfg_dup();
     if (!c) { cJSON_Delete(r); return false; }
+
+    /* --- Comandos de presión (opción B: tara / modo gauge) ---
+     * La app envía esto al comisionar, con la LÍNEA VENTEADA (a la atmósfera):
+     *   {"pressure_tare": true}                 -> captura el cero manométrico
+     *   {"pressure_mode": "gauge"|"absolute"}   -> cambia el modo sin re-tarar
+     * Se procesan antes del resto de la config; no dependen del AppConfig. */
+    if (jbool(r, "pressure_tare", false)) {
+        esp_err_t terr = sensors_runtime_tare_pressure();
+        ESP_LOGI(TAG_FPM, "Comando BLE 'pressure_tare' -> %s", esp_err_to_name(terr));
+    }
+    const char *pmode = jstr(r, "pressure_mode", NULL);
+    if (pmode) {
+        bool gauge = (strcasecmp(pmode, "gauge") == 0);
+        esp_err_t merr = sensors_runtime_set_pressure_gauge(gauge);
+        ESP_LOGI(TAG_FPM, "Comando BLE 'pressure_mode'=%s -> %s", pmode, esp_err_to_name(merr));
+    }
 
     const cJSON *disp = cJSON_GetObjectItemCaseSensitive(r, "display");
     if (disp) {

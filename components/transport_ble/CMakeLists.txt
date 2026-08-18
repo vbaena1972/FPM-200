@@ -5,6 +5,7 @@ idf_component_register(
         bt cjson
     PRIV_REQUIRES
         storage
+        sensors_runtime
 )
 # Agregar include de NimBLE HCI manualmente:
 target_include_directories(${COMPONENT_LIB} PRIVATE

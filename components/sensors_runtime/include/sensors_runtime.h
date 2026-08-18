@@ -26,6 +26,7 @@ typedef struct
     int64_t ts_ms;        ///< timestamp en milisegundos (esp_timer_get_time()/1000)
     float   pressure_kpa; ///< presiÃƒÂ³n en kPa
     float   flow_lpm;     ///< flujo en L/min
+    float   temp_c;       ///< temperatura del sensor de presiÃ³n (MS5803) en Â°C
 } sensor_sample_t;
 
 /**
@@ -62,6 +63,26 @@ void sensors_runtime_push_sample(const sensor_sample_t *s);
 bool sensors_runtime_get_last(sensor_sample_t *out);
 uint32_t sensors_runtime_get_faults(void);
 void sensors_runtime_report_faults(uint32_t faults);
+
+/**
+ * Tara de presiÃ³n (opciÃ³n B, gauge por offset local):
+ * captura la presiÃ³n absoluta actual (atmosfÃ©rica, con la lÃ­nea venteada)
+ * como el cero manomÃ©trico, activa el modo gauge y lo persiste en la EEPROM.
+ * A partir de ahÃ­, la presiÃ³n reportada es: absoluta - referencia_tarada.
+ *
+ * Debe llamarse con la lÃ­nea DESPRESURIZADA (abierta a la atmÃ³sfera).
+ * Devuelve ESP_OK si habÃ­a una lectura vÃ¡lida y se guardÃ³.
+ */
+esp_err_t sensors_runtime_tare_pressure(void);
+
+/**
+ * Cambia el modo de presiÃ³n: false = absoluta, true = gauge (usa la referencia
+ * ya tarada). Persiste en EEPROM. Ãštil para volver a absoluta sin re-tarar.
+ */
+esp_err_t sensors_runtime_set_pressure_gauge(bool gauge);
+
+/** true si el modo actual es gauge (manomÃ©trica). */
+bool sensors_runtime_is_pressure_gauge(void);
 
 /**
  * Calcula min y max de presiÃƒÂ³n y flujo en una ventana de tiempo [now - window_ms, now].

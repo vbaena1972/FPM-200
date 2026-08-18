@@ -12,9 +12,14 @@ static SemaphoreHandle_t refresh_finish = NULL;
 lv_indev_t *bsp_display_indev_init(lv_display_t *disp, i2c_master_bus_handle_t bus_handle)
 {
 
-    ESP_ERROR_CHECK(bsp_touch_new(NULL, &tp, bus_handle));
-    ESP_LOGI(TAG, "BIEN hasta aqui");
-    assert(tp);
+    esp_err_t err = bsp_touch_new(NULL, &tp, bus_handle);
+    if (err != ESP_OK || tp == NULL)
+    {
+        // Sin panel tactil conectado: no registramos indev y seguimos.
+        ESP_LOGW(TAG, "Sin touch: se omite el registro de entrada LVGL");
+        return NULL;
+    }
+    ESP_LOGI(TAG, "Touch FT5x06 inicializado");
 
     /// Add touch input (for selected screen)
     const lvgl_port_touch_cfg_t touch_cfg = {
@@ -52,9 +57,21 @@ esp_err_t bsp_touch_new(const bsp_touch_config_t *config, esp_lcd_touch_handle_t
     esp_lcd_panel_io_handle_t tp_io_handle = NULL;
 
     const esp_lcd_panel_io_i2c_config_t tp_io_config = ESP_LCD_TOUCH_IO_I2C_FT5x06_CONFIG();
-    ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(touch_handle, &tp_io_config, &tp_io_handle));
-    ESP_ERROR_CHECK(esp_lcd_touch_new_i2c_ft5x06(tp_io_handle, &tp_cfg, ret_touch));
-   // assert(tp);
+    esp_err_t err = esp_lcd_new_panel_io_i2c(touch_handle, &tp_io_config, &tp_io_handle);
+    if (err != ESP_OK)
+        return err;
+
+    // No abortamos si el touch no responde (p.ej. panel no conectado): el resto
+    // del firmware (sensores, red, etc.) debe seguir funcionando.
+    err = esp_lcd_touch_new_i2c_ft5x06(tp_io_handle, &tp_cfg, ret_touch);
+    if (err != ESP_OK)
+    {
+        ESP_LOGW(TAG, "Touch FT5x06 no disponible (%s). Continuo sin panel tactil.",
+                 esp_err_to_name(err));
+        if (ret_touch)
+            *ret_touch = NULL;
+        return err;
+    }
 
     return ESP_OK;
 }

@@ -6,6 +6,28 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 
 ---
 
+## Actualización 2026-08-18 (sensores reales — se elimina la simulación)
+
+Se reemplazó por completo la **tarea dummy** de `sensors_runtime` por adquisición real de hardware.
+
+**Drivers nuevos (`components/drivers/`, patrón `i2c_master` como `rtc_rv3028`):**
+- **`ms5803`** — presión/temperatura MS5803-14BA (I²C **0x76**, CSB alto; PROM + CRC4, D1/D2 OSR 4096, compensación 1er+2º orden). `pressure_kpa = P/100`. El init reintenta reset+PROM (la 1ª transacción NACKea aunque la dirección ACKee). Validado: **84.9 kPa = presión atmosférica de Medellín (~1495 m)**, T≈29.6 °C.
+- **`ads1115`** — ADC 16-bit (I²C **0x48**, AIN0 single-ended, PGA ±4.096 V) → voltaje del sensor de flujo **FS7**.
+- **`at24c256`** — EEPROM AT24C256C (I²C **0x50**, 32 KB, páginas 64 B). Guarda la **calibración de sensores** (bloque versionado `magic "SEN1"` + CRC16, auto-init en el primer arranque). Ámbito: solo parámetros de sensor (WiFi/BLE siguen en NVS).
+- **`sfm3300`** — caudalímetro de referencia Sensirion **SFM3300-D** (I²C **0x40**) en un **2º bus I²C** (GPIO43=SDA / GPIO44=SCL). Para calibrar/observar el FS7. `flow[slm]=(raw-32768)/120`, CRC-8 poly 0x31. **HW: es de 5 V → requiere pull-ups a 3.3 V (o level-shifter con pull-ups) en el bus.**
+
+**Modelo de flujo FS7** (ley de King, datasheet AFFS7): `U=Vain0/divisor; v=((U-U0)/k)^(1/n); flow_lpm=v·flow_scale+flow_offset`. Defaults `divisor=0.294, U0=3.6, k=0.91, n=0.51`. **`flow_scale` aún sin calibrar** (=1.0 → "flujo"≈velocidad); usar el SFM3300 como patrón para ajustarlo. El log imprime FS7 y `SFMref` lado a lado.
+
+**Presión manométrica (gauge) — opción B (tara), EEPROM v4:** el MS5803 es absoluto; la línea médica necesita gauge = absoluta − atmosférica local. Un offset fijo se rompe entre altitudes (Medellín 84.9 vs Barranquilla ~101 kPa). `sensors_runtime_tare_pressure()` captura la atmosférica actual (línea venteada) como cero y persiste en EEPROM. Disparador **por BLE** en `fpm_ble_config_apply_json`: `{"pressure_tare":true}` / `{"pressure_mode":"gauge"|"absolute"}` (falta el botón en la app). Para producción se recomienda un **BMP581 venteado @0x46/0x47** (referencia barométrica continua, sin re-cero) que además cubre la temperatura de gabinete.
+
+**Otros cambios:** touch FT5x06 ahora **no fatal** si no hay panel (evitaba boot-loop sin display). Escaneo I²C al arranque para diagnóstico. Temperatura del MS5803 añadida al `sensor_sample_t`, a `get_min_max` y al payload AWS (`transport_mqtt.c`). FS7 habilitado por defecto (`flow_enabled=1`).
+
+**⚠️ Estado HW al cierre de sesión:** tras cablear el SFM3300, el scan I²C del bus 1 pasó de `0x48 0x50 0x52 0x60 0x76` a `0x38 0x52 0x60` → **desaparecieron los tres del módulo de sensor (MS5803/ADS/EEPROM) juntos**, mientras RTC (0x52) y touch nuevo (0x38) siguen. Diagnóstico: **conexión común del módulo de sensor perdida** (alim. 3.3 V / GND / rama I²C), no es software. Pendiente: reasentar el conector del módulo. El SFM (bus 2) es tema aparte y necesita pull-ups.
+
+**Build:** el entorno del usuario (VS Code/IDF) compila bien; en Bash/PowerShell hay que fijar PATH/env a mano y Windows Defender pone en cuarentena archivos de `C:\Espressif` de forma intermitente (agregar exclusiones).
+
+---
+
 ## Actualización 2026-08-09 (estabilización en HW + app)
 
 Sesión larga de depuración en hardware. **Resueltos varios crashes recurrentes; causa raíz común: agotamiento de RAM interna.**

@@ -2,6 +2,10 @@ idf_component_register(
     SRCS
         "rtc_rv3028.c"
         "alarm_mgr.c"
+        "ms5803.c"
+        "ads1115.c"
+        "at24c256.c"
+        "sfm3300.c"
     INCLUDE_DIRS 
         "include"
     REQUIRES 
