@@ -1,7 +1,7 @@
 # Graph Report - ClaudeHMI-FW  (2026-08-18)
 
 ## Corpus Check
-- 143 files · ~312,917 words
+- 143 files · ~312,970 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `47d608e9`
+- Built from commit: `a3c19e22`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -33,7 +33,7 @@
 - cert_store.c
 - app_main
 - Sesión — Migración HMI Axira (SquareLine → Claude Design)
-- ui_cfg_flow_unit
+- general_loaded_cb
 - Migración HMI: SquareLine → Claude Design
 - sensors_runtime.c
 - appcfg_cache_peek
@@ -100,8 +100,8 @@ Cohesion: 0.08
 Nodes (97): lv_font_t, bleapp_set_connected(), ui_bleAppScreen_screen_init(), ui_confirmScreen_screen_init(), lv_event_cb_t, lv_obj_t, conn_card(), ui_connectivityScreen_screen_init() (+89 more)
 
 ### Community 1 - "wifi_mgr.c"
-Cohesion: 0.19
-Nodes (17): apply_ip_mode(), AppConfig, esp_err_t, wifi_status_t, net_cfg_equals(), notify(), wifi_apply_cb(), wifi_mgr_apply_from_cache() (+9 more)
+Cohesion: 0.16
+Nodes (20): apply_ip_mode(), AppConfig, esp_err_t, esp_event_base_t, wifi_status_t, log_dns_info(), net_cfg_equals(), notify() (+12 more)
 
 ### Community 2 - "main.c"
 Cohesion: 0.13
@@ -152,8 +152,8 @@ Cohesion: 0.31
 Nodes (9): gas_label_color(), ui_cfg_color_code(), ui_cfg_color_is_iso(), ui_cfg_gas(), ui_cfg_gas_color_at(), ui_cfg_gas_count(), ui_cfg_gas_index(), ui_cfg_gas_key() (+1 more)
 
 ### Community 14 - "pressure_card"
-Cohesion: 0.33
-Nodes (9): pressure_card(), ui_edit_target_t, ui_cfg_press_fmt(), ui_cfg_press_to_disp(), ui_cfg_pressure_limit_enabled(), ui_cfg_pressure_max(), ui_cfg_pressure_min(), ui_cfg_pressure_unit() (+1 more)
+Cohesion: 0.16
+Nodes (18): apply_authenticated_cb(), lv_event_t, allow_decimal(), pressure_card(), ui_edit_target_t, ui_cfg_flow_to_disp(), ui_cfg_flow_unit(), ui_cfg_press_fmt() (+10 more)
 
 ### Community 15 - "cert_store.c"
 Cohesion: 0.19
@@ -167,9 +167,9 @@ Nodes (20): eTaskState, diag_timer_cb(), mem_diag_report_full(), mem_diag_report
 Cohesion: 0.10
 Nodes (20): 10. Backup, 1. Objetivo y estado, 2. Repositorios (GitHub, cuenta vbaena1972), 3. Arquitectura de la nueva HMI (`main/ui/`), 4. Design system (alineado a ClaudeHMI/MedGuard, dark), 5. Pantallas (16) y navegación, 6. Lógica / persistencia (hecho), 7. Simulador de PC (`ClaudeHMI-Sim`) (+12 more)
 
-### Community 18 - "ui_cfg_flow_unit"
-Cohesion: 0.12
-Nodes (19): apply_authenticated_cb(), lv_event_t, lv_event_t, general_loaded_cb(), protected_back_cb(), bright_cb(), allow_decimal(), clamp_brightness() (+11 more)
+### Community 18 - "general_loaded_cb"
+Cohesion: 0.24
+Nodes (10): lv_event_t, general_loaded_cb(), protected_back_cb(), bright_cb(), clamp_brightness(), ui_cfg_brightness(), ui_cfg_dim_minutes(), ui_cfg_preview_brightness() (+2 more)
 
 ### Community 19 - "Migración HMI: SquareLine → Claude Design"
 Cohesion: 0.17
@@ -240,8 +240,8 @@ Cohesion: 0.33
 Nodes (6): lv_color_t, lv_obj_t, ui_cfg_apply_visual_mode(), ui_cfg_set_theme(), ui_cfg_theme(), visual_color()
 
 ### Community 70 - "on_eth_event"
-Cohesion: 0.29
-Nodes (8): mem_diag_report(), on_eth_event(), esp_event_base_t, esp_netif_t, log_dns_info(), wifi_event_handler(), wifi_mgr_get_netif(), http_api_stop()
+Cohesion: 0.50
+Nodes (5): mem_diag_report(), on_eth_event(), esp_netif_t, wifi_mgr_get_netif(), http_api_stop()
 
 ### Community 72 - "lv_event_t"
 Cohesion: 0.67
@@ -279,7 +279,7 @@ Nodes (5): lv_event_t, next(), ui_cfg_tz_count(), ui_cfg_tz_index(), ui_cfg_tz_l
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `appcfg_cache_peek()` connect `appcfg_cache_peek` to `ui_label`, `ui_mainScreen.c`, `screen_init_task`, `transport_ble.c`, `appcfg_patch`, `eth_mgr.c`, `ui_cfg.c`, `gas_label_color`, `pressure_card`, `cert_store.c`, `app_main`, `ui_cfg_flow_unit`, `statusbar_timer_cb`, `fpm_ble_config.c`, `save_cb`, `ui_cfg_apply_visual_mode`, `ui_sensorEditScreen.c`, `ui_sensorDiagScreen.c`, `next`?**
+- **Why does `appcfg_cache_peek()` connect `appcfg_cache_peek` to `ui_label`, `ui_mainScreen.c`, `screen_init_task`, `transport_ble.c`, `appcfg_patch`, `eth_mgr.c`, `ui_cfg.c`, `gas_label_color`, `pressure_card`, `cert_store.c`, `app_main`, `general_loaded_cb`, `statusbar_timer_cb`, `fpm_ble_config.c`, `save_cb`, `ui_cfg_apply_visual_mode`, `ui_sensorEditScreen.c`, `ui_sensorDiagScreen.c`, `next`?**
   _High betweenness centrality (0.248) - this node is a cross-community bridge._
 - **Why does `screen_init_task()` connect `screen_init_task` to `ui_label`, `ui_wifi_main_icon.c`, `main.c`, `ui_statusbar_request_refresh`, `ms5803.c`, `sensors_runtime.c`, `appcfg_cache_peek`, `rtc_rv3028.c`, `bsp_display_indev_init`?**
   _High betweenness centrality (0.129) - this node is a cross-community bridge._

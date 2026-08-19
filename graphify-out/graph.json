@@ -2185,8 +2185,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_network_core_wifi_mgr_log_dns_info",
-      "community": 70,
-      "community_name": "on_eth_event",
+      "community": 1,
+      "community_name": "wifi_mgr.c",
       "norm_label": "log_dns_info()"
     },
     {
@@ -2197,8 +2197,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_network_core_wifi_mgr_wifi_event_handler",
-      "community": 70,
-      "community_name": "on_eth_event",
+      "community": 1,
+      "community_name": "wifi_mgr.c",
       "norm_label": "wifi_event_handler()"
     },
     {
@@ -2208,8 +2208,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "components_network_core_wifi_mgr_c_esp_event_base_t",
-      "community": 70,
-      "community_name": "on_eth_event",
+      "community": 1,
+      "community_name": "wifi_mgr.c",
       "norm_label": "esp_event_base_t"
     },
     {
@@ -5659,8 +5659,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_confirmscreen_apply_authenticated_cb",
-      "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community": 14,
+      "community_name": "pressure_card",
       "norm_label": "apply_authenticated_cb()"
     },
     {
@@ -5670,8 +5670,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "main_ui_screens_ui_confirmscreen_c_lv_event_t",
-      "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community": 14,
+      "community_name": "pressure_card",
       "norm_label": "lv_event_t"
     },
     {
@@ -5948,7 +5948,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_generalscreen_general_loaded_cb",
       "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community_name": "general_loaded_cb",
       "norm_label": "general_loaded_cb()"
     },
     {
@@ -5959,7 +5959,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_generalscreen_c_lv_event_t",
       "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community_name": "general_loaded_cb",
       "norm_label": "lv_event_t"
     },
     {
@@ -5971,7 +5971,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_generalscreen_protected_back_cb",
       "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community_name": "general_loaded_cb",
       "norm_label": "protected_back_cb()"
     },
     {
@@ -6134,7 +6134,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_generalsimplescreen_bright_cb",
       "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community_name": "general_loaded_cb",
       "norm_label": "bright_cb()"
     },
     {
@@ -6318,8 +6318,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_keypadscreen_allow_decimal",
-      "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community": 14,
+      "community_name": "pressure_card",
       "norm_label": "allow_decimal()"
     },
     {
@@ -8660,7 +8660,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_display_idle_cb",
       "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community_name": "general_loaded_cb",
       "norm_label": "display_idle_cb()"
     },
     {
@@ -9232,7 +9232,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_cfg_clamp_brightness",
       "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community_name": "general_loaded_cb",
       "norm_label": "clamp_brightness()"
     },
     {
@@ -9244,7 +9244,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_preview_brightness",
       "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community_name": "general_loaded_cb",
       "norm_label": "ui_cfg_preview_brightness()"
     },
     {
@@ -9256,7 +9256,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_set_brightness",
       "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community_name": "general_loaded_cb",
       "norm_label": "ui_cfg_set_brightness()"
     },
     {
@@ -9517,8 +9517,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_flow_unit",
-      "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community": 14,
+      "community_name": "pressure_card",
       "norm_label": "ui_cfg_flow_unit()"
     },
     {
@@ -9554,7 +9554,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_brightness",
       "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community_name": "general_loaded_cb",
       "norm_label": "ui_cfg_brightness()"
     },
     {
@@ -9602,7 +9602,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_dim_minutes",
       "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community_name": "general_loaded_cb",
       "norm_label": "ui_cfg_dim_minutes()"
     },
     {
@@ -9875,8 +9875,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_press_from_disp",
-      "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community": 14,
+      "community_name": "pressure_card",
       "norm_label": "ui_cfg_press_from_disp()"
     },
     {
@@ -9887,8 +9887,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_flow_to_disp",
-      "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community": 14,
+      "community_name": "pressure_card",
       "norm_label": "ui_cfg_flow_to_disp()"
     },
     {
@@ -9946,8 +9946,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_edit_unit",
-      "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community": 14,
+      "community_name": "pressure_card",
       "norm_label": "ui_edit_unit()"
     },
     {
@@ -9994,8 +9994,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_edit_is_audio",
-      "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community": 14,
+      "community_name": "pressure_card",
       "norm_label": "ui_edit_is_audio()"
     },
     {
@@ -10006,8 +10006,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_edit_apply",
-      "community": 18,
-      "community_name": "ui_cfg_flow_unit",
+      "community": 14,
+      "community_name": "pressure_card",
       "norm_label": "ui_edit_apply()"
     },
     {
@@ -10984,7 +10984,7 @@
       "label": "Actualizaci\u00f3n 2026-08-18 (sensores reales \u2014 se elimina la simulaci\u00f3n)",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L60",
+      "source_location": "L65",
       "_origin": "ast",
       "id": "handoff_actualizaci\u00f3n_2026_08_18_sensores_reales_se_elimina_la_simulaci\u00f3n",
       "community": 22,
@@ -10995,7 +10995,7 @@
       "label": "Actualizaci\u00f3n 2026-08-09 (estabilizaci\u00f3n en HW + app)",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L82",
+      "source_location": "L87",
       "_origin": "ast",
       "id": "handoff_actualizaci\u00f3n_2026_08_09_estabilizaci\u00f3n_en_hw_app",
       "community": 22,
@@ -11006,7 +11006,7 @@
       "label": "0. Contexto",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L98",
+      "source_location": "L103",
       "_origin": "ast",
       "id": "handoff_0_contexto",
       "community": 22,
@@ -11017,7 +11017,7 @@
       "label": "1. \u26a0\ufe0f ESTADO \u2014 leer antes de nada",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L108",
+      "source_location": "L113",
       "_origin": "ast",
       "id": "handoff_1_estado_leer_antes_de_nada",
       "community": 22,
@@ -11028,7 +11028,7 @@
       "label": "2. \ud83d\udd34 BUG ABIERTO #1 (bloqueante): watchdog en `taskLVGL` \u2014 FIX A VALIDAR",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L122",
+      "source_location": "L127",
       "_origin": "ast",
       "id": "handoff_2_bug_abierto_1_bloqueante_watchdog_en_tasklvgl_fix_a_validar",
       "community": 22,
@@ -11039,7 +11039,7 @@
       "label": "3. Contrato BLE FPM \u2194 app Sensvax (commit `711b463`) \u2014 A VALIDAR EN HW",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L153",
+      "source_location": "L158",
       "_origin": "ast",
       "id": "handoff_3_contrato_ble_fpm_app_sensvax_commit_711b463_a_validar_en_hw",
       "community": 22,
@@ -11050,7 +11050,7 @@
       "label": "4. C\u00f3mo compilar / gotchas de build",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L186",
+      "source_location": "L191",
       "_origin": "ast",
       "id": "handoff_4_c\u00f3mo_compilar_gotchas_de_build",
       "community": 22,
@@ -11061,7 +11061,7 @@
       "label": "5. Lo dem\u00e1s que ya se hizo (commiteado en `66014fa`, sin validar 100% en HW)",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L203",
+      "source_location": "L208",
       "_origin": "ast",
       "id": "handoff_5_lo_dem\u00e1s_que_ya_se_hizo_commiteado_en_66014fa_sin_validar_100_en_hw",
       "community": 22,
@@ -11072,7 +11072,7 @@
       "label": "6. Pendiente (despu\u00e9s de estabilizar \u00a72 y validar \u00a73)",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L217",
+      "source_location": "L222",
       "_origin": "ast",
       "id": "handoff_6_pendiente_despu\u00e9s_de_estabilizar_2_y_validar_3",
       "community": 22,
@@ -11083,7 +11083,7 @@
       "label": "7. Gotchas que no re-descubrir",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L247",
+      "source_location": "L252",
       "_origin": "ast",
       "id": "handoff_7_gotchas_que_no_re_descubrir",
       "community": 22,
@@ -39191,7 +39191,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L98",
+      "source_location": "L103",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39202,7 +39202,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L108",
+      "source_location": "L113",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39213,7 +39213,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L122",
+      "source_location": "L127",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39224,7 +39224,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L153",
+      "source_location": "L158",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39235,7 +39235,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L186",
+      "source_location": "L191",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39246,7 +39246,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L203",
+      "source_location": "L208",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39257,7 +39257,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L217",
+      "source_location": "L222",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39268,7 +39268,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L247",
+      "source_location": "L252",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39279,7 +39279,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L82",
+      "source_location": "L87",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39290,7 +39290,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L60",
+      "source_location": "L65",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39662,5 +39662,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "47d608e9b3597014d69b11ad084b110bca36831b"
+  "built_at_commit": "a3c19e22af848865ea85f975af9b141a62e26829"
 }

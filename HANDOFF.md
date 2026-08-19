@@ -10,7 +10,12 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 
 Sesión de estabilización tras cablear el SFM3300 y poner los pull-ups. **Estado: firmware
 estable** — SFM leyendo, sin crashes, sin cuelgues de bus. Se sube `PROJECT_VER` a **1.4.0**
-(`CMakeLists.txt`).
+(`CMakeLists.txt`, no existía antes: la versión salía del git hash).
+
+**Versión en pantalla/app:** la HMI (Info → "FW APLICACIÓN") y el JSON de info BLE mostraban
+`cfg->general.fw_version` (config, default "1.0.0"), no la del build. Ahora ambos leen
+`esp_app_get_description()->version` (= `PROJECT_VER`), fuente única. Se agregó `app_update` a
+`REQUIRES` de `main` y `transport_ble` para resolver `esp_app_desc.h`.
 
 **Resuelto:**
 - **SFM3300 no leía → FIX CRC.** El SFM3300-D usa el chip Sensirion **SF05**, cuyo CRC-8
