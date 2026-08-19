@@ -6,6 +6,7 @@ idf_component_register(
     PRIV_REQUIRES
         storage
         sensors_runtime
+        app_update
 )
 # Agregar include de NimBLE HCI manualmente:
 target_include_directories(${COMPONENT_LIB} PRIVATE

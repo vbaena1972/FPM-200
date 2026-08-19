@@ -3,7 +3,8 @@ file(GLOB_RECURSE SRC_UI ${CMAKE_SOURCE_DIR} "ui/*.c")
 
 idf_component_register(SRCS "main.c" "config_mode.c" "lv_port_mem.c" ${SRC_UI}
                     INCLUDE_DIRS "." "ui"
-                    REQUIRES 
+                    REQUIRES
+                         app_update
                          bt
                          cert_store
                          cjson

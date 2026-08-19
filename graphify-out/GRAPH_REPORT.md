@@ -1,7 +1,7 @@
 # Graph Report - ClaudeHMI-FW  (2026-08-18)
 
 ## Corpus Check
-- 143 files · ~312,858 words
+- 143 files · ~312,917 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6e8e0203`
+- Built from commit: `47d608e9`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -100,8 +100,8 @@ Cohesion: 0.08
 Nodes (97): lv_font_t, bleapp_set_connected(), ui_bleAppScreen_screen_init(), ui_confirmScreen_screen_init(), lv_event_cb_t, lv_obj_t, conn_card(), ui_connectivityScreen_screen_init() (+89 more)
 
 ### Community 1 - "wifi_mgr.c"
-Cohesion: 0.16
-Nodes (20): apply_ip_mode(), AppConfig, esp_err_t, esp_event_base_t, wifi_status_t, log_dns_info(), net_cfg_equals(), notify() (+12 more)
+Cohesion: 0.19
+Nodes (17): apply_ip_mode(), AppConfig, esp_err_t, wifi_status_t, net_cfg_equals(), notify(), wifi_apply_cb(), wifi_mgr_apply_from_cache() (+9 more)
 
 ### Community 2 - "main.c"
 Cohesion: 0.13
@@ -240,8 +240,8 @@ Cohesion: 0.33
 Nodes (6): lv_color_t, lv_obj_t, ui_cfg_apply_visual_mode(), ui_cfg_set_theme(), ui_cfg_theme(), visual_color()
 
 ### Community 70 - "on_eth_event"
-Cohesion: 0.50
-Nodes (5): mem_diag_report(), on_eth_event(), esp_netif_t, wifi_mgr_get_netif(), http_api_stop()
+Cohesion: 0.29
+Nodes (8): mem_diag_report(), on_eth_event(), esp_event_base_t, esp_netif_t, log_dns_info(), wifi_event_handler(), wifi_mgr_get_netif(), http_api_stop()
 
 ### Community 72 - "lv_event_t"
 Cohesion: 0.67

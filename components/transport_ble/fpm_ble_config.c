@@ -3,6 +3,7 @@
 #include "sensors_runtime.h"
 #include "cJSON.h"
 #include "esp_log.h"
+#include "esp_app_desc.h" // version real del firmware (PROJECT_VER)
 #include <string.h>
 #include <strings.h>
 #include <stdlib.h>
@@ -122,7 +123,9 @@ char *fpm_ble_info_json(void)
     cJSON_AddStringToObject(o, "serial", c ? c->general.serial : "");
     cJSON_AddStringToObject(o, "thing_name", c ? c->general.serial : "");
     cJSON_AddStringToObject(o, "hw", c ? c->general.hw_version : "");
-    cJSON_AddStringToObject(o, "fw", c ? c->general.fw_version : "");
+    /* Versión REAL del firmware flasheado (PROJECT_VER), no el campo de config. */
+    const esp_app_desc_t *appdesc = esp_app_get_description();
+    cJSON_AddStringToObject(o, "fw", appdesc ? appdesc->version : "");
     cJSON_AddStringToObject(o, "hostname", c ? c->eth.hostname : "");
     cJSON_AddNumberToObject(o, "channels", 2);   /* Axira: presión + flujo */
     /* La app lee `enabled_channel_count` (ble_provisioning_screen.dart); se manda

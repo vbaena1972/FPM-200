@@ -5,6 +5,7 @@
 #include "ui_nav.h"
 #include "storage.h"
 #include "metrics_store.h"
+#include "esp_app_desc.h" // esp_app_get_description() -> version real (PROJECT_VER)
 #include <string.h>
 #include <stdio.h>
 
@@ -109,8 +110,10 @@ void ui_infoScreen_screen_init(void)
              cfg && cfg->general.hw_version[0] ? cfg->general.hw_version : "-");
     k = kv_card(kvg, _t("VERSIÓN HW"), verbuf, UI_C_TEXT);
     lv_obj_set_grid_cell(k, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
-    snprintf(verbuf, sizeof(verbuf), "v%s",
-             cfg && cfg->general.fw_version[0] ? cfg->general.fw_version : "-");
+    /* Versión REAL del firmware flasheado (PROJECT_VER via esp_app_desc),
+       no el campo de config general.fw_version (que podía quedar desfasado). */
+    const esp_app_desc_t *appdesc = esp_app_get_description();
+    snprintf(verbuf, sizeof(verbuf), "v%s", appdesc ? appdesc->version : "-");
     k = kv_card(kvg, _t("FW APLICACIÓN"), verbuf, UI_C_TEXT);
     lv_obj_set_grid_cell(k, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
 
