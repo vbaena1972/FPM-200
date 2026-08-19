@@ -105,7 +105,7 @@ void ui_infoScreen_screen_init(void)
     lv_obj_set_grid_cell(k, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
     k = kv_card(kvg, _t("GAS CONFIGURADO"), gas_label(cfg ? cfg->sensors.gas_type : "o2"), UI_C_OK);
     lv_obj_set_grid_cell(k, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
-    char verbuf[24];
+    char verbuf[40]; /* esp_app_desc version[] llega a 32 chars + "v" + NUL */
     snprintf(verbuf, sizeof(verbuf), "v%s",
              cfg && cfg->general.hw_version[0] ? cfg->general.hw_version : "-");
     k = kv_card(kvg, _t("VERSIÓN HW"), verbuf, UI_C_TEXT);
