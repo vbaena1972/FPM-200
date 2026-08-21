@@ -160,8 +160,8 @@
     "semantic_hash": ""
   },
   "components/sensors_runtime/sensors_runtime.c": {
-    "mtime": 1787276741.9519937,
-    "ast_hash": "77cb611d23c0dce594a6be67c0a03b83",
+    "mtime": 1787315804.44438,
+    "ast_hash": "972598a3d04ad6e45c6f23f7fe48d85b",
     "semantic_hash": ""
   },
   "components/state_pub/include/state_pub.h": {
@@ -640,8 +640,8 @@
     "semantic_hash": ""
   },
   "HANDOFF.md": {
-    "mtime": 1787278763.387645,
-    "ast_hash": "7a8b95f29afe2be001b554d79718880f",
+    "mtime": 1787315827.0218043,
+    "ast_hash": "5925f68afde52c678538e1f3bc76dc78",
     "semantic_hash": ""
   },
   "HMI_MIGRATION.md": {

@@ -6,6 +6,23 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 
 ---
 
+## Actualización 2026-08-21 — EEPROM persiste + recalibración FS7 estable
+
+- **🎉 La EEPROM AT24C256 YA ESCRIBE** (`Calibración por defecto escrita en EEPROM`, sin el
+  `INVALID_RESPONSE`). Lo resolvió **consolidar las pull-ups del bus 1** (los dev-boards del ADS y
+  la AT24C256 traían sus propias 10k en paralelo con las 4.7k de control → efectivo impredecible;
+  se dejaron en un solo punto) **+** el endurecimiento del driver (50 kHz, chunks 32 B, reintento
+  4×). También el touch inicializó OK y el scan da los 7 dispositivos. **La calibración ya persiste.**
+- **Recalibración FS7 (datos ESTABLES, ~180 muestras 8–37 slm):** cero reconstruido **Ucta=3.466 V**
+  (muy estable, n=21). Ajuste ley de potencia `flujo[slm]=209·(Ucta−3.466)^1.17` → **`u0=3.466,
+  k=1, n=0.857, flow_scale=209`**, **RMS ~2.6 slm**. Falta caracterizar >37 slm.
+- **Chequeo de versión en la carga de EEPROM:** `sensor_cfg_load_or_init` ahora valida
+  `tmp.version == SENS_CFG_VERSION` (antes solo magic+size+CRC). Se subió **`SENS_CFG_VERSION` 4→5**
+  para que la cal vieja guardada en EEPROM se rechace y se reescriban los nuevos defaults. **Regla:
+  subir SENS_CFG_VERSION cada vez que cambien los defaults de calibración.**
+
+---
+
 ## Actualización 2026-08-20 — BMP280 (ref. atmosférica), cero FS7, debug en dashboard
 
 - **Cero del FS7 a 3.60 V:** medido el analog output del FS7 a flujo cero en **3.595–3.605 V**

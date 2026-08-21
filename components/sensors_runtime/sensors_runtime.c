@@ -54,7 +54,7 @@ static const char *TAG = "sensors_runtime";
 
 #define SENS_CFG_EEPROM_ADDR 0x0000
 #define SENS_CFG_MAGIC 0x53454E31u // "SEN1"
-#define SENS_CFG_VERSION 4
+#define SENS_CFG_VERSION 5 // v5: recalibracion FS7 (2026-08-21). Sube al cambiar defaults
 
 // Modos de presiÃ³n
 #define PRESSURE_MODE_ABS   0 // absoluta (por defecto)
@@ -174,18 +174,16 @@ static void sensor_cfg_set_defaults(sensor_eeprom_cfg_t *c)
 
     // Divisor R2/(R1+R2) = 100k/340k
     c->fs7_divider = 100.0f / (240.0f + 100.0f); // 0.294118
-    // Calibracion (2026-08-20) contra el patron SFM3300 (0-50 slm). El voltaje
-    // CTA RECONSTRUIDO (Ucta = Vain0/divisor) a flujo CERO mide ~3.49 V (no los
-    // 3.60 del multimetro: hay desajuste del divisor -> se calibra en el dominio
-    // reconstruido). La respuesta es CONVEXA (el CTA satura): flujo crece como
-    // (U-U0)^1.29. Ajuste de ley de potencia: flujo[slm] = 271*(Ucta-3.49)^1.29,
-    // que en el modelo ((U-u0)/k)^(1/n)*scale es k=1, n=0.773, scale=271.
-    // Pendiente: refinar con caudales ESTABLES (aqui el flujo iba rampando) y
-    // persistir en EEPROM. La auto-tara de flujo corrige la deriva del cero.
-    c->fs7_u0 = 3.49f;      // cero reconstruido (Ucta) del log
+    // Calibracion (2026-08-21) contra el patron SFM3300 con datos ESTABLES
+    // (~180 muestras, 8-37 slm). El voltaje CTA RECONSTRUIDO (Ucta=Vain0/divisor)
+    // a flujo CERO mide 3.466 V (muy estable, n=21). Respuesta convexa (el CTA
+    // satura): flujo[slm] = 209*(Ucta-3.466)^1.17, que en el modelo
+    // ((U-u0)/k)^(1/n)*scale es k=1, n=0.857, scale=209. RMS del ajuste ~2.6 slm.
+    // Refinar arriba de ~37 slm (no cubierto); la auto-tara corrige la deriva del cero.
+    c->fs7_u0 = 3.466f;     // cero reconstruido (Ucta), medido estable
     c->fs7_k = 1.0f;        // la ganancia va en flow_scale
-    c->fs7_n = 0.773f;      // exponente (1/n = 1.29: respuesta convexa)
-    c->flow_scale = 271.0f; // ley de potencia vs SFM3300
+    c->fs7_n = 0.857f;      // exponente (1/n = 1.17: respuesta convexa)
+    c->flow_scale = 209.0f; // ley de potencia vs SFM3300 (RMS ~2.6 slm)
     c->flow_offset = 0.0f;
 
     c->flow_enabled = 1;   // FS7 conectado y calibrado (salida analog. a 3.6 V @ 0 flujo)
@@ -214,6 +212,7 @@ static void sensor_cfg_load_or_init(void)
     esp_err_t err = at24c256_read(SENS_CFG_EEPROM_ADDR, (uint8_t *)&tmp, sizeof(tmp));
     if (err == ESP_OK &&
         tmp.magic == SENS_CFG_MAGIC &&
+        tmp.version == SENS_CFG_VERSION &&
         tmp.size == sizeof(tmp))
     {
         uint16_t crc = crc16_ccitt((const uint8_t *)&tmp, sizeof(tmp) - sizeof(tmp.crc16));
