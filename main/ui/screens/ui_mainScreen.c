@@ -5,8 +5,10 @@
 #include "ui_cfg.h"
 #include "ui.h"
 #include "alarm_mgr.h"
+#include "sensors_runtime.h" // sensors_runtime_get_debug (diagnostico dashboard)
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 /* ============================================================
  *  Pantalla principal (mockups 3a/3b/4b/4c)
@@ -46,6 +48,7 @@ typedef struct {
     lv_obj_t *pill;
     lv_obj_t *pill_state;
     lv_obj_t *pill_mm;
+    lv_obj_t *dbg;   /* linea de diagnostico TEMPORAL (atm / SFM / delta) */
 } metric_card_t;
 
 static metric_card_t s_press, s_flow;
@@ -189,6 +192,11 @@ static void build_metric_card(lv_obj_t *parent, metric_card_t *m,
     m->pill_state = ui_label(m->pill, _t("NORMAL"), UI_FONT_SM, UI_C_OK);
     lv_obj_set_style_text_letter_space(m->pill_state, 1, 0);
     m->pill_mm = ui_label(m->pill, "24H -- / --", UI_FONT_XS, UI_C_TEXT_MUTED);
+
+    /* Linea de diagnostico TEMPORAL (se elimina en produccion): muestra los
+     * valores crudos de los sensores de referencia para no leer los logs. */
+    m->dbg = ui_label(m->card, "", UI_FONT_XS, UI_C_TEXT_MUTED);
+    lv_obj_set_width(m->dbg, LV_PCT(100));
 }
 
 /* Actualiza una tarjeta con valor + zonas + estado */
@@ -581,6 +589,31 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         snprintf(fmb, sizeof(fmb), "%.0f %s",
                  (double)flow_to_disp(f_axis * FLOW_HIGH_ZONE_FRAC, cfg->sensors.flow_unit), _t("alto"));
         lv_label_set_text(s_flow.ax_mid, fmb);
+
+        /* --- Diagnóstico TEMPORAL en las tarjetas (se elimina en producción) ---
+         * Presión: atmosférica del BMP280 (referencia del cero).
+         * Flujo: referencia SFM3300 y su diferencia con el FS7. */
+        {
+            float dbg_atm = NAN, dbg_sfm = NAN, dbg_fs7 = NAN;
+            sensors_runtime_get_debug(&dbg_atm, &dbg_sfm, &dbg_fs7);
+            char dbgb[48];
+            if (isfinite(dbg_atm))
+                snprintf(dbgb, sizeof(dbgb), "atm %.2f kPa (BMP280)", (double)dbg_atm);
+            else
+                snprintf(dbgb, sizeof(dbgb), "atm -- (BMP280)");
+            lv_label_set_text(s_press.dbg, dbgb);
+
+            if (isfinite(dbg_sfm)) {
+                if (isfinite(dbg_fs7))
+                    snprintf(dbgb, sizeof(dbgb), "SFM %.1f  dif %+.1f slm",
+                             (double)dbg_sfm, (double)(dbg_sfm - dbg_fs7));
+                else
+                    snprintf(dbgb, sizeof(dbgb), "SFM %.1f slm", (double)dbg_sfm);
+            } else {
+                snprintf(dbgb, sizeof(dbgb), "SFM -- slm");
+            }
+            lv_label_set_text(s_flow.dbg, dbgb);
+        }
 
         /* --- Consumo acumulado del día --- */
         if (s_consumo_prev_ts >= 0 && last->ts_ms > s_consumo_prev_ts) {

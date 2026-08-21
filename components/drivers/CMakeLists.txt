@@ -6,6 +6,7 @@ idf_component_register(
         "ads1115.c"
         "at24c256.c"
         "sfm3300.c"
+        "bmp280.c"
     INCLUDE_DIRS 
         "include"
     REQUIRES 

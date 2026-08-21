@@ -49,6 +49,7 @@
 #include "lwip/ip_addr.h"
 #include "rtc_rv3028.h"
 #include "ms5803.h"
+#include "bmp280.h"
 #include "ads1115.h"
 #include "at24c256.h"
 #include "sfm3300.h"
@@ -496,6 +497,7 @@ static void screen_init_task(void *arg)
     at24c256_init(bus_handle, 0); // EEPROM AT24C256C @ 0x50 (parametros de calibraciÃ³n)
     ms5803_init(bus_handle);      // Sensor de presiÃ³n/temperatura MS5803-14BA @ 0x76
     ads1115_init(bus_handle);     // ADC del sensor de flujo FS7 @ 0x48 (AIN0)
+    bmp280_init(bus_handle, 0x77); // BMP280/BME280 @ 0x77: referencia atmosferica (cero de presion)
 
     // Segundo bus I2C (GPIO43=SDA, GPIO44=SCL) para el caudalimetro de
     // referencia Sensirion SFM3300-D (para calibrar/observar el FS7).

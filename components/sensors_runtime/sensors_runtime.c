@@ -15,6 +15,7 @@
 #include "ads1115.h"
 #include "at24c256.h"
 #include "sfm3300.h" // caudalimetro de referencia (calibracion del FS7)
+#include "bmp280.h"  // barometro de referencia atmosferica (cero de presion)
 
 //------------------------------------------------------------------
 // ParÃ¡metros del buffer y tarea de adquisiciÃ³n
@@ -99,6 +100,12 @@ static volatile float s_last_pressure_abs_kpa = NAN;
 // de flujo (auto-cero) y la calibraciÃ³n de 1 punto. NAN si aÃºn no hay lectura.
 static volatile float s_last_ucta = NAN;
 
+// Valores de DIAGNOSTICO en vivo para mostrar en el dashboard (temporales):
+// presiÃ³n atmosfÃ©rica del BMP280, referencia SFM3300 y flujo del FS7.
+static volatile float s_dbg_atm_kpa = NAN;
+static volatile float s_dbg_sfm_slm = NAN;
+static volatile float s_dbg_fs7_lpm = NAN;
+
 //------------------------------------------------------------------
 // Estado interno
 //------------------------------------------------------------------
@@ -172,7 +179,7 @@ static void sensor_cfg_set_defaults(sensor_eeprom_cfg_t *c)
     // respuesta flujo vs (U-U0) es casi LINEAL en este rango (no la potencia
     // n=0.51 del datasheet). Modelo empirico: flujo[slm] = (U - 3.46) * 222.
     // Pendiente: refinar con caudales estables y persistir en EEPROM.
-    c->fs7_u0 = 3.522f;     // salida CTA a flujo cero (medido 2026-08-18)
+    c->fs7_u0 = 3.60f;      // salida analog. del FS7 a flujo cero (medido 3.595-3.605 V, 2026-08)
     c->fs7_k = 1.0f;        // sin escalar aqui: la ganancia va en flow_scale
     c->fs7_n = 1.0f;        // exponente empirico (~lineal en este rango)
     c->flow_scale = 222.0f; // (U-U0) -> L/min (ajuste 1er paso vs SFM3300)
@@ -428,6 +435,13 @@ void sensors_runtime_set_bus(i2c_master_bus_handle_t bus)
     s_i2c_bus = bus;
 }
 
+void sensors_runtime_get_debug(float *atm_kpa, float *sfm_slm, float *fs7_lpm)
+{
+    if (atm_kpa) *atm_kpa = s_dbg_atm_kpa;
+    if (sfm_slm) *sfm_slm = s_dbg_sfm_slm;
+    if (fs7_lpm) *fs7_lpm = s_dbg_fs7_lpm;
+}
+
 void sensors_runtime_update_config(const AppConfig *cfg)
 {
     if (!cfg)
@@ -672,8 +686,18 @@ static void sensors_acq_task(void *arg)
         float u_cta = NAN;
         float flow_lpm = NAN;
         float sfm_slm = NAN; // caudalimetro de referencia SFM3300 (slm)
+        float atm_kpa = NAN; // presiÃ³n atmosfÃ©rica de referencia (BMP280)
         bool ms5803_read_ok = false;
         bool ads_read_ok = false;
+
+        // --- Referencia atmosfÃ©rica (BMP280) para el cero de presiÃ³n de lÃ­nea ---
+        if (bmp280_is_ready())
+        {
+            float ap = 0.0f;
+            if (bmp280_read(&ap, NULL) == ESP_OK)
+                atm_kpa = ap;
+        }
+        s_dbg_atm_kpa = atm_kpa;
 
         // --- PresiÃ³n / temperatura (MS5803-14BA) ---
         if (ms5803_is_ready())
@@ -698,9 +722,13 @@ static void sensors_acq_task(void *arg)
                 ms5803_read_ok = true;
                 ms5803_miss = 0;
 
-                // Modo gauge: restamos la referencia atmosfÃ©rica tarada
+                // Modo gauge: cero por referencia atmosfÃ©rica. Preferimos el
+                // barÃ³metro en vivo (BMP280); si no hay, caemos a la tara (opciÃ³n B).
                 if (s_scfg.pressure_mode == PRESSURE_MODE_GAUGE)
-                    pressure_kpa = p_abs - s_scfg.pressure_ref_kpa;
+                {
+                    float ref = isfinite(atm_kpa) ? atm_kpa : s_scfg.pressure_ref_kpa;
+                    pressure_kpa = p_abs - ref;
+                }
                 else
                     pressure_kpa = p_abs;
 
@@ -783,6 +811,10 @@ static void sensors_acq_task(void *arg)
             }
             // Un NACK/CRC puntual no es fault: solo significa "sin dato nuevo".
         }
+
+        // Diagnostico en vivo para el dashboard (temporal, se quita en producciÃ³n).
+        s_dbg_sfm_slm = sfm_slm;
+        s_dbg_fs7_lpm = flow_lpm;
 
         // Publicamos la muestra (usamos 0 cuando un canal no tiene lectura vÃ¡lida
         // para no romper a los consumidores que esperan floats finitos).

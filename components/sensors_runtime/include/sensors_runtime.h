@@ -108,6 +108,14 @@ esp_err_t sensors_runtime_tare_flow(void);
 esp_err_t sensors_runtime_cal_flow_point(float ref_slm);
 
 /**
+ * Valores de DIAGNOSTICO en vivo para el dashboard (temporales, se quitan en
+ * producciÃ³n): presiÃ³n atmosfÃ©rica del BMP280 (kPa), referencia SFM3300 (slm)
+ * y flujo del FS7 (L/min). Cualquier puntero puede ser NULL. Devuelve NAN si
+ * aÃºn no hay lectura del sensor correspondiente.
+ */
+void sensors_runtime_get_debug(float *atm_kpa, float *sfm_slm, float *fs7_lpm);
+
+/**
  * Calcula min y max de presiÃƒÂ³n y flujo en una ventana de tiempo [now - window_ms, now].
  * - window_ms: ventana en milisegundos (ej: 60000 para 1 minuto).
  * - min_out / max_out pueden ser NULL si no te interesa alguno.

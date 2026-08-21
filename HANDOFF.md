@@ -6,6 +6,24 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 
 ---
 
+## Actualización 2026-08-20 — BMP280 (ref. atmosférica), cero FS7, debug en dashboard
+
+- **Cero del FS7 a 3.60 V:** medido el analog output del FS7 a flujo cero en **3.595–3.605 V**
+  (más alto de lo programado). `fs7_u0` = **3.60** en `sensor_cfg_set_defaults()`. (El auto-cero
+  `flow_tare` sigue siendo la vía robusta ante deriva; captura el U reconstruido real.)
+- **Barómetro BMP280/BME280 @0x77 (nuevo driver `components/drivers/bmp280.c`):** referencia de
+  presión atmosférica para el **cero de la presión de línea**. Chip ID 0x58/0x60, calib de fábrica,
+  normal mode osr_p×16 + IIR×16, compensación Bosch (double). Init en `main.c` (bus 1, 0x77). En
+  `sensors_acq_task` se lee cada ciclo; **el modo gauge ahora resta la atmosférica EN VIVO del
+  BMP280** (`p_abs - atm_baro`) y cae a la tara (opción B) si no hay BMP. Supersede la recomendación
+  del BMP581 del handoff previo.
+- **Diagnóstico TEMPORAL en el dashboard** (se quita en producción): línea pequeña en cada tarjeta
+  vía `sensors_runtime_get_debug(atm, sfm, fs7)`. Presión → `atm XX.XX kPa (BMP280)`. Flujo →
+  `SFM XX.X  dif ±X.X slm` (referencia SFM3300 y su diferencia con el FS7). Campo `dbg` en
+  `metric_card_t` (`ui_mainScreen.c`). **Para producción: borrar el `dbg` y `get_debug`.**
+
+---
+
 ## Actualización 2026-08-18 (tarde) — SFM leyendo, robustez I²C, calibración FS7 · **v1.4.0**
 
 Sesión de estabilización tras cablear el SFM3300 y poner los pull-ups. **Estado: firmware
