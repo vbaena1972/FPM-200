@@ -1,7 +1,7 @@
 # Graph Report - ClaudeHMI-FW  (2026-08-20)
 
 ## Corpus Check
-- 145 files · ~314,772 words
+- 145 files · ~314,903 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a2f1ead0`
+- Built from commit: `8d98add5`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -64,7 +64,7 @@
 - save_and_refresh
 - ui_edit_begin
 - apply_authenticated_cb
-- ui_infoScreen.c
+- ui_cfg_preview_brightness
 
 ## God Nodes (most connected - your core abstractions)
 1. `appcfg_cache_peek()` - 69 edges
@@ -116,8 +116,8 @@ Cohesion: 0.08
 Nodes (39): app_metrics_t, alarm_mgr_get_current_state(), alarm_mgr_get_sensor_faults(), alarm_mgr_is_muted(), alarm_mgr_press_mute(), alarm_mgr_process(), alarm_clinical_state_t, set_buzzer_acoustic() (+31 more)
 
 ### Community 5 - "ui_nav.c"
-Cohesion: 0.14
-Nodes (16): lv_color_t, lv_obj_t, ui_cfg_apply_visual_mode(), ui_cfg_set_theme(), ui_cfg_theme(), visual_color(), lv_event_t, lv_obj_t (+8 more)
+Cohesion: 0.15
+Nodes (15): lv_color_t, lv_obj_t, ui_cfg_apply_visual_mode(), ui_cfg_set_theme(), ui_cfg_theme(), visual_color(), lv_event_t, lv_obj_t (+7 more)
 
 ### Community 6 - "transport_ble.c"
 Cohesion: 0.06
@@ -132,8 +132,8 @@ Cohesion: 0.48
 Nodes (6): app_user_role_t, lv_event_t, delete_cb(), flash_error(), save_cb(), selected_role()
 
 ### Community 9 - "ui_pinScreen.c"
-Cohesion: 0.22
-Nodes (9): lv_event_t, pin_key_cb(), pin_wrong_flash(), ui_pinScreen_screen_destroy(), ui_pinScreen_set_config_entry(), ui_cfg_check_pin(), fresh_pin(), ui_open_general_cb() (+1 more)
+Cohesion: 0.24
+Nodes (8): lv_event_t, pin_key_cb(), pin_wrong_flash(), ui_pinScreen_screen_destroy(), ui_pinScreen_set_config_entry(), ui_cfg_check_pin(), fresh_pin(), ui_open_pin_cb()
 
 ### Community 10 - "http_api.c"
 Cohesion: 0.21
@@ -144,8 +144,8 @@ Cohesion: 0.12
 Nodes (25): appcfg_to_eth_view(), apply_ip_config(), AppConfig, esp_err_t, esp_netif_t, eth_mgr_init(), eth_mgr_init_from_storage(), eth_mgr_start() (+17 more)
 
 ### Community 13 - "ui_sensorEditScreen.c"
-Cohesion: 0.18
-Nodes (24): lv_event_t, lv_obj_t, ui_edit_target_t, card(), dec_cb(), dec_seg(), f_switch(), flow_card() (+16 more)
+Cohesion: 0.21
+Nodes (21): lv_event_t, lv_obj_t, ui_edit_target_t, card(), dec_cb(), dec_seg(), flow_card(), gas_cb() (+13 more)
 
 ### Community 14 - "ui_cfg_pressure_unit"
 Cohesion: 0.16
@@ -164,8 +164,8 @@ Cohesion: 0.10
 Nodes (20): 10. Backup, 1. Objetivo y estado, 2. Repositorios (GitHub, cuenta vbaena1972), 3. Arquitectura de la nueva HMI (`main/ui/`), 4. Design system (alineado a ClaudeHMI/MedGuard, dark), 5. Pantallas (16) y navegación, 6. Lógica / persistencia (hecho), 7. Simulador de PC (`ClaudeHMI-Sim`) (+12 more)
 
 ### Community 18 - "appcfg_cache_peek"
-Cohesion: 0.11
-Nodes (23): appcfg_cache_peek(), fpm_ble_channel_read_json(), fpm_ble_cloud_read_json(), fpm_ble_config_read_json(), fpm_ble_info_json(), fpm_ble_status_read_json(), fpm_ble_wifi_read_json(), chr_access() (+15 more)
+Cohesion: 0.14
+Nodes (18): appcfg_cache_peek(), fpm_ble_channel_read_json(), fpm_ble_cloud_read_json(), fpm_ble_config_read_json(), fpm_ble_info_json(), fpm_ble_status_read_json(), fpm_ble_wifi_read_json(), chr_access() (+10 more)
 
 ### Community 19 - "Migración HMI: SquareLine → Claude Design"
 Cohesion: 0.17
@@ -196,12 +196,12 @@ Cohesion: 0.19
 Nodes (11): eth_mgr_is_up(), wifi_mgr_get_netinfo(), transport_ble_is_advertising(), transport_ble_is_connected(), lv_timer_t, statusbar_timer_cb(), conn_status_t, cpy() (+3 more)
 
 ### Community 26 - "ui_generalSimpleScreen.c"
-Cohesion: 0.27
-Nodes (9): ui_generalScreen_screen_destroy(), lv_event_t, dim_cb(), lang_cb(), rebuild(), retranslate_parent_general(), theme_cb(), ui_cfg_set_dim_minutes() (+1 more)
+Cohesion: 0.31
+Nodes (8): ui_generalScreen_screen_destroy(), lv_event_t, dim_cb(), lang_cb(), rebuild(), retranslate_parent_general(), theme_cb(), ui_cfg_set_dim_minutes()
 
 ### Community 60 - "ui.c"
-Cohesion: 0.10
-Nodes (40): ui_connectivityScreen_screen_destroy(), ui_generalSimpleScreen_screen_destroy(), ui_login_set_destination(), ui_loginScreen_screen_destroy(), ui_netBleScreen_screen_destroy(), ui_netCloudScreen_screen_destroy(), ui_netEthScreen_screen_destroy(), ui_netWifiScreen_screen_destroy() (+32 more)
+Cohesion: 0.09
+Nodes (49): ui_connectivityScreen_screen_destroy(), ui_generalSimpleScreen_screen_destroy(), ui_login_set_destination(), ui_loginScreen_screen_destroy(), ui_netBleScreen_screen_destroy(), ui_netCloudScreen_screen_destroy(), ui_netEthScreen_screen_destroy(), ui_netWifiScreen_screen_destroy() (+41 more)
 
 ### Community 61 - "screen_init_task"
 Cohesion: 0.26
@@ -244,8 +244,8 @@ Cohesion: 0.22
 Nodes (11): mem_diag_report(), on_eth_event(), esp_event_base_t, esp_netif_t, wifi_status_t, log_dns_info(), notify(), wifi_event_handler() (+3 more)
 
 ### Community 71 - "ui.h"
-Cohesion: 0.12
-Nodes (6): ui_datetimeScreen_screen_destroy(), lv_event_t, kb_event_cb(), ta_event_cb(), get_datetime(), ui_open_datetime_cb()
+Cohesion: 0.10
+Nodes (6): ui_confirmScreen_screen_destroy(), ui_datetimeScreen_screen_destroy(), ui_infoScreen_screen_destroy(), lv_event_t, kb_event_cb(), ta_event_cb()
 
 ### Community 72 - "ms5803.c"
 Cohesion: 0.44
@@ -260,8 +260,8 @@ Cohesion: 0.19
 Nodes (15): add_user(), app_user_role_t, app_user_t, lv_event_t, lv_obj_t, key_cb(), refresh(), role_color() (+7 more)
 
 ### Community 77 - "ui_keypadScreen.c"
-Cohesion: 0.24
-Nodes (8): accept_cb(), lv_event_t, key_cb(), refresh_value(), ui_keypadScreen_screen_destroy(), ui_edit_set_new(), fresh_keypad(), ui_open_confirm_cb()
+Cohesion: 0.28
+Nodes (7): accept_cb(), lv_event_t, key_cb(), refresh_value(), ui_keypadScreen_screen_destroy(), ui_edit_set_new(), fresh_keypad()
 
 ### Community 78 - "sd_monitor_task"
 Cohesion: 0.32
@@ -276,12 +276,12 @@ Cohesion: 0.16
 Nodes (17): alarm_mgr_test_buzzer(), lv_event_t, edit_cb(), rebuild(), step_cb(), test_cb(), volume_cb(), limit_edit() (+9 more)
 
 ### Community 81 - "apply_authenticated_cb"
-Cohesion: 0.29
-Nodes (5): apply_authenticated_cb(), lv_event_t, ui_confirmScreen_screen_destroy(), fresh_confirm(), ui_open_login_cb()
+Cohesion: 0.67
+Nodes (3): apply_authenticated_cb(), lv_event_t, ui_open_login_cb()
 
-### Community 83 - "ui_infoScreen.c"
-Cohesion: 0.40
-Nodes (3): ui_infoScreen_screen_destroy(), get_info(), ui_open_info_cb()
+### Community 83 - "ui_cfg_preview_brightness"
+Cohesion: 0.32
+Nodes (8): bright_cb(), lv_timer_t, clamp_brightness(), ui_cfg_dim_minutes(), ui_cfg_preview_brightness(), ui_cfg_set_brightness(), display_idle_cb(), splash_done_cb()
 
 ## Knowledge Gaps
 - **55 isolated node(s):** `graphify`, `graphify`, `1. GATT`, `2. Dos esquemas de canal (importante)`, `display ↔ `general` / `DisplayConfig`` (+50 more)
@@ -291,7 +291,7 @@ Nodes (3): ui_infoScreen_screen_destroy(), get_info(), ui_open_info_cb()
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `appcfg_cache_peek()` connect `appcfg_cache_peek` to `ui_label`, `ui_mainScreen.c`, `ui_nav.c`, `transport_ble.c`, `appcfg_save`, `ui_pinScreen.c`, `eth_mgr.c`, `ui_sensorEditScreen.c`, `ui_cfg_pressure_unit`, `cert_store.c`, `app_main`, `ui_cfg.c`, `statusbar_timer_cb`, `ui_generalSimpleScreen.c`, `screen_init_task`, `save_cb`, `gas_label_color`, `ui_loginScreen.c`, `save_and_refresh`, `ui_edit_begin`?**
+- **Why does `appcfg_cache_peek()` connect `appcfg_cache_peek` to `ui_label`, `ui_mainScreen.c`, `ui_nav.c`, `transport_ble.c`, `appcfg_save`, `ui_pinScreen.c`, `eth_mgr.c`, `ui_sensorEditScreen.c`, `ui_cfg_pressure_unit`, `cert_store.c`, `app_main`, `ui_cfg.c`, `statusbar_timer_cb`, `ui_generalSimpleScreen.c`, `screen_init_task`, `save_cb`, `gas_label_color`, `ui_loginScreen.c`, `save_and_refresh`, `ui_edit_begin`, `ui_cfg_preview_brightness`?**
   _High betweenness centrality (0.247) - this node is a cross-community bridge._
 - **Why does `screen_init_task()` connect `screen_init_task` to `rtc_rv3028.c`, `ui_wifi_main_icon.c`, `main.c`, `ui_label`, `ui_statusbar_request_refresh`, `ms5803.c`, `appcfg_cache_peek`, `sensors_runtime.c`, `bsp_display_indev_init`?**
   _High betweenness centrality (0.140) - this node is a cross-community bridge._

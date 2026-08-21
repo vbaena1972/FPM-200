@@ -25,10 +25,14 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 - **Presión gauge por defecto:** `pressure_mode` default = **GAUGE** (antes ABS). Con BMP presente
   la presión de línea resta la atmosférica en vivo (mostraba la absoluta ~12 psi). Puede quedar un
   pequeño offset (~-0.2 kPa) por diferencia MS5803↔BMP; despreciable.
-- **⚠️ FS7 a recalibrar:** `u0=3.60` viene de medir la salida REAL con multímetro, pero el modelo
-  trabaja en el dominio RECONSTRUIDO (`Vain0/divisor`), que da un cero más bajo → el FS7 sub-lee y
-  la diferencia con el SFM se dispara. Recalibrar con pares del log (`Vain0/Ucta` vs `SFMref`) a
-  caudales estables, o `flow_tare` (captura el cero reconstruido) + `flow_cal_slm`.
+- **FS7 calibrado (2026-08-20) vs SFM3300 (0–50 slm):** el cero RECONSTRUIDO (Ucta) es **3.49 V**
+  (no los 3.60 del multímetro; desajuste del divisor → se calibra en el dominio reconstruido). La
+  respuesta es CONVEXA (el CTA satura): `flujo[slm] ≈ 271·(Ucta−3.49)^1.29`. En el modelo:
+  **`u0=3.49, k=1, n=0.773, flow_scale=271`**. Datos ruidosos (flujo rampando) → refinar con
+  caudales ESTABLES; la auto-tara de flujo corrige la deriva del cero.
+- **Touch: reintento en el init** (`ft5x06.c`): un glitch del bus 1 al arranque dejaba el equipo
+  SIN touch toda la sesión (visto en log: `FT5x06 init failed 0x108`). Ahora reintenta 3×.
+- **Gauge validado:** con el BME280 la presión de línea lee ~0 kPa en reposo (resta atmosférica OK).
 
 ---
 

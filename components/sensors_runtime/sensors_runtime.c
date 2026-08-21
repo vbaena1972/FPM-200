@@ -174,15 +174,18 @@ static void sensor_cfg_set_defaults(sensor_eeprom_cfg_t *c)
 
     // Divisor R2/(R1+R2) = 100k/340k
     c->fs7_divider = 100.0f / (240.0f + 100.0f); // 0.294118
-    // Calibracion 1er paso (2026-08-18) contra el patron SFM3300 (0-71 slm):
-    // el voltaje CTA reconstruido a flujo CERO mide ~3.46 V (no 3.6), y la
-    // respuesta flujo vs (U-U0) es casi LINEAL en este rango (no la potencia
-    // n=0.51 del datasheet). Modelo empirico: flujo[slm] = (U - 3.46) * 222.
-    // Pendiente: refinar con caudales estables y persistir en EEPROM.
-    c->fs7_u0 = 3.60f;      // salida analog. del FS7 a flujo cero (medido 3.595-3.605 V, 2026-08)
-    c->fs7_k = 1.0f;        // sin escalar aqui: la ganancia va en flow_scale
-    c->fs7_n = 1.0f;        // exponente empirico (~lineal en este rango)
-    c->flow_scale = 222.0f; // (U-U0) -> L/min (ajuste 1er paso vs SFM3300)
+    // Calibracion (2026-08-20) contra el patron SFM3300 (0-50 slm). El voltaje
+    // CTA RECONSTRUIDO (Ucta = Vain0/divisor) a flujo CERO mide ~3.49 V (no los
+    // 3.60 del multimetro: hay desajuste del divisor -> se calibra en el dominio
+    // reconstruido). La respuesta es CONVEXA (el CTA satura): flujo crece como
+    // (U-U0)^1.29. Ajuste de ley de potencia: flujo[slm] = 271*(Ucta-3.49)^1.29,
+    // que en el modelo ((U-u0)/k)^(1/n)*scale es k=1, n=0.773, scale=271.
+    // Pendiente: refinar con caudales ESTABLES (aqui el flujo iba rampando) y
+    // persistir en EEPROM. La auto-tara de flujo corrige la deriva del cero.
+    c->fs7_u0 = 3.49f;      // cero reconstruido (Ucta) del log
+    c->fs7_k = 1.0f;        // la ganancia va en flow_scale
+    c->fs7_n = 0.773f;      // exponente (1/n = 1.29: respuesta convexa)
+    c->flow_scale = 271.0f; // ley de potencia vs SFM3300
     c->flow_offset = 0.0f;
 
     c->flow_enabled = 1;   // FS7 conectado y calibrado (salida analog. a 3.6 V @ 0 flujo)

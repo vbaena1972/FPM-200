@@ -35,8 +35,8 @@
     "semantic_hash": ""
   },
   "components/display/ft5x06.c": {
-    "mtime": 1787092302.5313513,
-    "ast_hash": "7001cd2a970903003add021d72a35ce9",
+    "mtime": 1787276794.1983297,
+    "ast_hash": "68f213c5972cca71232535d656142da1",
     "semantic_hash": ""
   },
   "components/display/include/display.h": {
@@ -160,8 +160,8 @@
     "semantic_hash": ""
   },
   "components/sensors_runtime/sensors_runtime.c": {
-    "mtime": 1787276056.248517,
-    "ast_hash": "5139ccec15dc9f5d74105cb6cf89d840",
+    "mtime": 1787276741.9519937,
+    "ast_hash": "77cb611d23c0dce594a6be67c0a03b83",
     "semantic_hash": ""
   },
   "components/state_pub/include/state_pub.h": {
@@ -640,8 +640,8 @@
     "semantic_hash": ""
   },
   "HANDOFF.md": {
-    "mtime": 1787276147.2140749,
-    "ast_hash": "a33b74dbfbf797c457821cbf8fa3b282",
+    "mtime": 1787276810.8725274,
+    "ast_hash": "9e4045d7cfa1e52dc33de5b3e32c7e58",
     "semantic_hash": ""
   },
   "HMI_MIGRATION.md": {

@@ -1,6 +1,8 @@
 /* MIT License */
 #include "ft5x06.h"
 #include "esp_lcd_touch_ft5x06.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 static const char *TAG = "ft5x06:";
 
@@ -42,7 +44,14 @@ static void ft5x06_lvgl_read_cb(lv_indev_t *indev, lv_indev_data_t *data)
 lv_indev_t *bsp_display_indev_init(lv_display_t *disp, i2c_master_bus_handle_t bus_handle)
 {
 
-    esp_err_t err = bsp_touch_new(NULL, &tp, bus_handle);
+    // Reintentamos el init del touch: un glitch puntual del bus 1 al arranque
+    // (visto en logs) hacia que quedara SIN touch toda la sesion.
+    esp_err_t err = ESP_FAIL;
+    for (int i = 0; i < 3 && (err != ESP_OK || tp == NULL); i++)
+    {
+        if (i) vTaskDelay(pdMS_TO_TICKS(30));
+        err = bsp_touch_new(NULL, &tp, bus_handle);
+    }
     if (err != ESP_OK || tp == NULL)
     {
         // Sin panel tactil conectado: no registramos indev y seguimos.
