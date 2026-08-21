@@ -160,8 +160,8 @@
     "semantic_hash": ""
   },
   "components/sensors_runtime/sensors_runtime.c": {
-    "mtime": 1787274839.784805,
-    "ast_hash": "c7e6517cbab839857186c625493bbeaa",
+    "mtime": 1787276056.248517,
+    "ast_hash": "5139ccec15dc9f5d74105cb6cf89d840",
     "semantic_hash": ""
   },
   "components/state_pub/include/state_pub.h": {
@@ -435,8 +435,8 @@
     "semantic_hash": ""
   },
   "main/ui/screens/ui_mainScreen.c": {
-    "mtime": 1787274965.1689322,
-    "ast_hash": "42706a4560100465d07ade80dadf1c34",
+    "mtime": 1787276104.3790286,
+    "ast_hash": "ff0e0b666e160cc58c239f6f67b96616",
     "semantic_hash": ""
   },
   "main/ui/screens/ui_mainScreen.h": {
@@ -640,8 +640,8 @@
     "semantic_hash": ""
   },
   "HANDOFF.md": {
-    "mtime": 1787098915.6016111,
-    "ast_hash": "910a24b6e3caab295201ee5692bae19c",
+    "mtime": 1787276147.2140749,
+    "ast_hash": "a33b74dbfbf797c457821cbf8fa3b282",
     "semantic_hash": ""
   },
   "HMI_MIGRATION.md": {
@@ -830,8 +830,8 @@
     "semantic_hash": ""
   },
   "components/drivers/bmp280.c": {
-    "mtime": 1787275001.711028,
-    "ast_hash": "767e93fbda945db5d449f31b5c2fb7f7",
+    "mtime": 1787275077.2433016,
+    "ast_hash": "16037510618dd677fca0ccb565bae3b7",
     "semantic_hash": ""
   },
   "components/drivers/include/bmp280.h": {

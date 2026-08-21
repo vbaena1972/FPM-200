@@ -186,7 +186,10 @@ static void sensor_cfg_set_defaults(sensor_eeprom_cfg_t *c)
     c->flow_offset = 0.0f;
 
     c->flow_enabled = 1;   // FS7 conectado y calibrado (salida analog. a 3.6 V @ 0 flujo)
-    c->pressure_mode = PRESSURE_MODE_ABS; // absoluta hasta que se tare
+    // Gauge por defecto: presiÃ³n de lÃ­nea RELATIVA a la atmosfÃ©rica. Con el BMP280
+    // presente resta la atmosfÃ©rica en vivo (abs - atm); si no hay BMP cae a la
+    // tara (pressure_ref_kpa, 0 por defecto -> muestra absoluta).
+    c->pressure_mode = PRESSURE_MODE_GAUGE;
     c->sample_period_ms = SENSORS_DEFAULT_PERIOD_MS;
 }
 

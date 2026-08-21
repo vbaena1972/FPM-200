@@ -18,9 +18,17 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
   BMP280** (`p_abs - atm_baro`) y cae a la tara (opción B) si no hay BMP. Supersede la recomendación
   del BMP581 del handoff previo.
 - **Diagnóstico TEMPORAL en el dashboard** (se quita en producción): línea pequeña en cada tarjeta
-  vía `sensors_runtime_get_debug(atm, sfm, fs7)`. Presión → `atm XX.XX kPa (BMP280)`. Flujo →
-  `SFM XX.X  dif ±X.X slm` (referencia SFM3300 y su diferencia con el FS7). Campo `dbg` en
+  vía `sensors_runtime_get_debug(atm, sfm, fs7)`. Presión → `atm XX.XX <u> (BMP)`. Flujo →
+  `SFM XX.X  dif ±X.X <u>` (referencia SFM3300 y su diferencia con el FS7). **Ambos respetan la
+  unidad configurada** (presión/flujo) vía `pressure_to_disp`/`flow_to_disp`. Campo `dbg` en
   `metric_card_t` (`ui_mainScreen.c`). **Para producción: borrar el `dbg` y `get_debug`.**
+- **Presión gauge por defecto:** `pressure_mode` default = **GAUGE** (antes ABS). Con BMP presente
+  la presión de línea resta la atmosférica en vivo (mostraba la absoluta ~12 psi). Puede quedar un
+  pequeño offset (~-0.2 kPa) por diferencia MS5803↔BMP; despreciable.
+- **⚠️ FS7 a recalibrar:** `u0=3.60` viene de medir la salida REAL con multímetro, pero el modelo
+  trabaja en el dominio RECONSTRUIDO (`Vain0/divisor`), que da un cero más bajo → el FS7 sub-lee y
+  la diferencia con el SFM se dispara. Recalibrar con pares del log (`Vain0/Ucta` vs `SFMref`) a
+  caudales estables, o `flow_tare` (captura el cero reconstruido) + `flow_cal_slm`.
 
 ---
 

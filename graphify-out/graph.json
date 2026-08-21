@@ -472,8 +472,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_display_include_display",
-      "community": 62,
-      "community_name": "bsp_display_indev_init",
+      "community": 82,
+      "community_name": "display.h",
       "norm_label": "display.h"
     },
     {
@@ -483,8 +483,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_display_include_esp_lcd_st7796",
-      "community": 62,
-      "community_name": "bsp_display_indev_init",
+      "community": 82,
+      "community_name": "display.h",
       "norm_label": "esp_lcd_st7796.h"
     },
     {
@@ -494,8 +494,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_display_include_esp_lcd_touch_ft5x06",
-      "community": 62,
-      "community_name": "bsp_display_indev_init",
+      "community": 82,
+      "community_name": "display.h",
       "norm_label": "esp_lcd_touch_ft5x06.h"
     },
     {
@@ -505,8 +505,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_display_include_ft5x06",
-      "community": 62,
-      "community_name": "bsp_display_indev_init",
+      "community": 82,
+      "community_name": "display.h",
       "norm_label": "ft5x06.h"
     },
     {
@@ -516,8 +516,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_display_include_st7796",
-      "community": 62,
-      "community_name": "bsp_display_indev_init",
+      "community": 82,
+      "community_name": "display.h",
       "norm_label": "st7796.h"
     },
     {
@@ -527,8 +527,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_display_include_touch",
-      "community": 62,
-      "community_name": "bsp_display_indev_init",
+      "community": 82,
+      "community_name": "display.h",
       "norm_label": "touch.h"
     },
     {
@@ -538,7 +538,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_display_st7796",
-      "community": 2,
+      "community": 61,
       "community_name": "screen_init_task",
       "norm_label": "st7796.c"
     },
@@ -550,7 +550,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_display_st7796_bsp_display_brightness_init",
-      "community": 2,
+      "community": 61,
       "community_name": "screen_init_task",
       "norm_label": "bsp_display_brightness_init()"
     },
@@ -561,7 +561,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "components_display_st7796_c_esp_err_t",
-      "community": 2,
+      "community": 61,
       "community_name": "screen_init_task",
       "norm_label": "esp_err_t"
     },
@@ -573,7 +573,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_display_st7796_bsp_display_start",
-      "community": 2,
+      "community": 61,
       "community_name": "screen_init_task",
       "norm_label": "bsp_display_start()"
     },
@@ -584,7 +584,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "components_display_st7796_c_lv_display_t",
-      "community": 2,
+      "community": 61,
       "community_name": "screen_init_task",
       "norm_label": "lv_display_t"
     },
@@ -596,7 +596,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_display_st7796_bsp_display_lock",
-      "community": 2,
+      "community": 61,
       "community_name": "screen_init_task",
       "norm_label": "bsp_display_lock()"
     },
@@ -608,7 +608,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_display_st7796_bsp_display_unlock",
-      "community": 2,
+      "community": 61,
       "community_name": "screen_init_task",
       "norm_label": "bsp_display_unlock()"
     },
@@ -620,7 +620,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_display_st7796_bsp_display_on",
-      "community": 2,
+      "community": 61,
       "community_name": "screen_init_task",
       "norm_label": "bsp_display_on()"
     },
@@ -632,7 +632,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_display_st7796_bsp_display_off",
-      "community": 2,
+      "community": 61,
       "community_name": "screen_init_task",
       "norm_label": "bsp_display_off()"
     },
@@ -644,7 +644,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_display_st7796_bsp_display_brightness_set",
-      "community": 2,
+      "community": 61,
       "community_name": "screen_init_task",
       "norm_label": "bsp_display_brightness_set()"
     },
@@ -656,7 +656,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_display_st7796_bsp_display_backlight_off",
-      "community": 2,
+      "community": 61,
       "community_name": "screen_init_task",
       "norm_label": "bsp_display_backlight_off()"
     },
@@ -668,7 +668,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_display_st7796_bsp_display_backlight_on",
-      "community": 2,
+      "community": 61,
       "community_name": "screen_init_task",
       "norm_label": "bsp_display_backlight_on()"
     },
@@ -680,7 +680,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_display_st7796_bsp_display_rotate",
-      "community": 2,
+      "community": 61,
       "community_name": "screen_init_task",
       "norm_label": "bsp_display_rotate()"
     },
@@ -691,7 +691,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "lv_disp_t",
-      "community": 2,
+      "community": 61,
       "community_name": "screen_init_task",
       "norm_label": "lv_disp_t"
     },
@@ -702,7 +702,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "lv_display_rotation_t",
-      "community": 2,
+      "community": 61,
       "community_name": "screen_init_task",
       "norm_label": "lv_display_rotation_t"
     },
@@ -1233,8 +1233,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_drivers_ms5803",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 72,
+      "community_name": "ms5803.c",
       "norm_label": "ms5803.c"
     },
     {
@@ -1245,8 +1245,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_drivers_ms5803_ms5803_send_cmd",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 72,
+      "community_name": "ms5803.c",
       "norm_label": "ms5803_send_cmd()"
     },
     {
@@ -1256,8 +1256,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "components_drivers_ms5803_c_esp_err_t",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 72,
+      "community_name": "ms5803.c",
       "norm_label": "esp_err_t"
     },
     {
@@ -1268,8 +1268,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_drivers_ms5803_ms5803_reset_retry",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 72,
+      "community_name": "ms5803.c",
       "norm_label": "ms5803_reset_retry()"
     },
     {
@@ -1280,8 +1280,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_drivers_ms5803_ms5803_read_prom_word",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 72,
+      "community_name": "ms5803.c",
       "norm_label": "ms5803_read_prom_word()"
     },
     {
@@ -1292,8 +1292,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_drivers_ms5803_ms5803_read_adc",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 72,
+      "community_name": "ms5803.c",
       "norm_label": "ms5803_read_adc()"
     },
     {
@@ -1304,8 +1304,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_drivers_ms5803_ms5803_crc4",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 72,
+      "community_name": "ms5803.c",
       "norm_label": "ms5803_crc4()"
     },
     {
@@ -1316,8 +1316,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_drivers_ms5803_ms5803_try_addr",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 72,
+      "community_name": "ms5803.c",
       "norm_label": "ms5803_try_addr()"
     },
     {
@@ -1327,8 +1327,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "components_drivers_ms5803_c_i2c_master_bus_handle_t",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 72,
+      "community_name": "ms5803.c",
       "norm_label": "i2c_master_bus_handle_t"
     },
     {
@@ -1339,8 +1339,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_drivers_ms5803_ms5803_init",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 72,
+      "community_name": "ms5803.c",
       "norm_label": "ms5803_init()"
     },
     {
@@ -1363,8 +1363,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_drivers_ms5803_ms5803_read",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 72,
+      "community_name": "ms5803.c",
       "norm_label": "ms5803_read()"
     },
     {
@@ -1374,8 +1374,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_drivers_rtc_rv3028",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 64,
+      "community_name": "rtc_rv3028.c",
       "norm_label": "rtc_rv3028.c"
     },
     {
@@ -1386,8 +1386,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_drivers_rtc_rv3028_bcd2dec",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 64,
+      "community_name": "rtc_rv3028.c",
       "norm_label": "bcd2dec()"
     },
     {
@@ -1398,8 +1398,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_drivers_rtc_rv3028_dec2bcd",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 64,
+      "community_name": "rtc_rv3028.c",
       "norm_label": "dec2bcd()"
     },
     {
@@ -1410,8 +1410,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_drivers_rtc_rv3028_rtc_rv3028_init",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 64,
+      "community_name": "rtc_rv3028.c",
       "norm_label": "rtc_rv3028_init()"
     },
     {
@@ -1421,8 +1421,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "components_drivers_rtc_rv3028_c_esp_err_t",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 64,
+      "community_name": "rtc_rv3028.c",
       "norm_label": "esp_err_t"
     },
     {
@@ -1432,8 +1432,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "components_drivers_rtc_rv3028_c_i2c_master_bus_handle_t",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 64,
+      "community_name": "rtc_rv3028.c",
       "norm_label": "i2c_master_bus_handle_t"
     },
     {
@@ -1444,8 +1444,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_drivers_rtc_rv3028_rtc_rv3028_get_time",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 64,
+      "community_name": "rtc_rv3028.c",
       "norm_label": "rtc_rv3028_get_time()"
     },
     {
@@ -1456,8 +1456,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_drivers_rtc_rv3028_rtc_rv3028_set_time",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 64,
+      "community_name": "rtc_rv3028.c",
       "norm_label": "rtc_rv3028_set_time()"
     },
     {
@@ -2055,8 +2055,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_network_core_time_mgr",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 64,
+      "community_name": "rtc_rv3028.c",
       "norm_label": "time_mgr.c"
     },
     {
@@ -2067,8 +2067,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_network_core_time_mgr_time_sync_notification_cb",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 64,
+      "community_name": "rtc_rv3028.c",
       "norm_label": "time_sync_notification_cb()"
     },
     {
@@ -2079,8 +2079,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_network_core_time_mgr_time_mgr_init",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 64,
+      "community_name": "rtc_rv3028.c",
       "norm_label": "time_mgr_init()"
     },
     {
@@ -2103,8 +2103,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_network_core_time_mgr_time_mgr_is_time_valid",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 64,
+      "community_name": "rtc_rv3028.c",
       "norm_label": "time_mgr_is_time_valid()"
     },
     {
@@ -2115,8 +2115,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_network_core_time_mgr_time_mgr_set_datetime",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 64,
+      "community_name": "rtc_rv3028.c",
       "norm_label": "time_mgr_set_datetime()"
     },
     {
@@ -2127,7 +2127,7 @@
       "_origin": "ast",
       "id": "components_network_core_transport_mqtt",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "transport_mqtt.c"
     },
     {
@@ -2139,7 +2139,7 @@
       "_origin": "ast",
       "id": "components_network_core_transport_mqtt_prepare_pem",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "prepare_pem()"
     },
     {
@@ -2151,7 +2151,7 @@
       "_origin": "ast",
       "id": "components_network_core_transport_mqtt_mqtt_event",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "mqtt_event()"
     },
     {
@@ -2162,7 +2162,7 @@
       "_origin": "ast",
       "id": "components_network_core_transport_mqtt_c_esp_event_base_t",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "esp_event_base_t"
     },
     {
@@ -2186,7 +2186,7 @@
       "_origin": "ast",
       "id": "components_network_core_transport_mqtt_transport_mqtt_on_time_ready",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "transport_mqtt_on_time_ready()"
     },
     {
@@ -2209,8 +2209,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_network_core_transport_mqtt_transport_mqtt_stop",
-      "community": 7,
-      "community_name": "appcfg_patch",
+      "community": 6,
+      "community_name": "transport_ble.c",
       "norm_label": "transport_mqtt_stop()"
     },
     {
@@ -2221,8 +2221,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_network_core_transport_mqtt_cloud_mgr_connected",
-      "community": 25,
-      "community_name": "statusbar_timer_cb",
+      "community": 7,
+      "community_name": "appcfg_save",
       "norm_label": "cloud_mgr_connected()"
     },
     {
@@ -2244,8 +2244,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_network_core_wifi_mgr_notify",
-      "community": 1,
-      "community_name": "wifi_mgr.c",
+      "community": 70,
+      "community_name": "on_eth_event",
       "norm_label": "notify()"
     },
     {
@@ -2255,8 +2255,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "components_network_core_wifi_mgr_c_wifi_status_t",
-      "community": 1,
-      "community_name": "wifi_mgr.c",
+      "community": 70,
+      "community_name": "on_eth_event",
       "norm_label": "wifi_status_t"
     },
     {
@@ -2313,8 +2313,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_network_core_wifi_mgr_log_dns_info",
-      "community": 1,
-      "community_name": "wifi_mgr.c",
+      "community": 70,
+      "community_name": "on_eth_event",
       "norm_label": "log_dns_info()"
     },
     {
@@ -2325,8 +2325,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_network_core_wifi_mgr_wifi_event_handler",
-      "community": 1,
-      "community_name": "wifi_mgr.c",
+      "community": 70,
+      "community_name": "on_eth_event",
       "norm_label": "wifi_event_handler()"
     },
     {
@@ -2336,8 +2336,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "components_network_core_wifi_mgr_c_esp_event_base_t",
-      "community": 1,
-      "community_name": "wifi_mgr.c",
+      "community": 70,
+      "community_name": "on_eth_event",
       "norm_label": "esp_event_base_t"
     },
     {
@@ -2465,8 +2465,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_network_core_wifi_mgr_wifi_mgr_stop",
-      "community": 1,
-      "community_name": "wifi_mgr.c",
+      "community": 70,
+      "community_name": "on_eth_event",
       "norm_label": "wifi_mgr_stop()"
     },
     {
@@ -2636,7 +2636,7 @@
       "label": "sensor_cfg_load_or_init()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L195",
+      "source_location": "L198",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensor_cfg_load_or_init",
@@ -2648,7 +2648,7 @@
       "label": "sensor_flow_from_voltage()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L243",
+      "source_location": "L246",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensor_flow_from_voltage",
@@ -2660,7 +2660,7 @@
       "label": "sensor_cfg_persist()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L263",
+      "source_location": "L266",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensor_cfg_persist",
@@ -2683,7 +2683,7 @@
       "label": "sensors_runtime_tare_pressure()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L281",
+      "source_location": "L284",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_runtime_tare_pressure",
@@ -2695,7 +2695,7 @@
       "label": "sensors_runtime_tare_flow()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L304",
+      "source_location": "L307",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_runtime_tare_flow",
@@ -2707,7 +2707,7 @@
       "label": "sensors_runtime_cal_flow_point()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L321",
+      "source_location": "L324",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_runtime_cal_flow_point",
@@ -2719,7 +2719,7 @@
       "label": "sensors_runtime_set_pressure_gauge()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L348",
+      "source_location": "L351",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_runtime_set_pressure_gauge",
@@ -2731,7 +2731,7 @@
       "label": "sensors_runtime_is_pressure_gauge()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L363",
+      "source_location": "L366",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_runtime_is_pressure_gauge",
@@ -2743,7 +2743,7 @@
       "label": "sensors_runtime_init()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L372",
+      "source_location": "L375",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_runtime_init",
@@ -2766,7 +2766,7 @@
       "label": "sensors_runtime_set_bus()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L433",
+      "source_location": "L436",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_runtime_set_bus",
@@ -2789,7 +2789,7 @@
       "label": "sensors_runtime_get_debug()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L438",
+      "source_location": "L441",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_debug",
@@ -2801,7 +2801,7 @@
       "label": "sensors_runtime_update_config()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L445",
+      "source_location": "L448",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_runtime_update_config",
@@ -2813,7 +2813,7 @@
       "label": "sensors_runtime_push_sample()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L458",
+      "source_location": "L461",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_runtime_push_sample",
@@ -2836,7 +2836,7 @@
       "label": "sensors_runtime_report_faults()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L473",
+      "source_location": "L476",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_runtime_report_faults",
@@ -2848,7 +2848,7 @@
       "label": "sensors_runtime_get_faults()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L478",
+      "source_location": "L481",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_faults",
@@ -2860,7 +2860,7 @@
       "label": "sensors_runtime_get_last()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L494",
+      "source_location": "L497",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_last",
@@ -2872,7 +2872,7 @@
       "label": "sensors_runtime_get_min_max()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L514",
+      "source_location": "L517",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_min_max",
@@ -2884,7 +2884,7 @@
       "label": "sensors_runtime_get_series()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L584",
+      "source_location": "L587",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_series",
@@ -2896,7 +2896,7 @@
       "label": "sensors_acq_task()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L650",
+      "source_location": "L653",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_acq_task",
@@ -2908,7 +2908,7 @@
       "label": "sensors_runtime_get_aws_telemetry()",
       "file_type": "code",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L918",
+      "source_location": "L921",
       "_callable": true,
       "_origin": "ast",
       "id": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_aws_telemetry",
@@ -3108,7 +3108,7 @@
       "_origin": "ast",
       "id": "components_storage_storage",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "storage.c"
     },
     {
@@ -3120,7 +3120,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_set_str",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "set_str()"
     },
     {
@@ -3132,7 +3132,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_getstr",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "getstr()"
     },
     {
@@ -3143,7 +3143,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_c_cjson",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "cjson"
     },
     {
@@ -3155,7 +3155,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_appcfg_defaults",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "appcfg_defaults()"
     },
     {
@@ -3166,7 +3166,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_c_appconfig",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "appconfig"
     },
     {
@@ -3178,7 +3178,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_user_to_json",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "user_to_json()"
     },
     {
@@ -3189,7 +3189,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_c_app_user_t",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "app_user_t"
     },
     {
@@ -3201,7 +3201,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_json_to_user",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "json_to_user()"
     },
     {
@@ -3213,7 +3213,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_json_from_cfg",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "json_from_cfg()"
     },
     {
@@ -3225,7 +3225,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_cfg_from_json",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "cfg_from_json()"
     },
     {
@@ -3237,7 +3237,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_appcfg_load",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "appcfg_load()"
     },
     {
@@ -3248,7 +3248,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_c_esp_err_t",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "esp_err_t"
     },
     {
@@ -3259,8 +3259,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_storage_storage_appcfg_save",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 7,
+      "community_name": "appcfg_save",
       "norm_label": "appcfg_save()"
     },
     {
@@ -3272,7 +3272,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_appcfg_migrate",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "appcfg_migrate()"
     },
     {
@@ -3296,7 +3296,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_appcfg_cache_get",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "appcfg_cache_get()"
     },
     {
@@ -3307,8 +3307,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_storage_storage_appcfg_cache_peek",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "appcfg_cache_peek()"
     },
     {
@@ -3319,7 +3319,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "storage_extras.c"
     },
     {
@@ -3331,7 +3331,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_slot_key",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "slot_key()"
     },
     {
@@ -3343,7 +3343,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_other_slot",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "other_slot()"
     },
     {
@@ -3355,7 +3355,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_set_str",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "set_str()"
     },
     {
@@ -3367,7 +3367,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_fnv1a32",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "fnv1a32()"
     },
     {
@@ -3379,7 +3379,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_appcfg_to_minified_json",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "appcfg_to_minified_json()"
     },
     {
@@ -3390,7 +3390,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_c_appconfig",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "appconfig"
     },
     {
@@ -3402,7 +3402,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_json_merge_patch_obj",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "json_merge_patch_obj()"
     },
     {
@@ -3413,7 +3413,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_c_cjson",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "cjson"
     },
     {
@@ -3425,7 +3425,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_appcfg_validate",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "appcfg_validate()"
     },
     {
@@ -3437,7 +3437,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_appcfg_calc_etag",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "appcfg_calc_etag()"
     },
     {
@@ -3449,7 +3449,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_read_active",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "read_active()"
     },
     {
@@ -3460,7 +3460,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_c_esp_err_t",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "esp_err_t"
     },
     {
@@ -3472,7 +3472,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_write_active",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "write_active()"
     },
     {
@@ -3484,7 +3484,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_read_slot_json",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "read_slot_json()"
     },
     {
@@ -3496,7 +3496,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_write_slot_json",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "write_slot_json()"
     },
     {
@@ -3508,7 +3508,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_appcfg_set",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "appcfg_set()"
     },
     {
@@ -3519,7 +3519,7 @@
       "_origin": "ast",
       "id": "cfg_result_t",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "cfg_result_t"
     },
     {
@@ -3531,7 +3531,7 @@
       "_origin": "ast",
       "id": "components_storage_storage_extras_appcfg_patch",
       "community": 7,
-      "community_name": "appcfg_patch",
+      "community_name": "appcfg_save",
       "norm_label": "appcfg_patch()"
     },
     {
@@ -3789,8 +3789,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_transport_ble_fpm_ble_config_fpm_ble_info_json",
-      "community": 63,
-      "community_name": "fpm_ble_config.c",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "fpm_ble_info_json()"
     },
     {
@@ -3859,8 +3859,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_transport_ble_fpm_ble_config_fpm_ble_config_read_json",
-      "community": 63,
-      "community_name": "fpm_ble_config.c",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "fpm_ble_config_read_json()"
     },
     {
@@ -3967,8 +3967,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_transport_ble_fpm_ble_config_fpm_ble_wifi_read_json",
-      "community": 63,
-      "community_name": "fpm_ble_config.c",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "fpm_ble_wifi_read_json()"
     },
     {
@@ -3991,8 +3991,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_transport_ble_fpm_ble_config_fpm_ble_cloud_read_json",
-      "community": 63,
-      "community_name": "fpm_ble_config.c",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "fpm_ble_cloud_read_json()"
     },
     {
@@ -4015,8 +4015,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_transport_ble_fpm_ble_config_fpm_ble_channel_read_json",
-      "community": 63,
-      "community_name": "fpm_ble_config.c",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "fpm_ble_channel_read_json()"
     },
     {
@@ -4039,8 +4039,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_transport_ble_fpm_ble_config_fpm_ble_status_read_json",
-      "community": 63,
-      "community_name": "fpm_ble_config.c",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "fpm_ble_status_read_json()"
     },
     {
@@ -4155,8 +4155,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_transport_ble_transport_ble_chr_access",
-      "community": 63,
-      "community_name": "fpm_ble_config.c",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "chr_access()"
     },
     {
@@ -4405,8 +4405,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_transport_ble_transport_ble_transport_ble_is_connected",
-      "community": 6,
-      "community_name": "transport_ble.c",
+      "community": 25,
+      "community_name": "statusbar_timer_cb",
       "norm_label": "transport_ble_is_connected()"
     },
     {
@@ -4835,7 +4835,7 @@
       "_origin": "ast",
       "id": "components_ui_bind_ui_statusbar_controller_ui_statusbar_controller_deinit",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "ui_statusbar_controller_deinit()"
     },
     {
@@ -4963,7 +4963,7 @@
       "_origin": "ast",
       "id": "components_ui_bind_ui_wifi_main_icon_ui_wifi_main_icon_deinit",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "ui_wifi_main_icon_deinit()"
     },
     {
@@ -5207,7 +5207,7 @@
       "_origin": "ast",
       "id": "main_main",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "main.c"
     },
     {
@@ -5219,7 +5219,7 @@
       "_origin": "ast",
       "id": "main_main_sd_cd_isr_handler",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "sd_cd_isr_handler()"
     },
     {
@@ -5231,7 +5231,7 @@
       "_origin": "ast",
       "id": "main_main_restart_btn_event_cb",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "restart_btn_event_cb()"
     },
     {
@@ -5242,7 +5242,7 @@
       "_origin": "ast",
       "id": "main_main_c_lv_event_t",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "lv_event_t"
     },
     {
@@ -5254,7 +5254,7 @@
       "_origin": "ast",
       "id": "main_main_esp_trace_get_user_params",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "esp_trace_get_user_params()"
     },
     {
@@ -5265,7 +5265,7 @@
       "_origin": "ast",
       "id": "esp_trace_open_params_t",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "esp_trace_open_params_t"
     },
     {
@@ -5277,7 +5277,7 @@
       "_origin": "ast",
       "id": "main_main_trace_init",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "trace_init()"
     },
     {
@@ -5289,7 +5289,7 @@
       "_origin": "ast",
       "id": "main_main_ble_json_worker",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "ble_json_worker()"
     },
     {
@@ -5301,7 +5301,7 @@
       "_origin": "ast",
       "id": "main_main_on_ble_json_shim",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "on_ble_json_shim()"
     },
     {
@@ -5313,7 +5313,7 @@
       "_origin": "ast",
       "id": "main_main_bsp_i2c_init",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "bsp_i2c_init()"
     },
     {
@@ -5324,7 +5324,7 @@
       "_origin": "ast",
       "id": "main_main_c_esp_err_t",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "esp_err_t"
     },
     {
@@ -5348,7 +5348,7 @@
       "_origin": "ast",
       "id": "main_main_mount_sdcard_hotplug",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "mount_sdcard_hotplug()"
     },
     {
@@ -5359,8 +5359,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_main_unmount_sdcard_hotplug",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 78,
+      "community_name": "sd_monitor_task",
       "norm_label": "unmount_sdcard_hotplug()"
     },
     {
@@ -5371,8 +5371,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_main_sd_monitor_task",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 78,
+      "community_name": "sd_monitor_task",
       "norm_label": "sd_monitor_task()"
     },
     {
@@ -5384,7 +5384,7 @@
       "_origin": "ast",
       "id": "main_main_ui_main_deinit_cb",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "ui_main_deinit_cb()"
     },
     {
@@ -5395,7 +5395,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_main_screen_init_task",
-      "community": 2,
+      "community": 61,
       "community_name": "screen_init_task",
       "norm_label": "screen_init_task()"
     },
@@ -5408,7 +5408,7 @@
       "_origin": "ast",
       "id": "main_main_on_ble_finish",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "on_ble_finish()"
     },
     {
@@ -5419,8 +5419,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_main_on_ble_set_clock",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 64,
+      "community_name": "rtc_rv3028.c",
       "norm_label": "on_ble_set_clock()"
     },
     {
@@ -5491,7 +5491,7 @@
       "_origin": "ast",
       "id": "main_pinmap",
       "community": 2,
-      "community_name": "screen_init_task",
+      "community_name": "main.c",
       "norm_label": "pinmap.h"
     },
     {
@@ -5787,8 +5787,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_screens_ui_confirmscreen_c_main_ui_screens_ui_confirmscreen",
-      "community": 71,
-      "community_name": "ui.h",
+      "community": 81,
+      "community_name": "apply_authenticated_cb",
       "norm_label": "ui_confirmscreen.c"
     },
     {
@@ -5799,8 +5799,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_confirmscreen_apply_authenticated_cb",
-      "community": 14,
-      "community_name": "pressure_card",
+      "community": 81,
+      "community_name": "apply_authenticated_cb",
       "norm_label": "apply_authenticated_cb()"
     },
     {
@@ -5810,8 +5810,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "main_ui_screens_ui_confirmscreen_c_lv_event_t",
-      "community": 14,
-      "community_name": "pressure_card",
+      "community": 81,
+      "community_name": "apply_authenticated_cb",
       "norm_label": "lv_event_t"
     },
     {
@@ -5834,8 +5834,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_confirmscreen_ui_confirmscreen_screen_destroy",
-      "community": 71,
-      "community_name": "ui.h",
+      "community": 81,
+      "community_name": "apply_authenticated_cb",
       "norm_label": "ui_confirmscreen_screen_destroy()"
     },
     {
@@ -5845,8 +5845,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_screens_ui_confirmscreen_h_main_ui_screens_ui_confirmscreen",
-      "community": 71,
-      "community_name": "ui.h",
+      "community": 81,
+      "community_name": "apply_authenticated_cb",
       "norm_label": "ui_confirmscreen.h"
     },
     {
@@ -5856,8 +5856,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_screens_ui_connectivityscreen_c_main_ui_screens_ui_connectivityscreen",
-      "community": 86,
-      "community_name": "ui_connectivityScreen.c",
+      "community": 25,
+      "community_name": "statusbar_timer_cb",
       "norm_label": "ui_connectivityscreen.c"
     },
     {
@@ -5903,8 +5903,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_connectivityscreen_rssi_pct",
-      "community": 86,
-      "community_name": "ui_connectivityScreen.c",
+      "community": 25,
+      "community_name": "statusbar_timer_cb",
       "norm_label": "rssi_pct()"
     },
     {
@@ -5961,8 +5961,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_connectivityscreen_ui_connectivityscreen_screen_destroy",
-      "community": 86,
-      "community_name": "ui_connectivityScreen.c",
+      "community": 60,
+      "community_name": "ui.c",
       "norm_label": "ui_connectivityscreen_screen_destroy()"
     },
     {
@@ -5972,8 +5972,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_screens_ui_connectivityscreen_h_main_ui_screens_ui_connectivityscreen",
-      "community": 86,
-      "community_name": "ui_connectivityScreen.c",
+      "community": 25,
+      "community_name": "statusbar_timer_cb",
       "norm_label": "ui_connectivityscreen.h"
     },
     {
@@ -6087,8 +6087,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_generalscreen_general_loaded_cb",
-      "community": 18,
-      "community_name": "general_loaded_cb",
+      "community": 14,
+      "community_name": "ui_cfg_pressure_unit",
       "norm_label": "general_loaded_cb()"
     },
     {
@@ -6098,8 +6098,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "main_ui_screens_ui_generalscreen_c_lv_event_t",
-      "community": 18,
-      "community_name": "general_loaded_cb",
+      "community": 14,
+      "community_name": "ui_cfg_pressure_unit",
       "norm_label": "lv_event_t"
     },
     {
@@ -6110,8 +6110,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_generalscreen_protected_back_cb",
-      "community": 18,
-      "community_name": "general_loaded_cb",
+      "community": 14,
+      "community_name": "ui_cfg_pressure_unit",
       "norm_label": "protected_back_cb()"
     },
     {
@@ -6274,7 +6274,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_generalsimplescreen_bright_cb",
       "community": 18,
-      "community_name": "general_loaded_cb",
+      "community_name": "appcfg_cache_peek",
       "norm_label": "bright_cb()"
     },
     {
@@ -6343,8 +6343,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_generalsimplescreen_ui_generalsimplescreen_screen_destroy",
-      "community": 26,
-      "community_name": "ui_generalSimpleScreen.c",
+      "community": 60,
+      "community_name": "ui.c",
       "norm_label": "ui_generalsimplescreen_screen_destroy()"
     },
     {
@@ -6365,8 +6365,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_screens_ui_infoscreen_c_main_ui_screens_ui_infoscreen",
-      "community": 0,
-      "community_name": "ui_label",
+      "community": 83,
+      "community_name": "ui_infoScreen.c",
       "norm_label": "ui_infoscreen.c"
     },
     {
@@ -6424,8 +6424,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_infoscreen_ui_infoscreen_screen_destroy",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 83,
+      "community_name": "ui_infoScreen.c",
       "norm_label": "ui_infoscreen_screen_destroy()"
     },
     {
@@ -6435,8 +6435,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_screens_ui_infoscreen_h_main_ui_screens_ui_infoscreen",
-      "community": 71,
-      "community_name": "ui.h",
+      "community": 83,
+      "community_name": "ui_infoScreen.c",
       "norm_label": "ui_infoscreen.h"
     },
     {
@@ -6459,7 +6459,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_keypadscreen_allow_decimal",
       "community": 14,
-      "community_name": "pressure_card",
+      "community_name": "ui_cfg_pressure_unit",
       "norm_label": "allow_decimal()"
     },
     {
@@ -6586,8 +6586,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_loginscreen_ui_login_set_destination",
-      "community": 76,
-      "community_name": "ui_loginScreen.c",
+      "community": 60,
+      "community_name": "ui.c",
       "norm_label": "ui_login_set_destination()"
     },
     {
@@ -6714,8 +6714,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "main_ui_screens_ui_loginscreen_c_lv_obj_t",
-      "community": 0,
-      "community_name": "ui_label",
+      "community": 76,
+      "community_name": "ui_loginScreen.c",
       "norm_label": "lv_obj_t"
     },
     {
@@ -6726,8 +6726,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_loginscreen_add_user",
-      "community": 0,
-      "community_name": "ui_label",
+      "community": 76,
+      "community_name": "ui_loginScreen.c",
       "norm_label": "add_user()"
     },
     {
@@ -6750,8 +6750,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_loginscreen_ui_loginscreen_screen_destroy",
-      "community": 76,
-      "community_name": "ui_loginScreen.c",
+      "community": 60,
+      "community_name": "ui.c",
       "norm_label": "ui_loginscreen_screen_destroy()"
     },
     {
@@ -6877,8 +6877,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "metric_card_t",
-      "community": 4,
-      "community_name": "ui_mainScreen.c",
+      "community": 0,
+      "community_name": "ui_label",
       "norm_label": "metric_card_t"
     },
     {
@@ -6889,8 +6889,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_mainscreen_update_metric_card",
-      "community": 4,
-      "community_name": "ui_mainScreen.c",
+      "community": 0,
+      "community_name": "ui_label",
       "norm_label": "update_metric_card()"
     },
     {
@@ -6900,8 +6900,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "card_state_t",
-      "community": 4,
-      "community_name": "ui_mainScreen.c",
+      "community": 0,
+      "community_name": "ui_label",
       "norm_label": "card_state_t"
     },
     {
@@ -7162,8 +7162,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_mainscreen_gas_label_color",
-      "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community": 75,
+      "community_name": "gas_label_color",
       "norm_label": "gas_label_color()"
     },
     {
@@ -7231,8 +7231,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_screens_ui_mainscreen_h_main_ui_screens_ui_mainscreen",
-      "community": 71,
-      "community_name": "ui.h",
+      "community": 4,
+      "community_name": "ui_mainScreen.c",
       "norm_label": "ui_mainscreen.h"
     },
     {
@@ -7301,8 +7301,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_netblescreen_ui_netblescreen_screen_destroy",
-      "community": 6,
-      "community_name": "transport_ble.c",
+      "community": 60,
+      "community_name": "ui.c",
       "norm_label": "ui_netblescreen_screen_destroy()"
     },
     {
@@ -7418,8 +7418,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_netcloudscreen_ui_netcloudscreen_screen_destroy",
-      "community": 15,
-      "community_name": "cert_store.c",
+      "community": 60,
+      "community_name": "ui.c",
       "norm_label": "ui_netcloudscreen_screen_destroy()"
     },
     {
@@ -7499,8 +7499,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_netethscreen_ui_netethscreen_screen_destroy",
-      "community": 11,
-      "community_name": "eth_mgr.c",
+      "community": 60,
+      "community_name": "ui.c",
       "norm_label": "ui_netethscreen_screen_destroy()"
     },
     {
@@ -7580,8 +7580,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_netwifiscreen_ui_netwifiscreen_screen_destroy",
-      "community": 66,
-      "community_name": "save_cb",
+      "community": 60,
+      "community_name": "ui.c",
       "norm_label": "ui_netwifiscreen_screen_destroy()"
     },
     {
@@ -7626,8 +7626,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_pinscreen_refresh_dots",
-      "community": 9,
-      "community_name": "ui_pinScreen.c",
+      "community": 0,
+      "community_name": "ui_label",
       "norm_label": "refresh_dots()"
     },
     {
@@ -7860,8 +7860,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensordiagscreen_ui_sensordiagscreen_screen_destroy",
-      "community": 80,
-      "community_name": "ui_edit_begin",
+      "community": 60,
+      "community_name": "ui.c",
       "norm_label": "ui_sensordiagscreen_screen_destroy()"
     },
     {
@@ -7882,7 +7882,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_c_main_ui_screens_ui_sensoreditscreen",
-      "community": 79,
+      "community": 13,
       "community_name": "ui_sensorEditScreen.c",
       "norm_label": "ui_sensoreditscreen.c"
     },
@@ -7894,7 +7894,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_rebuild",
-      "community": 79,
+      "community": 13,
       "community_name": "ui_sensorEditScreen.c",
       "norm_label": "rebuild()"
     },
@@ -7907,7 +7907,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_is_press_unit",
       "community": 79,
-      "community_name": "ui_sensorEditScreen.c",
+      "community_name": "save_and_refresh",
       "norm_label": "is_press_unit()"
     },
     {
@@ -7919,7 +7919,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_unit_cb",
       "community": 79,
-      "community_name": "ui_sensorEditScreen.c",
+      "community_name": "save_and_refresh",
       "norm_label": "unit_cb()"
     },
     {
@@ -7929,7 +7929,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_c_lv_event_t",
-      "community": 79,
+      "community": 13,
       "community_name": "ui_sensorEditScreen.c",
       "norm_label": "lv_event_t"
     },
@@ -7942,7 +7942,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_seg",
       "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "seg()"
     },
     {
@@ -7953,7 +7953,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_c_lv_obj_t",
       "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "lv_obj_t"
     },
     {
@@ -7964,7 +7964,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_dec_cb",
-      "community": 79,
+      "community": 13,
       "community_name": "ui_sensorEditScreen.c",
       "norm_label": "dec_cb()"
     },
@@ -7977,7 +7977,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_dec_seg",
       "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "dec_seg()"
     },
     {
@@ -7988,7 +7988,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_gas_cb",
-      "community": 79,
+      "community": 13,
       "community_name": "ui_sensorEditScreen.c",
       "norm_label": "gas_cb()"
     },
@@ -8000,7 +8000,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_std_cb",
-      "community": 79,
+      "community": 13,
       "community_name": "ui_sensorEditScreen.c",
       "norm_label": "std_cb()"
     },
@@ -8013,7 +8013,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_std_seg",
       "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "std_seg()"
     },
     {
@@ -8024,7 +8024,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_p_switch",
-      "community": 79,
+      "community": 13,
       "community_name": "ui_sensorEditScreen.c",
       "norm_label": "p_switch()"
     },
@@ -8036,8 +8036,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_limit_edit",
-      "community": 79,
-      "community_name": "ui_sensorEditScreen.c",
+      "community": 80,
+      "community_name": "ui_edit_begin",
       "norm_label": "limit_edit()"
     },
     {
@@ -8048,8 +8048,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_f_switch",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 13,
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "f_switch()"
     },
     {
@@ -8060,7 +8060,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_limit_step",
-      "community": 79,
+      "community": 13,
       "community_name": "ui_sensorEditScreen.c",
       "norm_label": "limit_step()"
     },
@@ -8073,7 +8073,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_card",
       "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "card()"
     },
     {
@@ -8085,7 +8085,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_mini",
       "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "mini()"
     },
     {
@@ -8097,7 +8097,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_value_button",
       "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "value_button()"
     },
     {
@@ -8108,7 +8108,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_c_ui_edit_target_t",
       "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "ui_edit_target_t"
     },
     {
@@ -8119,8 +8119,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_pressure_card",
-      "community": 14,
-      "community_name": "pressure_card",
+      "community": 13,
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "pressure_card()"
     },
     {
@@ -8132,7 +8132,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_flow_card",
       "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "flow_card()"
     },
     {
@@ -8144,7 +8144,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_unit_row",
       "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "unit_row()"
     },
     {
@@ -8156,7 +8156,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_ui_sensoreditscreen_screen_init",
       "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "ui_sensoreditscreen_screen_init()"
     },
     {
@@ -8167,8 +8167,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_sensoreditscreen_ui_sensoreditscreen_screen_destroy",
-      "community": 79,
-      "community_name": "ui_sensorEditScreen.c",
+      "community": 60,
+      "community_name": "ui.c",
       "norm_label": "ui_sensoreditscreen_screen_destroy()"
     },
     {
@@ -8259,7 +8259,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_usereditscreen_c_main_ui_screens_ui_usereditscreen",
       "community": 8,
-      "community_name": "ui_nav_back",
+      "community_name": "ui_userEditScreen.c",
       "norm_label": "ui_usereditscreen.c"
     },
     {
@@ -8270,8 +8270,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_usereditscreen_ui_usereditscreen_set_index",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 69,
+      "community_name": "ui_usersScreen.c",
       "norm_label": "ui_usereditscreen_set_index()"
     },
     {
@@ -8283,7 +8283,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_usereditscreen_flash_error",
       "community": 8,
-      "community_name": "ui_nav_back",
+      "community_name": "ui_userEditScreen.c",
       "norm_label": "flash_error()"
     },
     {
@@ -8295,7 +8295,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_usereditscreen_selected_role",
       "community": 8,
-      "community_name": "ui_nav_back",
+      "community_name": "ui_userEditScreen.c",
       "norm_label": "selected_role()"
     },
     {
@@ -8306,7 +8306,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_usereditscreen_c_app_user_role_t",
       "community": 8,
-      "community_name": "ui_nav_back",
+      "community_name": "ui_userEditScreen.c",
       "norm_label": "app_user_role_t"
     },
     {
@@ -8318,7 +8318,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_usereditscreen_save_cb",
       "community": 8,
-      "community_name": "ui_nav_back",
+      "community_name": "ui_userEditScreen.c",
       "norm_label": "save_cb()"
     },
     {
@@ -8329,7 +8329,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_usereditscreen_c_lv_event_t",
       "community": 8,
-      "community_name": "ui_nav_back",
+      "community_name": "ui_userEditScreen.c",
       "norm_label": "lv_event_t"
     },
     {
@@ -8341,7 +8341,7 @@
       "_origin": "ast",
       "id": "main_ui_screens_ui_usereditscreen_delete_cb",
       "community": 8,
-      "community_name": "ui_nav_back",
+      "community_name": "ui_userEditScreen.c",
       "norm_label": "delete_cb()"
     },
     {
@@ -8364,8 +8364,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_usereditscreen_ui_usereditscreen_screen_destroy",
-      "community": 8,
-      "community_name": "ui_nav_back",
+      "community": 60,
+      "community_name": "ui.c",
       "norm_label": "ui_usereditscreen_screen_destroy()"
     },
     {
@@ -8375,8 +8375,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_screens_ui_usereditscreen_h_main_ui_screens_ui_usereditscreen",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 69,
+      "community_name": "ui_usersScreen.c",
       "norm_label": "ui_usereditscreen.h"
     },
     {
@@ -8386,8 +8386,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_screens_ui_usersscreen_c_main_ui_screens_ui_usersscreen",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 69,
+      "community_name": "ui_usersScreen.c",
       "norm_label": "ui_usersscreen.c"
     },
     {
@@ -8398,8 +8398,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_usersscreen_role_name",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 69,
+      "community_name": "ui_usersScreen.c",
       "norm_label": "role_name()"
     },
     {
@@ -8409,8 +8409,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "main_ui_screens_ui_usersscreen_c_app_user_role_t",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 69,
+      "community_name": "ui_usersScreen.c",
       "norm_label": "app_user_role_t"
     },
     {
@@ -8421,8 +8421,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_usersscreen_role_color",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 69,
+      "community_name": "ui_usersScreen.c",
       "norm_label": "role_color()"
     },
     {
@@ -8433,8 +8433,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_usersscreen_row_cb",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 69,
+      "community_name": "ui_usersScreen.c",
       "norm_label": "row_cb()"
     },
     {
@@ -8444,8 +8444,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "main_ui_screens_ui_usersscreen_c_lv_event_t",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 69,
+      "community_name": "ui_usersScreen.c",
       "norm_label": "lv_event_t"
     },
     {
@@ -8456,8 +8456,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_usersscreen_add_cb",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 69,
+      "community_name": "ui_usersScreen.c",
       "norm_label": "add_cb()"
     },
     {
@@ -8468,8 +8468,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_screens_ui_usersscreen_factory_pin_cb",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 69,
+      "community_name": "ui_usersScreen.c",
       "norm_label": "factory_pin_cb()"
     },
     {
@@ -8526,8 +8526,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_screens_ui_usersscreen_h_main_ui_screens_ui_usersscreen",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 69,
+      "community_name": "ui_usersScreen.c",
       "norm_label": "ui_usersscreen.h"
     },
     {
@@ -8549,8 +8549,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_get_general",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 26,
+      "community_name": "ui_generalSimpleScreen.c",
       "norm_label": "get_general()"
     },
     {
@@ -8572,8 +8572,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_get_info",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 83,
+      "community_name": "ui_infoScreen.c",
       "norm_label": "get_info()"
     },
     {
@@ -8596,8 +8596,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_get_datetime",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 71,
+      "community_name": "ui.h",
       "norm_label": "get_datetime()"
     },
     {
@@ -8680,8 +8680,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_fresh_keypad",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 77,
+      "community_name": "ui_keypadScreen.c",
       "norm_label": "fresh_keypad()"
     },
     {
@@ -8692,8 +8692,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_fresh_confirm",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 81,
+      "community_name": "apply_authenticated_cb",
       "norm_label": "fresh_confirm()"
     },
     {
@@ -8704,8 +8704,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_fresh_pin",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 9,
+      "community_name": "ui_pinScreen.c",
       "norm_label": "fresh_pin()"
     },
     {
@@ -8776,8 +8776,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_splash_done_cb",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "splash_done_cb()"
     },
     {
@@ -8787,8 +8787,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "main_ui_ui_c_lv_timer_t",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "lv_timer_t"
     },
     {
@@ -8800,7 +8800,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_display_idle_cb",
       "community": 18,
-      "community_name": "general_loaded_cb",
+      "community_name": "appcfg_cache_peek",
       "norm_label": "display_idle_cb()"
     },
     {
@@ -8835,8 +8835,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_ui_open_general_cb",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 9,
+      "community_name": "ui_pinScreen.c",
       "norm_label": "ui_open_general_cb()"
     },
     {
@@ -8858,8 +8858,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_ui_open_general_authenticated_cb",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 5,
+      "community_name": "ui_nav.c",
       "norm_label": "ui_open_general_authenticated_cb()"
     },
     {
@@ -8906,8 +8906,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_ui_open_datetime_cb",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 71,
+      "community_name": "ui.h",
       "norm_label": "ui_open_datetime_cb()"
     },
     {
@@ -8918,8 +8918,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_ui_open_info_cb",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 83,
+      "community_name": "ui_infoScreen.c",
       "norm_label": "ui_open_info_cb()"
     },
     {
@@ -8978,8 +8978,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_ui_open_keypad_cb",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 80,
+      "community_name": "ui_edit_begin",
       "norm_label": "ui_open_keypad_cb()"
     },
     {
@@ -8990,8 +8990,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_ui_open_confirm_cb",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 77,
+      "community_name": "ui_keypadScreen.c",
       "norm_label": "ui_open_confirm_cb()"
     },
     {
@@ -9002,8 +9002,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_ui_open_pin_cb",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 9,
+      "community_name": "ui_pinScreen.c",
       "norm_label": "ui_open_pin_cb()"
     },
     {
@@ -9026,8 +9026,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_ui_open_login_cb",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 81,
+      "community_name": "apply_authenticated_cb",
       "norm_label": "ui_open_login_cb()"
     },
     {
@@ -9050,8 +9050,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_ui_open_useredit_cb",
-      "community": 60,
-      "community_name": "ui.c",
+      "community": 69,
+      "community_name": "ui_usersScreen.c",
       "norm_label": "ui_open_useredit_cb()"
     },
     {
@@ -9132,8 +9132,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_set_str",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 79,
+      "community_name": "save_and_refresh",
       "norm_label": "set_str()"
     },
     {
@@ -9144,8 +9144,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_save_and_refresh",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 79,
+      "community_name": "save_and_refresh",
       "norm_label": "save_and_refresh()"
     },
     {
@@ -9155,8 +9155,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "main_ui_ui_cfg_c_appconfig",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 79,
+      "community_name": "save_and_refresh",
       "norm_label": "appconfig"
     },
     {
@@ -9167,8 +9167,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_set_pressure_unit",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 79,
+      "community_name": "save_and_refresh",
       "norm_label": "ui_cfg_set_pressure_unit()"
     },
     {
@@ -9179,8 +9179,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_set_flow_unit",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 79,
+      "community_name": "save_and_refresh",
       "norm_label": "ui_cfg_set_flow_unit()"
     },
     {
@@ -9191,8 +9191,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_set_gas",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 79,
+      "community_name": "save_and_refresh",
       "norm_label": "ui_cfg_set_gas()"
     },
     {
@@ -9203,8 +9203,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_gas_count",
-      "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community": 75,
+      "community_name": "gas_label_color",
       "norm_label": "ui_cfg_gas_count()"
     },
     {
@@ -9215,8 +9215,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_gas_name",
-      "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community": 75,
+      "community_name": "gas_label_color",
       "norm_label": "ui_cfg_gas_name()"
     },
     {
@@ -9227,8 +9227,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_gas_key",
-      "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community": 75,
+      "community_name": "gas_label_color",
       "norm_label": "ui_cfg_gas_key()"
     },
     {
@@ -9239,8 +9239,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_gas_index",
-      "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community": 75,
+      "community_name": "gas_label_color",
       "norm_label": "ui_cfg_gas_index()"
     },
     {
@@ -9251,8 +9251,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_gas_color_at",
-      "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community": 75,
+      "community_name": "gas_label_color",
       "norm_label": "ui_cfg_gas_color_at()"
     },
     {
@@ -9263,8 +9263,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_color_code",
-      "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community": 75,
+      "community_name": "gas_label_color",
       "norm_label": "ui_cfg_color_code()"
     },
     {
@@ -9275,8 +9275,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_color_is_iso",
-      "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community": 75,
+      "community_name": "gas_label_color",
       "norm_label": "ui_cfg_color_is_iso()"
     },
     {
@@ -9287,8 +9287,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_set_color_code",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 79,
+      "community_name": "save_and_refresh",
       "norm_label": "ui_cfg_set_color_code()"
     },
     {
@@ -9299,8 +9299,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_set_lang",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 79,
+      "community_name": "save_and_refresh",
       "norm_label": "ui_cfg_set_lang()"
     },
     {
@@ -9372,7 +9372,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_cfg_clamp_brightness",
       "community": 18,
-      "community_name": "general_loaded_cb",
+      "community_name": "appcfg_cache_peek",
       "norm_label": "clamp_brightness()"
     },
     {
@@ -9384,7 +9384,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_preview_brightness",
       "community": 18,
-      "community_name": "general_loaded_cb",
+      "community_name": "appcfg_cache_peek",
       "norm_label": "ui_cfg_preview_brightness()"
     },
     {
@@ -9396,7 +9396,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_set_brightness",
       "community": 18,
-      "community_name": "general_loaded_cb",
+      "community_name": "appcfg_cache_peek",
       "norm_label": "ui_cfg_set_brightness()"
     },
     {
@@ -9407,8 +9407,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_check_pin",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 9,
+      "community_name": "ui_pinScreen.c",
       "norm_label": "ui_cfg_check_pin()"
     },
     {
@@ -9419,8 +9419,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_auth_user_count",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 0,
+      "community_name": "ui_label",
       "norm_label": "ui_auth_user_count()"
     },
     {
@@ -9431,8 +9431,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_auth_user_at",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 76,
+      "community_name": "ui_loginScreen.c",
       "norm_label": "ui_auth_user_at()"
     },
     {
@@ -9442,8 +9442,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "main_ui_ui_cfg_c_app_user_t",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 76,
+      "community_name": "ui_loginScreen.c",
       "norm_label": "app_user_t"
     },
     {
@@ -9454,8 +9454,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_auth_factory",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 76,
+      "community_name": "ui_loginScreen.c",
       "norm_label": "ui_auth_factory()"
     },
     {
@@ -9466,8 +9466,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_auth_login",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 76,
+      "community_name": "ui_loginScreen.c",
       "norm_label": "ui_auth_login()"
     },
     {
@@ -9646,7 +9646,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_pressure_unit",
       "community": 14,
-      "community_name": "pressure_card",
+      "community_name": "ui_cfg_pressure_unit",
       "norm_label": "ui_cfg_pressure_unit()"
     },
     {
@@ -9657,8 +9657,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_flow_unit",
-      "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community": 14,
+      "community_name": "ui_cfg_pressure_unit",
       "norm_label": "ui_cfg_flow_unit()"
     },
     {
@@ -9669,8 +9669,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_gas",
-      "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community": 75,
+      "community_name": "gas_label_color",
       "norm_label": "ui_cfg_gas()"
     },
     {
@@ -9681,8 +9681,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_lang",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 0,
+      "community_name": "ui_label",
       "norm_label": "ui_cfg_lang()"
     },
     {
@@ -9693,8 +9693,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_brightness",
-      "community": 18,
-      "community_name": "general_loaded_cb",
+      "community": 14,
+      "community_name": "ui_cfg_pressure_unit",
       "norm_label": "ui_cfg_brightness()"
     },
     {
@@ -9705,8 +9705,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_theme",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 5,
+      "community_name": "ui_nav.c",
       "norm_label": "ui_cfg_theme()"
     },
     {
@@ -9717,8 +9717,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_decimals",
-      "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "ui_cfg_decimals()"
     },
     {
@@ -9729,8 +9729,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_set_decimals",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 13,
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "ui_cfg_set_decimals()"
     },
     {
@@ -9742,7 +9742,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_dim_minutes",
       "community": 18,
-      "community_name": "general_loaded_cb",
+      "community_name": "appcfg_cache_peek",
       "norm_label": "ui_cfg_dim_minutes()"
     },
     {
@@ -9753,8 +9753,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_set_dim_minutes",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 26,
+      "community_name": "ui_generalSimpleScreen.c",
       "norm_label": "ui_cfg_set_dim_minutes()"
     },
     {
@@ -9765,8 +9765,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_visual_color",
-      "community": 69,
-      "community_name": "ui_cfg_apply_visual_mode",
+      "community": 5,
+      "community_name": "ui_nav.c",
       "norm_label": "visual_color()"
     },
     {
@@ -9776,8 +9776,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "main_ui_ui_cfg_c_lv_color_t",
-      "community": 69,
-      "community_name": "ui_cfg_apply_visual_mode",
+      "community": 5,
+      "community_name": "ui_nav.c",
       "norm_label": "lv_color_t"
     },
     {
@@ -9788,8 +9788,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_apply_visual_mode",
-      "community": 69,
-      "community_name": "ui_cfg_apply_visual_mode",
+      "community": 5,
+      "community_name": "ui_nav.c",
       "norm_label": "ui_cfg_apply_visual_mode()"
     },
     {
@@ -9799,8 +9799,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "main_ui_ui_cfg_c_lv_obj_t",
-      "community": 69,
-      "community_name": "ui_cfg_apply_visual_mode",
+      "community": 5,
+      "community_name": "ui_nav.c",
       "norm_label": "lv_obj_t"
     },
     {
@@ -9811,8 +9811,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_set_theme",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 5,
+      "community_name": "ui_nav.c",
       "norm_label": "ui_cfg_set_theme()"
     },
     {
@@ -9847,8 +9847,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_pressure_limit_enabled",
-      "community": 14,
-      "community_name": "pressure_card",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "ui_cfg_pressure_limit_enabled()"
     },
     {
@@ -9859,8 +9859,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_set_pressure_limit_enabled",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 13,
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "ui_cfg_set_pressure_limit_enabled()"
     },
     {
@@ -9871,8 +9871,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_alarm_tone",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "ui_cfg_alarm_tone()"
     },
     {
@@ -9883,8 +9883,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_set_alarm_tone",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "ui_cfg_set_alarm_tone()"
     },
     {
@@ -9943,8 +9943,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_flow_limit_enabled",
-      "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "ui_cfg_flow_limit_enabled()"
     },
     {
@@ -9955,8 +9955,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_flow_limit",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 13,
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "ui_cfg_flow_limit()"
     },
     {
@@ -9967,8 +9967,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_flow_window_ms",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "ui_cfg_flow_window_ms()"
     },
     {
@@ -9979,8 +9979,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_set_flow_alarm",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 13,
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "ui_cfg_set_flow_alarm()"
     },
     {
@@ -9991,8 +9991,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_set_flow_window_ms",
-      "community": 21,
-      "community_name": "ui_cfg.c",
+      "community": 18,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "ui_cfg_set_flow_window_ms()"
     },
     {
@@ -10004,7 +10004,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_press_to_disp",
       "community": 14,
-      "community_name": "pressure_card",
+      "community_name": "ui_cfg_pressure_unit",
       "norm_label": "ui_cfg_press_to_disp()"
     },
     {
@@ -10016,7 +10016,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_press_from_disp",
       "community": 14,
-      "community_name": "pressure_card",
+      "community_name": "ui_cfg_pressure_unit",
       "norm_label": "ui_cfg_press_from_disp()"
     },
     {
@@ -10027,8 +10027,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_flow_to_disp",
-      "community": 13,
-      "community_name": "ui_sensorEditScreen_screen_init",
+      "community": 14,
+      "community_name": "ui_cfg_pressure_unit",
       "norm_label": "ui_cfg_flow_to_disp()"
     },
     {
@@ -10040,7 +10040,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_cfg_press_fmt",
       "community": 14,
-      "community_name": "pressure_card",
+      "community_name": "ui_cfg_pressure_unit",
       "norm_label": "ui_cfg_press_fmt()"
     },
     {
@@ -10087,7 +10087,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_edit_unit",
       "community": 14,
-      "community_name": "pressure_card",
+      "community_name": "ui_cfg_pressure_unit",
       "norm_label": "ui_edit_unit()"
     },
     {
@@ -10135,7 +10135,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_edit_is_audio",
       "community": 14,
-      "community_name": "pressure_card",
+      "community_name": "ui_cfg_pressure_unit",
       "norm_label": "ui_edit_is_audio()"
     },
     {
@@ -10147,7 +10147,7 @@
       "_origin": "ast",
       "id": "main_ui_ui_cfg_ui_edit_apply",
       "community": 14,
-      "community_name": "pressure_card",
+      "community_name": "ui_cfg_pressure_unit",
       "norm_label": "ui_edit_apply()"
     },
     {
@@ -10157,8 +10157,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_ui_cfg_h_main_ui_ui_cfg",
-      "community": 72,
-      "community_name": "ui_form.c",
+      "community": 5,
+      "community_name": "ui_nav.c",
       "norm_label": "ui_cfg.h"
     },
     {
@@ -10190,8 +10190,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_ui_form_c_main_ui_ui_form",
-      "community": 72,
-      "community_name": "ui_form.c",
+      "community": 71,
+      "community_name": "ui.h",
       "norm_label": "ui_form.c"
     },
     {
@@ -10202,8 +10202,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_form_ta_event_cb",
-      "community": 72,
-      "community_name": "ui_form.c",
+      "community": 71,
+      "community_name": "ui.h",
       "norm_label": "ta_event_cb()"
     },
     {
@@ -10213,8 +10213,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "main_ui_ui_form_c_lv_event_t",
-      "community": 72,
-      "community_name": "ui_form.c",
+      "community": 71,
+      "community_name": "ui.h",
       "norm_label": "lv_event_t"
     },
     {
@@ -10225,8 +10225,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_form_kb_event_cb",
-      "community": 72,
-      "community_name": "ui_form.c",
+      "community": 71,
+      "community_name": "ui.h",
       "norm_label": "kb_event_cb()"
     },
     {
@@ -10318,8 +10318,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_ui_form_h_main_ui_ui_form",
-      "community": 72,
-      "community_name": "ui_form.c",
+      "community": 71,
+      "community_name": "ui.h",
       "norm_label": "ui_form.h"
     },
     {
@@ -10329,8 +10329,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_ui_i18n_c_main_ui_ui_i18n",
-      "community": 72,
-      "community_name": "ui_form.c",
+      "community": 5,
+      "community_name": "ui_nav.c",
       "norm_label": "ui_i18n.c"
     },
     {
@@ -10352,8 +10352,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_ui_i18n_h_main_ui_ui_i18n",
-      "community": 72,
-      "community_name": "ui_form.c",
+      "community": 5,
+      "community_name": "ui_nav.c",
       "norm_label": "ui_i18n.h"
     },
     {
@@ -10457,8 +10457,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_nav_ui_nav_back",
-      "community": 8,
-      "community_name": "ui_nav_back",
+      "community": 5,
+      "community_name": "ui_nav.c",
       "norm_label": "ui_nav_back()"
     },
     {
@@ -10515,8 +10515,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_ui_nav_h_main_ui_ui_nav",
-      "community": 72,
-      "community_name": "ui_form.c",
+      "community": 71,
+      "community_name": "ui.h",
       "norm_label": "ui_nav.h"
     },
     {
@@ -10526,8 +10526,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_ui_sd_c_main_ui_ui_sd",
-      "community": 71,
-      "community_name": "ui.h",
+      "community": 78,
+      "community_name": "sd_monitor_task",
       "norm_label": "ui_sd.c"
     },
     {
@@ -10550,8 +10550,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_sd_ui_sd_progress",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 78,
+      "community_name": "sd_monitor_task",
       "norm_label": "ui_sd_progress()"
     },
     {
@@ -10562,8 +10562,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_sd_ui_sd_finish_restart",
-      "community": 71,
-      "community_name": "ui.h",
+      "community": 78,
+      "community_name": "sd_monitor_task",
       "norm_label": "ui_sd_finish_restart()"
     },
     {
@@ -10573,8 +10573,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "main_ui_ui_sd_c_lv_event_cb_t",
-      "community": 71,
-      "community_name": "ui.h",
+      "community": 78,
+      "community_name": "sd_monitor_task",
       "norm_label": "lv_event_cb_t"
     },
     {
@@ -10585,8 +10585,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "main_ui_ui_sd_ui_sd_close",
-      "community": 2,
-      "community_name": "screen_init_task",
+      "community": 78,
+      "community_name": "sd_monitor_task",
       "norm_label": "ui_sd_close()"
     },
     {
@@ -10596,8 +10596,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_ui_ui_sd_h_main_ui_ui_sd",
-      "community": 71,
-      "community_name": "ui.h",
+      "community": 78,
+      "community_name": "sd_monitor_task",
       "norm_label": "ui_sd.h"
     },
     {
@@ -11110,10 +11110,21 @@
       "norm_label": "handoff \u2014 claudehmi-fw (fpm-200) \u00b7 arranque de sesion (2026-08-01)"
     },
     {
-      "label": "Actualizaci\u00f3n 2026-08-18 (tarde) \u2014 SFM leyendo, robustez I\u00b2C, calibraci\u00f3n FS7 \u00b7 **v1.4.0**",
+      "label": "Actualizaci\u00f3n 2026-08-20 \u2014 BMP280 (ref. atmosf\u00e9rica), cero FS7, debug en dashboard",
       "file_type": "document",
       "source_file": "HANDOFF.md",
       "source_location": "L9",
+      "_origin": "ast",
+      "id": "handoff_actualizaci\u00f3n_2026_08_20_bmp280_ref_atmosf\u00e9rica_cero_fs7_debug_en_dashboard",
+      "community": 22,
+      "community_name": "Handoff \u2014 ClaudeHMI-FW (FPM-200) \u00b7 arranque de sesi\u00f3n (2026-08-01)",
+      "norm_label": "actualizacion 2026-08-20 \u2014 bmp280 (ref. atmosferica), cero fs7, debug en dashboard"
+    },
+    {
+      "label": "Actualizaci\u00f3n 2026-08-18 (tarde) \u2014 SFM leyendo, robustez I\u00b2C, calibraci\u00f3n FS7 \u00b7 **v1.4.0**",
+      "file_type": "document",
+      "source_file": "HANDOFF.md",
+      "source_location": "L35",
       "_origin": "ast",
       "id": "handoff_actualizaci\u00f3n_2026_08_18_tarde_sfm_leyendo_robustez_i2c_calibraci\u00f3n_fs7_v1_4_0",
       "community": 22,
@@ -11124,7 +11135,7 @@
       "label": "Actualizaci\u00f3n 2026-08-18 (sensores reales \u2014 se elimina la simulaci\u00f3n)",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L65",
+      "source_location": "L91",
       "_origin": "ast",
       "id": "handoff_actualizaci\u00f3n_2026_08_18_sensores_reales_se_elimina_la_simulaci\u00f3n",
       "community": 22,
@@ -11135,7 +11146,7 @@
       "label": "Actualizaci\u00f3n 2026-08-09 (estabilizaci\u00f3n en HW + app)",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L87",
+      "source_location": "L113",
       "_origin": "ast",
       "id": "handoff_actualizaci\u00f3n_2026_08_09_estabilizaci\u00f3n_en_hw_app",
       "community": 22,
@@ -11146,7 +11157,7 @@
       "label": "0. Contexto",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L103",
+      "source_location": "L129",
       "_origin": "ast",
       "id": "handoff_0_contexto",
       "community": 22,
@@ -11157,7 +11168,7 @@
       "label": "1. \u26a0\ufe0f ESTADO \u2014 leer antes de nada",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L113",
+      "source_location": "L139",
       "_origin": "ast",
       "id": "handoff_1_estado_leer_antes_de_nada",
       "community": 22,
@@ -11168,7 +11179,7 @@
       "label": "2. \ud83d\udd34 BUG ABIERTO #1 (bloqueante): watchdog en `taskLVGL` \u2014 FIX A VALIDAR",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L127",
+      "source_location": "L153",
       "_origin": "ast",
       "id": "handoff_2_bug_abierto_1_bloqueante_watchdog_en_tasklvgl_fix_a_validar",
       "community": 22,
@@ -11179,7 +11190,7 @@
       "label": "3. Contrato BLE FPM \u2194 app Sensvax (commit `711b463`) \u2014 A VALIDAR EN HW",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L158",
+      "source_location": "L184",
       "_origin": "ast",
       "id": "handoff_3_contrato_ble_fpm_app_sensvax_commit_711b463_a_validar_en_hw",
       "community": 22,
@@ -11190,7 +11201,7 @@
       "label": "4. C\u00f3mo compilar / gotchas de build",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L191",
+      "source_location": "L217",
       "_origin": "ast",
       "id": "handoff_4_c\u00f3mo_compilar_gotchas_de_build",
       "community": 22,
@@ -11201,7 +11212,7 @@
       "label": "5. Lo dem\u00e1s que ya se hizo (commiteado en `66014fa`, sin validar 100% en HW)",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L208",
+      "source_location": "L234",
       "_origin": "ast",
       "id": "handoff_5_lo_dem\u00e1s_que_ya_se_hizo_commiteado_en_66014fa_sin_validar_100_en_hw",
       "community": 22,
@@ -11212,7 +11223,7 @@
       "label": "6. Pendiente (despu\u00e9s de estabilizar \u00a72 y validar \u00a73)",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L222",
+      "source_location": "L248",
       "_origin": "ast",
       "id": "handoff_6_pendiente_despu\u00e9s_de_estabilizar_2_y_validar_3",
       "community": 22,
@@ -11223,7 +11234,7 @@
       "label": "7. Gotchas que no re-descubrir",
       "file_type": "document",
       "source_file": "HANDOFF.md",
-      "source_location": "L252",
+      "source_location": "L278",
       "_origin": "ast",
       "id": "handoff_7_gotchas_que_no_re_descubrir",
       "community": 22,
@@ -13169,7 +13180,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L760",
+      "source_location": "L763",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_acq_task",
@@ -13181,7 +13192,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L407",
+      "source_location": "L410",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_init",
@@ -13229,7 +13240,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L763",
+      "source_location": "L766",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_acq_task",
@@ -13601,7 +13612,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L200",
+      "source_location": "L203",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensor_cfg_load_or_init",
@@ -13613,7 +13624,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L266",
+      "source_location": "L269",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensor_cfg_persist",
@@ -13625,7 +13636,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L408",
+      "source_location": "L411",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_init",
@@ -13637,7 +13648,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L208",
+      "source_location": "L211",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensor_cfg_load_or_init",
@@ -13649,7 +13660,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L234",
+      "source_location": "L237",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensor_cfg_load_or_init",
@@ -13661,7 +13672,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L271",
+      "source_location": "L274",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensor_cfg_persist",
@@ -13858,7 +13869,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L694",
+      "source_location": "L697",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_acq_task",
@@ -13894,7 +13905,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L697",
+      "source_location": "L700",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_acq_task",
@@ -14209,7 +14220,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L703",
+      "source_location": "L706",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_acq_task",
@@ -14221,7 +14232,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L406",
+      "source_location": "L409",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_init",
@@ -14233,7 +14244,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L706",
+      "source_location": "L709",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_acq_task",
@@ -14605,7 +14616,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L796",
+      "source_location": "L799",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_acq_task",
@@ -14617,7 +14628,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L882",
+      "source_location": "L885",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_acq_task",
@@ -14629,7 +14640,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L810",
+      "source_location": "L813",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_acq_task",
@@ -14641,7 +14652,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L799",
+      "source_location": "L802",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_acq_task",
@@ -16711,7 +16722,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L195",
+      "source_location": "L198",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16722,7 +16733,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L263",
+      "source_location": "L266",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16744,7 +16755,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L243",
+      "source_location": "L246",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16755,7 +16766,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L650",
+      "source_location": "L653",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16766,7 +16777,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L321",
+      "source_location": "L324",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16777,7 +16788,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L918",
+      "source_location": "L921",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16788,7 +16799,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L438",
+      "source_location": "L441",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16799,7 +16810,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L478",
+      "source_location": "L481",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16810,7 +16821,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L494",
+      "source_location": "L497",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16821,7 +16832,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L514",
+      "source_location": "L517",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16832,7 +16843,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L584",
+      "source_location": "L587",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16843,7 +16854,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L372",
+      "source_location": "L375",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16854,7 +16865,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L363",
+      "source_location": "L366",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16865,7 +16876,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L458",
+      "source_location": "L461",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16876,7 +16887,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L473",
+      "source_location": "L476",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16887,7 +16898,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L433",
+      "source_location": "L436",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16898,7 +16909,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L348",
+      "source_location": "L351",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16909,7 +16920,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L304",
+      "source_location": "L307",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16920,7 +16931,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L281",
+      "source_location": "L284",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16931,7 +16942,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L445",
+      "source_location": "L448",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime",
@@ -16954,107 +16965,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L481",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_faults",
-      "target": "components_sensors_runtime_sensors_runtime_lock",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L499",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_last",
-      "target": "components_sensors_runtime_sensors_runtime_lock",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L521",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_min_max",
-      "target": "components_sensors_runtime_sensors_runtime_lock",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L592",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_series",
-      "target": "components_sensors_runtime_sensors_runtime_lock",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L385",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_init",
-      "target": "components_sensors_runtime_sensors_runtime_lock",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L463",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_push_sample",
-      "target": "components_sensors_runtime_sensors_runtime_lock",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L475",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_report_faults",
-      "target": "components_sensors_runtime_sensors_runtime_lock",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L450",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_update_config",
-      "target": "components_sensors_runtime_sensors_runtime_lock",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "components/sensors_runtime/sensors_runtime.c",
       "source_location": "L484",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_faults",
-      "target": "components_sensors_runtime_sensors_runtime_unlock",
+      "target": "components_sensors_runtime_sensors_runtime_lock",
       "confidence_score": 1.0
     },
     {
@@ -17062,11 +16977,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L503",
+      "source_location": "L502",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_last",
-      "target": "components_sensors_runtime_sensors_runtime_unlock",
+      "target": "components_sensors_runtime_sensors_runtime_lock",
       "confidence_score": 1.0
     },
     {
@@ -17074,11 +16989,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L525",
+      "source_location": "L524",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_min_max",
-      "target": "components_sensors_runtime_sensors_runtime_unlock",
+      "target": "components_sensors_runtime_sensors_runtime_lock",
       "confidence_score": 1.0
     },
     {
@@ -17086,11 +17001,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L596",
+      "source_location": "L595",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_series",
-      "target": "components_sensors_runtime_sensors_runtime_unlock",
+      "target": "components_sensors_runtime_sensors_runtime_lock",
       "confidence_score": 1.0
     },
     {
@@ -17098,11 +17013,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L399",
+      "source_location": "L388",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_init",
-      "target": "components_sensors_runtime_sensors_runtime_unlock",
+      "target": "components_sensors_runtime_sensors_runtime_lock",
       "confidence_score": 1.0
     },
     {
@@ -17110,11 +17025,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L470",
+      "source_location": "L466",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_push_sample",
-      "target": "components_sensors_runtime_sensors_runtime_unlock",
+      "target": "components_sensors_runtime_sensors_runtime_lock",
       "confidence_score": 1.0
     },
     {
@@ -17122,11 +17037,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L475",
+      "source_location": "L478",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_report_faults",
-      "target": "components_sensors_runtime_sensors_runtime_unlock",
+      "target": "components_sensors_runtime_sensors_runtime_lock",
       "confidence_score": 1.0
     },
     {
@@ -17138,6 +17053,18 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_update_config",
+      "target": "components_sensors_runtime_sensors_runtime_lock",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "components/sensors_runtime/sensors_runtime.c",
+      "source_location": "L487",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_faults",
       "target": "components_sensors_runtime_sensors_runtime_unlock",
       "confidence_score": 1.0
     },
@@ -17146,7 +17073,91 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L213",
+      "source_location": "L506",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_last",
+      "target": "components_sensors_runtime_sensors_runtime_unlock",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "components/sensors_runtime/sensors_runtime.c",
+      "source_location": "L528",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_min_max",
+      "target": "components_sensors_runtime_sensors_runtime_unlock",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "components/sensors_runtime/sensors_runtime.c",
+      "source_location": "L599",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_get_series",
+      "target": "components_sensors_runtime_sensors_runtime_unlock",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "components/sensors_runtime/sensors_runtime.c",
+      "source_location": "L402",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_init",
+      "target": "components_sensors_runtime_sensors_runtime_unlock",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "components/sensors_runtime/sensors_runtime.c",
+      "source_location": "L473",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_push_sample",
+      "target": "components_sensors_runtime_sensors_runtime_unlock",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "components/sensors_runtime/sensors_runtime.c",
+      "source_location": "L478",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_report_faults",
+      "target": "components_sensors_runtime_sensors_runtime_unlock",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "components/sensors_runtime/sensors_runtime.c",
+      "source_location": "L456",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_update_config",
+      "target": "components_sensors_runtime_sensors_runtime_unlock",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "components/sensors_runtime/sensors_runtime.c",
+      "source_location": "L216",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensor_cfg_load_or_init",
@@ -17158,7 +17169,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L265",
+      "source_location": "L268",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensor_cfg_persist",
@@ -17170,7 +17181,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L197",
+      "source_location": "L200",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensor_cfg_load_or_init",
@@ -17194,7 +17205,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L402",
+      "source_location": "L405",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_init",
@@ -17206,7 +17217,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L775",
+      "source_location": "L778",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_acq_task",
@@ -17217,7 +17228,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L263",
+      "source_location": "L266",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast",
@@ -17230,7 +17241,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L342",
+      "source_location": "L345",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_cal_flow_point",
@@ -17242,7 +17253,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L357",
+      "source_location": "L360",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_set_pressure_gauge",
@@ -17254,7 +17265,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L313",
+      "source_location": "L316",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_tare_flow",
@@ -17266,7 +17277,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L295",
+      "source_location": "L298",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_runtime_tare_pressure",
@@ -17277,7 +17288,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L321",
+      "source_location": "L324",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast",
@@ -17289,7 +17300,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L348",
+      "source_location": "L351",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast",
@@ -17301,7 +17312,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L304",
+      "source_location": "L307",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast",
@@ -17313,7 +17324,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L281",
+      "source_location": "L284",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast",
@@ -17326,7 +17337,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L859",
+      "source_location": "L862",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_acq_task",
@@ -17385,7 +17396,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L372",
+      "source_location": "L375",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -17409,7 +17420,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L445",
+      "source_location": "L448",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -17421,7 +17432,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L433",
+      "source_location": "L436",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -17458,7 +17469,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L827",
+      "source_location": "L830",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_acq_task",
@@ -17469,7 +17480,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L458",
+      "source_location": "L461",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -17481,7 +17492,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L494",
+      "source_location": "L497",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -17493,7 +17504,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L514",
+      "source_location": "L517",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -17505,7 +17516,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L584",
+      "source_location": "L587",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -17518,7 +17529,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "components/sensors_runtime/sensors_runtime.c",
-      "source_location": "L828",
+      "source_location": "L831",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_sensors_runtime_sensors_runtime_sensors_acq_task",
@@ -39587,7 +39598,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L103",
+      "source_location": "L129",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39598,7 +39609,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L113",
+      "source_location": "L139",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39609,7 +39620,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L127",
+      "source_location": "L153",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39620,7 +39631,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L158",
+      "source_location": "L184",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39631,7 +39642,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L191",
+      "source_location": "L217",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39642,7 +39653,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L208",
+      "source_location": "L234",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39653,7 +39664,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L222",
+      "source_location": "L248",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39664,7 +39675,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L252",
+      "source_location": "L278",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39675,7 +39686,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L87",
+      "source_location": "L113",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39686,7 +39697,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L65",
+      "source_location": "L91",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -39697,11 +39708,22 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "HANDOFF.md",
-      "source_location": "L9",
+      "source_location": "L35",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
       "target": "handoff_actualizaci\u00f3n_2026_08_18_tarde_sfm_leyendo_robustez_i2c_calibraci\u00f3n_fs7_v1_4_0",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "HANDOFF.md",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
+      "target": "handoff_actualizaci\u00f3n_2026_08_20_bmp280_ref_atmosf\u00e9rica_cero_fs7_debug_en_dashboard",
       "confidence_score": 1.0
     },
     {
@@ -40058,5 +40080,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "730f11b929febb16d10d03a560cfb0ce388d8d12"
+  "built_at_commit": "a2f1ead0173d25bef7a60793c47ffb684288d171"
 }

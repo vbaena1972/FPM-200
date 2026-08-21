@@ -596,21 +596,27 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         {
             float dbg_atm = NAN, dbg_sfm = NAN, dbg_fs7 = NAN;
             sensors_runtime_get_debug(&dbg_atm, &dbg_sfm, &dbg_fs7);
-            char dbgb[48];
+            const char *pu = cfg->sensors.pressure_unit;
+            const char *fu = cfg->sensors.flow_unit;
+            char dbgb[56];
+            /* Atmosférica del BMP en la MISMA unidad que la presión de línea. */
             if (isfinite(dbg_atm))
-                snprintf(dbgb, sizeof(dbgb), "atm %.2f kPa (BMP280)", (double)dbg_atm);
+                snprintf(dbgb, sizeof(dbgb), "atm %.2f %s (BMP)",
+                         (double)pressure_to_disp(dbg_atm, pu), pu);
             else
-                snprintf(dbgb, sizeof(dbgb), "atm -- (BMP280)");
+                snprintf(dbgb, sizeof(dbgb), "atm -- (BMP)");
             lv_label_set_text(s_press.dbg, dbgb);
 
+            /* SFM y su diferencia con el FS7, en la unidad de flujo configurada. */
             if (isfinite(dbg_sfm)) {
+                float sfm_d = flow_to_disp(dbg_sfm, fu);
                 if (isfinite(dbg_fs7))
-                    snprintf(dbgb, sizeof(dbgb), "SFM %.1f  dif %+.1f slm",
-                             (double)dbg_sfm, (double)(dbg_sfm - dbg_fs7));
+                    snprintf(dbgb, sizeof(dbgb), "SFM %.1f  dif %+.1f %s",
+                             (double)sfm_d, (double)flow_to_disp(dbg_sfm - dbg_fs7, fu), fu);
                 else
-                    snprintf(dbgb, sizeof(dbgb), "SFM %.1f slm", (double)dbg_sfm);
+                    snprintf(dbgb, sizeof(dbgb), "SFM %.1f %s", (double)sfm_d, fu);
             } else {
-                snprintf(dbgb, sizeof(dbgb), "SFM -- slm");
+                snprintf(dbgb, sizeof(dbgb), "SFM -- %s", fu);
             }
             lv_label_set_text(s_flow.dbg, dbgb);
         }
