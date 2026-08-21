@@ -77,10 +77,12 @@ en warm-up), así que un `u0` fijo es frágil. Nuevas funciones en `sensors_runt
   `flow_scale` para coincidir. Disparo BLE: **`{"flow_cal_slm": <caudal>}`**. Flujo de campo:
   tare a cero → cal_slm a un caudal estable (calibración de 2 puntos sin reflashear).
 
-⚠️ **La EEPROM AT24C256 no persiste** (WP del módulo de sensado protegido: ACKea lecturas, NACKea
-escrituras — es HW, no firmware). Por eso tara/cal viven **solo en RAM** hasta reboot, y la
-calibración base corre desde los defaults del código (que se usan al fallar el CRC de EEPROM).
-Para persistir en campo hay que arreglar el WP de la AT24C256 en la placa del módulo.
+⚠️ **La EEPROM AT24C256 no persiste — NO es el WP** (el WP está a GND = escritura habilitada, ver
+datasheet). Es **integridad de señal del bus 1**: las lecturas (cortas) siempre van, pero el write
+del bloque de cal (~54 B, la transacción más larga) NACKea en el bus marginal (6 dispositivos, 4.7k,
+ruido de 5 V). Firmware endurecido en `at24c256.c` (**2026-08-20**): EEPROM a **50 kHz**, write en
+chunks de **32 B**, **reintento 4×**. Si persiste → HW: subir pull-ups del bus 1 a **2.2–3.3k**.
+Mientras no persista, tara/cal viven en RAM y la cal base corre desde los defaults del código.
 
 **UI:** dashboard con **decimales configurables** (0 o 1) en Config→Sensores; nuevo campo
 `sensors.decimals` (storage + JSON + `ui_cfg_decimals/set_decimals`). Añadida unidad **slm**

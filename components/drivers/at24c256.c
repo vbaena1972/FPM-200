@@ -22,10 +22,14 @@ esp_err_t at24c256_init(i2c_master_bus_handle_t bus_handle, uint8_t i2c_addr)
 
     uint8_t addr = i2c_addr ? i2c_addr : AT24C256_DEFAULT_ADDR;
 
+    // 50 kHz (no 100): el write del bloque de calibracion es la transaccion mas
+    // larga del bus 1 (~54 bytes) y con 6 dispositivos + pull-ups de 4.7k los
+    // flancos son lentos; a mitad de reloj hay mas margen y el write deja de
+    // NACKear. Las lecturas (cortas) ya iban bien.
     i2c_device_config_t dev_cfg = {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address = addr,
-        .scl_speed_hz = 100000,
+        .scl_speed_hz = 50000,
     };
     esp_err_t err = i2c_master_bus_add_device(bus_handle, &dev_cfg, &s_dev);
     if (err != ESP_OK)
@@ -91,12 +95,24 @@ esp_err_t at24c256_write(uint16_t mem_addr, const uint8_t *buf, size_t len)
         size_t page_off = addr % AT24C256_PAGE_SIZE;
         size_t space = AT24C256_PAGE_SIZE - page_off;
         size_t chunk = (remaining < space) ? remaining : space;
+        // Tope de 32 B: transacciones mas cortas fallan menos en el bus marginal.
+        if (chunk > 32)
+            chunk = 32;
 
         tx[0] = (uint8_t)(addr >> 8);
         tx[1] = (uint8_t)(addr & 0xFF);
         memcpy(&tx[2], p, chunk);
 
-        esp_err_t err = i2c_master_transmit(s_dev, tx, chunk + 2, 200);
+        // Reintentamos el page write: en el bus 1 marginal un NACK puntual es
+        // comun en la transaccion larga. Entre intentos dejamos respirar el bus.
+        esp_err_t err = ESP_FAIL;
+        for (int attempt = 0; attempt < 4; attempt++)
+        {
+            err = i2c_master_transmit(s_dev, tx, chunk + 2, 200);
+            if (err == ESP_OK)
+                break;
+            vTaskDelay(pdMS_TO_TICKS(AT24C256_WRITE_CYCLE_MS));
+        }
         if (err != ESP_OK)
         {
             ESP_LOGE(TAG, "Error escribiendo EEPROM en 0x%04X: %s", addr, esp_err_to_name(err));

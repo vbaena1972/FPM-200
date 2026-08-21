@@ -640,8 +640,8 @@
     "semantic_hash": ""
   },
   "HANDOFF.md": {
-    "mtime": 1787276810.8725274,
-    "ast_hash": "9e4045d7cfa1e52dc33de5b3e32c7e58",
+    "mtime": 1787278763.387645,
+    "ast_hash": "7a8b95f29afe2be001b554d79718880f",
     "semantic_hash": ""
   },
   "HMI_MIGRATION.md": {
@@ -765,8 +765,8 @@
     "semantic_hash": ""
   },
   "components/drivers/at24c256.c": {
-    "mtime": 1787085629.2014115,
-    "ast_hash": "9e872f1bf81b71f885f7427f2e53f705",
+    "mtime": 1787278743.0610907,
+    "ast_hash": "8bcbea411451f8b5c6a938c4b4c10cd5",
     "semantic_hash": ""
   },
   "components/drivers/include/ads1115.h": {
