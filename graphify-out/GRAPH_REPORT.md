@@ -1,16 +1,16 @@
-# Graph Report - ClaudeHMI-FW  (2026-08-21)
+# Graph Report - ClaudeHMI-FW  (2026-09-14)
 
 ## Corpus Check
-- 145 files · ~315,223 words
+- 145 files · ~315,453 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1000 nodes · 2430 edges · 88 communities (85 shown, 3 thin omitted)
-- Extraction: 67% EXTRACTED · 33% INFERRED · 0% AMBIGUOUS · INFERRED: 797 edges (avg confidence: 0.8)
+- 1000 nodes · 2430 edges · 89 communities (86 shown, 3 thin omitted)
+- Extraction: 67% EXTRACTED · 33% INFERRED · 0% AMBIGUOUS · INFERRED: 797 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a3e42db4`
+- Built from commit: `5ce71fb9`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -51,7 +51,7 @@
 - save_cb
 - state_on_net_available
 - ui_statusbar_request_refresh
-- ui_usersScreen.c
+- ui_open_useredit_cb
 - on_eth_event
 - ui.h
 - ms5803.c
@@ -65,6 +65,7 @@
 - ui_edit_begin
 - next
 - ui_main_deinit_cb
+- ui_datetimeScreen.c
 
 ## God Nodes (most connected - your core abstractions)
 1. `appcfg_cache_peek()` - 69 edges
@@ -93,7 +94,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (88 total, 3 thin omitted)
+## Communities (89 total, 3 thin omitted)
 
 ### Community 0 - "ui_label"
 Cohesion: 0.09
@@ -201,7 +202,7 @@ Nodes (11): base_card(), bright_cb(), lv_event_cb_t, lv_event_t, lv_obj_t, dim_c
 
 ### Community 60 - "ui.c"
 Cohesion: 0.09
-Nodes (42): ui_bleAppScreen_screen_destroy(), ui_connectivityScreen_screen_destroy(), ui_generalSimpleScreen_screen_destroy(), ui_netCloudScreen_screen_destroy(), ui_netEthScreen_screen_destroy(), ui_netWifiScreen_screen_destroy(), ui_sensorDiagScreen_screen_destroy(), ui_sensorEditScreen_screen_destroy() (+34 more)
+Nodes (43): ui_bleAppScreen_screen_destroy(), ui_connectivityScreen_screen_destroy(), ui_generalSimpleScreen_screen_destroy(), ui_netCloudScreen_screen_destroy(), ui_netEthScreen_screen_destroy(), ui_netWifiScreen_screen_destroy(), ui_sensorDiagScreen_screen_destroy(), ui_sensorEditScreen_screen_destroy() (+35 more)
 
 ### Community 61 - "screen_init_task"
 Cohesion: 0.26
@@ -235,17 +236,17 @@ Nodes (11): esp_event_base_t, on_ip_event(), esp_err_t, esp_event_base_t, net_co
 Cohesion: 0.43
 Nodes (6): lv_obj_t, set_glyph(), set_visible(), ui_statusbar_controller_init(), ui_statusbar_request_refresh(), ui_statusbar_set_enabled()
 
-### Community 69 - "ui_usersScreen.c"
-Cohesion: 0.20
-Nodes (12): ui_userEditScreen_set_index(), add_cb(), app_user_role_t, lv_event_t, factory_pin_cb(), role_color(), role_name(), row_cb() (+4 more)
+### Community 69 - "ui_open_useredit_cb"
+Cohesion: 0.60
+Nodes (6): ui_userEditScreen_set_index(), add_cb(), lv_event_t, factory_pin_cb(), row_cb(), ui_open_useredit_cb()
 
 ### Community 70 - "on_eth_event"
 Cohesion: 0.22
 Nodes (11): mem_diag_report(), on_eth_event(), esp_event_base_t, esp_netif_t, wifi_status_t, log_dns_info(), notify(), wifi_event_handler() (+3 more)
 
 ### Community 71 - "ui.h"
-Cohesion: 0.10
-Nodes (5): ui_confirmScreen_screen_destroy(), ui_datetimeScreen_screen_destroy(), ui_generalScreen_screen_destroy(), ui_infoScreen_screen_destroy(), ui_netBleScreen_screen_destroy()
+Cohesion: 0.09
+Nodes (7): ui_confirmScreen_screen_destroy(), ui_generalScreen_screen_destroy(), ui_infoScreen_screen_destroy(), ui_netBleScreen_screen_destroy(), app_user_role_t, role_color(), role_name()
 
 ### Community 72 - "ms5803.c"
 Cohesion: 0.44
@@ -282,6 +283,10 @@ Nodes (7): lv_event_t, next(), ui_cfg_apply_timezone(), ui_cfg_set_tz_index(), u
 ### Community 83 - "ui_main_deinit_cb"
 Cohesion: 0.40
 Nodes (5): ui_statusbar_controller_deinit(), ui_wifi_main_icon_deinit(), lv_event_t, restart_btn_event_cb(), ui_main_deinit_cb()
+
+### Community 84 - "ui_datetimeScreen.c"
+Cohesion: 0.40
+Nodes (3): ui_datetimeScreen_screen_destroy(), get_datetime(), ui_open_datetime_cb()
 
 ## Knowledge Gaps
 - **56 isolated node(s):** `graphify`, `graphify`, `1. GATT`, `2. Dos esquemas de canal (importante)`, `display ↔ `general` / `DisplayConfig`` (+51 more)
