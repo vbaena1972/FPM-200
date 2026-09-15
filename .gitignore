@@ -39,3 +39,6 @@ sw_probe*.vbs
 # ===== Credenciales AWS IoT locales =====
 # Nunca versionar certificados ni claves privadas de dispositivos.
 /aws/
+
+# Simulador VS anidado (repo git propio: FPM-200-Sim)
+/Simulator/
