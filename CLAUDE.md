@@ -1,4 +1,18 @@
-> **SINCRONIZACIÓN OBLIGATORIA — estado vivo 2026-09-14.** Antes de planificar o ejecutar trabajo de MedGuard/Axira, leer `D:\SoftwareDevelop\Embedded\ClaudeHMI\Entrega_Cierre_2026-08-23\LEEME_PRIMERO_FUENTE_DE_VERDAD.md`, después `ESTADO_ACTUAL.md` y, según haga falta, la hoja de ruta y el `STATUS` correspondiente. Decisiones vigentes: una persona y una sola actividad principal; MedGuard V1 = Producto A; Axira congelado; baseline MedGuard validada = 1.4.1 (`03705f8` sobre `6801bd2`), aunque la telemetría reporta 1.4.2 pendiente de validación formal; AWS mínimo propio; G3 cerrada y G4 funcional con Cognito, app y portal; Trends validado con DynamoDB (24 h) + S3/Athena (7/30 días); telemetría cloud objetivo 30–60 s y alarmas inmediatas. Próxima actividad: CLD-02 (identidad y cadencia, requiere hardware) o endurecimiento G4, una a la vez. Los informes anteriores son históricos.
+> **SINCRONIZACIÓN OBLIGATORIA — estado vivo 2026-09-14.** Antes de planificar o ejecutar trabajo de MedGuard/Axira, leer `D:\SoftwareDevelop\Embedded\ClaudeHMI\docs\entrega\LEEME_PRIMERO_FUENTE_DE_VERDAD.md`, después `ESTADO_ACTUAL.md` y, según haga falta, la hoja de ruta y el `STATUS` correspondiente. Decisiones vigentes: una persona y una sola actividad principal; MedGuard V1 = Producto A; Axira congelado; baseline MedGuard validada = 1.4.1 (`03705f8` sobre `6801bd2`), aunque la telemetría reporta 1.4.2 pendiente de validación formal; AWS mínimo propio; G3 cerrada y G4 funcional con Cognito, app y portal; Trends validado con DynamoDB (24 h) + S3/Athena (7/30 días); telemetría cloud objetivo 30–60 s y alarmas inmediatas. Próxima actividad: CLD-02 (identidad y cadencia, requiere hardware) o endurecimiento G4, una a la vez. Los informes anteriores son históricos.
+
+## Estructura del repositorio (reorganizado 2026-09-15, mirror de MedGuard)
+- **`firmware/`** — TODO el proyecto ESP-IDF: `CMakeLists.txt`, `sdkconfig*`,
+  `partitions.csv`, `main/` (con `main/ui/` + `main/ui/screens/`) y `components/`.
+  `idf.py` se corre **desde `firmware/`** (`cd firmware && idf.py build`).
+- **`Simulator/`** — simulador de Visual Studio (repo git PROPIO `FPM-200-Sim`,
+  anidado e ignorado por este repo; se pushea entrando a `Simulator/`). Su `.vcxproj`
+  referencia `..\..\firmware\main\ui\...` (rutas relativas).
+- **`docs/`** — `HANDOFF.md`, `HMI_MIGRATION.md`, `SESION_HMI.md`,
+  `CONTRATO_BLE_FPM.md`, `financiero/`, `mockups/`.
+- **`Hardware/`** — `Datasheets/`, `Squematic.png`, datasheet del MS5803.
+  **`scripts/`** — utilidades (`sw_probe*.vbs`). Meta en raíz: `CLAUDE.md`, `AGENTS.md`.
+- Los docs históricos (`docs/HANDOFF.md` etc.) referencian rutas viejas tipo
+  `main/ui/...`; hoy son `firmware/main/ui/...` (breadcrumbs, no build-crítico).
 
 ## graphify
 

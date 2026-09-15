@@ -1,11 +1,11 @@
 # ===== ESP-IDF build =====
-/build/
-/build_*/
+/firmware/build/
+/firmware/build_*/
 sdkconfig.old
 
 # Componentes gestionados: se re-descargan del registry con `idf.py reconfigure`
 # (las versiones quedan fijadas en dependencies.lock)
-/managed_components/
+/firmware/managed_components/
 
 # ===== Logs y trazas =====
 /logs/
