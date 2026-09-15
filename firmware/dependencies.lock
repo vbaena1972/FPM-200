@@ -50,7 +50,7 @@ dependencies:
       type: service
     version: 1.2.1
   espressif/esp_lcd_touch_ft5x06:
-    component_hash: cb8247f88952ab71236110b92b15f1a4360453f9faaf516234908de27cece8ee
+    component_hash: d49f3dec3ae89617c31d96ac6f31bbc3212a0f049354eabd55c9457e454c56ae
     dependencies:
     - name: espressif/esp_lcd_touch
       registry_url: https://components.espressif.com
@@ -62,7 +62,7 @@ dependencies:
     source:
       registry_url: https://components.espressif.com/
       type: service
-    version: 1.1.0~2
+    version: 1.1.1
   espressif/esp_lvgl_port:
     component_hash: d3c020b45c3dfc0d1706a83b63a1c34a6eb444a6e935f9afff79f92b7b94dcef
     dependencies:
@@ -78,7 +78,7 @@ dependencies:
       type: service
     version: 2.9.0
   espressif/esp_sysview:
-    component_hash: f2a02415daedc8414fe5fb6b0fd70ad537f5a637d9b04705a5edcd6551da9847
+    component_hash: e5afef8e952cd4604a0f4a5f981ddc7fd380654d73e6dc0bdfc7362627642470
     dependencies:
     - name: idf
       require: private
@@ -86,7 +86,7 @@ dependencies:
     source:
       registry_url: https://components.espressif.com/
       type: service
-    version: 1.1.0
+    version: 1.1.1
   espressif/ksz8851snl:
     component_hash: 248c4eafb0359941810a304f197ec9c3a5a898a89d18a12dae29343ad869f6bd
     dependencies:
