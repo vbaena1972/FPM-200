@@ -7,8 +7,8 @@
 
 static const char *TAG = "st7796:";
 
-static lv_indev_t *disp_indev = NULL;
-static esp_lcd_touch_handle_t tp; // LCD touch handle
+static lv_indev_t *disp_indev __attribute__((unused)) = NULL;
+static esp_lcd_touch_handle_t tp __attribute__((unused)); // LCD touch handle
 static esp_lcd_panel_handle_t panel_handle = NULL;
 
 // static SemaphoreHandle_t refresh_finish = NULL;

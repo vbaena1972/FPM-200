@@ -9,7 +9,7 @@ static const char *TAG = "ft5x06:";
 static lv_indev_t *disp_indev = NULL;
 static esp_lcd_touch_handle_t tp; // LCD touch handle
 
-static SemaphoreHandle_t refresh_finish = NULL;
+static SemaphoreHandle_t refresh_finish __attribute__((unused)) = NULL;
 
 // Lectura de touch TOLERANTE a errores de I2C. Reemplaza al read interno de
 // esp_lvgl_port (lvgl_port_touchpad_read), que hacia ESP_ERROR_CHECK sobre

@@ -3,7 +3,7 @@
 #include "cJSON.h"
 #include <string.h>
 
-static const char *TAG = "ws_stream";
+static const char *TAG __attribute__((unused)) = "ws_stream";
 
 #if CONFIG_HTTPD_WS_SUPPORT
 

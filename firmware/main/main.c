@@ -168,7 +168,7 @@ void trace_init(void)
                                                sizeof(trace_record) / sizeof(trace_record[0])));
 }
 
-static void ble_json_worker(void *arg)
+__attribute__((unused)) static void ble_json_worker(void *arg)
 {
     ble_json_msg_t m;
     while (xQueueReceive(s_ble_q, &m, portMAX_DELAY) == pdTRUE)
@@ -442,7 +442,7 @@ static void sd_monitor_task(void *pvParameters)
     }
 }
 
-static void ui_main_deinit_cb(lv_event_t *e)
+__attribute__((unused)) static void ui_main_deinit_cb(lv_event_t *e)
 {
     ui_wifi_main_icon_deinit();
     ui_statusbar_controller_deinit();

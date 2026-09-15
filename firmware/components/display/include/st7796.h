@@ -47,7 +47,6 @@ typedef struct {
     } flags;
 } bsp_display_cfg_t;
 
-static esp_err_t bsp_display_brightness_init(void);
 lv_display_t *bsp_display_start(void);
 bool bsp_display_lock(uint32_t timeout_ms);
 void bsp_display_unlock(void);
