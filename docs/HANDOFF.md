@@ -358,3 +358,11 @@ Reportados 4 problemas en HW. Estado:
 - Fix: tarjeta Sensores se refresca tras editar limite por teclado (ui_sensorEditScreen_refresh).
 - Notificaciones: firmware publica transiciones de alarma por canal a <base>/.../alarms (medguard.alarm.v1) -> alarm-router (email+push).
 - Pendiente: validacion en HW de estos ultimos cambios.
+
+## Cierre sesion 2026-09-16 (tarde)
+- HMI: refresco de tarjetas tras editar por teclado en Sensores (limites) Y Audio de alarmas (reanunciar/silencio) via ui_*_refresh() + pop_to.
+- Icono nube = fa-cloud-upload-alt (F382, mg_font_18 regenerado con el glifo) al subir datos, como MedGuard.
+- Notificaciones: firmware publica transiciones por canal a topic /alarms (medguard.alarm.v1).
+- AWS (repo MedGuard): alarm-router limpia tokens FCM muertos; app registra token multi-equipo; multi-tenant core (DEC-022, aislamiento por org + binding admin) desplegado.
+- Commits FPM: 3ba6ad1 (UI/mem/notif), b4d2a32 (fix audio). PENDIENTE: validacion en HW de estos ultimos cambios.
+- Proximos pasos (plan 17f83c2): terminar HMI FPM, UX Flutter contra la API ya aislada, web multi-tenant, luego G5 piloto. Provisioning+facturacion al final.
