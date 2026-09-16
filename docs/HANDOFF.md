@@ -310,5 +310,36 @@ idf.py -p COM3 flash monitor
 
 ---
 
-*Actualizado 2026-08-01. Rama `feature/ble-app-contract` @ `6e0b82c`. Ver `SESION_HMI.md` §9 para el
-historial detallado.*
+## 8. Sesión 2026-09-16 — fixes de campo (#1 buzzer/I2C, #2 WiFi) — commit `a353c41`
+
+Reportados 4 problemas en HW. Estado:
+
+- **#1 Buzzer atascado / deja de registrar — RESUELTO y validado.**
+  Causa raíz: el touch FT5x06 comparte el **bus I2C 1** con los sensores y su lectura
+  (`esp_lcd_panel_io_i2c`) usa **timeout -1 (infinito)**. Al colgarse el bus, esa lectura bloquea la
+  tarea LVGL con el **mutex de display tomado para siempre** → UI congelada + `alarm_mgr` en ALERT
+  permanente (buzzer). Fix en `ft5x06.c`: **INT-gating (GPIO39)** → solo se lee el touch con dedo
+  presente; en reposo no se toca el bus (elimina el sondeo ~30 Hz que colgaba el bus). Además se
+  aparta si `sensors_runtime_bus1_hung()`. En `sensors_runtime.c`: recuperación del bus cada ~500 ms
+  (antes ~3 s) + flag `bus1_hung`.
+  **Gotcha:** se probó `i2c_master_probe` como guarda con timeout finito → **NO usar**: concurrente
+  con las transacciones de la tarea de sensores corrompe el driver → **panic StoreProhibited en el
+  ISR de recepción** (`i2c_master.c:767`). Se descartó.
+- **#2 WiFi no aplica hasta reiniciar — RESUELTO y validado.**
+  La UI usaba `wifi_mgr_update_credentials` (config STA incompleta, sin actualizar `s_cfg_cur`). Ahora
+  `ui_netWifiScreen.c` usa la **misma ruta diferida del arranque** (`wifi_mgr_apply_from_cache` +
+  `wifi_mgr_start`). Validado: cambio de red en caliente sin reiniciar.
+- **#2 Alarma no se silencia al desactivar límites — DIAGNOSTICADO, pendiente decidir fix.**
+  NO es la alarma de presión (el gateo de `pressure_min/max_enabled` en `alarm_mgr.c` es correcto y en
+  caché vivo). Es el **path de fallo de sensor**: `ADS1115` (flujo) con `rdErr` sostenido →
+  `SENSOR_FAULT_MODULE_I2C` → `alarm_mgr.c:112` fuerza **ALERT irrevocable** ignorando los flags.
+  Decisión pendiente: tratar el fallo-de-comunicaciones como alarma **silenciable/distinta**.
+- **ADS1115 (flujo) `rdErr` sostenido — pendiente.** Intermitente (recupera a veces), MS5803 del mismo
+  bus OK → no es bus/pull-ups. Sospecha: **timing de lectura** (se lee antes de conversión lista /
+  timeout corto) en `ads1115_read`, no el driver base. Opción provisional: deshabilitar canal de flujo.
+- **#3 (ojito de contraseña WiFi) y #4 (publish inmediato de alarma a AWS) — NO empezados.**
+
+---
+
+*Actualizado 2026-09-16. Rama `main` @ `a353c41`. Sesión previa: 2026-08-01 (`feature/ble-app-contract`
+@ `6e0b82c`). Ver `SESION_HMI.md` §9 para el historial detallado.*
