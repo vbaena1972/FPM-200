@@ -59,6 +59,12 @@ LV_FONT_DECLARE(ui_font_tabler28);
 #define UI_SYM_WIFI                  "\xEE\xAD\x92"       /* ti-wifi U+EB52 */
 #define UI_SYM_WIND                  "\xEE\xB0\xB4"       /* ti-wind U+EC34 */
 
+/* Font Awesome glyphs incluidos en las fuentes Inter mg_font_*.
+ * Se usan en la barra superior para replicar el indicador cloud de MedGuard. */
+#define UI_SYM_CLOUD_SOLID           "\xEF\x83\x82"       /* fa-cloud U+F0C2 */
+#define UI_SYM_CLOUD_UP              "\xEF\x8E\x82"       /* fa-cloud-upload-alt U+F382 (igual que MedGuard) */
+#define UI_SYM_CLOUD_TX_ARROW        "\xEF\x81\xB7"       /* fa-chevron-up U+F077 (legacy, ya no se usa) */
+
 #ifdef __cplusplus
 }
 #endif

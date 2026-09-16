@@ -392,12 +392,28 @@ float ui_cfg_flow_to_disp(float lpm)
     return lpm; /* lpm/slpm/nlpm */
 }
 
-void ui_cfg_press_fmt(char *buf, size_t cap, float disp)
+/* Politica de decimales por unidad (compartida con el dashboard): las unidades
+ * "pequenas" tras convertir conservan resolucion. psi/kPa=0, bar=1, MPa=2. */
+int ui_cfg_press_decimals(void)
 {
     const char *u = ui_cfg_pressure_unit();
-    /* bar/MPa quedan pequeños tras convertir: 1 decimal para no perder resolución */
-    bool dec = (strcmp(u, "bar") == 0) || (strcmp(u, "mpa") == 0);
-    snprintf(buf, cap, dec ? "%.1f" : "%.0f", (double)disp);
+    if (strcmp(u, "mpa") == 0) return 2;
+    if (strcmp(u, "bar") == 0) return 1;
+    return 0; /* psi, kpa */
+}
+int ui_cfg_flow_decimals(void)
+{
+    const char *u = ui_cfg_flow_unit();
+    if (strcmp(u, "m3h") == 0) return 2;  /* m³/h queda pequeno tras convertir */
+    return 0; /* lpm, slpm, sccm */
+}
+void ui_cfg_press_fmt(char *buf, size_t cap, float disp)
+{
+    snprintf(buf, cap, "%.*f", ui_cfg_press_decimals(), (double)disp);
+}
+void ui_cfg_flow_fmt(char *buf, size_t cap, float disp)
+{
+    snprintf(buf, cap, "%.*f", ui_cfg_flow_decimals(), (double)disp);
 }
 
 /* ---------- edición de umbral con confirmación ---------- */

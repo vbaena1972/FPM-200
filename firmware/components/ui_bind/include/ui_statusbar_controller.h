@@ -16,6 +16,10 @@ void ui_statusbar_controller_deinit(void);
    Útil tras start/stop de WiFi, cambios de link ETH, BLE connect/disconnect, etc. */
 void ui_statusbar_request_refresh(void);
 
+/* Notifica un publish MQTT confirmado para mostrar brevemente la nube con
+   flecha. Es thread-safe: el callback solo marca un pendiente y LVGL lo pinta. */
+void ui_statusbar_signal_cloud_activity(void);
+
 /* NUEVO: Fija la visibilidad (A/B) de los íconos según la configuración (NVS).
    Llamar UNA VEZ al cargar ui_mainScreen (p. ej. en LV_EVENT_SCREEN_LOADED),
    después de leer AppConfig desde NVS.

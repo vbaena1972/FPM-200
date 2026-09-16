@@ -52,6 +52,14 @@ lv_obj_t *ui_menu_row(lv_obj_t *parent, const char *sym, const char *title,
 /* Aplica estilo de "botón" del tema a un objeto (bg + radio + estado pressed). */
 void ui_style_button(lv_obj_t *obj, uint32_t bg_hex);
 
+/* Añade feedback tactil de presion ("push": encoge al presionar) a un objeto.
+ * scale_256 en 1/256 (256 = 100%, p.ej. 236 ≈ 92%). Solo se ve en clickeables. */
+void ui_press_push(lv_obj_t *obj, int32_t scale_256);
+
+/* Feedback de presion completo (resalte + push) para una caja clickeable NO
+ * scrollable que actua como boton (item de menu, banner). */
+void ui_press_feedback(lv_obj_t *obj);
+
 /* Banner de aviso (estilo warn: fondo/borde ámbar + icono candado + texto).
  * Útil para señalar "solo lectura / requiere rol superior". Devuelve la tarjeta. */
 lv_obj_t *ui_notice(lv_obj_t *parent, const char *msg);

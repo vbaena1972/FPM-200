@@ -51,6 +51,17 @@ lv_obj_t *ui_screen_base(void)
     return scr;
 }
 
+/* Feedback tactil de presion: encoge levemente el objeto al presionarlo (efecto
+ * "push"). Solo se manifiesta en objetos CLICKEABLES (los contenedores de layout
+ * no entran en estado PRESSED), asi que es seguro aplicarlo de forma amplia. */
+void ui_press_push(lv_obj_t *o, int32_t scale_256)
+{
+    lv_obj_set_style_transform_pivot_x(o, LV_PCT(50), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_transform_pivot_y(o, LV_PCT(50), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_transform_scale_x(o, scale_256, LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_transform_scale_y(o, scale_256, LV_PART_MAIN | LV_STATE_PRESSED);
+}
+
 lv_obj_t *ui_box(lv_obj_t *parent)
 {
     lv_obj_t *o = lv_obj_create(parent);
@@ -59,7 +70,20 @@ lv_obj_t *ui_box(lv_obj_t *parent)
     /* En LVGL 9 lv_obj_create es CLICKABLE por defecto: un contenedor de layout
        no debe robar el toque de una tarjeta/tile clickeable que lo envuelve. */
     lv_obj_clear_flag(o, LV_OBJ_FLAG_CLICKABLE);
+    /* Nota: NO aplicamos feedback de presion aqui de forma global porque algunos
+       ui_box se vuelven scrollables (contenido de formularios) y se "encogerian"
+       al arrastrar. El feedback se agrega puntualmente con ui_press_feedback()
+       en los contenedores que si son botones (items de menu, banner, etc.). */
     return o;
+}
+
+/* Feedback completo (resalte teal + push) para una caja clickeable NO scrollable
+ * que hace de boton (item de menu, banner). */
+void ui_press_feedback(lv_obj_t *o)
+{
+    lv_obj_set_style_bg_color(o, ui_col(UI_C_OK), LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_bg_opa(o, LV_OPA_30, LV_PART_MAIN | LV_STATE_PRESSED);
+    ui_press_push(o, 245);
 }
 
 lv_obj_t *ui_card(lv_obj_t *parent)
@@ -74,6 +98,9 @@ lv_obj_t *ui_card(lv_obj_t *parent)
     lv_obj_set_style_pad_all(o, 8, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_scrollbar_mode(o, LV_SCROLLBAR_MODE_OFF);
     lv_obj_clear_flag(o, LV_OBJ_FLAG_SCROLLABLE);
+    /* Feedback de presion para tarjetas clickeables (tiles de menu/conectividad):
+       leve "push" al presionar. Las tarjetas no clickeables no lo disparan. */
+    ui_press_push(o, 248);
     return o;
 }
 
@@ -120,6 +147,8 @@ lv_obj_t *ui_icon_badge(lv_obj_t *parent, const char *sym, const lv_font_t *font
     lv_obj_set_style_bg_color(b, ui_col(bg_hex), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(b, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_radius(b, UI_RADIUS_SM, LV_PART_MAIN | LV_STATE_DEFAULT);
+    /* Feedback "push" para los badges que se hacen clickeables (back/gear). */
+    ui_press_push(b, 234);
     lv_obj_t *ic = ui_icon(b, sym, font, icon_hex);
     lv_obj_center(ic);
     return b;
@@ -131,8 +160,10 @@ void ui_style_button(lv_obj_t *obj, uint32_t bg_hex)
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_radius(obj, UI_RADIUS_PILL, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(obj, ui_col(bg_hex), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_opa(obj, LV_OPA_80, LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_70, LV_PART_MAIN | LV_STATE_PRESSED);
     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    /* Efecto "push" bien visible al presionar cualquier boton (~88%). */
+    ui_press_push(obj, 226);
 }
 
 lv_obj_t *ui_notice(lv_obj_t *parent, const char *msg)

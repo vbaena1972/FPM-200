@@ -12,6 +12,8 @@
 #include "cert_store.h"
 #include "sensors_runtime.h"
 #include "state_pub.h"
+#include "alarm_mgr.h"
+#include "ui_statusbar_controller.h"
 
 static const char *TAG = "aws_mqtt";
 
@@ -86,6 +88,12 @@ static void mqtt_event(void *handler_args, esp_event_base_t base, int32_t event_
         break;
     case MQTT_EVENT_SUBSCRIBED:
         ESP_LOGI(TAG, "Suscripción confirmada por AWS. ¡Estamos a la escucha!");
+        break;
+    case MQTT_EVENT_PUBLISHED:
+        /* QoS 1: AWS confirmo el publish. El controlador difiere cualquier
+         * acceso LVGL a su propio timer, por lo que este callback sigue seguro. */
+        ESP_LOGD(TAG, "Publish confirmado por AWS. ID: %d", event->msg_id);
+        ui_statusbar_signal_cloud_activity();
         break;
     case MQTT_EVENT_DATA:
         ESP_LOGI(TAG, "Datos recibidos en el topic: %.*s", event->topic_len, event->topic);
@@ -187,11 +195,48 @@ static void add_channel(cJSON *arr, int id, const char *name, const char *unit,
     cJSON_AddItemToArray(arr, ch);
 }
 
+// Publica una TRANSICION de estado de un canal al topic <...>/alarms con el
+// esquema medguard.alarm.v1 (identico a MedGuard) para que el alarm-router de
+// AWS dispare email (SNS) + push FCM a la app Flutter. Solo se llama cuando el
+// estado del canal cambia respecto al ciclo anterior.
+static void publish_alarm_transition(const char *alarm_topic, const char *device_id,
+                                     int channel_id, const char *channel_name,
+                                     const char *unit, float value,
+                                     const char *prev_state, const char *cur_state)
+{
+    cJSON *root = cJSON_CreateObject();
+    if (!root) return;
+    cJSON_AddStringToObject(root, "schema", "medguard.alarm.v1");
+    cJSON_AddStringToObject(root, "device_id", device_id);
+    cJSON_AddStringToObject(root, "thing_name", device_id);
+    cJSON_AddNumberToObject(root, "timestamp", (double)time(NULL));
+    cJSON_AddNumberToObject(root, "channel_id", channel_id);
+    cJSON_AddStringToObject(root, "channel", channel_name);
+    cJSON_AddStringToObject(root, "previous_state", prev_state);
+    cJSON_AddStringToObject(root, "state", cur_state);
+    if (isfinite(value)) cJSON_AddNumberToObject(root, "value", value);
+    else                 cJSON_AddNullToObject(root, "value");
+    cJSON_AddStringToObject(root, "unit", unit);
+
+    char *payload = cJSON_PrintUnformatted(root);
+    cJSON_Delete(root);
+    if (payload) {
+        int id = esp_mqtt_client_publish(s_client, alarm_topic, payload, 0, 1, 0);
+        ESP_LOGI(TAG, "Alarma CH%d %s->%s publicada a AWS (id=%d)",
+                 channel_id, prev_state, cur_state, id);
+        free(payload);
+    }
+}
+
 static void aws_telemetry_task(void *pvParameters)
 {
     char topic[256] = {0};
+    char alarm_topic[256] = {0};
     char serial[32] = {0};
     char firmware[24] = {0};
+    // Estado por canal publicado la ultima vez (para detectar transiciones).
+    // Indices: 0=presion, 1=flujo, 2=temperatura.
+    char prev_state[3][12] = { "normal", "normal", "normal" };
 
     // Límites/flags de alarma capturados de la NVS (para el 'state' por canal).
     float p_lim_min = -10.0f, p_lim_max = 120.0f, f_high_lim = 90.0f;
@@ -211,6 +256,15 @@ static void aws_telemetry_task(void *pvParameters)
                  cfg_app->general.model,
                  cfg_app->general.serial);
         ESP_LOGI(TAG, "Topic MQTT configurado: %s", topic);
+
+        // Topic de alarmas: misma ruta de 6 niveles terminada en /alarms (la regla
+        // IoT del alarm-router escucha 'vexel/+/+/+/+/alarms').
+        snprintf(alarm_topic, sizeof(alarm_topic), "%s/%s/%s/%s/%s/alarms",
+                 cfg_app->cloud.topic_base,
+                 cfg_app->general.partner,
+                 cfg_app->general.client,
+                 cfg_app->general.model,
+                 cfg_app->general.serial);
 
         strncpy(serial, cfg_app->general.serial, sizeof(serial) - 1);
         strncpy(firmware, cfg_app->general.fw_version, sizeof(firmware) - 1);
@@ -262,10 +316,13 @@ static void aws_telemetry_task(void *pvParameters)
 
         const char *t_state = isfinite(last.temp_c) ? "normal" : "fault";
 
-        // device_status: "normal" salvo que algún canal no esté normal -> "alarm"
-        // (misma regla y vocabulario que MedGuard, aws_service.c).
+        // device_status sigue la máquina clínica (incluye flow_delta y fallos
+        // técnicos) además del estado individual de los canales. Así el publish
+        // inmediato disparado por alarm_mgr nunca anuncia "normal" por error.
+        bool clinical_alarm = alarm_mgr_get_current_state() != ALARM_STATE_NORMAL;
         const char *dev_status =
-            (strcmp(p_state, "normal") || strcmp(f_state, "normal") || strcmp(t_state, "normal"))
+            (clinical_alarm || strcmp(p_state, "normal") ||
+             strcmp(f_state, "normal") || strcmp(t_state, "normal"))
                 ? "alarm" : "normal";
 
         // --- Envelope v2 (mismo contrato que MedGuard: channels[] + stats) ---
@@ -302,6 +359,25 @@ static void aws_telemetry_task(void *pvParameters)
             else
                 ESP_LOGE(TAG, "Fallo al publicar telemetría en el broker.");
             free(pub_payload);
+        }
+
+        // --- Transiciones de alarma por canal -> topic /alarms (medguard.alarm.v1)
+        // Dispara el alarm-router de AWS (email SNS + push FCM a Flutter). Solo se
+        // publica cuando el estado del canal cambia respecto al ciclo anterior.
+        const char *cur_state[3] = { p_state, f_state, t_state };
+        const char *ch_name[3]   = { "Presion", "Flujo", "Temperatura" };
+        const char *ch_unit[3]   = { "kPa", "L/min", "C" };
+        float       ch_value[3]  = { last.pressure_kpa, last.flow_lpm, last.temp_c };
+        for (int i = 0; i < 3; i++)
+        {
+            if (strcmp(cur_state[i], prev_state[i]) != 0)
+            {
+                publish_alarm_transition(alarm_topic, serial, i + 1, ch_name[i],
+                                         ch_unit[i], ch_value[i],
+                                         prev_state[i], cur_state[i]);
+                strncpy(prev_state[i], cur_state[i], sizeof(prev_state[i]) - 1);
+                prev_state[i][sizeof(prev_state[i]) - 1] = '\0';
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ extern "C" {
 lv_obj_t *ui_form_begin(const char *title, lv_obj_t **out_content, lv_event_cb_t save_cb);
 
 /* Campo de texto: tarjeta con caption + textarea de una línea. Devuelve el textarea.
- * Si password=true, oculta el texto. */
+ * Si password=true, oculta el texto y añade un botón ojo para mostrar/ocultar. */
 lv_obj_t *ui_form_textarea(lv_obj_t *parent, const char *caption, const char *value, bool password);
 
 /* Fila con etiqueta + switch. Devuelve el switch (usar lv_obj_has_state(sw, LV_STATE_CHECKED)). */

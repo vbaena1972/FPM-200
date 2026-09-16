@@ -20,7 +20,9 @@ extern lv_obj_t *ui_statusMainComm;      /* contenedor de la fila de iconos */
 extern lv_obj_t *ui_bluetoothStatusMain; /* label icono BT   */
 extern lv_obj_t *ui_wifiStatusMain;      /* label icono WiFi */
 extern lv_obj_t *ui_ethernetStatusMain;  /* label icono ETH  */
+extern lv_obj_t *ui_cloudStatusBoxMain;  /* contenedor fijo nube + flecha TX */
 extern lv_obj_t *ui_cloudStatusMain;     /* label icono nube */
+extern lv_obj_t *ui_cloudTxArrowMain;    /* flecha superpuesta durante TX */
 extern lv_obj_t *ui_alarmBtnMain;        /* banner de estado (táctil = mute) */
 
 /* --- API de binding (la llama ui_refresh_task en main.c bajo bsp_display_lock) --- */
@@ -28,6 +30,10 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
                     const sensor_sample_t *mn, const sensor_sample_t *mx, bool have_mm,
                     const AppConfig *cfg,
                     alarm_clinical_state_t state, bool muted);
+
+/* Destello de adquisicion en la pastilla DATOS de la cabecera.
+ * Llamar exclusivamente desde contexto LVGL o con el display bloqueado. */
+void ui_main_signal_data_activity(void);
 
 /* Refresca cabecera/gas/marca desde AppConfig (llamar on-load). */
 void ui_main_apply_config(const AppConfig *cfg);

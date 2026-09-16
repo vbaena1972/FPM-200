@@ -4,6 +4,7 @@
 #include "ui_theme.h"
 #include "ui.h"
 #include "ui_cfg.h"
+#include "ui_sensorEditScreen.h"
 #include <stdio.h>
 
 /* Diálogo de confirmación de cambio crítico (mockup 5d). */
@@ -16,6 +17,9 @@ static void apply_authenticated_cb(lv_event_t *e)
     if (!ui_auth_active()) { ui_open_login_cb(NULL); return; }
     bool audio = ui_edit_is_audio();
     ui_edit_apply();
+    /* Reconstruir la pantalla de Sensores para que la tarjeta editada por teclado
+     * muestre el valor nuevo (antes se volvia a la pantalla vieja -> valor stale). */
+    if (!audio) ui_sensorEditScreen_refresh();
     ui_nav_pop_to(audio ? ui_sensorDiagScreen : ui_sensorEditScreen);
 }
 

@@ -3,6 +3,7 @@
 #include "ui_form.h"
 #include "ui_widgets.h"
 #include "ui_nav.h"
+#include "ui_connectivityScreen.h"
 #include "storage.h"
 #include "ui_statusbar_controller.h"
 #include <string.h>
@@ -41,6 +42,9 @@ static void save_cb(lv_event_t *e)
     set_str(cfg->wifi.dns2, sizeof(cfg->wifi.dns2), lv_textarea_get_text(s_dns2));
 
     (void)appcfg_save(cfg);
+    /* Volver a leer la configuración persistida antes de refrescar managers y
+     * tarjetas; así la vista de Conectividad no conserva el snapshot anterior. */
+    (void)appcfg_cache_reload();
 
 #ifdef ESP_PLATFORM
     /* Aplicamos por la MISMA ruta diferida que usa el arranque (main.c:
@@ -58,6 +62,7 @@ static void save_cb(lv_event_t *e)
     }
 #endif
     ui_statusbar_request_refresh();
+    ui_connectivityScreen_refresh();
     ui_nav_back();
 }
 

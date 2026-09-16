@@ -19,6 +19,19 @@ static void rebuild(void)
     lv_obj_delete_delayed(o, 250);
 }
 
+/* Reconstruye la pantalla en su lugar dentro de la pila SIN cargarla (se usa
+ * cuando la pantalla activa es otra, p.ej. el dialogo de confirmacion del
+ * teclado). Al hacer pop_to despues, se mostrara la version nueva. */
+void ui_sensorEditScreen_refresh(void)
+{
+    if (!ui_sensorEditScreen) return;
+    lv_obj_t *old = ui_sensorEditScreen;
+    ui_sensorEditScreen = NULL;
+    ui_sensorEditScreen_screen_init();
+    ui_nav_swap(old, ui_sensorEditScreen);
+    lv_obj_del(old);
+}
+
 /* ---- unidades ---- */
 static bool is_press_unit(const char *k)
 {
@@ -165,8 +178,9 @@ static void flow_card(lv_obj_t *p, const char *t, bool hi)
     if (ui_cfg_flow_limit_enabled(hi)) lv_obj_add_state(s, LV_STATE_CHECKED);
     lv_obj_add_event_cb(s, f_switch, LV_EVENT_VALUE_CHANGED, (void *)(intptr_t)hi);
     mini(r, "-", -target);
-    char b[28];
-    snprintf(b, sizeof(b), "%.0f %s", (double)ui_cfg_flow_to_disp(ui_cfg_flow_limit(hi)), ui_cfg_flow_unit());
+    char b[28], n[16];
+    ui_cfg_flow_fmt(n, sizeof(n), ui_cfg_flow_to_disp(ui_cfg_flow_limit(hi)));
+    snprintf(b, sizeof(b), "%s %s", n, ui_cfg_flow_unit());
     value_button(r, b, target, UI_C_WARN);
     mini(r, "+", target);
 }

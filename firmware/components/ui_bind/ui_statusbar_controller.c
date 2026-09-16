@@ -9,6 +9,7 @@
 #include "ui_wifi_main_icon.h"
 #include "esp_log.h"
 #include <stdbool.h>
+#include <stdatomic.h>
 
 static const char *TAG = "ui_statusbar";
 
@@ -16,6 +17,15 @@ static const char *TAG = "ui_statusbar";
 static bool s_vis_wifi = false, s_vis_eth = false, s_vis_bt = false, s_vis_cloud = false;
 
 static lv_timer_t *s_watch_timer = NULL;
+static lv_timer_t *s_activity_timer = NULL;
+
+#define CLOUD_PULSE_HOLD_MS 650
+#define ACTIVITY_TIMER_MS    80
+
+/* mqtt_event() corre fuera de LVGL: solo escribe este flag atomico. */
+static atomic_bool s_cloud_activity_pending = ATOMIC_VAR_INIT(false);
+static bool s_cloud_pulse_active = false;
+static uint32_t s_cloud_pulse_tick = 0;
 
 /* estados previos para no repintar innecesariamente */
 static bool s_prev_eth_link = false;
@@ -37,6 +47,47 @@ static inline void set_glyph(lv_obj_t *o, const char *sym, uint32_t color)
     if (!o || !lv_obj_is_valid(o)) return;
     lv_label_set_text(o, sym);
     lv_obj_set_style_text_color(o, lv_color_hex(color), LV_PART_MAIN | LV_STATE_DEFAULT);
+}
+
+static void apply_cloud_visual(bool connected)
+{
+    if (!ui_cloudStatusMain || !lv_obj_is_valid(ui_cloudStatusMain)) return;
+
+    bool transmitting = connected && s_cloud_pulse_active;
+    /* Igual que el proyecto hermano (MedGuard): un SOLO glifo — fa-cloud
+     * (U+F0C2) en reposo y fa-cloud-upload-alt (U+F382, nube con flecha) al
+     * transmitir. F382 SI esta compilado en mg_font_18 (unicode_list, offset
+     * 0xD36F), asi que renderiza como nube-con-flecha, no el chevron superpuesto. */
+    set_glyph(ui_cloudStatusMain, transmitting ? UI_SYM_CLOUD_UP : UI_SYM_CLOUD_SOLID,
+              transmitting ? UI_C_TEAL : (connected ? UI_C_INFO : UI_C_ALARM));
+
+    /* La flecha chevron superpuesta queda obsoleta: siempre oculta. */
+    if (ui_cloudTxArrowMain && lv_obj_is_valid(ui_cloudTxArrowMain))
+        set_visible(ui_cloudTxArrowMain, false);
+}
+
+static void activity_timer_cb(lv_timer_t *t)
+{
+    (void)t;
+    bool repaint = false;
+
+    if (atomic_exchange_explicit(&s_cloud_activity_pending, false,
+                                 memory_order_acq_rel))
+    {
+        s_cloud_pulse_tick = lv_tick_get();
+        s_cloud_pulse_active = true;
+        repaint = true;
+    }
+
+    if (s_cloud_pulse_active &&
+        lv_tick_elaps(s_cloud_pulse_tick) >= CLOUD_PULSE_HOLD_MS)
+    {
+        s_cloud_pulse_active = false;
+        repaint = true;
+    }
+
+    if (repaint && s_vis_cloud)
+        apply_cloud_visual(s_prev_cloud_conn);
 }
 
 static void statusbar_timer_cb(lv_timer_t *t)
@@ -68,6 +119,7 @@ static void statusbar_timer_cb(lv_timer_t *t)
     s_prev_ble_conn = ble;
     s_prev_ble_adv = ble_adv;
     s_prev_cloud_conn = cloud;
+    if (!cloud) s_cloud_pulse_active = false;
 
     /* === BLUETOOTH ===
      * Visible si está configurado, anunciando o conectado (estado vivo). Verde =
@@ -98,11 +150,11 @@ static void statusbar_timer_cb(lv_timer_t *t)
     }
 
     /* === CLOUD === */
-    if (ui_cloudStatusMain && lv_obj_is_valid(ui_cloudStatusMain))
+    if (ui_cloudStatusBoxMain && lv_obj_is_valid(ui_cloudStatusBoxMain))
     {
-        set_visible(ui_cloudStatusMain, s_vis_cloud);
+        set_visible(ui_cloudStatusBoxMain, s_vis_cloud);
         if (s_vis_cloud)
-            set_glyph(ui_cloudStatusMain, UI_SYM_CLOUD_CHECK, cloud ? UI_C_TEAL : UI_C_TEXT_MUTED);
+            apply_cloud_visual(cloud);
     }
 
     if (ui_statusMainComm && lv_obj_is_valid(ui_statusMainComm))
@@ -114,10 +166,17 @@ void ui_statusbar_request_refresh(void)
     if (s_watch_timer) lv_timer_ready(s_watch_timer);
 }
 
+void ui_statusbar_signal_cloud_activity(void)
+{
+    atomic_store_explicit(&s_cloud_activity_pending, true, memory_order_release);
+}
+
 void ui_statusbar_controller_init(void)
 {
     if (!s_watch_timer)
         s_watch_timer = lv_timer_create(statusbar_timer_cb, 500, NULL);
+    if (!s_activity_timer)
+        s_activity_timer = lv_timer_create(activity_timer_cb, ACTIVITY_TIMER_MS, NULL);
     ESP_LOGI(TAG, "statusbar controller iniciado");
     ui_statusbar_request_refresh();
 }
@@ -129,6 +188,13 @@ void ui_statusbar_controller_deinit(void)
         lv_timer_del(s_watch_timer);
         s_watch_timer = NULL;
     }
+    if (s_activity_timer)
+    {
+        lv_timer_del(s_activity_timer);
+        s_activity_timer = NULL;
+    }
+    atomic_store_explicit(&s_cloud_activity_pending, false, memory_order_release);
+    s_cloud_pulse_active = false;
     s_vis_wifi = s_vis_eth = s_vis_bt = s_vis_cloud = false;
 }
 

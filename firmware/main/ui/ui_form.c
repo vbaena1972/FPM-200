@@ -7,6 +7,21 @@
 /* Teclado compartido de la pantalla de formulario activa. */
 static lv_obj_t *s_kb = NULL;
 
+static void password_toggle_cb(lv_event_t *e)
+{
+    lv_obj_t *button = lv_event_get_target(e);
+    lv_obj_t *ta = lv_event_get_user_data(e);
+    bool was_hidden = lv_textarea_get_password_mode(ta);
+
+    lv_textarea_set_password_mode(ta, !was_hidden);
+
+    /* El icono representa la accion disponible: ojo abierto = mostrar,
+     * ojo cerrado = volver a ocultar. */
+    lv_obj_t *icon = lv_obj_get_child(button, 0);
+    if (icon)
+        lv_label_set_text(icon, was_hidden ? LV_SYMBOL_EYE_CLOSE : LV_SYMBOL_EYE_OPEN);
+}
+
 static void ta_event_cb(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
@@ -17,6 +32,12 @@ static void ta_event_cb(lv_event_t *e)
         lv_keyboard_set_textarea(s_kb, ta);
         lv_obj_clear_flag(s_kb, LV_OBJ_FLAG_HIDDEN);
         lv_obj_move_foreground(s_kb);
+
+        /* El teclado forma parte del flex de la pantalla cuando esta visible,
+         * por lo que reduce el viewport del contenido. Recalcular antes del
+         * scroll evita que la tarjeta enfocada quede debajo del teclado. */
+        lv_obj_update_layout(lv_obj_get_screen(ta));
+        lv_obj_scroll_to_view_recursive(ta, LV_ANIM_ON);
     } else if (code == LV_EVENT_DEFOCUSED) {
         lv_keyboard_set_textarea(s_kb, NULL);
         lv_obj_add_flag(s_kb, LV_OBJ_FLAG_HIDDEN);
@@ -62,9 +83,7 @@ lv_obj_t *ui_form_begin(const char *title, lv_obj_t **out_content, lv_event_cb_t
     /* teclado (oculto hasta enfocar un campo) */
     s_kb = lv_keyboard_create(scr);
     lv_obj_set_size(s_kb, LV_PCT(100), 150);
-    lv_obj_align(s_kb, LV_ALIGN_BOTTOM_MID, 0, 0);
     lv_obj_add_flag(s_kb, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(s_kb, LV_OBJ_FLAG_IGNORE_LAYOUT);
     lv_obj_add_event_cb(s_kb, kb_event_cb, LV_EVENT_ALL, NULL);
 
     if (out_content) *out_content = content;
@@ -75,6 +94,7 @@ lv_obj_t *ui_form_textarea(lv_obj_t *parent, const char *caption, const char *va
 {
     lv_obj_t *c = ui_card(parent);
     lv_obj_set_width(c, LV_PCT(100));
+    lv_obj_set_height(c, LV_SIZE_CONTENT);   /* ajustar a su contenido (no altura fija) */
     lv_obj_set_style_radius(c, 10, 0);
     lv_obj_set_style_pad_hor(c, 11, 0);
     lv_obj_set_style_pad_ver(c, 7, 0);
@@ -83,8 +103,23 @@ lv_obj_t *ui_form_textarea(lv_obj_t *parent, const char *caption, const char *va
     lv_obj_t *l = ui_label(c, caption, UI_FONT_XS, UI_C_TEXT_MUTED);
     lv_obj_set_style_text_letter_space(l, 1, 0);
 
-    lv_obj_t *ta = lv_textarea_create(c);
-    lv_obj_set_width(ta, LV_PCT(100));
+    lv_obj_t *input_parent = c;
+    if (password) {
+        input_parent = ui_box(c);
+        lv_obj_set_size(input_parent, LV_PCT(100), LV_SIZE_CONTENT);
+        lv_obj_set_flex_flow(input_parent, LV_FLEX_FLOW_ROW);
+        lv_obj_set_flex_align(input_parent, LV_FLEX_ALIGN_START,
+                              LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+        lv_obj_set_style_pad_column(input_parent, 6, 0);
+    }
+
+    lv_obj_t *ta = lv_textarea_create(input_parent);
+    if (password) {
+        lv_obj_set_width(ta, 0);
+        lv_obj_set_flex_grow(ta, 1);
+    } else {
+        lv_obj_set_width(ta, LV_PCT(100));
+    }
     lv_textarea_set_one_line(ta, true);
     lv_textarea_set_password_mode(ta, password);
     lv_textarea_set_text(ta, value ? value : "");
@@ -97,6 +132,23 @@ lv_obj_t *ui_form_textarea(lv_obj_t *parent, const char *caption, const char *va
     lv_obj_set_style_text_font(ta, UI_FONT_MD, 0);
     lv_obj_set_style_pad_all(ta, 6, 0);
     lv_obj_add_event_cb(ta, ta_event_cb, LV_EVENT_ALL, NULL);
+
+    if (password) {
+        lv_obj_t *toggle = lv_button_create(input_parent);
+        lv_obj_set_size(toggle, 36, 36);
+        ui_style_button(toggle, UI_C_CARD_BG2);
+        lv_obj_set_style_border_width(toggle, 1, 0);
+        lv_obj_set_style_border_color(toggle, ui_col(UI_C_BORDER), 0);
+        /* Tocar el ojo no debe quitar el foco ni cerrar el teclado. */
+        lv_obj_remove_flag(toggle, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+        lv_obj_add_event_cb(toggle, password_toggle_cb, LV_EVENT_CLICKED, ta);
+
+        lv_obj_t *icon = lv_label_create(toggle);
+        lv_label_set_text(icon, LV_SYMBOL_EYE_OPEN);
+        lv_obj_set_style_text_font(icon, &lv_font_montserrat_14, 0);
+        lv_obj_set_style_text_color(icon, ui_col(UI_C_TEXT_2), 0);
+        lv_obj_center(icon);
+    }
     return ta;
 }
 
@@ -104,6 +156,7 @@ lv_obj_t *ui_form_switch(lv_obj_t *parent, const char *label, const char *sub, b
 {
     lv_obj_t *row = ui_card(parent);
     lv_obj_set_width(row, LV_PCT(100));
+    lv_obj_set_height(row, LV_SIZE_CONTENT);   /* ajustar a su contenido (no altura fija) */
     lv_obj_set_style_radius(row, 10, 0);
     lv_obj_set_style_pad_hor(row, 12, 0);
     lv_obj_set_style_pad_ver(row, 8, 0);
@@ -127,6 +180,7 @@ lv_obj_t *ui_form_dropdown(lv_obj_t *parent, const char *caption, const char *op
 {
     lv_obj_t *c = ui_card(parent);
     lv_obj_set_width(c, LV_PCT(100));
+    lv_obj_set_height(c, LV_SIZE_CONTENT);   /* ajustar a su contenido (no altura fija) */
     lv_obj_set_style_radius(c, 10, 0);
     lv_obj_set_style_pad_hor(c, 11, 0);
     lv_obj_set_style_pad_ver(c, 7, 0);

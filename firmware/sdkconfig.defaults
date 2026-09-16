@@ -36,8 +36,18 @@ CONFIG_ESP32S3_REV_MIN_2=y
 CONFIG_LIBC_NEWLIB=y
 CONFIG_PM_SLEEP_FUNC_IN_IRAM=y
 CONFIG_SPIRAM=y
-CONFIG_SPIRAM_USE_CAPS_ALLOC=y
+# Integrar PSRAM al heap de malloc(): las allocaciones grandes caen a PSRAM y se
+# libera RAM interna (antes SPIRAM_USE_CAPS_ALLOC hacia que TODO malloc fuera
+# interno -> RAM interna a ~1KB, fallo de mbedtls/wifi y watchdog).
+CONFIG_SPIRAM_USE_MALLOC=y
+# Allocaciones < este tamano se sirven de RAM interna; >= van a PSRAM.
+CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL=8192
+# RAM interna reservada que las allocaciones PSRAM NO tocan (para DMA/drivers).
+CONFIG_SPIRAM_MALLOC_RESERVE_INTERNAL=32768
 CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP=y
+# Refresco/muestreo de touch LVGL a ~50 fps (antes 33 ms/30 fps): touch mas
+# responsivo y animaciones de presion mas fluidas.
+CONFIG_LV_DEF_REFR_PERIOD=20
 CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
 CONFIG_ESP_MAIN_TASK_STACK_SIZE=16384
 CONFIG_ESP_IPC_TASK_STACK_SIZE=2048

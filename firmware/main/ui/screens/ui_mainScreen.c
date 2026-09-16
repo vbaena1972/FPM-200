@@ -30,8 +30,24 @@ lv_obj_t *ui_statusMainComm    = NULL;
 lv_obj_t *ui_bluetoothStatusMain = NULL;
 lv_obj_t *ui_wifiStatusMain    = NULL;
 lv_obj_t *ui_ethernetStatusMain = NULL;
+lv_obj_t *ui_cloudStatusBoxMain = NULL;
 lv_obj_t *ui_cloudStatusMain   = NULL;
+lv_obj_t *ui_cloudTxArrowMain  = NULL;
 lv_obj_t *ui_alarmBtnMain      = NULL;
+
+#define DATA_PULSE_GAP_MS      800
+#define DATA_PULSE_HOLD_MS     180
+#define DATA_ACTIVITY_TIMER_MS  80
+
+static lv_obj_t *s_data_chip = NULL;
+static lv_obj_t *s_data_dot = NULL;
+static lv_obj_t *s_data_label = NULL;
+static lv_timer_t *s_data_activity_timer = NULL;
+static uint32_t s_data_pulse_tick = 0;
+static uint32_t s_data_last_pulse_tick = 0;
+static bool s_data_seen = false;
+static bool s_data_pulse_active = false;
+static int64_t s_last_activity_sample_ts = -1;
 
 /* --- Tarjeta de métrica (presión/flujo) --- */
 typedef struct {
@@ -85,6 +101,29 @@ static void set_txt_color(lv_obj_t *o, uint32_t hex)
 { lv_obj_set_style_text_color(o, ui_col(hex), LV_PART_MAIN | LV_STATE_DEFAULT); }
 
 static float clampf(float v, float lo, float hi){ return v < lo ? lo : (v > hi ? hi : v); }
+
+static void apply_data_activity_visual(void)
+{
+    if (!s_data_chip || !lv_obj_is_valid(s_data_chip)) return;
+
+    uint32_t color = s_data_pulse_active ? UI_C_TEAL : UI_C_TEXT_MUTED;
+    lv_obj_set_style_border_color(s_data_chip, ui_col(color), 0);
+    lv_obj_set_style_bg_color(s_data_dot, ui_col(color), 0);
+    lv_obj_set_style_bg_opa(s_data_dot,
+                            s_data_pulse_active ? LV_OPA_COVER : LV_OPA_30, 0);
+    lv_obj_set_style_text_color(s_data_label, ui_col(color), 0);
+}
+
+static void data_activity_timer_cb(lv_timer_t *t)
+{
+    (void)t;
+    if (s_data_pulse_active &&
+        lv_tick_elaps(s_data_pulse_tick) >= DATA_PULSE_HOLD_MS)
+    {
+        s_data_pulse_active = false;
+        apply_data_activity_visual();
+    }
+}
 
 /* Posiciona un overlay (marker/tick) dentro de la barra según una fracción 0..1 */
 static void position_overlay(lv_obj_t *obj, lv_obj_t *bar, float frac, lv_coord_t obj_w)
@@ -206,13 +245,29 @@ typedef enum { CARD_OK = 0, CARD_WARN, CARD_ALARM } card_state_t;
  * desde cfg->sensors.decimals antes de refrescar las tarjetas. */
 static int s_decimals = 0;
 
+/* Decimales minimos por unidad (misma politica que el proyecto hermano: las
+ * unidades "pequenas" tras convertir conservan resolucion). El ajuste global de
+ * decimales (0/1) actua como base y estas subunidades lo elevan si hace falta. */
+static int press_unit_min_dec(const char *u)
+{
+    if (u && strcmp(u, "mpa") == 0) return 2;
+    if (u && strcmp(u, "bar") == 0) return 1;
+    return 0; /* psi, kpa */
+}
+static int flow_unit_min_dec(const char *u)
+{
+    if (u && strcmp(u, "m3h") == 0) return 2;
+    return 0; /* lpm, slpm, sccm */
+}
+
 static void update_metric_card(metric_card_t *m, float value_disp, float frac,
                                float safe_lo_frac, float safe_hi_frac, bool low_zone,
+                               bool show_lo, bool show_hi, int dec,
                                card_state_t st, const char *state_txt,
                                float mn_disp, float mx_disp)
 {
     char buf[48];
-    snprintf(buf, sizeof(buf), "%.*f", s_decimals, value_disp);
+    snprintf(buf, sizeof(buf), "%.*f", dec, value_disp);
     lv_label_set_text(m->value, buf);
 
     /* colores por estado */
@@ -224,9 +279,11 @@ static void update_metric_card(metric_card_t *m, float value_disp, float frac,
     set_border(m->card, (st == CARD_OK) ? UI_C_BORDER : accent);
     lv_obj_set_style_border_opa(m->card, (st == CARD_OK) ? LV_OPA_60 : LV_OPA_COVER, 0);
 
-    /* zonas: pct de cada segmento */
-    int lo = (int)(clampf(low_zone ? safe_lo_frac : 0.f, 0.f, 1.f) * 100.f);
-    int hi = (int)(clampf(1.f - safe_hi_frac, 0.f, 1.f) * 100.f);
+    /* zonas: pct de cada segmento. Solo se dibuja la banda de un limite si ese
+     * limite esta HABILITADO (show_lo/show_hi); si no, el segmento va a 0. */
+    bool draw_lo = (show_lo && low_zone);
+    int lo = draw_lo ? (int)(clampf(safe_lo_frac, 0.f, 1.f) * 100.f) : 0;
+    int hi = show_hi ? (int)(clampf(1.f - safe_hi_frac, 0.f, 1.f) * 100.f) : 0;
     int mid = 100 - lo - hi; if (mid < 0) mid = 0;
     lv_obj_set_width(m->seg_lo, LV_PCT(lo));
     lv_obj_set_width(m->seg_mid, LV_PCT(mid));
@@ -235,18 +292,29 @@ static void update_metric_card(metric_card_t *m, float value_disp, float frac,
     set_bg(m->seg_mid, UI_C_OK);     lv_obj_set_style_bg_opa(m->seg_mid, LV_OPA_30, 0);
     set_bg(m->seg_hi, low_zone ? UI_C_ALARM : UI_C_WARN);
     lv_obj_set_style_bg_opa(m->seg_hi, LV_OPA_20, 0);
+    /* Ocultar del todo el segmento de un limite deshabilitado (no basta con
+     * ancho 0%: garantizamos que no quede ninguna franja dibujada). */
+    if (draw_lo) lv_obj_clear_flag(m->seg_lo, LV_OBJ_FLAG_HIDDEN);
+    else         lv_obj_add_flag(m->seg_lo, LV_OBJ_FLAG_HIDDEN);
+    if (show_hi) lv_obj_clear_flag(m->seg_hi, LV_OBJ_FLAG_HIDDEN);
+    else         lv_obj_add_flag(m->seg_hi, LV_OBJ_FLAG_HIDDEN);
 
     /* marcador color + posición */
     set_bg(m->marker, accent);
     position_overlay(m->marker, m->bar, frac, 9);
-    if (low_zone) {
+    if (low_zone && show_lo) {
         lv_obj_clear_flag(m->tick_lo, LV_OBJ_FLAG_HIDDEN);
         position_overlay(m->tick_lo, m->bar, safe_lo_frac, 2);
     } else {
         lv_obj_add_flag(m->tick_lo, LV_OBJ_FLAG_HIDDEN);
     }
-    position_overlay(m->tick_hi, m->bar, safe_hi_frac, 2);
-    set_bg(m->tick_hi, low_zone ? UI_C_OK_SOFT : UI_C_WARN_SOFT);
+    if (show_hi) {
+        lv_obj_clear_flag(m->tick_hi, LV_OBJ_FLAG_HIDDEN);
+        position_overlay(m->tick_hi, m->bar, safe_hi_frac, 2);
+        set_bg(m->tick_hi, low_zone ? UI_C_OK_SOFT : UI_C_WARN_SOFT);
+    } else {
+        lv_obj_add_flag(m->tick_hi, LV_OBJ_FLAG_HIDDEN);
+    }
 
     /* pill de estado */
     uint32_t pill_bg = (st == CARD_ALARM) ? UI_C_ALARM_BG : (st == CARD_WARN ? UI_C_WARN_BG : UI_C_OK_BG);
@@ -256,7 +324,7 @@ static void update_metric_card(metric_card_t *m, float value_disp, float frac,
     lv_obj_set_style_bg_opa(m->pill, LV_OPA_40, 0);
     lv_label_set_text(m->pill_state, state_txt);
     set_txt_color(m->pill_state, accent);
-    snprintf(buf, sizeof(buf), "24H %.*f / %.*f", s_decimals, mn_disp, s_decimals, mx_disp);
+    snprintf(buf, sizeof(buf), "24H %.*f / %.*f", dec, mn_disp, dec, mx_disp);
     lv_label_set_text(m->pill_mm, buf);
 }
 
@@ -285,7 +353,7 @@ static void menu_scrim_cb(lv_event_t *e) { (void)e; menu_close(); }
 static void menu_item_cb(lv_event_t *e) { int w=(int)(intptr_t)lv_event_get_user_data(e); menu_close(); if(w==0) ui_open_info_cb(e); else if(w==2) ui_open_config_pin_cb(e); else if(w==3) ui_open_config_ble_cb(e); }
 static void menu_add_item(lv_obj_t *p,const char *sym,const char *txt,int w,bool en)
 {
-    lv_obj_t *r=ui_box(p); lv_obj_set_size(r,LV_PCT(100),38); lv_obj_set_flex_flow(r,LV_FLEX_FLOW_ROW); lv_obj_set_flex_align(r,LV_FLEX_ALIGN_START,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_CENTER); lv_obj_set_style_pad_hor(r,9,0); lv_obj_set_style_pad_column(r,9,0); lv_obj_set_style_radius(r,7,0); ui_label(r,sym,UI_FONT_SM,en?UI_C_TEXT_3:UI_C_TEXT_MUTED); ui_label(r,txt,UI_FONT_SM,en?UI_C_TEXT:UI_C_TEXT_MUTED); if(en){lv_obj_add_flag(r,LV_OBJ_FLAG_CLICKABLE);lv_obj_add_event_cb(r,menu_item_cb,LV_EVENT_CLICKED,(void*)(intptr_t)w);}
+    lv_obj_t *r=ui_box(p); lv_obj_set_size(r,LV_PCT(100),38); lv_obj_set_flex_flow(r,LV_FLEX_FLOW_ROW); lv_obj_set_flex_align(r,LV_FLEX_ALIGN_START,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_CENTER); lv_obj_set_style_pad_hor(r,9,0); lv_obj_set_style_pad_column(r,9,0); lv_obj_set_style_radius(r,7,0); ui_label(r,sym,UI_FONT_SM,en?UI_C_TEXT_3:UI_C_TEXT_MUTED); ui_label(r,txt,UI_FONT_SM,en?UI_C_TEXT:UI_C_TEXT_MUTED); if(en){lv_obj_add_flag(r,LV_OBJ_FLAG_CLICKABLE);ui_press_feedback(r);lv_obj_add_event_cb(r,menu_item_cb,LV_EVENT_CLICKED,(void*)(intptr_t)w);}
 }
 static void menu_open_cb(lv_event_t *e)
 {
@@ -311,6 +379,15 @@ static void alarm_overlay_open(void)
 /* ---------- construcción de la pantalla ---------- */
 void ui_mainScreen_screen_init(void)
 {
+    if (s_data_activity_timer)
+    {
+        lv_timer_del(s_data_activity_timer);
+        s_data_activity_timer = NULL;
+    }
+    s_data_seen = false;
+    s_data_pulse_active = false;
+    s_last_activity_sample_ts = -1;
+
     ui_mainScreen = ui_screen_base();
     lv_obj_set_flex_flow(ui_mainScreen, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_style_pad_ver(ui_mainScreen, 5, 0);
@@ -342,10 +419,42 @@ void ui_mainScreen_screen_init(void)
     lv_obj_set_flex_flow(ui_statusMainComm, LV_FLEX_FLOW_ROW);
     lv_obj_set_flex_align(ui_statusMainComm, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_style_pad_column(ui_statusMainComm, 7, 0);
-    ui_bluetoothStatusMain = ui_icon(ui_statusMainComm, UI_SYM_BLUETOOTH, UI_ICON_SM, UI_C_BLUE);
-    ui_wifiStatusMain      = ui_icon(ui_statusMainComm, UI_SYM_WIFI, UI_ICON_SM, UI_C_OK);
-    ui_ethernetStatusMain  = ui_icon(ui_statusMainComm, UI_SYM_NETWORK, UI_ICON_SM, UI_C_TEXT_2);
-    ui_cloudStatusMain     = ui_icon(ui_statusMainComm, UI_SYM_CLOUD_CHECK, UI_ICON_SM, UI_C_TEAL);
+
+    s_data_chip = ui_box(ui_statusMainComm);
+    lv_obj_set_size(s_data_chip, 64, 28);
+    lv_obj_set_style_radius(s_data_chip, UI_RADIUS_PILL, 0);
+    lv_obj_set_style_bg_color(s_data_chip, ui_col(UI_C_CARD_BG), 0);
+    lv_obj_set_style_bg_opa(s_data_chip, LV_OPA_COVER, 0);
+    lv_obj_set_style_border_width(s_data_chip, 1, 0);
+    lv_obj_set_style_pad_hor(s_data_chip, 7, 0);
+    lv_obj_set_style_pad_ver(s_data_chip, 0, 0);
+    lv_obj_set_style_pad_column(s_data_chip, 6, 0);
+    lv_obj_set_flex_flow(s_data_chip, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(s_data_chip, LV_FLEX_ALIGN_CENTER,
+                          LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    s_data_dot = ui_box(s_data_chip);
+    lv_obj_set_size(s_data_dot, 7, 7);
+    lv_obj_set_style_radius(s_data_dot, LV_RADIUS_CIRCLE, 0);
+    s_data_label = ui_label(s_data_chip, "DATOS", UI_FONT_XS, UI_C_TEXT_MUTED);
+    apply_data_activity_visual();
+
+    /* Iconos de red (bt/wifi/eth) a tamaño MD (20px Tabler) para que queden
+     * proporcionales al icono de la nube (fa-cloud a 18px); antes iban a SM
+     * (16px) y se veían más pequeños que el resto de la barra. */
+    ui_bluetoothStatusMain = ui_icon(ui_statusMainComm, UI_SYM_BLUETOOTH, UI_ICON_MD, UI_C_BLUE);
+    ui_wifiStatusMain      = ui_icon(ui_statusMainComm, UI_SYM_WIFI, UI_ICON_MD, UI_C_OK);
+    ui_ethernetStatusMain  = ui_icon(ui_statusMainComm, UI_SYM_NETWORK, UI_ICON_MD, UI_C_TEXT_2);
+    /* Icono compuesto: usa solo glifos ya presentes en las fuentes originales
+     * del FPM. La caja conserva el ancho cuando aparece la flecha de TX. */
+    ui_cloudStatusBoxMain = ui_box(ui_statusMainComm);
+    lv_obj_set_size(ui_cloudStatusBoxMain, 26, 28);
+    ui_cloudStatusMain = ui_label(ui_cloudStatusBoxMain, UI_SYM_CLOUD_SOLID,
+                                  UI_FONT_LG, UI_C_ALARM);
+    lv_obj_align(ui_cloudStatusMain, LV_ALIGN_BOTTOM_MID, 0, 1);
+    ui_cloudTxArrowMain = ui_label(ui_cloudStatusBoxMain, UI_SYM_CLOUD_TX_ARROW,
+                                   UI_FONT_XS, UI_C_TEAL);
+    lv_obj_align(ui_cloudTxArrowMain, LV_ALIGN_TOP_MID, 0, -2);
+    lv_obj_add_flag(ui_cloudTxArrowMain, LV_OBJ_FLAG_HIDDEN);
     lv_obj_t *sep = ui_box(ui_statusMainComm); lv_obj_set_size(sep, 1, 24); lv_obj_set_style_bg_color(sep, ui_col(UI_C_BORDER), 0); lv_obj_set_style_bg_opa(sep, LV_OPA_COVER, 0);
     lv_obj_t *dt = ui_box(ui_statusMainComm); lv_obj_set_size(dt,72,32);
     s_clock_lbl = ui_label(dt, "--:--", UI_FONT_XS, UI_C_TEXT); lv_obj_set_size(s_clock_lbl,72,16); lv_obj_set_pos(s_clock_lbl,0,0); lv_obj_set_style_text_align(s_clock_lbl,LV_TEXT_ALIGN_RIGHT,0);
@@ -365,6 +474,7 @@ void ui_mainScreen_screen_init(void)
     lv_obj_set_flex_align(s_banner, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_style_pad_column(s_banner, 8, 0);
     lv_obj_add_flag(s_banner, LV_OBJ_FLAG_CLICKABLE);
+    ui_press_push(s_banner, 248);   /* feedback "push" (sin tinte: conserva su color de estado) */
     lv_obj_add_event_cb(s_banner, banner_open_cb, LV_EVENT_CLICKED, NULL);
     s_banner_icon = ui_icon(s_banner, UI_SYM_CIRCLE_CHECK, UI_ICON_SM, UI_C_OK);
     s_banner_txt  = ui_label(s_banner, _t("SISTEMA NORMAL"), UI_FONT_SM, UI_C_OK_SOFT);
@@ -430,11 +540,23 @@ void ui_mainScreen_screen_init(void)
 
     /* estado inicial */
     ui_main_apply_config(NULL);
+    s_data_activity_timer = lv_timer_create(data_activity_timer_cb,
+                                            DATA_ACTIVITY_TIMER_MS, NULL);
 }
 
 void ui_mainScreen_screen_destroy(void)
 {
+    if (s_data_activity_timer)
+    {
+        lv_timer_del(s_data_activity_timer);
+        s_data_activity_timer = NULL;
+    }
     if (ui_mainScreen) { lv_obj_del(ui_mainScreen); ui_mainScreen = NULL; }
+    s_data_chip = s_data_dot = s_data_label = NULL;
+    ui_cloudStatusBoxMain = ui_cloudStatusMain = ui_cloudTxArrowMain = NULL;
+    s_data_seen = false;
+    s_data_pulse_active = false;
+    s_last_activity_sample_ts = -1;
 }
 
 /* ---------- API pública de binding ---------- */
@@ -451,6 +573,22 @@ void ui_main_set_clock(const char *hhmm)
 void ui_main_set_date(const char *date)
 {
     if (s_date_lbl && date) lv_label_set_text(s_date_lbl, date);
+}
+
+void ui_main_signal_data_activity(void)
+{
+    if (!s_data_chip || !lv_obj_is_valid(s_data_chip)) return;
+
+    uint32_t now = lv_tick_get();
+    if (s_data_seen &&
+        lv_tick_elaps(s_data_last_pulse_tick) < DATA_PULSE_GAP_MS)
+        return;
+
+    s_data_seen = true;
+    s_data_last_pulse_tick = now;
+    s_data_pulse_tick = now;
+    s_data_pulse_active = true;
+    apply_data_activity_visual();
 }
 
 float ui_main_get_consumo(void) { return s_consumo_m3; }
@@ -541,10 +679,20 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
     s_alarm_faults = alarm_mgr_get_sensor_faults();
     if (have_last) s_alarm_last = *last;
 
+    /* ui_main_update ya corre bajo el lock del display. Un timestamp nuevo
+     * equivale a una adquisicion completa de presion/flujo. */
+    if (have_last && last && last->ts_ms != s_last_activity_sample_ts)
+    {
+        s_last_activity_sample_ts = last->ts_ms;
+        ui_main_signal_data_activity();
+    }
+
     set_banner(state, muted);
 
     if (have_last) {
         /* --- Presión --- */
+        bool pmin_en = cfg->sensors.alarm_limits.pressure_min_enabled;
+        bool pmax_en = cfg->sensors.alarm_limits.pressure_max_enabled;
         float p_min = cfg->sensors.alarm_limits.pressure_min;
         float p_max = cfg->sensors.alarm_limits.pressure_max;
         float axis_kpa = PRESS_AXIS_FULLSCALE_KPA;
@@ -553,22 +701,34 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         float safe_lo = clampf(p_min / axis_kpa, 0.f, 1.f);
         float safe_hi = clampf(p_max / axis_kpa, 0.f, 1.f);
 
+        /* La etiqueta se pinta de alarma y aparecen las bandas SOLO si el limite
+         * correspondiente esta habilitado (#3). */
         card_state_t pst = CARD_OK; const char *ptx = _t("NORMAL");
-        if (last->pressure_kpa < p_min) { pst = CARD_ALARM; ptx = _t("BAJA"); }
-        else if (last->pressure_kpa > p_max) { pst = CARD_ALARM; ptx = _t("ALTA"); }
+        if (pmin_en && last->pressure_kpa < p_min) { pst = CARD_ALARM; ptx = _t("BAJA"); }
+        else if (pmax_en && last->pressure_kpa > p_max) { pst = CARD_ALARM; ptx = _t("ALTA"); }
 
-        float pmn = have_mm ? pressure_to_disp(mn->pressure_kpa, cfg->sensors.pressure_unit) : p_disp;
-        float pmx = have_mm ? pressure_to_disp(mx->pressure_kpa, cfg->sensors.pressure_unit) : p_disp;
-        update_metric_card(&s_press, p_disp, p_frac, safe_lo, safe_hi, true, pst, ptx, pmn, pmx);
+        const char *pu = cfg->sensors.pressure_unit;
+        int pdec = s_decimals; if (press_unit_min_dec(pu) > pdec) pdec = press_unit_min_dec(pu);
+        float pmn = have_mm ? pressure_to_disp(mn->pressure_kpa, pu) : p_disp;
+        float pmx = have_mm ? pressure_to_disp(mx->pressure_kpa, pu) : p_disp;
+        update_metric_card(&s_press, p_disp, p_frac, safe_lo, safe_hi, true,
+                           pmin_en, pmax_en, pdec, pst, ptx, pmn, pmx);
 
         char ab[24];
-        snprintf(ab, sizeof(ab), "%.0f", pressure_to_disp(axis_kpa, cfg->sensors.pressure_unit));
+        snprintf(ab, sizeof(ab), "%.*f", pdec, pressure_to_disp(axis_kpa, pu));
         lv_label_set_text(s_press.ax_right, ab);
-        /* Etiqueta central = rango seguro (como el mockup: "500-2000 seguro"). */
-        char pmb[36];
-        snprintf(pmb, sizeof(pmb), "%.0f-%.0f %s",
-                 (double)pressure_to_disp(p_min, cfg->sensors.pressure_unit),
-                 (double)pressure_to_disp(p_max, cfg->sensors.pressure_unit), _t("seguro"));
+        /* Etiqueta central = rango seguro, mostrando solo los limites activos. */
+        char pmb[48];
+        double lo_d = (double)pressure_to_disp(p_min, pu);
+        double hi_d = (double)pressure_to_disp(p_max, pu);
+        if (pmin_en && pmax_en)
+            snprintf(pmb, sizeof(pmb), "%.*f-%.*f %s", pdec, lo_d, pdec, hi_d, _t("seguro"));
+        else if (pmax_en)
+            snprintf(pmb, sizeof(pmb), "%s %.*f", _t("max"), pdec, hi_d);
+        else if (pmin_en)
+            snprintf(pmb, sizeof(pmb), "%s %.*f", _t("min"), pdec, lo_d);
+        else
+            snprintf(pmb, sizeof(pmb), "%s", _t("sin limites"));
         lv_label_set_text(s_press.ax_mid, pmb);
 
         /* --- Flujo --- */
@@ -576,18 +736,26 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         float f_axis = (cfg->sensors.flow_fullscale_lpm > 0.f) ? cfg->sensors.flow_fullscale_lpm
                                                                : FLOW_AXIS_FULLSCALE_LPM;
         float f_frac = clampf(last->flow_lpm / f_axis, 0.f, 1.f);
+        const char *fu = cfg->sensors.flow_unit;
+        int fdec = s_decimals; if (flow_unit_min_dec(fu) > fdec) fdec = flow_unit_min_dec(fu);
+        bool fhi_en = cfg->sensors.alarm_limits.flow_high_enabled;
         card_state_t fst = CARD_OK; const char *ftx = _t("NORMAL");
-        if (last->flow_lpm > f_axis * FLOW_HIGH_ZONE_FRAC) { fst = CARD_WARN; ftx = _t("CONSUMO ALTO"); }
-        float fmn = have_mm ? flow_to_disp(mn->flow_lpm, cfg->sensors.flow_unit) : f_disp;
-        float fmx = have_mm ? flow_to_disp(mx->flow_lpm, cfg->sensors.flow_unit) : f_disp;
-        update_metric_card(&s_flow, f_disp, f_frac, 0.f, FLOW_HIGH_ZONE_FRAC, false, fst, ftx, fmn, fmx);
+        if (fhi_en && last->flow_lpm > f_axis * FLOW_HIGH_ZONE_FRAC) { fst = CARD_WARN; ftx = _t("CONSUMO ALTO"); }
+        float fmn = have_mm ? flow_to_disp(mn->flow_lpm, fu) : f_disp;
+        float fmx = have_mm ? flow_to_disp(mx->flow_lpm, fu) : f_disp;
+        update_metric_card(&s_flow, f_disp, f_frac, 0.f, FLOW_HIGH_ZONE_FRAC, false,
+                           false, fhi_en, fdec, fst, ftx, fmn, fmx);
         char fb[24];
-        snprintf(fb, sizeof(fb), "%.0f", flow_to_disp(f_axis, cfg->sensors.flow_unit));
+        snprintf(fb, sizeof(fb), "%.*f", fdec, flow_to_disp(f_axis, fu));
         lv_label_set_text(s_flow.ax_right, fb);
-        /* Etiqueta central = umbral de "alto" (como el mockup: "1200 alto"). */
+        /* Etiqueta central = umbral de "alto" (solo si la alarma de flujo alto
+         * esta habilitada). */
         char fmb[36];
-        snprintf(fmb, sizeof(fmb), "%.0f %s",
-                 (double)flow_to_disp(f_axis * FLOW_HIGH_ZONE_FRAC, cfg->sensors.flow_unit), _t("alto"));
+        if (fhi_en)
+            snprintf(fmb, sizeof(fmb), "%.*f %s",
+                     fdec, (double)flow_to_disp(f_axis * FLOW_HIGH_ZONE_FRAC, fu), _t("alto"));
+        else
+            snprintf(fmb, sizeof(fmb), "%s", _t("sin limites"));
         lv_label_set_text(s_flow.ax_mid, fmb);
 
         /* --- Diagnóstico TEMPORAL en las tarjetas (se elimina en producción) ---
@@ -596,8 +764,7 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         {
             float dbg_atm = NAN, dbg_sfm = NAN, dbg_fs7 = NAN;
             sensors_runtime_get_debug(&dbg_atm, &dbg_sfm, &dbg_fs7);
-            const char *pu = cfg->sensors.pressure_unit;
-            const char *fu = cfg->sensors.flow_unit;
+            /* pu/fu ya declarados arriba en este mismo bloque (presión/flujo). */
             char dbgb[56];
             /* Atmosférica del BMP en la MISMA unidad que la presión de línea. */
             if (isfinite(dbg_atm))

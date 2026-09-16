@@ -31,9 +31,15 @@ static alarm_state_change_cb_t s_state_cb = NULL;
 // mientras se muestra la pantalla de login/config (no debe pitar al teclear PIN).
 static bool s_audio_inhibit_noncritical = false;
 
+static void set_buzzer_acoustic(bool turn_on);
+
 void alarm_mgr_set_audio_inhibit_noncritical(bool inhibit)
 {
     s_audio_inhibit_noncritical = inhibit;
+    if (inhibit && s_current_state != ALARM_STATE_ALERT) {
+        s_beep_active = false;
+        set_buzzer_acoustic(false);
+    }
 }
 
 void alarm_mgr_set_state_change_cb(alarm_state_change_cb_t cb)
@@ -144,12 +150,12 @@ void alarm_mgr_process(float current_pressure, float current_flow, uint32_t sens
         }
     }
 
-    // Notificar SOLO cuando el estado clinico cambia (para publish inmediato a la nube).
-    if (target_state != s_current_state && s_state_cb != NULL) {
-        s_state_cb(target_state);
-    }
-
+    // Actualizar primero y notificar SOLO si cambio: el consumidor que despierta
+    // por el callback debe observar ya el nuevo estado al construir el payload.
+    bool state_changed = target_state != s_current_state;
     s_current_state = target_state;
+    if (state_changed && s_state_cb != NULL)
+        s_state_cb(s_current_state);
 
     // 4. Evaluar fin del tiempo de silencio (Mute Timeout)
     if (s_is_muted && now >= s_mute_end_time_us) {

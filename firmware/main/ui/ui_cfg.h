@@ -20,6 +20,9 @@ float ui_cfg_press_to_disp(float kpa);
 float ui_cfg_press_from_disp(float disp);
 float ui_cfg_flow_to_disp(float lpm);
 void  ui_cfg_press_fmt(char *buf, size_t cap, float disp); /* decimales según unidad */
+void  ui_cfg_flow_fmt(char *buf, size_t cap, float disp);  /* decimales según unidad */
+int   ui_cfg_press_decimals(void);
+int   ui_cfg_flow_decimals(void);
 
 /* --- Setters directos (guardan en NVS y refrescan la pantalla principal) --- */
 void ui_cfg_set_pressure_unit(const char *unit);  /* "psi"|"bar"|"kpa"|"mpa" */

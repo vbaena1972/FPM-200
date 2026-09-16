@@ -350,3 +350,11 @@ Reportados 4 problemas en HW. Estado:
 - #4 buzzer: alarm_mgr_set_audio_inhibit_noncritical() activo en login, limpiado en dashboard (ALERT critico sigue sonando).
 - #5 AWS: callback de cambio de estado -> transport_mqtt_publish_now() (ulTaskNotifyTake) publica al instante.
 - Pendiente: #3/#3.1/#3.2 tarjeta WiFi (UI LVGL). Validado compilado+flasheado en HW.
+
+## Sesion 2026-09-16 (tarde) — UI/memoria/notificaciones
+- Memoria: SPIRAM_USE_MALLOC (RAM interna liberada; fin de crash mbedtls/wifi/WDT). LVGL refr 33->20ms.
+- UI: refresco vivo tarjeta Conectividad; alturas de cards de formulario; alarma dashboard respeta flags min/max/flujo; decimales por unidad (bar/MPa/m3h); heartbeat por adquisicion; icono nube = fa-cloud-upload-alt (F382, como MedGuard); iconos red a MD (proporcion).
+- Feedback de presion (push+resalte) en botones/tiles/menu/badges.
+- Fix: tarjeta Sensores se refresca tras editar limite por teclado (ui_sensorEditScreen_refresh).
+- Notificaciones: firmware publica transiciones de alarma por canal a <base>/.../alarms (medguard.alarm.v1) -> alarm-router (email+push).
+- Pendiente: validacion en HW de estos ultimos cambios.

@@ -2,6 +2,7 @@
 #include "ui_i18n.h"
 #include "ui_widgets.h"
 #include "ui_theme.h"
+#include "ui_nav.h"
 #include "ui.h"
 #include "storage.h"
 #include <string.h>
@@ -36,6 +37,17 @@ typedef struct {
 
 static void cpy(char *d, size_t n, const char *s) { strncpy(d, s ? s : "", n - 1); d[n - 1] = '\0'; }
 
+/* Firma del estado visible para detectar cambios y refrescar SOLO cuando algo
+ * cambia (evita parpadeo por reconstruir cada tick). */
+static uint32_t s_last_sig = 0;
+static lv_timer_t *s_live_timer = NULL;
+
+static uint32_t str_hash(uint32_t h, const char *s)
+{
+    for (; s && *s; s++) h = ((h << 5) + h) ^ (uint8_t)*s;  /* djb2-xor */
+    return h;
+}
+
 static void gather(conn_status_t *s)
 {
     memset(s, 0, sizeof(*s));
@@ -66,6 +78,52 @@ static void gather(conn_status_t *s)
     extern bool cloud_mgr_connected(void);
     s->cloud_conn = cloud_mgr_connected();
 #endif
+}
+
+static uint32_t conn_signature(const conn_status_t *s)
+{
+    uint32_t h = 5381u;
+    h = str_hash(h, s->wifi_ssid);
+    h = str_hash(h, s->wifi_ip);
+    h = str_hash(h, s->eth_ip);
+    h = str_hash(h, s->broker);
+    h = (h << 4) ^ (uint32_t)(s->wifi_on | (s->wifi_conn << 1) | (s->wifi_dhcp << 2) |
+                              (s->eth_on << 3) | (s->eth_up << 4) |
+                              (s->cloud_on << 5) | (s->cloud_conn << 6));
+    /* RSSI en pasos de 5 dBm para no reconstruir por ruido de 1 dBm. */
+    h = (h * 33u) + (uint32_t)((s->wifi_rssi / 5) & 0xff);
+    return h;
+}
+
+/* Timer en vivo: mientras la pantalla de Conectividad este activa, refresca la
+ * vista cuando el estado real cambie (nueva conexion WiFi, IP, nube, etc.). */
+static void live_tick(lv_timer_t *t)
+{
+    (void)t;
+    if (!ui_connectivityScreen || lv_screen_active() != ui_connectivityScreen)
+        return;
+    conn_status_t st;
+    gather(&st);
+    if (conn_signature(&st) == s_last_sig)
+        return;   /* sin cambios: no reconstruir (evita parpadeo) */
+
+    /* Rate-limit: aunque el estado cambie (p.ej. AWS parpadeando conectar/
+     * desconectar), reconstruir como maximo cada 3 s. Reconstruir la pantalla
+     * entera es costoso en RAM; en un equipo con poca RAM interna, hacerlo cada
+     * segundo agravaria la fragmentacion. */
+    static uint32_t s_last_rebuild_tick = 0;
+    if (s_last_rebuild_tick != 0 && lv_tick_elaps(s_last_rebuild_tick) < 3000)
+        return;
+    s_last_rebuild_tick = lv_tick_get();
+
+    /* Reconstruccion segura de la pantalla ACTIVA: construir la nueva, cargarla
+     * y recien entonces borrar la anterior. */
+    lv_obj_t *old = ui_connectivityScreen;
+    ui_connectivityScreen = NULL;
+    ui_connectivityScreen_screen_init();
+    ui_nav_swap(old, ui_connectivityScreen);
+    lv_screen_load(ui_connectivityScreen);
+    lv_obj_del(old);
 }
 
 /* RSSI (dBm) -> porcentaje aproximado para la barra (−90..−40 dBm). */
@@ -109,6 +167,12 @@ void ui_connectivityScreen_screen_init(void)
 {
     conn_status_t st;
     gather(&st);
+    s_last_sig = conn_signature(&st);
+
+    /* Timer de refresco en vivo (se crea una sola vez; persiste entre pantallas
+     * y solo actua cuando Conectividad esta activa). */
+    if (!s_live_timer)
+        s_live_timer = lv_timer_create(live_tick, 1000, NULL);
 
     ui_connectivityScreen = ui_screen_base();
     lv_obj_set_flex_flow(ui_connectivityScreen, LV_FLEX_FLOW_COLUMN);
@@ -195,4 +259,18 @@ void ui_connectivityScreen_screen_init(void)
 void ui_connectivityScreen_screen_destroy(void)
 {
     if (ui_connectivityScreen) { lv_obj_del(ui_connectivityScreen); ui_connectivityScreen = NULL; }
+}
+
+void ui_connectivityScreen_refresh(void)
+{
+    lv_obj_t *old_screen = ui_connectivityScreen;
+    if (!old_screen)
+        return;
+
+    /* La pantalla WiFi esta activa en este momento, por lo que la anterior de
+     * Conectividad se puede sustituir y borrar sin tocar el objeto visible. */
+    ui_connectivityScreen = NULL;
+    ui_connectivityScreen_screen_init();
+    ui_nav_swap(old_screen, ui_connectivityScreen);
+    lv_obj_del(old_screen);
 }
