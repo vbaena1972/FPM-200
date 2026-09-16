@@ -8,12 +8,13 @@ idf_component_register(
         esp_lcd
         esp_lcd_st7796
         esp_lcd_touch
-        esp_lcd_touch_ft5x06 
-        lvgl 
+        esp_lcd_touch_ft5x06
+        lvgl
         esp_lvgl_port
-    #esp_driver_i2c
-    PRIV_REQUIRES 
-        esp_timer 
-         
+        esp_driver_i2c
+        sensors_runtime
+    PRIV_REQUIRES
+        esp_timer
+
         nvs_flash
 )

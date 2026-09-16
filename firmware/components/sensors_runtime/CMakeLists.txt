@@ -5,7 +5,7 @@ idf_component_register(
         freertos
         esp_timer
         esp_driver_i2c
+        storage        # sensors_runtime.h expone AppConfig (storage.h) en su API publica
     PRIV_REQUIRES
-        storage
         drivers
 )

@@ -3,6 +3,8 @@
 #include "esp_lcd_touch_ft5x06.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "driver/gpio.h"         // gpio_get_level (INT-gating del touch)
+#include "sensors_runtime.h"     // sensors_runtime_bus1_hung()
 
 static const char *TAG = "ft5x06:";
 
@@ -20,6 +22,32 @@ static void ft5x06_lvgl_read_cb(lv_indev_t *indev, lv_indev_data_t *data)
     (void)indev;
     uint16_t x = 0, y = 0, strength = 0;
     uint8_t cnt = 0;
+
+    // --- INT-gating: solo leemos el touch por I2C cuando el pin INT (GPIO39,
+    // activo en BAJO) esta asertado, es decir, cuando hay un dedo en la pantalla.
+    // En reposo (INT en alto) NO tocamos el bus I2C -> eliminamos el sondeo a
+    // ~30 Hz que satura el bus 1 compartido con los sensores (causa probable del
+    // cuelgue) y garantizamos que en reposo nunca bloqueamos el mutex de display.
+    if (gpio_get_level(BSP_LCD_TP_INT) != 0)
+    {
+        data->state = LV_INDEV_STATE_RELEASED;
+        return;
+    }
+
+    // --- Guarda anti-deadlock del bus I2C 1 (compartido con los sensores) ---
+    // Con un dedo puesto SI leemos por I2C. esp_lcd_touch_read_data() ->
+    // esp_lcd_panel_io_i2c usa i2c_master_transmit_receive con timeout INFINITO
+    // (-1); si el bus se cuelga esa lectura NO retorna nunca y esta funcion corre
+    // con el mutex de LVGL/display tomado -> UI congelada y buzzer atascado. Si el
+    // subsistema de sensores ya detecto el bus colgado (ambos MS5803+ADS caidos),
+    // NO tocamos el bus. (No sondeamos con i2c_master_probe: hacerlo desde esta
+    // tarea concurrente con las transacciones de la tarea de sensores corrompia el
+    // driver I2C y provocaba un panic StoreProhibited en el ISR de recepcion.)
+    if (sensors_runtime_bus1_hung())
+    {
+        data->state = LV_INDEV_STATE_RELEASED;
+        return;
+    }
 
     if (esp_lcd_touch_read_data(tp) != ESP_OK)
     {
@@ -43,7 +71,6 @@ static void ft5x06_lvgl_read_cb(lv_indev_t *indev, lv_indev_data_t *data)
 
 lv_indev_t *bsp_display_indev_init(lv_display_t *disp, i2c_master_bus_handle_t bus_handle)
 {
-
     // Reintentamos el init del touch: un glitch puntual del bus 1 al arranque
     // (visto en logs) hacia que quedara SIN touch toda la sesion.
     esp_err_t err = ESP_FAIL;

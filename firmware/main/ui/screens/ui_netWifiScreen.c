@@ -43,12 +43,18 @@ static void save_cb(lv_event_t *e)
     (void)appcfg_save(cfg);
 
 #ifdef ESP_PLATFORM
-    (void)wifi_mgr_update_credentials(cfg->wifi.ssid, cfg->wifi.password);
-    if (cfg->wifi.enabled) {
-        if (eth_mgr_is_up()) wifi_mgr_stop();   /* Ethernet tiene prioridad */
-        else                 wifi_mgr_start();
-    } else {
+    /* Aplicamos por la MISMA ruta diferida que usa el arranque (main.c:
+       wifi_mgr_apply_from_cache + wifi_mgr_start). La ruta anterior
+       (wifi_mgr_update_credentials) armaba una config STA incompleta (sin
+       authmode/WPA3/modo IP) y no actualizaba s_cfg_cur, por lo que el cambio
+       de SSID/clave no enganchaba en caliente y habia que reiniciar. */
+    if (!cfg->wifi.enabled) {
         wifi_mgr_stop();
+    } else if (eth_mgr_is_up()) {
+        wifi_mgr_stop();                 /* Ethernet tiene prioridad */
+    } else {
+        wifi_mgr_apply_from_cache();     /* SSID/clave/IP nuevos (lee el cache recien guardado) */
+        wifi_mgr_start();                /* asegura STA arrancada (s_enabled=true) */
     }
 #endif
     ui_statusbar_request_refresh();

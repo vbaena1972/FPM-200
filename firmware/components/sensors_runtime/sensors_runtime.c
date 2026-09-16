@@ -38,8 +38,11 @@
 
 // Recuperacion del bus I2C 1: si MS5803 y ADS fallan JUNTOS de forma sostenida
 // el bus quedo colgado (un esclavo con SDA en bajo). Reseteamos el controlador
-// cada N ciclos mientras siga caido (a 100 ms, 30 = ~3 s) para no spamear.
-#define BUS_RECOVER_EVERY 30
+// cada N ciclos mientras siga caido (a 100 ms, 5 = ~500 ms). Antes eran 30 (~3 s),
+// demasiado lento: mientras tanto la tarea LVGL martillaba el touch (mismo bus 1)
+// y re-colgaba el bus antes de que el reset lo recuperara. Con el touch ahora
+// respetando el flag bus1_hung (ver ft5x06.c), un reset frecuente sÃ­ recupera.
+#define BUS_RECOVER_EVERY 5
 
 // Hook de prueba: si es 1, hace una tara automÃ¡tica ~2 s despuÃ©s del arranque
 // (con la lÃ­nea a la atmÃ³sfera) para validar el modo gauge por log. Ponlo a 0
@@ -123,6 +126,11 @@ static uint32_t s_reported_faults = SENSOR_FAULT_NONE;
 
 // Handle del bus I2C 1 para la recuperacion de bus (NULL = deshabilitada).
 static i2c_master_bus_handle_t s_i2c_bus = NULL;
+
+// Flag "bus I2C 1 colgado": lo consulta el touch (ft5x06.c, mismo bus fisico)
+// para NO lanzar su lectura I2C mientras el bus esta caido y evitar bloquear el
+// mutex de display. volatile: escrito por sensors_acq, leido por la tarea LVGL.
+static volatile bool s_bus1_hung = false;
 
 // Tarea de adquisiciÃ³n real
 static TaskHandle_t s_acq_task_handle = NULL;
@@ -438,6 +446,11 @@ bool sensors_runtime_init(const AppConfig *cfg)
 void sensors_runtime_set_bus(i2c_master_bus_handle_t bus)
 {
     s_i2c_bus = bus;
+}
+
+bool sensors_runtime_bus1_hung(void)
+{
+    return s_bus1_hung;
 }
 
 void sensors_runtime_get_debug(float *atm_kpa, float *sfm_slm, float *fs7_lpm)
@@ -918,6 +931,7 @@ static void sensors_acq_task(void *arg)
         // ADS, asi que basta con el MS5803 sostenido para inferir el cuelgue.)
         bool ads_down = s_scfg.flow_enabled ? (ads_miss >= SENSORS_FAULT_DEBOUNCE) : true;
         bool bus1_down = (ms5803_miss >= SENSORS_FAULT_DEBOUNCE) && ads_down;
+        s_bus1_hung = bus1_down;   // visible al touch (ft5x06.c) para que se aparte del bus
         if (bus1_down && s_i2c_bus)
         {
             if (++bus_recover_wait >= BUS_RECOVER_EVERY)

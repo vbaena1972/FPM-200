@@ -52,6 +52,15 @@ bool sensors_runtime_init(const AppConfig *cfg);
 void sensors_runtime_set_bus(i2c_master_bus_handle_t bus);
 
 /**
+ * true si el bus I2C 1 (compartido: MS5803/ADS/EEPROM/RTC/BMP280 + touch FT5x06)
+ * se detecto colgado y sigue caido. El driver de touch lo consulta para NO lanzar
+ * su lectura I2C mientras el bus esta caido (esa lectura usa timeout infinito en
+ * esp_lcd y bloquearia el mutex de display para siempre -> UI congelada, buzzer
+ * atascado). Se limpia solo cuando el bus se recupera.
+ */
+bool sensors_runtime_bus1_hung(void);
+
+/**
  * Actualiza la configuraciÃƒÂ³n (por si cambias calibraciÃƒÂ³n, etc).
  * Por ahora la guardamos solo por si luego quieres usar cal.* aquÃƒÂ­.
  */
