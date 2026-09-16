@@ -5,6 +5,8 @@
 #include "esp_timer.h"
 #include "cJSON.h"
 #include <string.h>
+#include <time.h>
+#include <math.h>
 
 #include "storage.h"
 #include "cert_store.h"
@@ -147,121 +149,146 @@ static void mqtt_event(void *handler_args, esp_event_base_t base, int32_t event_
 // ------------------------------------------------------------------
 // Tarea de Telemetría
 // ------------------------------------------------------------------
+// Cadencia 30 s (DEC-016) alineada a MedGuard. Modela las señales del FPM-200
+// como canales genéricos (ch1=presión, ch2=flujo, ch3=temperatura) para que el
+// MISMO ingest/Glue/API/portal de MedGuard los procese SIN cambios. Las stats
+// {n,min,max,mean,std} resumen la ventana muestreada a 10 Hz (base para ML);
+// 'value' es el último valor filtrado (estado vivo). Unidades de cable = SI
+// internas (kPa, L/min, C); la conversión a la unidad de display es del cliente.
+#define AWS_TELEMETRY_PERIOD_MS 30000
+#define AWS_TELEMETRY_WINDOW_MS 30000
+
+static void add_channel(cJSON *arr, int id, const char *name, const char *unit,
+                        float value, const char *state,
+                        bool has_lo, float lo, bool has_hi, float hi,
+                        const sensor_signal_stats_t *st)
+{
+    cJSON *ch = cJSON_CreateObject();
+    cJSON_AddNumberToObject(ch, "id", id);
+    cJSON_AddBoolToObject(ch, "enabled", true);
+    cJSON_AddStringToObject(ch, "name", name);
+    cJSON_AddStringToObject(ch, "unit", unit);
+    if (isfinite(value))
+        cJSON_AddNumberToObject(ch, "value", value);
+    else
+        cJSON_AddNullToObject(ch, "value");
+    cJSON_AddStringToObject(ch, "state", state);
+    if (has_lo) cJSON_AddNumberToObject(ch, "low_limit", lo);
+    if (has_hi) cJSON_AddNumberToObject(ch, "high_limit", hi);
+    if (st && st->n > 0) {
+        cJSON *s = cJSON_CreateObject();
+        cJSON_AddNumberToObject(s, "n",    (double)st->n);
+        cJSON_AddNumberToObject(s, "min",  st->min);
+        cJSON_AddNumberToObject(s, "max",  st->max);
+        cJSON_AddNumberToObject(s, "mean", st->mean);
+        cJSON_AddNumberToObject(s, "std",  st->std);
+        cJSON_AddItemToObject(ch, "stats", s);
+    }
+    cJSON_AddItemToArray(arr, ch);
+}
+
 static void aws_telemetry_task(void *pvParameters)
 {
-    char topic[256] = {0}; // Inicializamos vacío
+    char topic[256] = {0};
+    char serial[32] = {0};
+    char firmware[24] = {0};
 
-    // 1. Extraemos de forma segura la configuración de tu NVS
+    // Límites/flags de alarma capturados de la NVS (para el 'state' por canal).
+    float p_lim_min = -10.0f, p_lim_max = 120.0f, f_high_lim = 90.0f;
+    bool  p_min_en = true, p_max_en = true, f_high_en = false;
+
     AppConfig *cfg_app = malloc(sizeof(AppConfig));
-
-    // Valores de respaldo por si falla la lectura
-    float p_lim_min = -10.0, p_lim_max = 120.0;
-    float f_lim_min = 0.0, f_lim_max = 90.0;
-
     if (cfg_app)
     {
         appcfg_defaults(cfg_app);
         appcfg_load(cfg_app);
 
-        // ENSAMBLE DEL TOPIC INTELIGENTE (Ruteo AWS)
-        // Estructura: base / partner / client / model / serial / telemetry
+        // Topic: base/partner/client/model/serial/telemetry (ruteo AWS, 6 niveles).
         snprintf(topic, sizeof(topic), "%s/%s/%s/%s/%s/telemetry",
                  cfg_app->cloud.topic_base,
                  cfg_app->general.partner,
                  cfg_app->general.client,
                  cfg_app->general.model,
                  cfg_app->general.serial);
-
         ESP_LOGI(TAG, "Topic MQTT configurado: %s", topic);
 
-        // Extraemos los límites de alarma reales de la NVS para evaluarlos en tiempo real
-        p_lim_min = cfg_app->sensors.alarm_limits.pressure_min;
-        p_lim_max = cfg_app->sensors.alarm_limits.pressure_max;
-        // Si a futuro agregas límites fijos de flujo a la estructura, los cargas aquí:
-        // f_lim_min = cfg_app->sensors.alarm_limits.flow_min;
+        strncpy(serial, cfg_app->general.serial, sizeof(serial) - 1);
+        strncpy(firmware, cfg_app->general.fw_version, sizeof(firmware) - 1);
 
-        free(cfg_app); // Liberamos los bytes del Heap de inmediato
+        p_lim_min  = cfg_app->sensors.alarm_limits.pressure_min;
+        p_lim_max  = cfg_app->sensors.alarm_limits.pressure_max;
+        p_min_en   = cfg_app->sensors.alarm_limits.pressure_min_enabled;
+        p_max_en   = cfg_app->sensors.alarm_limits.pressure_max_enabled;
+        f_high_lim = cfg_app->sensors.alarm_limits.flow_high_limit;
+        f_high_en  = cfg_app->sensors.alarm_limits.flow_high_enabled;
+
+        free(cfg_app);
     }
     else
     {
-        // Fallback de emergencia si no hay RAM
         strcpy(topic, "vexel/unknown/telemetry");
     }
 
     while (1)
     {
-        // Publicación periódica cada 5 segundos
-        vTaskDelay(pdMS_TO_TICKS(5000));
+        vTaskDelay(pdMS_TO_TICKS(AWS_TELEMETRY_PERIOD_MS));
 
         if (!s_is_connected)
             continue;
 
-        // 2. Extracción de variables REALES del módulo runtime de sensores
-        sensor_sample_t current_sample;
-        sensor_sample_t min_sample;
-        sensor_sample_t max_sample;
-
-        // sensors_runtime_get_last obtiene la última muestra agregada por la tarea dummy
-        bool have_last = sensors_runtime_get_last(&current_sample);
-        // sensors_runtime_get_min_max calcula el histórico real en una ventana de tiempo (ej. últimos 30 seg)
-        bool have_stats = sensors_runtime_get_min_max(30000, &min_sample, &max_sample);
-
-        if (!have_last)
+        sensor_sample_t last;
+        if (!sensors_runtime_get_last(&last))
         {
             ESP_LOGW(TAG, "Esperando datos válidos del runtime de sensores...");
             continue;
         }
 
-        // Si no hay ventana estadística acumulada aún, usamos el valor actual como respaldo
-        float p_min = have_stats ? min_sample.pressure_kpa : current_sample.pressure_kpa;
-        float p_max = have_stats ? max_sample.pressure_kpa : current_sample.pressure_kpa;
-        float f_min = have_stats ? min_sample.flow_lpm : current_sample.flow_lpm;
-        float f_max = have_stats ? max_sample.flow_lpm : current_sample.flow_lpm;
+        sensor_window_stats_t ws;
+        bool have_stats = sensors_runtime_get_window_stats(AWS_TELEMETRY_WINDOW_MS, &ws);
 
-        // Cálculo del promedio matemático (Average) de la ventana actual
-        float p_avg = (p_min + p_max) / 2.0f;
-        float f_avg = (f_min + f_max) / 2.0f;
+        // --- Estado por canal (evaluación en unidades SI internas) ---
+        // Vocabulario en minúsculas idéntico a MedGuard (state_name en aws_service.c):
+        // normal/high/low/fault/disabled -> el mismo portal/app trata a ambos equipos igual.
+        const char *p_state = "normal";
+        if (!isfinite(last.pressure_kpa))                    p_state = "fault";
+        else if (p_min_en && last.pressure_kpa < p_lim_min)  p_state = "low";
+        else if (p_max_en && last.pressure_kpa > p_lim_max)  p_state = "high";
 
-        // 3. Construcción del JSON Arquetípico de Vexel (idéntico a tu Dashboard)
+        const char *f_state = "normal";
+        if (!isfinite(last.flow_lpm))                        f_state = "fault";
+        else if (f_high_en && last.flow_lpm > f_high_lim)    f_state = "high";
+
+        const char *t_state = isfinite(last.temp_c) ? "normal" : "fault";
+
+        // device_status: "normal" salvo que algún canal no esté normal -> "alarm"
+        // (misma regla y vocabulario que MedGuard, aws_service.c).
+        const char *dev_status =
+            (strcmp(p_state, "normal") || strcmp(f_state, "normal") || strcmp(t_state, "normal"))
+                ? "alarm" : "normal";
+
+        // --- Envelope v2 (mismo contrato que MedGuard: channels[] + stats) ---
         cJSON *root = cJSON_CreateObject();
-        cJSON_AddNumberToObject(root, "timestamp", (double)(esp_timer_get_time() / 1000));
-        cJSON_AddStringToObject(root, "device_status", "OPERATIONAL");
+        cJSON_AddNumberToObject(root, "timestamp", (double)time(NULL)); // epoch s (SNTP listo)
+        cJSON_AddStringToObject(root, "device_id", serial);
+        cJSON_AddStringToObject(root, "thing_name", serial);
+        cJSON_AddStringToObject(root, "firmware", firmware);
+        cJSON_AddStringToObject(root, "device_status", dev_status);
+        cJSON_AddNumberToObject(root, "window_s", AWS_TELEMETRY_WINDOW_MS / 1000);
+        cJSON_AddNumberToObject(root, "configured_channel_count", 3);
+        cJSON_AddNumberToObject(root, "enabled_channel_count", 3);
+        cJSON_AddNumberToObject(root, "disabled_channel_count", 0);
 
-        // --- SUB-OBJETO: PRESION ---
-        cJSON *pres = cJSON_CreateObject();
-        cJSON_AddNumberToObject(pres, "current", current_sample.pressure_kpa);
-        cJSON_AddNumberToObject(pres, "min", p_min);
-        cJSON_AddNumberToObject(pres, "max", p_max);
-        cJSON_AddNumberToObject(pres, "avg", p_avg);
-        cJSON_AddItemToObject(root, "pressure", pres);
+        cJSON *channels = cJSON_AddArrayToObject(root, "channels");
+        add_channel(channels, 1, "Presion", "kPa", last.pressure_kpa, p_state,
+                    p_min_en, p_lim_min, p_max_en, p_lim_max,
+                    have_stats ? &ws.pressure : NULL);
+        add_channel(channels, 2, "Flujo", "L/min", last.flow_lpm, f_state,
+                    false, 0.f, f_high_en, f_high_lim,
+                    have_stats ? &ws.flow : NULL);
+        add_channel(channels, 3, "Temperatura", "C", last.temp_c, t_state,
+                    false, 0.f, false, 0.f,
+                    have_stats ? &ws.temp : NULL);
 
-        // --- SUB-OBJETO: FLUJO ---
-        cJSON *flow = cJSON_CreateObject();
-        cJSON_AddNumberToObject(flow, "current", current_sample.flow_lpm);
-        cJSON_AddNumberToObject(flow, "min", f_min);
-        cJSON_AddNumberToObject(flow, "max", f_max);
-        cJSON_AddNumberToObject(flow, "avg", f_avg);
-        cJSON_AddItemToObject(root, "flow", flow);
-
-        // --- SUB-OBJETO: TEMPERATURA (del sensor de presion MS5803, en C) ---
-        float t_min = have_stats ? min_sample.temp_c : current_sample.temp_c;
-        float t_max = have_stats ? max_sample.temp_c : current_sample.temp_c;
-        cJSON *temp = cJSON_CreateObject();
-        cJSON_AddNumberToObject(temp, "current", current_sample.temp_c);
-        cJSON_AddNumberToObject(temp, "min", t_min);
-        cJSON_AddNumberToObject(temp, "max", t_max);
-        cJSON_AddNumberToObject(temp, "avg", (t_min + t_max) / 2.0f);
-        cJSON_AddItemToObject(root, "temperature", temp);
-
-        // --- SUB-OBJETO: ALARMAS (Evaluación industrial en tiempo real) ---
-        cJSON *alarms = cJSON_CreateObject();
-        cJSON_AddBoolToObject(alarms, "pressure_low", (current_sample.pressure_kpa < p_lim_min));
-        cJSON_AddBoolToObject(alarms, "pressure_high", (current_sample.pressure_kpa > p_lim_max));
-        cJSON_AddBoolToObject(alarms, "flow_low", (current_sample.flow_lpm < f_lim_min));
-        cJSON_AddBoolToObject(alarms, "flow_high", (current_sample.flow_lpm > f_lim_max));
-        cJSON_AddItemToObject(root, "alarms", alarms);
-
-        // 4. Serialización y Publicación en AWS IoT Core
         char *pub_payload = cJSON_PrintUnformatted(root);
         cJSON_Delete(root);
 
@@ -269,14 +296,10 @@ static void aws_telemetry_task(void *pvParameters)
         {
             int msg_id = esp_mqtt_client_publish(s_client, topic, pub_payload, 0, 1, 0);
             if (msg_id >= 0)
-            {
-                ESP_LOGI(TAG, "Telemetría enviada a AWS con éxito. ID: %d", msg_id);
-            }
+                ESP_LOGI(TAG, "Telemetría v2 enviada a AWS. ID: %d", msg_id);
             else
-            {
                 ESP_LOGE(TAG, "Fallo al publicar telemetría en el broker.");
-            }
-            free(pub_payload); // Evitamos fugas de memoria en el Heap interno
+            free(pub_payload);
         }
     }
 }

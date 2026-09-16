@@ -586,6 +586,85 @@ bool sensors_runtime_get_min_max(int64_t window_ms,
     return true;
 }
 
+// Acumulador de una senal para la estadistica de ventana (v2).
+typedef struct {
+    uint32_t n;
+    double   sum;
+    double   sumsq;
+    float    min;
+    float    max;
+} sig_acc_t;
+
+static inline void sig_acc_add(sig_acc_t *a, float v)
+{
+    if (!isfinite(v))
+        return; // ignora NaN/inf senal por senal
+    if (a->n == 0) {
+        a->min = a->max = v;
+    } else {
+        if (v < a->min) a->min = v;
+        if (v > a->max) a->max = v;
+    }
+    a->sum   += (double)v;
+    a->sumsq += (double)v * (double)v;
+    a->n++;
+}
+
+static void sig_acc_finish(const sig_acc_t *a, sensor_signal_stats_t *out)
+{
+    out->n = a->n;
+    if (a->n == 0) {
+        out->min = out->max = out->mean = out->std = 0.f;
+        return;
+    }
+    double mean = a->sum / (double)a->n;
+    double var  = a->sumsq / (double)a->n - mean * mean; // poblacional
+    if (var < 0.0) var = 0.0; // saneo de error numerico
+    out->min  = a->min;
+    out->max  = a->max;
+    out->mean = (float)mean;
+    out->std  = (float)sqrt(var);
+}
+
+bool sensors_runtime_get_window_stats(int64_t window_ms,
+                                      sensor_window_stats_t *out)
+{
+    if (!out || window_ms <= 0)
+        return false;
+
+    sig_acc_t ap = {0}, af = {0}, at = {0};
+
+    lock();
+
+    if (s_count == 0) {
+        unlock();
+        return false;
+    }
+
+    int64_t now_ms  = esp_timer_get_time() / 1000;
+    int64_t from_ms = now_ms - window_ms;
+
+    // Recorremos desde la muestra mas reciente hacia atras hasta salir de la ventana.
+    for (size_t i = 0; i < s_count; ++i) {
+        size_t idx = (s_head + SENSORS_BUFFER_LEN - 1 - i) % SENSORS_BUFFER_LEN;
+        const sensor_sample_t *s = &s_buf[idx];
+        if (s->ts_ms < from_ms)
+            break;
+        sig_acc_add(&ap, s->pressure_kpa);
+        sig_acc_add(&af, s->flow_lpm);
+        sig_acc_add(&at, s->temp_c);
+    }
+
+    unlock();
+
+    sig_acc_finish(&ap, &out->pressure);
+    sig_acc_finish(&af, &out->flow);
+    sig_acc_finish(&at, &out->temp);
+
+    // true si al menos una senal tuvo muestras en la ventana.
+    return (out->pressure.n || out->flow.n || out->temp.n);
+}
+
 bool sensors_runtime_get_series(int64_t window_ms,
                                 sensor_sample_t *out,
                                 size_t max,

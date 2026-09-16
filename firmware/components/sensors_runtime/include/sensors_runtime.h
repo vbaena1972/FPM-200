@@ -145,4 +145,34 @@ bool sensors_runtime_get_series(int64_t window_ms,
 bool sensors_runtime_get_aws_telemetry(int64_t window_ms,
                                        float *p_min, float *p_max, float *p_avg,
                                        float *f_min, float *f_max, float *f_avg);
+
+/**
+ * Estadistica de ventana por senal (contrato AWS v2, base para ML).
+ * n == 0 => no hubo muestras validas en la ventana (no publicar stats).
+ * std es la desviacion estandar POBLACIONAL (sqrt(sumsq/n - mean^2)).
+ * mean es el promedio REAL (suma/conteo), NO (min+max)/2.
+ */
+typedef struct {
+    uint32_t n;    ///< muestras validas en la ventana
+    float    min;
+    float    max;
+    float    mean; ///< promedio real
+    float    std;  ///< desviacion estandar poblacional
+} sensor_signal_stats_t;
+
+typedef struct {
+    sensor_signal_stats_t pressure; ///< kPa
+    sensor_signal_stats_t flow;     ///< L/min
+    sensor_signal_stats_t temp;     ///< C
+} sensor_window_stats_t;
+
+/**
+ * Calcula, en una sola pasada sobre el buffer, la estadistica de ventana
+ * [now - window_ms, now] por senal (presion/flujo/temperatura): n, min, max,
+ * mean y std. Espejo del collect_window de MedGuard para el contrato AWS v2.
+ * Ignora muestras no finitas (NaN/inf) senal por senal.
+ * Devuelve true si hubo al menos una muestra en la ventana; false si no.
+ */
+bool sensors_runtime_get_window_stats(int64_t window_ms,
+                                      sensor_window_stats_t *out);
 #endif // SENSORS_RUNTIME_H
