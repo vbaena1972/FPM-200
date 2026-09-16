@@ -3,6 +3,7 @@
 #include "ui_theme.h"
 #include "ui_cfg.h"
 #include "ui_i18n.h"
+#include "ui_nav.h"
 #include "ui.h"
 #include "alarm_mgr.h"
 
@@ -25,6 +26,19 @@ static void rebuild(void)
     ui_sensorDiagScreen_screen_init();
     lv_screen_load(ui_sensorDiagScreen);
     lv_obj_delete_delayed(old, 100);
+}
+
+/* Reconstruye la pantalla en su lugar dentro de la pila SIN cargarla (para
+ * cuando la activa es otra, p.ej. el confirm del teclado). Al hacer pop_to
+ * despues se ve la version nueva (valor recien editado). */
+void ui_sensorDiagScreen_refresh(void)
+{
+    if (!ui_sensorDiagScreen) return;
+    lv_obj_t *old = ui_sensorDiagScreen;
+    ui_sensorDiagScreen = NULL;
+    ui_sensorDiagScreen_screen_init();
+    ui_nav_swap(old, ui_sensorDiagScreen);
+    lv_obj_del(old);
 }
 static void step_cb(lv_event_t *e)
 {

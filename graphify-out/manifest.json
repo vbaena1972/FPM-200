@@ -420,8 +420,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_confirmScreen.c": {
-    "mtime": 1789595876.0410006,
-    "ast_hash": "3b4ab92fe42e2de6682c50b0e90585cf",
+    "mtime": 1789600298.8555584,
+    "ast_hash": "6805690d2a7cf179ac6dbfc7368eefaa",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_confirmScreen.h": {
@@ -560,13 +560,13 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_sensorDiagScreen.c": {
-    "mtime": 1789516270.452314,
-    "ast_hash": "fa20f7180ae8073d711df1ec53cfdaeb",
+    "mtime": 1789600271.3250635,
+    "ast_hash": "ff75d1005aa63a192a6c4a39043d33b7",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_sensorDiagScreen.h": {
-    "mtime": 1789516270.452314,
-    "ast_hash": "0622377704885a60cd7c4bc192efb1ba",
+    "mtime": 1789600282.9727194,
+    "ast_hash": "0b615f3b9c1dd549d756aed6ee5fe3d2",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_sensorEditScreen.c": {
@@ -705,8 +705,8 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1789584385.3759162,
-    "ast_hash": "839f30d3db1146009b2f3f53bd7a4628",
+    "mtime": 1789598571.210327,
+    "ast_hash": "9a4d018dd52588812d45f29d97fe972f",
     "semantic_hash": ""
   },
   "docs/HMI_MIGRATION.md": {
