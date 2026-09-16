@@ -231,7 +231,9 @@ static void aws_telemetry_task(void *pvParameters)
 
     while (1)
     {
-        vTaskDelay(pdMS_TO_TICKS(AWS_TELEMETRY_PERIOD_MS));
+        // Espera hasta el periodo normal (30 s), pero despierta AL INSTANTE si
+        // transport_mqtt_publish_now() notifica (cambio de estado de alarma).
+        ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(AWS_TELEMETRY_PERIOD_MS));
 
         if (!s_is_connected)
             continue;
@@ -398,6 +400,14 @@ void transport_mqtt_on_time_ready(void)
     // la tarea sigue viva e inactiva (s_is_connected=false) para no duplicarla.
     if (!s_pub_task)
         xTaskCreatePinnedToCore(aws_telemetry_task, "aws_pub", 4096, NULL, 5, &s_pub_task, 1);
+}
+
+void transport_mqtt_publish_now(void)
+{
+    // Despierta la tarea de publicación para que salga del wait de 30 s.
+    // Idempotente y seguro desde otra tarea; si aún no existe, no hace nada.
+    if (s_pub_task)
+        xTaskNotifyGive(s_pub_task);
 }
 
 void transport_mqtt_on_net_down(void) {}

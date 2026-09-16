@@ -343,3 +343,10 @@ Reportados 4 problemas en HW. Estado:
 
 *Actualizado 2026-09-16. Rama `main` @ `a353c41`. Sesión previa: 2026-08-01 (`feature/ble-app-contract`
 @ `6e0b82c`). Ver `SESION_HMI.md` §9 para el historial detallado.*
+
+## Sesion 2026-09-16 (#3) — Codex/Claude
+- #1 ADS1115: retry+backoff, timeout real, ads1115_recover() (re-add device) disparado en sensors_runtime cuando el ADS cae solo con bus sano.
+- #2 alarma: SENSOR_FAULT -> WARNING silenciable (no ALERT permanente).
+- #4 buzzer: alarm_mgr_set_audio_inhibit_noncritical() activo en login, limpiado en dashboard (ALERT critico sigue sonando).
+- #5 AWS: callback de cambio de estado -> transport_mqtt_publish_now() (ulTaskNotifyTake) publica al instante.
+- Pendiente: #3/#3.1/#3.2 tarjeta WiFi (UI LVGL). Validado compilado+flasheado en HW.

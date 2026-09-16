@@ -39,6 +39,14 @@ esp_err_t ads1115_init(i2c_master_bus_handle_t bus_handle);
 bool ads1115_is_ready(void);
 
 /**
+ * Recuperacion especifica del ADS1115: quita y vuelve a agregar el dispositivo
+ * al bus I2C y reverifica comunicacion. Util cuando el ADS hace NACK sostenido
+ * (INVALID_RESPONSE) mientras el resto del bus sigue OK, sin necesidad de
+ * resetear todo el controlador del bus. Devuelve ESP_OK si el ADS responde.
+ */
+esp_err_t ads1115_recover(void);
+
+/**
  * Lee un canal single-ended en modo single-shot y devuelve el codigo crudo
  * de 16 bits con signo.
  */

@@ -771,6 +771,7 @@ static void sensors_acq_task(void *arg)
     int ads_miss = 0;
     int sfm_miss = 0;
     int bus_recover_wait = 0;
+    int ads_recover_wait = 0;
 
     while (1)
     {
@@ -945,6 +946,26 @@ static void sensors_acq_task(void *arg)
         else
         {
             bus_recover_wait = 0;
+        }
+
+        // --- Recuperacion ESPECIFICA del ADS1115 ---
+        // Caso observado: el MS5803 lee OK (bus 1 sano) pero el ADS hace NACK
+        // sostenido (INVALID_RESPONSE). El reset de bus de arriba no aplica
+        // (exige que AMBOS caigan), asi que re-agregamos solo el device del ADS
+        // cada BUS_RECOVER_EVERY ciclos mientras siga caido y el bus no lo este.
+        if (s_scfg.flow_enabled && ads_down && !bus1_down)
+        {
+            if (++ads_recover_wait >= BUS_RECOVER_EVERY)
+            {
+                ads_recover_wait = 0;
+                esp_err_t r = ads1115_recover();
+                ESP_LOGW(TAG, "ADS1115 NACK sostenido: ads1115_recover -> %s",
+                         esp_err_to_name(r));
+            }
+        }
+        else
+        {
+            ads_recover_wait = 0;
         }
 
 #if SENSORS_TARE_ON_BOOT

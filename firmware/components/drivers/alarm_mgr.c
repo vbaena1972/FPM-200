@@ -25,6 +25,21 @@ static bool s_beep_active = false;
 static int64_t s_test_end_time_us = 0;
 static int s_volume = 80;
 static uint32_t s_sensor_faults = 0;
+static alarm_state_change_cb_t s_state_cb = NULL;
+// Cuando true, se silencia el buzzer para estados NO criticos (WARNING/fallo
+// tecnico). Un ALERT critico de presion SIEMPRE sigue sonando. Lo activa la UI
+// mientras se muestra la pantalla de login/config (no debe pitar al teclear PIN).
+static bool s_audio_inhibit_noncritical = false;
+
+void alarm_mgr_set_audio_inhibit_noncritical(bool inhibit)
+{
+    s_audio_inhibit_noncritical = inhibit;
+}
+
+void alarm_mgr_set_state_change_cb(alarm_state_change_cb_t cb)
+{
+    s_state_cb = cb;
+}
 
 // Variables para el anÃƒÆ’Ã‚Â¡lisis matemÃƒÆ’Ã‚Â¡tico diferencial de flujo (Delta)
 static float s_baseline_flow = 0.0f;
@@ -109,16 +124,15 @@ void alarm_mgr_process(float current_pressure, float current_flow, uint32_t sens
     alarm_clinical_state_t target_state = ALARM_STATE_NORMAL;
 
     // Escenario crÃƒÆ’Ã‚Â­tico (ALERT - Rojo): VariaciÃƒÆ’Ã‚Â³n severa de presiÃƒÆ’Ã‚Â³n fuera de rangos vitales
-    if (sensor_faults != 0) {
-        target_state = ALARM_STATE_ALERT;
-    }
-    else if ((p_min_enabled && current_pressure < (p_min - 15.0f)) ||
+    if ((p_min_enabled && current_pressure < (p_min - 15.0f)) ||
         (p_max_enabled && current_pressure > (p_max + 15.0f))) {
         target_state = ALARM_STATE_ALERT;
-    } 
+    }
     // Escenario moderado (WARNING - Amarillo): Cruce de lÃƒÆ’Ã‚Â­mites de presiÃƒÆ’Ã‚Â³n O variaciÃƒÆ’Ã‚Â³n sÃƒÆ’Ã‚Âºbita de flujo (Fuga)
     else if ((p_min_enabled && current_pressure < p_min) ||
-             (p_max_enabled && current_pressure > p_max) || flow_warning || flow_high) {
+             (p_max_enabled && current_pressure > p_max) || flow_warning || flow_high ||
+             sensor_faults != 0) {
+        // Fallo de comunicaciones de sensor = alarma tecnica SILENCIABLE (no ALERT permanente)
         target_state = ALARM_STATE_WARNING;
     }
 
@@ -128,6 +142,11 @@ void alarm_mgr_process(float current_pressure, float current_flow, uint32_t sens
             ESP_LOGW(TAG, "Ãƒâ€šÃ‚Â¡CondiciÃƒÆ’Ã‚Â³n mÃƒÆ’Ã‚Â©dica escalÃƒÆ’Ã‚Â³ a CRÃƒÆ’Ã‚ÂTICA! Rompiendo Mute automÃƒÆ’Ã‚Â¡ticamente.");
             s_is_muted = false;
         }
+    }
+
+    // Notificar SOLO cuando el estado clinico cambia (para publish inmediato a la nube).
+    if (target_state != s_current_state && s_state_cb != NULL) {
+        s_state_cb(target_state);
     }
 
     s_current_state = target_state;
@@ -140,6 +159,13 @@ void alarm_mgr_process(float current_pressure, float current_flow, uint32_t sens
 
     // Si todo estÃƒÆ’Ã‚Â¡ normal o el sistema estÃƒÆ’Ã‚Â¡ silenciado, apagamos el PWM de inmediato
     if (s_current_state == ALARM_STATE_NORMAL || s_is_muted) {
+        set_buzzer_acoustic(false);
+        return;
+    }
+
+    // Inhibicion de audio no-critico (p.ej. pantalla de login/config): un WARNING
+    // o fallo tecnico NO debe pitar, pero un ALERT critico SI sigue sonando.
+    if (s_audio_inhibit_noncritical && s_current_state != ALARM_STATE_ALERT) {
         set_buzzer_acoustic(false);
         return;
     }

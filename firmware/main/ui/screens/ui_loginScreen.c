@@ -3,6 +3,7 @@
 #include "ui_theme.h"
 #include "ui_cfg.h"
 #include "ui.h"
+#include "alarm_mgr.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -42,6 +43,10 @@ static lv_obj_t *key(lv_obj_t *g,const char *txt,char code,int col,int row){lv_o
 static void add_user(lv_obj_t *p,int i){const app_user_t *u=ui_auth_user_at(i);if(!u)return;lv_obj_t *r=ui_card(p);lv_obj_set_size(r,LV_PCT(100),44);lv_obj_set_flex_flow(r,LV_FLEX_FLOW_ROW);lv_obj_set_flex_align(r,LV_FLEX_ALIGN_START,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_CENTER);lv_obj_set_style_pad_all(r,7,0);lv_obj_set_style_pad_column(r,8,0);lv_obj_add_flag(r,LV_OBJ_FLAG_CLICKABLE);lv_obj_add_event_cb(r,user_cb,LV_EVENT_CLICKED,(void*)(intptr_t)i);ui_icon_badge(r,u->role==APP_ROLE_ADMIN?UI_SYM_SHIELD_CHECK:UI_SYM_SETTINGS,UI_ICON_SM,role_color(u->role),UI_C_CARD_BG,28);lv_obj_t *b=ui_box(r);lv_obj_set_flex_flow(b,LV_FLEX_FLOW_COLUMN);lv_obj_set_height(b,32);ui_label(b,u->name,UI_FONT_SM,UI_C_TEXT);ui_label(b,role_name(u->role),UI_FONT_XS,UI_C_TEXT_MUTED);}
 void ui_loginScreen_screen_init(void){
     s_target=NULL;s_len=0;s_pin[0]=0;s_after_login=NULL;
+    /* #4: al entrar a config (login) no debe pitar el buzzer por WARNING/fallo
+     * tecnico; un ALERT critico de presion si sigue sonando. Se limpia al volver
+     * al dashboard (main.c). */
+    alarm_mgr_set_audio_inhibit_noncritical(true);
     ui_loginScreen=ui_screen_base();lv_obj_set_flex_flow(ui_loginScreen,LV_FLEX_FLOW_COLUMN);lv_obj_set_style_pad_all(ui_loginScreen,8,0);lv_obj_set_style_pad_row(ui_loginScreen,6,0);
     ui_nav_header(ui_loginScreen,"Acceso a configuracion");
     lv_obj_t *body=ui_box(ui_loginScreen);lv_obj_set_width(body,LV_PCT(100));lv_obj_set_flex_grow(body,1);lv_obj_set_flex_flow(body,LV_FLEX_FLOW_ROW);lv_obj_set_style_pad_column(body,10,0);

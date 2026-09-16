@@ -17,6 +17,11 @@ extern "C"
 
     bool cloud_mgr_connected(void);
 
+    // Fuerza un publish INMEDIATO de telemetría/device_status (sin esperar el
+    // periodo de 30 s). Se llama al cambiar el estado de alarma para que la nube
+    // reciba la alarma al instante. Seguro de llamar desde otra tarea.
+    void transport_mqtt_publish_now(void);
+
 #ifdef __cplusplus
 }
 #endif

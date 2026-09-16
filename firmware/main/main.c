@@ -54,7 +54,17 @@
 #include "at24c256.h"
 #include "sfm3300.h"
 #include "alarm_mgr.h"
+#include "transport_mqtt.h"
 #include "time_mgr.h"
+
+// Adaptador: al cambiar el estado clinico de alarma, forzamos publish inmediato
+// a la nube. La firma incluye el estado (no lo usamos: la telemetria lee el
+// estado real al construir el payload), pero cumple el prototipo del callback.
+static void on_alarm_state_change(alarm_clinical_state_t new_state)
+{
+    (void)new_state;
+    transport_mqtt_publish_now();
+}
 
 // #define SD_CD_PIN 42
 //  Tareas de Procesamiento de Datos (Workers)
@@ -788,6 +798,11 @@ static void ui_refresh_task(void *arg)
             ui_main_update(&last, have_last, &min_s, &max_s, have_mm,
                            NULL, current_state, is_muted);
 
+            // #4: al estar en el dashboard, se restablece el audio no-critico
+            // (la pantalla de login lo inhibio al entrar a configuracion).
+            if (lv_screen_active() == ui_mainScreen)
+                alarm_mgr_set_audio_inhibit_noncritical(false);
+
             // Reloj de la cabecera (se actualiza al cambiar de minuto)
             time_t now = time(NULL);
             if (now / 60 != last_clock_min)
@@ -874,6 +889,10 @@ void app_main(void)
     mem_diag_report("AFTER-LV-INIT");
 
     alarm_mgr_init(BUZZER_PWM_GPIO);
+
+    // Al cambiar el estado de alarma, forzar un publish INMEDIATO a la nube
+    // (no esperar el periodo de 30 s de la telemetria periodica).
+    alarm_mgr_set_state_change_cb(on_alarm_state_change);
 
     // Estado pÃƒÂºblico (MQTT, BLE, etc)
     ESP_ERROR_CHECK(esp_netif_init());
