@@ -34,7 +34,15 @@ static void set_str(char *dst, size_t cap, const char *src)
 static void save_cb(lv_event_t *e)
 {
     (void)e;
-    if (!ui_auth_can(APP_ROLE_ADMIN)) { ui_nav_back(); return; }  /* BLE operativo: ADMIN */
+#ifdef ESP_PLATFORM
+    ESP_LOGW("netble", "Guardar BLE (click en boton Guardar)");
+#endif
+    if (!ui_auth_can(APP_ROLE_ADMIN)) {
+#ifdef ESP_PLATFORM
+        ESP_LOGW("netble", "Sin rol ADMIN: no se guarda ni reinicia (inicia sesion como Administrador)");
+#endif
+        ui_nav_back(); return;
+    }  /* BLE operativo: ADMIN */
     AppConfig *cfg = appcfg_cache_peek();
     if (!cfg) return;
 
@@ -63,6 +71,8 @@ static void save_cb(lv_event_t *e)
      * hasta reiniciar). Como bt.enabled=false ya quedó en NVS (appcfg_save arriba),
      * al arrancar el BT no sube y la red/AWS quedan limpias. Mismo criterio que
      * MedGuard. Solo en la transición on->off (no en cada guardado). */
+    ESP_LOGW("netble", "BT guardado: antes=%d ahora=%d (reinicia si antes=1 y ahora=0)",
+             (int)was_enabled, (int)cfg->bt.enabled);
     if (was_enabled && !cfg->bt.enabled) {
         ESP_LOGW("netble", "Bluetooth apagado -> reiniciando para liberar RAM y "
                            "restaurar red/AWS");
