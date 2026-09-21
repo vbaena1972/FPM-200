@@ -6,6 +6,7 @@ idf_component_register(
         "transport_mqtt.c" 
         "wifi_mgr.c"
         "time_mgr.c"
+        "mdns_svc.c"
     INCLUDE_DIRS 
         "include"
     REQUIRES
@@ -14,7 +15,8 @@ idf_component_register(
         esp_event
         esp_wifi
         lwip
-        espressif__ksz8851snl 
+        mdns
+        espressif__ksz8851snl
         storage
         drivers
     PRIV_REQUIRES
@@ -28,4 +30,5 @@ idf_component_register(
         mqtt
         cjson
         sensors_runtime
+        esp_app_format
 )

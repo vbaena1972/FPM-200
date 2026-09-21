@@ -9,6 +9,17 @@
 #include "transport_mqtt.h"
 #include "time_mgr.h"
 
+/* Al (re)obtener IP re-lanzamos SNTP (deinit+init): su callback de sync —que corre
+ * en contexto de tarea SEGURO (no en este handler de eventos, cuyo stack es chico)—
+ * llama a transport_mqtt_on_time_ready() y así re-arma MQTT tras cada reconexión
+ * (incluida la salida de modo config/BLE), ya con IP y hora válidas para el TLS.
+ * NO llamar on_time_ready() aquí: es pesado (certs+MQTT init+logs) y desborda la
+ * pila del task del event loop (crash 'Unhandled debug exception', logFMP3). */
+static void rearm_net_services(void)
+{
+    time_mgr_start_sntp();
+}
+
 static const char *TAG = "net_core";
 
 static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data)
@@ -20,18 +31,14 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
             ip_event_got_ip_t *e = (ip_event_got_ip_t *)data;
             ESP_LOGI(TAG, "ETH obtuvo IP: " IPSTR, IP2STR(&e->ip_info.ip));
             state_on_net_available(true);
-
-            // Llamamos a buscar la hora atómica (SNTP)
-            time_mgr_start_sntp();
+            rearm_net_services();
         }
         else if (id == IP_EVENT_STA_GOT_IP)
         {
             ip_event_got_ip_t *e = (ip_event_got_ip_t *)data;
             ESP_LOGI(TAG, "Wi-Fi obtuvo IP: " IPSTR, IP2STR(&e->ip_info.ip));
             state_on_net_available(true);
-
-            // Llamamos a buscar la hora atómica (SNTP)
-            time_mgr_start_sntp();
+            rearm_net_services();
         }
     }
 }

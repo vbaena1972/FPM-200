@@ -4,6 +4,9 @@
 #include "cJSON.h"
 #include "esp_log.h"
 #include "esp_app_desc.h" // version real del firmware (PROJECT_VER)
+#include "esp_netif.h"    // IP viva para el bloque lan de provisión
+#include "esp_random.h"   // esp_fill_random para el token LAN
+#include "nvs.h"          // token LAN persistente
 #include <string.h>
 #include <strings.h>
 #include <stdlib.h>
@@ -111,6 +114,37 @@ static const char *color_to_gas(uint32_t color)
     return "o2";
 }
 
+/* Token de acceso LAN (32 hex) persistente en NVS. Igual que MedGuard
+ * (http_service): barrera de autenticación del servidor HTTP en la red. Se crea
+ * una vez y se conserva; se entrega por BLE y se valida en cada request HTTP. */
+void fpm_lan_token(char *out, size_t n)
+{
+    if (!out || !n) return;
+    out[0] = '\0';
+    nvs_handle_t h;
+    if (nvs_open("httpmon", NVS_READWRITE, &h) != ESP_OK) return;
+    char tok[33] = {0};
+    size_t len = sizeof tok;
+    if (nvs_get_str(h, "token", tok, &len) == ESP_OK && strlen(tok) == 32) {
+        nvs_close(h);
+        strncpy(out, tok, n - 1);
+        out[n - 1] = '\0';
+        return;
+    }
+    uint8_t raw[16];
+    esp_fill_random(raw, sizeof raw);
+    static const char hex[] = "0123456789abcdef";
+    for (int i = 0; i < 16; i++) {
+        tok[i * 2] = hex[raw[i] >> 4];
+        tok[i * 2 + 1] = hex[raw[i] & 0x0F];
+    }
+    tok[32] = '\0';
+    if (nvs_set_str(h, "token", tok) == ESP_OK) nvs_commit(h);
+    nvs_close(h);
+    strncpy(out, tok, n - 1);
+    out[n - 1] = '\0';
+}
+
 /* ================= Info (característica 1001) ================= */
 char *fpm_ble_info_json(void)
 {
@@ -131,6 +165,32 @@ char *fpm_ble_info_json(void)
     /* La app lee `enabled_channel_count` (ble_provisioning_screen.dart); se manda
      * junto con `channels` por compatibilidad. */
     cJSON_AddNumberToObject(o, "enabled_channel_count", 2);
+    /* Provisión de monitoreo LAN (igual que MedGuard): IP viva + puerto + token +
+     * nombre mDNS, para que la app resuelva <serial>.local y consuma el HTTP de
+     * solo lectura. La IP es la del netif por defecto (en FPM la red coexiste con
+     * BLE, no hay teardown), o 0.0.0.0 si aún no hay enlace. */
+    cJSON *lan = cJSON_AddObjectToObject(o, "lan");
+    if (lan) {
+        char ip[16] = "0.0.0.0";
+        esp_netif_t *nif = esp_netif_get_default_netif();
+        esp_netif_ip_info_t ii;
+        if (nif && esp_netif_get_ip_info(nif, &ii) == ESP_OK && ii.ip.addr) {
+            esp_ip4addr_ntoa(&ii.ip, ip, sizeof ip);
+        }
+        char tok[33];
+        fpm_lan_token(tok, sizeof tok);
+        cJSON_AddBoolToObject(lan, "enabled", true);
+        cJSON_AddStringToObject(lan, "ip", ip);
+        cJSON_AddNumberToObject(lan, "port", 80);
+        cJSON_AddStringToObject(lan, "token", tok);
+        if (c && c->general.serial[0]) {
+            char host[64];
+            snprintf(host, sizeof host, "%s.local", c->general.serial);
+            cJSON_AddStringToObject(lan, "host", host);
+            cJSON_AddStringToObject(lan, "id", c->general.serial);
+            cJSON_AddStringToObject(lan, "mdns", "_fpm._tcp");
+        }
+    }
     char *s = cJSON_PrintUnformatted(o);
     cJSON_Delete(o);
     return s;

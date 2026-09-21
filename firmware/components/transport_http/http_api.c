@@ -16,9 +16,14 @@
 #include "cJSON.h"
 #include "http_api.h"
 #include "state_pub.h"
+#include "storage.h"           // AppConfig + appcfg_cache_peek (unidades/límites)
+#include "sensors_runtime.h"   // lecturas VIVAS (state_pub no se actualiza)
 #include "mem_diag.h"
+#include "fpm_ble_config.h" // reutiliza el aplicador set_config (mismo contrato que BLE)
 
 static esp_err_t state_get_handler(httpd_req_t *req);
+static esp_err_t alarms_get_handler(httpd_req_t *req);
+static esp_err_t logs_get_handler(httpd_req_t *req);
 
 static const char *TAG = "http_api";
 static httpd_handle_t s_httpd = NULL;
@@ -184,23 +189,42 @@ static esp_err_t info_get_handler(httpd_req_t *req)
 // Nota: si ya tienes una función que vuelca el JSON (ej. appcfg_dump_json),
 // úsala. Aquí dejo un stub seguro.
 // ------------------------------------------------------------------------------------
+// Valida el token LAN (Authorization: Bearer <token>) igual que MedGuard. Si el
+// equipo aún no tiene token, no bloquea (defensivo durante bring-up).
+static bool http_bearer_ok(httpd_req_t *req)
+{
+    char tok[33];
+    fpm_lan_token(tok, sizeof tok);
+    if (tok[0] == '\0')
+        return true;
+    char hdr[80] = {0};
+    if (httpd_req_get_hdr_value_str(req, "Authorization", hdr, sizeof hdr) != ESP_OK)
+        return false;
+    const char *p = hdr;
+    if (strncmp(p, "Bearer ", 7) == 0)
+        p += 7;
+    return strcmp(p, tok) == 0;
+}
+
 static esp_err_t cfg_get_handler(httpd_req_t *req)
 {
-    // Si ya tienes JSON listo en RAM (p. ej., char* json;):
-    // httpd_resp_set_type(req, "application/json");
-    // return httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);
-
-    // Stub mínimo:
-    esp_err_t err = send_json_chunk_begin(req);
-    if (err != ESP_OK)
-        return err;
-    err = httpd_resp_sendstr_chunk(req, "\"ok\":true,");
-    if (err != ESP_OK)
-        return err;
-    err = httpd_resp_sendstr_chunk(req, "\"config\":{}");
-    if (err != ESP_OK)
-        return err;
-    return send_json_chunk_end(req);
+    if (!http_bearer_ok(req))
+    {
+        httpd_resp_send_err(req, HTTPD_401_UNAUTHORIZED, "unauthorized");
+        return ESP_OK;
+    }
+    // Config completa en el esquema de la app (redactada). Reutiliza el mismo
+    // builder que BLE, así LAN y BLE devuelven idéntica estructura.
+    char *json = fpm_ble_config_read_json(true);
+    if (!json)
+    {
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "oom");
+        return ESP_OK;
+    }
+    httpd_resp_set_type(req, "application/json");
+    esp_err_t err = httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);
+    free(json);
+    return err;
 }
 
 // ------------------------------------------------------------------------------------
@@ -210,6 +234,11 @@ static esp_err_t cfg_get_handler(httpd_req_t *req)
 // ------------------------------------------------------------------------------------
 static esp_err_t cfg_put_handler(httpd_req_t *req)
 {
+    if (!http_bearer_ok(req))
+    {
+        httpd_resp_send_err(req, HTTPD_401_UNAUTHORIZED, "unauthorized");
+        return ESP_OK;
+    }
     if (req->content_len <= 0 || req->content_len > (128 * 1024))
     {
         httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "invalid content length");
@@ -224,8 +253,6 @@ static esp_err_t cfg_put_handler(httpd_req_t *req)
         return ESP_OK;
     }
 
-    cJSON *root = NULL;
-    cJSON *patch = NULL;
     int remaining = req->content_len;
 
     // Acumulamos en un cJSON Parser con string temporal (para no copiarlo entero en RAM)
@@ -270,41 +297,33 @@ static esp_err_t cfg_put_handler(httpd_req_t *req)
     full[copied] = '\0';
     free(buf);
 
-    root = cJSON_ParseWithLength(full, copied);
-    if (!root)
+    // Validación mínima: debe ser JSON de objeto.
+    cJSON *root = cJSON_ParseWithLength(full, copied);
+    if (!root || !cJSON_IsObject(root))
     {
+        if (root) cJSON_Delete(root);
         free(full);
         httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "invalid json");
         return ESP_OK;
     }
-
-    // Extrae "patch"
-    patch = cJSON_GetObjectItem(root, "patch");
-    if (!patch || !cJSON_IsObject(patch))
-    {
-        cJSON_Delete(root); // OJO: borra todo, incluido 'patch'
-        free(full);
-        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "missing patch");
-        return ESP_OK;
-    }
-
-    // Si tienes una función que aplica el patch sobre tu storage:
-    // esp_err_t perr = appcfg_patch(patch);  // IMPORTANTE: NO hagas cJSON_Delete(patch) si la función se apropia
-    // if (perr != ESP_OK) { ... }
-
-    // Stub: responde ok sin aplicar nada
-    {
-        esp_err_t err = send_json_chunk_begin(req);
-        if (err == ESP_OK)
-        {
-            httpd_resp_sendstr_chunk(req, "\"ok\":true");
-            send_json_chunk_end(req);
-        }
-    }
-
-    // Como NO hemos transferido propiedad de 'root/patch' a nadie, ahora sí borramos:
     cJSON_Delete(root);
+
+    // Aplica el MISMO contrato `set_config` que BLE (secciones display/time/
+    // alarms/network/cloud/bluetooth/ota/channels). Reutiliza el aplicador
+    // probado: escritura de config por LAN idéntica a MedGuard. El `ver` que
+    // envía la app se ignora aquí (campos desconocidos no estorban).
+    bool applied = fpm_ble_config_apply_json(full);
     free(full);
+
+    esp_err_t err = send_json_chunk_begin(req);
+    if (err == ESP_OK)
+    {
+        httpd_resp_sendstr_chunk(
+            req,
+            applied ? "\"ok\":true"
+                    : "\"ok\":false,\"message\":\"el equipo rechazo el cambio\"");
+        send_json_chunk_end(req);
+    }
     return ESP_OK;
 }
 
@@ -340,14 +359,112 @@ static void register_uris(httpd_handle_t server)
         .handler = cfg_put_handler,
         .user_ctx = NULL};
     httpd_register_uri_handler(server, &uri_cfg_put);
+
+    // La app Sensvax escribe config por POST (mismo cuerpo set_config). Se
+    // registra POST con el mismo handler que PUT para paridad con MedGuard.
+    const httpd_uri_t uri_cfg_post = {
+        .uri = "/api/v1/config",
+        .method = HTTP_POST,
+        .handler = cfg_put_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(server, &uri_cfg_post);
+
+    const httpd_uri_t uri_alarms_get = {
+        .uri = "/api/v1/alarms",
+        .method = HTTP_GET,
+        .handler = alarms_get_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(server, &uri_alarms_get);
+
+    const httpd_uri_t uri_logs_get = {
+        .uri = "/api/v1/logs",
+        .method = HTTP_GET,
+        .handler = logs_get_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(server, &uri_logs_get);
+}
+
+// Estado en vivo en el ESQUEMA DE CANALES que consume la app (channels[]), no el
+// {flow,pressure} plano de state_build_json (que sigue para otros consumidores).
+// FPM = 2 canales: Presión (id 1) y Flujo (id 2). Valores en unidades INTERNAS
+// (kPa / L/min) con la etiqueta correspondiente, así valor y unidad son
+// coherentes; el estado se calcula contra los límites configurados (mismas
+// unidades internas). TODO: convertir a la unidad de display del usuario.
+static void add_channel(cJSON *arr, int id, const char *name, const char *unit,
+                        double value, const char *state, bool hi_en, double hi,
+                        bool lo_en, double lo, int decimals)
+{
+    cJSON *c = cJSON_CreateObject();
+    cJSON_AddNumberToObject(c, "id", id);
+    cJSON_AddStringToObject(c, "name", name);
+    cJSON_AddStringToObject(c, "location", "");
+    cJSON_AddNumberToObject(c, "value", value);
+    cJSON_AddStringToObject(c, "unit", unit);
+    cJSON_AddBoolToObject(c, "enabled", true);
+    cJSON_AddStringToObject(c, "state", state);
+    cJSON_AddNumberToObject(c, "decimals", decimals);
+    if (hi_en) cJSON_AddNumberToObject(c, "hi_limit", hi);
+    if (lo_en) cJSON_AddNumberToObject(c, "lo_limit", lo);
+    cJSON_AddItemToArray(arr, c);
 }
 
 static esp_err_t state_get_handler(httpd_req_t *req)
 {
-    char json[256];
-    state_build_json(json, sizeof json);
+    // Lecturas VIVAS desde sensors_runtime (state_pub/g_state nunca se actualiza:
+    // state_update_sensors no se llama en ningún lado -> daba 0s en la app).
+    sensor_sample_t last = {0};
+    bool have = sensors_runtime_get_last(&last);
+    const AppConfig *c = appcfg_cache_peek();
+
+    double p = have ? last.pressure_kpa : 0.0; // kPa (interno)
+    double f = have ? last.flow_lpm : 0.0;     // L/min (interno)
+
+    bool p_hi_en = false, p_lo_en = false, f_hi_en = false;
+    double p_hi = 0, p_lo = 0, f_hi = 0;
+    const char *p_unit = "kPa", *f_unit = "L/min";
+    if (c) {
+        p_hi_en = c->sensors.alarm_limits.pressure_max_enabled;
+        p_lo_en = c->sensors.alarm_limits.pressure_min_enabled;
+        p_hi = c->sensors.alarm_limits.pressure_max;
+        p_lo = c->sensors.alarm_limits.pressure_min;
+        f_hi_en = c->sensors.alarm_limits.flow_high_enabled;
+        f_hi = c->sensors.alarm_limits.flow_high_limit;
+    }
+    const char *p_state = (p_hi_en && p > p_hi) ? "high"
+                        : (p_lo_en && p < p_lo) ? "low" : "normal";
+    const char *f_state = (f_hi_en && f > f_hi) ? "high" : "normal";
+
+    cJSON *root = cJSON_CreateObject();
+    cJSON *chs = cJSON_AddArrayToObject(root, "channels");
+    add_channel(chs, 1, "Presion", p_unit, p, p_state, p_hi_en, p_hi, p_lo_en, p_lo, 1);
+    add_channel(chs, 2, "Flujo", f_unit, f, f_state, f_hi_en, f_hi, false, 0, 2);
+
+    char *json = cJSON_PrintUnformatted(root);
+    cJSON_Delete(root);
+    if (!json) {
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "oom");
+        return ESP_OK;
+    }
     httpd_resp_set_type(req, "application/json");
-    return httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);
+    esp_err_t err = httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);
+    free(json);
+    return err;
+}
+
+// La app consume /alarms y /logs al abrir el equipo (LanMonitoringSource). Sin
+// estas rutas devolvían 404 y la carga fallaba entera ("no conecta"). FPM aún no
+// expone alarmas/auditoría por LAN → se devuelve la estructura vacía válida que
+// la app espera ({active:[]} / {events:[]}); el estado de alarma se ve por /state.
+static esp_err_t alarms_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "application/json");
+    return httpd_resp_sendstr(req, "{\"active\":[]}");
+}
+
+static esp_err_t logs_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "application/json");
+    return httpd_resp_sendstr(req, "{\"events\":[]}");
 }
 
 // ------------------------------------------------------------------------------------

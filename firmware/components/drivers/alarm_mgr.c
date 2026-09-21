@@ -153,6 +153,17 @@ void alarm_mgr_process(float current_pressure, float current_flow, uint32_t sens
     // Actualizar primero y notificar SOLO si cambio: el consumidor que despierta
     // por el callback debe observar ya el nuevo estado al construir el payload.
     bool state_changed = target_state != s_current_state;
+    // Diagnóstico de la "alarma fantasma": al ENTRAR en alarma registra el valor
+    // exacto y QUÉ condición la disparó (el pico transitorio no se ve en el log
+    // periódico de sensores cada ~2 s). Si es flujo con valor bajo -> glitch ADS.
+    if (state_changed && target_state != ALARM_STATE_NORMAL) {
+        ESP_LOGW(TAG, "ALARMA -> %d | P=%.2f kPa F=%.2f L/min | "
+                      "p<min=%d p>max=%d flow_high=%d flow_warn=%d faults=0x%lX",
+                 (int)target_state, (double)current_pressure, (double)current_flow,
+                 (int)(p_min_enabled && current_pressure < p_min),
+                 (int)(p_max_enabled && current_pressure > p_max),
+                 (int)flow_high, (int)flow_warning, (unsigned long)sensor_faults);
+    }
     s_current_state = target_state;
     if (state_changed && s_state_cb != NULL)
         s_state_cb(s_current_state);

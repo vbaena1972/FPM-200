@@ -5,9 +5,11 @@ idf_component_register(
         esp_http_server
         esp_netif 
         cjson 
-    PRIV_REQUIRES 
+    PRIV_REQUIRES
         storage
-        app_update  
+        app_update
         state_pub
         diag
+        transport_ble
+        sensors_runtime
 )

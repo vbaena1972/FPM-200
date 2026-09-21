@@ -44,7 +44,11 @@ esp_err_t config_mode_exit(void)
     ESP_LOGW(TAG, "Saliendo de modo configuración: restaurando Wi-Fi y AWS");
 
     (void)transport_ble_stop_adv();        /* deja de anunciar (BLE queda residente) */
-    (void)wifi_mgr_start();                /* reconecta Wi-Fi; net_core hará SNTP al obtener IP */
-    transport_mqtt_on_time_ready();        /* re-arma MQTT (idempotente; conecta al haber IP) */
+    (void)wifi_mgr_start();                /* reconecta Wi-Fi */
+    /* NO re-armar MQTT aquí: aún no hay IP. transport_mqtt_stop() destruyó el
+     * cliente; arrancarlo sin red lo deja atascado y el path de got-IP no lo
+     * re-arma (queda con s_client!=NULL). El re-arme correcto ocurre en
+     * net_core al obtener IP (con hora válida) o vía el callback de SNTP —
+     * ya con red lista, que es lo que necesita el handshake TLS. */
     return ESP_OK;
 }

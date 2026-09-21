@@ -45,6 +45,15 @@ static lv_obj_t *s_data_label = NULL;
 static lv_timer_t *s_data_activity_timer = NULL;
 static uint32_t s_data_pulse_tick = 0;
 static uint32_t s_data_last_pulse_tick = 0;
+
+/* Suavizado del VALOR MOSTRADO (EMA). El número refresca a 5 Hz sobre lecturas
+ * instantáneas ruidosas (FS7 cerca de 0 salta 0.4–1.0 L/min); con 2 decimales se
+ * vería nervioso. Alpha 0.25 = estable y sigue un cambio real en ~0.5–1 s. Solo
+ * afecta la presentación; la máquina de alarmas usa el valor CRUDO (no se suaviza
+ * para no enmascarar picos). Se reinicia (NAN) si no hay dato válido. */
+#define DISP_EMA_ALPHA 0.25f
+static float s_p_disp_ema = NAN;
+static float s_f_disp_ema = NAN;
 static bool s_data_seen = false;
 static bool s_data_pulse_active = false;
 static int64_t s_last_activity_sample_ts = -1;
@@ -250,14 +259,15 @@ static int s_decimals = 0;
  * decimales (0/1) actua como base y estas subunidades lo elevan si hace falta. */
 static int press_unit_min_dec(const char *u)
 {
-    if (u && strcmp(u, "mpa") == 0) return 2;
-    if (u && strcmp(u, "bar") == 0) return 1;
-    return 0; /* psi, kpa */
+    if (u && strcmp(u, "mpa") == 0) return 3;  /* MPa: muy pequeño */
+    if (u && strcmp(u, "bar") == 0) return 2;  /* bar: valores <10 */
+    if (u && strcmp(u, "psi") == 0) return 2;  /* psi: gauge cerca de 0 -> evita "-0" */
+    return 1; /* kpa y otros: al menos 1 decimal (antes 0 -> se veía entero) */
 }
 static int flow_unit_min_dec(const char *u)
 {
     if (u && strcmp(u, "m3h") == 0) return 2;
-    return 0; /* lpm, slpm, sccm */
+    return 2; /* lpm/slpm/sccm: caudales pequeños (0.98) -> 2 decimales */
 }
 
 static void update_metric_card(metric_card_t *m, float value_disp, float frac,
@@ -697,6 +707,10 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         float p_max = cfg->sensors.alarm_limits.pressure_max;
         float axis_kpa = PRESS_AXIS_FULLSCALE_KPA;
         float p_disp = pressure_to_disp(last->pressure_kpa, cfg->sensors.pressure_unit);
+        /* EMA para el número mostrado (el bar/frac sigue el valor crudo). */
+        if (!isfinite(s_p_disp_ema)) s_p_disp_ema = p_disp;
+        else s_p_disp_ema += DISP_EMA_ALPHA * (p_disp - s_p_disp_ema);
+        float p_show = s_p_disp_ema;
         float p_frac = clampf(last->pressure_kpa / axis_kpa, 0.f, 1.f);
         float safe_lo = clampf(p_min / axis_kpa, 0.f, 1.f);
         float safe_hi = clampf(p_max / axis_kpa, 0.f, 1.f);
@@ -711,7 +725,7 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         int pdec = s_decimals; if (press_unit_min_dec(pu) > pdec) pdec = press_unit_min_dec(pu);
         float pmn = have_mm ? pressure_to_disp(mn->pressure_kpa, pu) : p_disp;
         float pmx = have_mm ? pressure_to_disp(mx->pressure_kpa, pu) : p_disp;
-        update_metric_card(&s_press, p_disp, p_frac, safe_lo, safe_hi, true,
+        update_metric_card(&s_press, p_show, p_frac, safe_lo, safe_hi, true,
                            pmin_en, pmax_en, pdec, pst, ptx, pmn, pmx);
 
         char ab[24];
@@ -733,6 +747,9 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
 
         /* --- Flujo --- */
         float f_disp = flow_to_disp(last->flow_lpm, cfg->sensors.flow_unit);
+        if (!isfinite(s_f_disp_ema)) s_f_disp_ema = f_disp;
+        else s_f_disp_ema += DISP_EMA_ALPHA * (f_disp - s_f_disp_ema);
+        float f_show = s_f_disp_ema;
         float f_axis = (cfg->sensors.flow_fullscale_lpm > 0.f) ? cfg->sensors.flow_fullscale_lpm
                                                                : FLOW_AXIS_FULLSCALE_LPM;
         float f_frac = clampf(last->flow_lpm / f_axis, 0.f, 1.f);
@@ -743,7 +760,7 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         if (fhi_en && last->flow_lpm > f_axis * FLOW_HIGH_ZONE_FRAC) { fst = CARD_WARN; ftx = _t("CONSUMO ALTO"); }
         float fmn = have_mm ? flow_to_disp(mn->flow_lpm, fu) : f_disp;
         float fmx = have_mm ? flow_to_disp(mx->flow_lpm, fu) : f_disp;
-        update_metric_card(&s_flow, f_disp, f_frac, 0.f, FLOW_HIGH_ZONE_FRAC, false,
+        update_metric_card(&s_flow, f_show, f_frac, 0.f, FLOW_HIGH_ZONE_FRAC, false,
                            false, fhi_en, fdec, fst, ftx, fmn, fmx);
         char fb[24];
         snprintf(fb, sizeof(fb), "%.*f", fdec, flow_to_disp(f_axis, fu));

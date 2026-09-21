@@ -150,7 +150,8 @@ static esp_err_t ads1115_read_raw_once(ads1115_channel_t ch, int16_t *raw)
     vTaskDelay(pdMS_TO_TICKS(10));
 
     bool done = false;
-    for (int i = 0; i < 8; i++)
+    int i;
+    for (i = 0; i < 8; i++)
     {
         uint16_t st = 0;
         err = ads1115_read_reg(ADS1115_REG_CONFIG, &st);
@@ -163,8 +164,14 @@ static esp_err_t ads1115_read_raw_once(ads1115_channel_t ch, int16_t *raw)
         }
         vTaskDelay(pdMS_TO_TICKS(2));
     }
-    if (!done)
-        return ESP_ERR_TIMEOUT; // la conversion no termino a tiempo
+    if (!done) {
+        // La conversion no reporto OS=1: si leyeramos ahora obtendriamos el dato
+        // ANTERIOR (stale) -> falsos picos. Se trata como error (el caller retiene
+        // el ultimo valor bueno). Diagnostico de la "alarma fantasma".
+        ESP_LOGW(TAG, "ch=%d conversion NO lista (OS!=1 tras poll) -> descartada "
+                      "(posible lectura sin dato listo)", (int)ch);
+        return ESP_ERR_TIMEOUT;
+    }
 
     uint16_t conv = 0;
     err = ads1115_read_reg(ADS1115_REG_CONVERSION, &conv);
@@ -172,6 +179,9 @@ static esp_err_t ads1115_read_raw_once(ads1115_channel_t ch, int16_t *raw)
         return err;
 
     *raw = (int16_t)conv;
+    /* Diagnostico por-lectura (nivel DEBUG: no satura salvo que se suba el log).
+     * Sirve para correlacionar un pico de flujo con el crudo del ADC. */
+    ESP_LOGD(TAG, "ch=%d raw=%d polls=%d", (int)ch, (int)*raw, i);
     return ESP_OK;
 }
 
@@ -190,7 +200,36 @@ esp_err_t ads1115_read_raw(ads1115_channel_t ch, int16_t *raw)
     {
         err = ads1115_read_raw_once(ch, raw);
         if (err == ESP_OK)
+        {
+            /* --- Diagnóstico raíz del glitch de flujo (bus vs ADC) ---
+             * Detecta un SALTO grande del código crudo respecto a la lectura
+             * anterior del MISMO canal. Interpretación:
+             *  - salto con I2C OK al 1er intento (reintentos=0)  -> conversión
+             *    errónea del ADC: ruido analógico / entrada, no el bus.
+             *  - salto precedido de errores I2C (reintentos>0) o junto a los WARN
+             *    de "intento X: <err>" abajo -> problema del BUS (NACK/timeout).
+             * Umbral ~2000 códigos (~0.25 V @ PGA 4.096) = ignora el ruido normal. */
+            static int16_t s_last_raw[4];
+            static bool s_have[4];
+            int idx = (int)ch & 3;
+            if (s_have[idx])
+            {
+                int d = (int)*raw - (int)s_last_raw[idx];
+                if (d < 0) d = -d;
+                if (d > 2000)
+                    ESP_LOGW(TAG, "SALTO ADC ch=%d raw=%d (prev=%d, delta=%d) "
+                                  "reintentos=%d", (int)ch, (int)*raw,
+                             (int)s_last_raw[idx], d, attempt);
+            }
+            s_last_raw[idx] = *raw;
+            s_have[idx] = true;
             return ESP_OK;
+        }
+        // Cada intento fallido (aunque un reintento lo recupere): revela
+        // inestabilidad del bus (NACK/timeout/arbitraje) que de otro modo queda
+        // oculta al tener éxito el reintento.
+        ESP_LOGW(TAG, "ads1115 ch=%d intento %d: %s (reintentando)",
+                 (int)ch, attempt, esp_err_to_name(err));
         vTaskDelay(pdMS_TO_TICKS(ADS1115_RETRY_BACKOFF_MS * (attempt + 1)));
     }
     ESP_LOGW(TAG, "ads1115_read_raw ch=%d fallo tras %d intentos: %s",

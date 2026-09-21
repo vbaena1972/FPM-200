@@ -13,6 +13,10 @@
 
 #ifdef ESP_PLATFORM
 #include "transport_ble.h"
+#include "esp_system.h"   // esp_restart
+#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #endif
 
 /* Configuración Bluetooth LE (formulario) + acceso a "Configurar por app" (QR). */
@@ -34,6 +38,7 @@ static void save_cb(lv_event_t *e)
     AppConfig *cfg = appcfg_cache_peek();
     if (!cfg) return;
 
+    bool was_enabled = cfg->bt.enabled;   /* estado previo, para detectar apagado */
     cfg->bt.enabled   = lv_obj_has_state(s_sw, LV_STATE_CHECKED);
     cfg->bt.advertise = lv_obj_has_state(s_adv, LV_STATE_CHECKED);
     set_str(cfg->bt.legacy.name, sizeof(cfg->bt.legacy.name), lv_textarea_get_text(s_name));
@@ -51,6 +56,19 @@ static void save_cb(lv_event_t *e)
     transport_ble_set_tx_power((uint8_t)cfg->bt.tx_power);
     if (cfg->bt.enabled && cfg->bt.advertise) transport_ble_start_adv();
     else                                      transport_ble_stop_adv();
+
+    /* Al APAGAR el Bluetooth: REINICIAR el equipo. transport_ble_set_enabled(false)
+     * solo detiene el advertising; el controlador NimBLE NO libera su RAM interna y
+     * la red/AWS no se restauran limpio (el BT queda "activo" y AWS no reconecta
+     * hasta reiniciar). Como bt.enabled=false ya quedó en NVS (appcfg_save arriba),
+     * al arrancar el BT no sube y la red/AWS quedan limpias. Mismo criterio que
+     * MedGuard. Solo en la transición on->off (no en cada guardado). */
+    if (was_enabled && !cfg->bt.enabled) {
+        ESP_LOGW("netble", "Bluetooth apagado -> reiniciando para liberar RAM y "
+                           "restaurar red/AWS");
+        vTaskDelay(pdMS_TO_TICKS(150));   /* deja asentar la escritura NVS */
+        esp_restart();
+    }
 #endif
     ui_nav_back();
 }

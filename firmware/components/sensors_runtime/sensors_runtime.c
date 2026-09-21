@@ -252,6 +252,16 @@ static void sensor_cfg_load_or_init(void)
     s_scfg_valid = true;
 }
 
+// Mediana de 3: rechaza un outlier aislado (pico o dropout del ADS) conservando
+// los cambios reales sostenidos. Base del filtro anti-glitch del flujo.
+static float median3f(float a, float b, float c)
+{
+    if (a > b) { float t = a; a = b; b = t; }
+    if (b > c) { float t = b; b = c; c = t; }
+    if (a > b) { float t = a; a = b; b = t; }
+    return b;
+}
+
 // Convierte el voltaje leÃ­do en AIN0 a flujo (L/min) usando el modelo FS7.
 static float sensor_flow_from_voltage(float v_ain0, float *v_out_cta)
 {
@@ -830,6 +840,25 @@ static void sensors_acq_task(void *arg)
                 else
                     pressure_kpa = p_abs;
 
+                /* Filtro anti-glitch (mediana de 3), igual que el flujo. El MS5803
+                 * a veces devuelve ESP_OK con un dato CORRUPTO (bus 1 compartido:
+                 * bytes malos -> p.ej. -858 kPa con real ~-1) que el reintento
+                 * (solo cubre err!=OK) no atrapa -> marcaba SENSOR_FAULT_INVALID y
+                 * disparaba alarma. Descarta el outlier aislado; 1 muestra de lag. */
+                static float s_p_med[3];
+                static int s_p_med_n = 0;
+                s_p_med[2] = s_p_med[1];
+                s_p_med[1] = s_p_med[0];
+                s_p_med[0] = pressure_kpa;
+                if (s_p_med_n < 3) s_p_med_n++;
+                float p_filt = (s_p_med_n == 3)
+                                   ? median3f(s_p_med[0], s_p_med[1], s_p_med[2])
+                                   : pressure_kpa;
+                if (s_p_med_n == 3 && fabsf(pressure_kpa - p_filt) > 20.0f)
+                    ESP_LOGW(TAG, "GLITCH presion descartado: crudo=%.2f -> "
+                                  "filtrado=%.2f kPa", pressure_kpa, p_filt);
+                pressure_kpa = p_filt;
+
                 last_good_pressure = pressure_kpa;
                 last_good_temp = temp_c;
             }
@@ -870,8 +899,30 @@ static void sensors_acq_task(void *arg)
                 ads_read_ok = true;
                 ads_miss = 0;
                 v_ain0 = v;
-                flow_lpm = sensor_flow_from_voltage(v, &u_cta);
+                float raw_flow = sensor_flow_from_voltage(v, &u_cta);
+                /* Filtro anti-glitch (mediana de 3): un pico/dropout AISLADO del
+                 * ADS (lectura errónea intermitente en el bus 1 compartido) se
+                 * descarta como outlier -> no llega ni al display ni a la máquina
+                 * de alarmas (era la causa de la "alarma fantasma": una muestra a
+                 * 0 con flujo real ~22 disparaba flow_delta). Cuesta 1 muestra de
+                 * retraso; un cambio REAL sostenido sí pasa (2 de 3 muestras). */
+                static float s_flow_med[3];
+                static int s_flow_med_n = 0;
+                s_flow_med[2] = s_flow_med[1];
+                s_flow_med[1] = s_flow_med[0];
+                s_flow_med[0] = raw_flow;
+                if (s_flow_med_n < 3) s_flow_med_n++;
+                flow_lpm = (s_flow_med_n == 3)
+                               ? median3f(s_flow_med[0], s_flow_med[1], s_flow_med[2])
+                               : raw_flow;
                 last_good_flow = flow_lpm;
+                /* Diagnóstico: si el filtro DESCARTÓ un outlier grande, lo
+                 * registra (confirma glitch del ADS sin disparar falsa alarma). */
+                if (fabsf(raw_flow - flow_lpm) > 5.0f)
+                {
+                    ESP_LOGW(TAG, "GLITCH flujo descartado: crudo=%.2f -> filtrado=%.2f "
+                                  "L/min  v_ain0=%.4f V", raw_flow, flow_lpm, v);
+                }
             }
             else
             {

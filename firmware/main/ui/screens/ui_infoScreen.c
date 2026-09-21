@@ -6,6 +6,10 @@
 #include "storage.h"
 #include "metrics_store.h"
 #include "esp_app_desc.h" // esp_app_get_description() -> version real (PROJECT_VER)
+#include "esp_system.h"   // esp_restart (botón de reinicio)
+#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -15,8 +19,8 @@ lv_obj_t *ui_infoScreen = NULL;
 
 static int32_t s_kv_col[] = { LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
 static int32_t s_kv_row[] = { LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
-static int32_t s_bot_col[] = { LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
-static int32_t s_bot_row[] = { LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
+static int32_t s_bot_col[] = { LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST };
+static int32_t s_bot_row[] = { LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST };
 
 /* tarjeta clave-valor */
 static lv_obj_t *kv_card(lv_obj_t *parent, const char *label, const char *value, uint32_t vcol)
@@ -32,6 +36,25 @@ static lv_obj_t *kv_card(lv_obj_t *parent, const char *label, const char *value,
     lv_obj_set_style_text_letter_space(l, 1, 0);
     ui_label(c, value, UI_FONT_MD, vcol);
     return c;
+}
+
+/* Botón de reinicio con confirmación de DOBLE TOQUE (sin timer que limpiar): el
+ * 1er toque "arma" y cambia la etiqueta; un 2º toque dentro de ~4 s reinicia.
+ * Evita reinicios accidentales en un equipo médico sin diálogos modales. */
+static uint32_t s_reboot_arm_tick = 0;
+static void reboot_cb(lv_event_t *e)
+{
+    lv_obj_t *lbl = (lv_obj_t *)lv_event_get_user_data(e);
+    if (s_reboot_arm_tick != 0 && lv_tick_elaps(s_reboot_arm_tick) < 4000)
+    {
+        ESP_LOGW("info", "Reinicio del equipo solicitado por el usuario");
+        if (lbl) lv_label_set_text(lbl, _t("Reiniciando…"));
+        vTaskDelay(pdMS_TO_TICKS(150));
+        esp_restart();
+        return;
+    }
+    s_reboot_arm_tick = lv_tick_get();
+    if (lbl) lv_label_set_text(lbl, _t("Toca otra vez para reiniciar"));
 }
 
 static const char *gas_label(const char *g)
@@ -117,30 +140,40 @@ void ui_infoScreen_screen_init(void)
     k = kv_card(kvg, _t("FW APLICACIÓN"), verbuf, UI_C_TEXT);
     lv_obj_set_grid_cell(k, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
 
-    /* grid inferior 3x1 */
+    /* grid inferior 2x1 (compacto, alto de contenido): calibración + mantenim.
+     * (Se quitó "Tiempo en servicio": no aportaba valor operativo.) */
     lv_obj_t *botg = ui_box(ui_infoScreen);
     lv_obj_set_width(botg, LV_PCT(100));
-    lv_obj_set_flex_grow(botg, 1);
+    lv_obj_set_height(botg, LV_SIZE_CONTENT);
     lv_obj_set_style_pad_column(botg, 7, 0);
     lv_obj_set_grid_dsc_array(botg, s_bot_col, s_bot_row);
     lv_obj_set_layout(botg, LV_LAYOUT_GRID);
-    /* Tiempo en servicio: minutos acumulados en NVS (metrics_store) -> días */
-    char svc[24];
-    uint32_t svc_min = appmetrics_service_min();
-    if (svc_min >= 60)
-        snprintf(svc, sizeof(svc), "%lu %s", (unsigned long)(svc_min / 1440u), _t("días"));
-    else
-        snprintf(svc, sizeof(svc), "\xE2\x80\x94");   /* aún sin datos */
-    k = kv_card(botg, _t("TIEMPO EN SERVICIO"), svc, UI_C_TEXT);
-    lv_obj_set_grid_cell(k, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
     k = kv_card(botg, _t("ÚLTIMA CALIBRACIÓN"),
                 cfg && cfg->sensors.cal.last_cal_date[0] ? cfg->sensors.cal.last_cal_date : "\xE2\x80\x94",
                 UI_C_TEXT);
-    lv_obj_set_grid_cell(k, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
+    lv_obj_set_grid_cell(k, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
     k = kv_card(botg, _t("PRÓX. MANTENIM."),
                 cfg && cfg->sensors.cal.next_service_date[0] ? cfg->sensors.cal.next_service_date : "\xE2\x80\x94",
                 UI_C_WARN_SOFT);
-    lv_obj_set_grid_cell(k, LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
+    lv_obj_set_grid_cell(k, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+    /* espaciador: absorbe el alto sobrante y empuja botón+pie abajo */
+    lv_obj_t *spacer = ui_box(ui_infoScreen);
+    lv_obj_set_width(spacer, LV_PCT(100));
+    lv_obj_set_flex_grow(spacer, 1);
+
+    /* botón de REINICIO del equipo (doble toque para confirmar) */
+    lv_obj_t *rb = ui_card(ui_infoScreen);
+    lv_obj_set_width(rb, LV_PCT(100));
+    lv_obj_set_style_radius(rb, 10, 0);
+    lv_obj_set_style_pad_ver(rb, 11, 0);
+    lv_obj_set_flex_flow(rb, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(rb, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_column(rb, 8, 0);
+    lv_obj_add_flag(rb, LV_OBJ_FLAG_CLICKABLE);
+    ui_icon(rb, UI_SYM_REFRESH, UI_ICON_SM, UI_C_WARN_SOFT);
+    lv_obj_t *rl = ui_label(rb, _t("Reiniciar equipo"), UI_FONT_SM, UI_C_WARN_SOFT);
+    lv_obj_add_event_cb(rb, reboot_cb, LV_EVENT_CLICKED, rl);
 
     /* pie con QR */
     lv_obj_t *foot = ui_box(ui_infoScreen);

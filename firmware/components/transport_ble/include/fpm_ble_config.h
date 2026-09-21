@@ -1,5 +1,6 @@
 #pragma once
 #include <stdbool.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,6 +21,11 @@ extern "C" {
 
 /* Característica Info (1001): identidad para detección de modelo. malloc → free(). */
 char *fpm_ble_info_json(void);
+
+/* Token de acceso LAN (32 hex) persistente en NVS. Se entrega por BLE (bloque
+ * `lan` de info) y el servidor HTTP lo valida (Authorization: Bearer). `out`
+ * recibe el token terminado en NUL (buffer recomendado >= 33). */
+void fpm_lan_token(char *out, size_t n);
 
 /* Config completa en el esquema de la app (op `config_read`). malloc → free().
  * redact=true oculta secretos (PIN, password Wi-Fi, certificados/claves). */

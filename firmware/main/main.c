@@ -46,6 +46,7 @@
 #include "fpm_ble_config.h"
 #include "state_pub.h"
 #include "http_api.h"
+#include "mdns_svc.h"
 #include "lwip/ip_addr.h"
 #include "rtc_rv3028.h"
 #include "ms5803.h"
@@ -228,6 +229,13 @@ static esp_err_t bsp_i2c_init(void)
 void on_network_ready(void)
 {
     ESP_ERROR_CHECK(http_api_init());
+    /* mDNS: publica <serial>.local para que la app resuelva la IP viva en cada
+     * apertura (inmune a cambios de DHCP). Réplica de MedGuard. */
+    const AppConfig *cfg = appcfg_cache_peek();
+    esp_err_t merr = mdns_svc_start(cfg ? cfg->general.serial : NULL);
+    if (merr != ESP_OK) {
+        ESP_LOGW(TAG, "mDNS no iniciado: %s", esp_err_to_name(merr));
+    }
 }
 
 esp_err_t mount_sdcard_hotplug(void)

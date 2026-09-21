@@ -1,10 +1,17 @@
 /* MIT License */
 #include "ft5x06.h"
 #include "esp_lcd_touch_ft5x06.h"
+#include "esp_lcd_panel_io.h"    // esp_lcd_panel_io_tx_param (config G_MODE)
+#include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"         // gpio_get_level (INT-gating del touch)
 #include "sensors_runtime.h"     // sensors_runtime_bus1_hung()
+
+// FT5x06: registro de modo de interrupción (ID_G_MODE). 0 = POLLING (INT
+// permanece BAJO mientras hay dedo), 1 = TRIGGER (solo un pulso por evento).
+#define FT5X06_REG_G_MODE  0xA4
+#define FT5X06_G_MODE_POLL 0x00
 
 static const char *TAG = "ft5x06:";
 
@@ -142,6 +149,18 @@ esp_err_t bsp_touch_new(const bsp_touch_config_t *config, esp_lcd_touch_handle_t
             *ret_touch = NULL;
         return err;
     }
+
+    // Forzar modo INT POLLING: el INT-gating por NIVEL del read_cb necesita que el
+    // pin permanezca BAJO mientras el dedo está puesto. En el default de fábrica
+    // (a menudo TRIGGER/pulso) el gate leía "sin toque" casi siempre -> touch
+    // torpe / hay que tocar varias veces. Se escribe 0xA4=0 (best-effort).
+    uint8_t gmode = FT5X06_G_MODE_POLL;
+    esp_err_t merr = esp_lcd_panel_io_tx_param(tp_io_handle, FT5X06_REG_G_MODE,
+                                               &gmode, 1);
+    if (merr != ESP_OK)
+        ESP_LOGW(TAG, "No se pudo fijar G_MODE=polling (%s)", esp_err_to_name(merr));
+    else
+        ESP_LOGI(TAG, "FT5x06 en modo INT POLLING (nivel)");
 
     return ESP_OK;
 }
