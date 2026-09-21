@@ -108,6 +108,11 @@ static EventGroupHandle_t init_events;
 #define EVT_BT_INIT_DONE (1 << 3)
 // Variable global para guardar la referencia de la tarjeta (necesaria para desmontarla luego)
 sdmmc_card_t *s_sd_card = NULL;
+/* true mientras el overlay de microSD está en pantalla o el flujo se está
+ * procesando. Bloquea que la interrupción CD (que rebota mecánicamente varias
+ * veces por inserción) vuelva a disparar el montaje -> evita el storm de
+ * "0x105 no available sd host controller". Lo limpia el cierre del overlay. */
+static volatile bool s_sd_flow_active = false;
 
 i2c_master_bus_handle_t bus_handle;
 i2c_master_bus_handle_t sfm_bus_handle; // 2do bus I2C (SFM3300 en GPIO43/44)
@@ -142,8 +147,9 @@ static void IRAM_ATTR sd_cd_isr_handler(void *arg)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     // Si el pin pasa a bajo (0) significa que la tarjeta entrÃƒÂ³ (comportamiento comÃƒÂºn de SD_CD)
-    ESP_LOGI("SD_CD", "Interrupcion por microSD intsertada...");
-    if (gpio_get_level(SD_CD_PIN) == 0)
+    /* Si ya hay un flujo activo (overlay abierto o procesando) ignoramos los
+     * rebotes de la interrupción CD: no re-disparamos el montaje. */
+    if (!s_sd_flow_active && gpio_get_level(SD_CD_PIN) == 0)
     {
         xSemaphoreGiveFromISR(s_sd_sem, &xHigherPriorityTaskWoken);
     }
@@ -273,6 +279,28 @@ void unmount_sdcard_hotplug(void)
     }
 }
 
+/* Limpia el flujo de la microSD: desmonta (idempotente), drena los rebotes de la
+ * CD que se acumularon y baja la bandera para permitir una futura inserción. */
+static void sd_flow_clear(void)
+{
+    unmount_sdcard_hotplug();
+    if (s_sd_sem)
+    {
+        while (xSemaphoreTake(s_sd_sem, 0) == pdTRUE) { /* descarta rebotes */ }
+    }
+    s_sd_flow_active = false;
+}
+
+/* Callback del botón "Cerrar" del overlay (registrado con ui_sd_set_close_cb).
+ * Corre en el contexto de LVGL: cierra el overlay y libera el flujo. */
+static void sd_ui_close_cb(lv_event_t *e)
+{
+    (void)e;
+    ui_sd_close();
+    sd_flow_clear();
+    ESP_LOGI("SD_CD", "Overlay microSD cerrado por el usuario.");
+}
+
 static void sd_monitor_task(void *pvParameters)
 {
     s_sd_sem = xSemaphoreCreateBinary();
@@ -299,6 +327,9 @@ static void sd_monitor_task(void *pvParameters)
     gpio_isr_handler_add(SD_CD_PIN, sd_cd_isr_handler, NULL);
     // =========================================================
 
+    /* El botón "Cerrar" del overlay desmonta la SD y libera el flujo. */
+    ui_sd_set_close_cb(sd_ui_close_cb);
+
     while (1)
     {
         if (xSemaphoreTake(s_sd_sem, portMAX_DELAY) == pdTRUE)
@@ -308,6 +339,14 @@ static void sd_monitor_task(void *pvParameters)
             if (gpio_get_level(SD_CD_PIN) != 0)
                 continue; // Falso contacto, abortar
 
+            /* A partir de aquí bloqueamos nuevos disparos de la CD hasta que el
+             * flujo termine y se cierre el overlay (sd_flow_clear). Drenamos los
+             * rebotes que la ISR encoló durante el debounce para que la rama de
+             * "reinicio pendiente" (que no vuelve a bloquear en el semáforo) no
+             * consuma un disparo viejo y re-monte. */
+            s_sd_flow_active = true;
+            while (xSemaphoreTake(s_sd_sem, 0) == pdTRUE) { /* descarta rebotes */ }
+
             ESP_LOGW("SD_CD", "Ã‚Â¡Tarjeta MicroSD insertada (Hot-Plug)!");
 
             // 2. MONTAJE: Ã‚Â¡AFUERA DEL MUTEX!
@@ -315,7 +354,16 @@ static void sd_monitor_task(void *pvParameters)
             if (r != ESP_OK)
             {
                 ESP_LOGE("SD_CD", "Fallo al inicializar SD. Error: %d (%s)", r, esp_err_to_name(r));
-                continue; // Cancelar todo y seguir esperando
+                /* Muestra el fallo en pantalla con botón "Cerrar" (antes el
+                 * montaje fallido no mostraba NADA -> el usuario no sabía qué
+                 * pasaba). El flujo queda activo hasta que el usuario cierre. */
+                if (bsp_display_lock(portMAX_DELAY))
+                {
+                    ui_sd_show();
+                    ui_sd_error("No se pudo montar la microSD. Revísela y reinsértela.");
+                    bsp_display_unlock();
+                }
+                continue; // el overlay de error queda; "Cerrar" libera el flujo
             }
             else
             {
@@ -436,7 +484,14 @@ static void sd_monitor_task(void *pvParameters)
             }
             vTaskDelay(pdMS_TO_TICKS(500));
 
-            // 6. CONCLUSIÃƒâ€œN (UI ADENTRO DEL MUTEX, DESMONTAJE AFUERA)
+            // 6. DESMONTAJE INMEDIATO: todo lo leído (AppConfig -> NVS, certs ->
+            //    NVS) ya está persistido, así que liberamos el host SDMMC AHORA.
+            //    Antes se dejaba la tarjeta montada esperando el reinicio -> el
+            //    host quedaba ocupado y los rebotes de la CD provocaban el storm
+            //    "0x105 no available sd host controller".
+            unmount_sdcard_hotplug();
+
+            // 7. CONCLUSIÃƒâ€œN (UI ADENTRO DEL MUTEX)
             if (debede_actualizar)
             {
                 if (bsp_display_lock(portMAX_DELAY))
@@ -444,7 +499,10 @@ static void sd_monitor_task(void *pvParameters)
                     ui_sd_finish_restart(restart_btn_event_cb);
                     bsp_display_unlock();
                 }
-                ESP_LOGW("SD_CD", "Esperando confirmaciÃƒÂ³n tÃƒÂ¡ctil para reiniciar.");
+                /* El overlay queda con "Aplicar y reiniciar" + "Cerrar"; el flujo
+                 * sigue activo (s_sd_flow_active=true) hasta que el usuario elija.
+                 * La CD queda bloqueada mientras tanto. */
+                ESP_LOGW("SD_CD", "Cambios aplicados. Esperando reinicio o cierre del usuario.");
             }
             else
             {
@@ -453,8 +511,8 @@ static void sd_monitor_task(void *pvParameters)
                     ui_sd_close();
                     bsp_display_unlock();
                 }
-                ESP_LOGI("SD_CD", "No se actualizÃƒÂ³ nada. Desmontando tarjeta...");
-                unmount_sdcard_hotplug(); // <-- Desmontar tarjeta si no hay reinicio
+                ESP_LOGI("SD_CD", "No se actualizÃƒÂ³ nada. Cerrando overlay.");
+                sd_flow_clear(); // drena rebotes + libera la bandera
             }
         }
     }

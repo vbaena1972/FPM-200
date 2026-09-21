@@ -6,6 +6,36 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 
 ---
 
+## Actualización 2026-09-21 — microSD, AWS por SD, BT-off y splash (FW 1.5.4-dev)
+
+- **microSD (overlay `ui_sd` + `sd_monitor_task` en `main.c`)**: (1) botón **"Cerrar"**
+  SIEMPRE visible (antes solo salía "Aplicar y reiniciar" con cambios y la ventana
+  quedaba atrapada); (2) el **fallo de montaje** ahora se MUESTRA (`ui_sd_error`, rojo)
+  en vez de un `continue` mudo; (3) FIX del **storm `0x105 no available sd host
+  controller`**: se DESMONTA apenas termina la lectura (todo ya está en NVS) para
+  liberar el host SDMMC + bandera `s_sd_flow_active` y drenado del semáforo bloquean
+  los rebotes de la interrupción CD. (4) FIX de **layout**: la tarjeta usaba la altura
+  default (~100 px) de `lv_obj_create` y cortaba estado/botones → `LV_SIZE_CONTENT` +
+  botones en una fila con altura de contenido.
+- **AWS por microSD (el bug real)**: `CONFIG_FATFS_LFN_NONE=y` (nombres largos OFF) →
+  `AmazonRootCA1.pem`/`certificate.pem.crt`/`private.pem.key` no se podían abrir (solo
+  8.3), y `cert_store_import_from_sd` **devolvía ESP_OK aunque no leyera nada** →
+  "Certificados procesados" falso y AWS sin certs. FIX: **FATFS LFN activado**
+  (`CONFIG_FATFS_LFN_HEAP`, `MAX_LFN=255`) + el importador ahora **exige los 3** y falla
+  honesto con log de cuál faltó. **Verificado en HW: AWS IoT conecta** (certs 1187/1220/
+  1675 B escritos, "Conectado exitosamente a AWS IoT Core").
+- **BT-off**: el botón **"Apagar Bluetooth"** que el usuario pulsa está en
+  `ui_bleAppScreen.c` (pantalla "Configurar por app"/QR), NO en `ui_netBleScreen.c`.
+  `bleapp_off_cb` ahora **persiste `bt.enabled=false` y reinicia** (igual que MedGuard);
+  antes solo volvía al dashboard.
+- **Splash (`ui_splashScreen.c`)**: la línea de versión se **sobreponía** con los chips
+  (usaba `IGNORE_LAYOUT`+align al fondo) → al flujo normal. Datos **reales**: quitado el
+  falso `FW app v1.8.0`; ahora `Modelo: <general.model> · S/N: <general.serial> · FW:
+  v<esp_app_desc>`. NOTA: los 3 chips (MCU/Bus/Sensores) siguen **cosméticos** (no es un
+  autotest real) — pendiente si se quiere cablear.
+
+---
+
 ## Actualización 2026-08-21 — EEPROM persiste + recalibración FS7 estable
 
 - **🎉 La EEPROM AT24C256 YA ESCRIBE** (`Calibración por defecto escrita en EEPROM`, sin el

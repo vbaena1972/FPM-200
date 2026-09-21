@@ -1,6 +1,10 @@
 #include "ui_splashScreen.h"
 #include "ui_widgets.h"
 #include "ui_theme.h"
+#include "storage.h"        // appcfg_cache_peek -> modelo/serial reales
+#include "esp_app_desc.h"   // esp_app_get_description() -> versión real (PROJECT_VER)
+#include <stdio.h>
+#include <string.h>
 
 /* Splash de arranque (mockup 4a). */
 
@@ -61,11 +65,19 @@ void ui_splashScreen_screen_init(void)
     status_chip(chips, UI_SYM_CIRCLE_CHECK_FILLED, "Bus SPI TFT", UI_C_OK);
     status_chip(chips, UI_SYM_LOADER_2, "Sensores", UI_C_WARN_SOFT);
 
-    /* versión al pie */
-    lv_obj_t *ver = ui_label(ui_splashScreen, "FW ctrl v2.4.1 · FW app v1.8.0 · NFPA 99",
-                             UI_FONT_XS, 0x4a5058);
-    lv_obj_add_flag(ver, LV_OBJ_FLAG_IGNORE_LAYOUT);
-    lv_obj_align(ver, LV_ALIGN_BOTTOM_MID, 0, -4);
+    /* Identidad REAL del equipo: MODELO · SERIAL · vFIRMWARE (leídos de NVS +
+     * esp_app_desc). Va DENTRO del flujo (antes usaba IGNORE_LAYOUT + align al
+     * fondo y se SOBREPONÍA con la fila de chips). Se quitó el falso "FW app
+     * v1.8.0"/"FW ctrl v2.4.1" que no correspondía a nada. */
+    const AppConfig *cfg = appcfg_cache_peek();
+    const esp_app_desc_t *appdesc = esp_app_get_description();
+    const char *model  = (cfg && cfg->general.model[0])  ? cfg->general.model  : "FPM-200";
+    const char *serial = (cfg && cfg->general.serial[0]) ? cfg->general.serial : "—";
+    char verline[96];
+    snprintf(verline, sizeof(verline), "Modelo: %s · S/N: %s · FW: v%s",
+             model, serial, appdesc ? appdesc->version : "—");
+    lv_obj_t *ver = ui_label(ui_splashScreen, verline, UI_FONT_XS, 0x4a5058);
+    lv_obj_set_style_margin_top(ver, 5, 0);   /* junto a la fila de chips */
 }
 
 void ui_splashScreen_screen_destroy(void)

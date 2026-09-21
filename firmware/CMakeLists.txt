@@ -1,5 +1,20 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.5.4-dev: microSD (ui_sd + sd_monitor) + BT-off REAL en "Configurar por app".
+#   microSD (main.c/ui_sd): (1) el overlay ahora tiene botón "Cerrar" SIEMPRE
+#   visible (antes solo aparecía "Aplicar y reiniciar" cuando había cambios y la
+#   ventana quedaba atrapada); (2) el FALLO de montaje ahora se MUESTRA en pantalla
+#   (ui_sd_error, insignia/texto rojo) — antes hacía `continue` sin UI y el usuario
+#   no sabía qué pasaba; (3) FIX del storm "0x105 no available sd host controller":
+#   se DESMONTA la tarjeta apenas termina la lectura (AppConfig/certs ya están en
+#   NVS) para liberar el host SDMMC, y una bandera s_sd_flow_active + drenado del
+#   semáforo bloquean los rebotes de la interrupción CD (que disparaban re-montajes
+#   mientras el host seguía ocupado). El botón "Cerrar" desmonta + limpia el flujo.
+#   BT: el botón grande "Apagar Bluetooth" de la pantalla "Configurar por app"
+#   (ui_bleAppScreen) ahora PERSISTE bt.enabled=false y REINICIA (igual que
+#   ui_netBleScreen y MedGuard). Antes solo volvía al dashboard: el BT seguía
+#   "activo" y AWS no reconectaba hasta reiniciar a mano. (Este es el botón que el
+#   usuario pulsaba; el reinicio de ui_netBleScreen ya estaba, era otra pantalla.)
 # 1.5.3-dev: mismo glitch de I2C ahora en PRESIÓN (MS5803): un sample devolvió
 #   ESP_OK con dato CORRUPTO (-858 kPa, real ~-1) -> SENSOR_FAULT_INVALID -> alarma.
 #   Dos sensores del bus 1 glicheando (ADS flujo + MS5803 presión, y SFM clavado)
@@ -50,5 +65,5 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.5.3-dev")
+set(PROJECT_VER "1.5.4-dev")
 project(esp32s3_hmi_skeleton)

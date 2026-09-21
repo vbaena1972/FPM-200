@@ -9,6 +9,10 @@
 #ifdef ESP_PLATFORM
 #include "config_mode.h"
 #include "transport_ble.h"
+#include "esp_system.h"   // esp_restart
+#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #endif
 
 /* Ventana de anuncio: si nadie se conecta en este tiempo, se apaga el BLE y se
@@ -71,7 +75,31 @@ static void bleapp_leave_to_dashboard(void)
 static void bleapp_off_cb(lv_event_t *e)
 {
     (void)e;
-    ui_nav_show_root();   /* click (tarea LVGL): seguro llamar directo */
+#ifdef ESP_PLATFORM
+    /* "Apagar Bluetooth": PERSISTE bt.enabled=false y REINICIA el equipo. Igual
+     * criterio que MedGuard (y que la pantalla Bluetooth LE). Antes este botón
+     * solo volvía al dashboard (ui_nav_show_root) -> config_mode_exit detenía el
+     * advertising, pero NimBLE no liberaba su RAM interna y la red/AWS no
+     * reconectaban limpio: el BT quedaba "activo" hasta reiniciar. Al dejar
+     * bt.enabled=false en NVS y reiniciar, el BT no vuelve a subir y la red/AWS
+     * arrancan limpias. */
+    AppConfig *cfg = appcfg_cache_peek();
+    if (cfg) {
+        cfg->bt.enabled   = false;
+        cfg->bt.advertise = false;
+        (void)appcfg_save(cfg);
+        transport_ble_set_enabled(false);
+        transport_ble_stop_adv();
+    }
+    ESP_LOGW("bleapp", "Apagar Bluetooth -> bt.enabled=false guardado; reiniciando "
+                       "para liberar RAM y restaurar red/AWS");
+    s_leaving = true;
+    if (s_tick) lv_timer_pause(s_tick);
+    vTaskDelay(pdMS_TO_TICKS(150));   /* deja asentar la escritura NVS */
+    esp_restart();
+#else
+    ui_nav_show_root();   /* simulador: solo volver al dashboard */
+#endif
 }
 
 /* Refleja el estado del enlace en el badge grande (arriba dcha) + el pill verde.

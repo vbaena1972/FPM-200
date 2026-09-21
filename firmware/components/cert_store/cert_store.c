@@ -257,28 +257,27 @@ esp_err_t cert_store_import_from_sd(const char *dir_path)
     uint8_t *buf = NULL;
     size_t len = 0;
     esp_err_t r, overall = ESP_OK;
+    int ok = 0;
 
     // CA
     r = read_file_to_buf(p_ca, &buf, &len);
-    if (r == ESP_OK)
-    {
-        overall |= cert_store_write(CERT_SERVER_CA, buf, len);
-        free(buf);
-    }
+    if (r == ESP_OK) { overall |= cert_store_write(CERT_SERVER_CA, buf, len); free(buf); ok++; }
+    else ESP_LOGE("cert_store", "No se pudo leer %s: %s", p_ca, esp_err_to_name(r));
     // CRT
     r = read_file_to_buf(p_crt, &buf, &len);
-    if (r == ESP_OK)
-    {
-        overall |= cert_store_write(CERT_CLIENT_CERT, buf, len);
-        free(buf);
-    }
+    if (r == ESP_OK) { overall |= cert_store_write(CERT_CLIENT_CERT, buf, len); free(buf); ok++; }
+    else ESP_LOGE("cert_store", "No se pudo leer %s: %s", p_crt, esp_err_to_name(r));
     // KEY
     r = read_file_to_buf(p_key, &buf, &len);
-    if (r == ESP_OK)
-    {
-        overall |= cert_store_write(CERT_CLIENT_KEY, buf, len);
-        free(buf);
-    }
+    if (r == ESP_OK) { overall |= cert_store_write(CERT_CLIENT_KEY, buf, len); free(buf); ok++; }
+    else ESP_LOGE("cert_store", "No se pudo leer %s: %s", p_key, esp_err_to_name(r));
 
+    /* Antes devolvía ESP_OK aunque NO se leyera ningún archivo (overall arrancaba
+     * en OK y los faltantes se ignoraban) -> "Certificados procesados" falso y AWS
+     * sin certs. Ahora exige los 3 (nombres largos: requiere FATFS LFN activado). */
+    if (ok < 3) {
+        ESP_LOGE("cert_store", "Solo %d/3 certificados importados desde %s", ok, dir_path);
+        return ESP_ERR_NOT_FOUND;
+    }
     return overall;
 }

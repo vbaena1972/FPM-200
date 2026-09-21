@@ -11,6 +11,8 @@ sdkconfig.old
 /logs/
 *.svdat
 *.log
+log*.txt
+firmware/log*.txt
 
 # ===== Editor / SO =====
 .vscode/ipch/
