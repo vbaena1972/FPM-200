@@ -2,6 +2,7 @@
 #include "fpm_i2c_guard.h"
 #include "esp_task_wdt.h"
 #include "cJSON.h"
+#include "esp_core_dump.h"
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -905,6 +906,18 @@ void app_main(void)
         ESP_ERROR_CHECK(nvs_flash_init());
     }
     mem_diag_report("AFTER-NVS");
+    // A previous crash leaves an ELF core dump in the "coredump" partition. Report
+    // it at boot; read it with: idf.py -B build-fixes coredump-info
+    {
+        size_t cd_addr = 0, cd_size = 0;
+        if (esp_core_dump_image_check() == ESP_OK &&
+            esp_core_dump_image_get(&cd_addr, &cd_size) == ESP_OK) {
+            char reason[96] = "";
+            esp_core_dump_get_panic_reason(reason, sizeof(reason));
+            ESP_LOGW(TAG, "Core dump from previous crash: %u bytes @0x%x, reason: %s",
+                     (unsigned)cd_size, (unsigned)cd_addr, reason[0] ? reason : "?");
+        }
+    }
     ESP_ERROR_CHECK(flow_meter_init());
 
     // ... tras nvs_flash_init() OK

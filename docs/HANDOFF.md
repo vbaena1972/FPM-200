@@ -6,7 +6,7 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 
 ---
 
-## Actualización 2026-09-24 — EEPROM, consumo, cero de presión (FW 1.5.5 → 1.5.21-dev)
+## Actualización 2026-09-24 — EEPROM, consumo, cero de presión (FW 1.5.5 → 1.5.22-dev)
 
 Trabajo hecho mayormente con Codex; detalle versión a versión en
 `firmware/CONSUMPTION_FIXES.md`. Nada de esto está commiteado aún.
@@ -43,6 +43,17 @@ Trabajo hecho mayormente con Codex; detalle versión a versión en
 - **1.5.20 validado (log6)**: pantalla a 1.5 s, heap interno largest 27.6 KB, LVGL 42 %.
   Fix real WiFi: SSID 32 / clave 64 caracteres se recortaban.
 - **1.5.21 validado (log7)**: stack LVGL 9216 (2832 B libres), PSRAM 80 MHz OK.
+- **1.5.22 validado (log8, erase-flash + SD)**: LVGL 42→4 %, sin stall I2C, NVS 24→84 KB + partición coredump, WiFi sin
+  escrituras NVS, UI redibuja solo cambios, diagnóstico `i2c_guard: slow`.
+  **Flasheo especial UNA vez** (cambia la tabla de particiones, conserva la NVS):
+  ```
+  idf.py -B build-fixes build
+  python -m esptool --chip esp32s3 -p COM3 erase-region 0xF000 0xF000
+  python -m esptool --chip esp32s3 -p COM3 erase-region 0x620000 0x20000
+  idf.py -B build-fixes -p COM3 flash monitor
+  ```
+  (0xF000-0x1DFFF = nueva cola de la NVS, antes otadata+hueco; 0x620000 = coredump.)
+  Volver a una versión ≤1.5.21 requiere el partitions.csv viejo.
 - **Abierto**: bus I2C 1 se detiene ~0.7 s durante el handshake TLS de AWS (no llega a
   alarma). Cero de presión deriva con temperatura (-0.3 kPa en frío).
 - **Abierto**: hueco de ~2 s en adquisición durante el handshake TLS con AWS → alarma

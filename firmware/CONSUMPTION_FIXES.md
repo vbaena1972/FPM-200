@@ -326,3 +326,32 @@ Recommended, not applied (need a planned test):
 - Internal heap stable: free 47.7 KB, largest 27.6 KB, frag 43%.
 - taskLVGL still ~42%: not PSRAM-bound (flush/redraw cost; see 1.5.18 note).
 - I2C bus-1 stall at AWS TLS handshake unchanged (ads=668 ms), below alarm.
+
+## Batch 4: 1.5.22-dev (Claude)
+- Partitions: NVS 0x6000 -> 0x15000 (84 KB) using the unused gap before app0;
+  otadata moves 0xF000 -> 0x1E000; new 128 KB coredump at 0x620000; storage
+  (FAT, not mounted by firmware) moves to 0x640000. app0/app1 unchanged.
+  Migration WITHOUT losing NVS: erase only the new NVS tail and the coredump
+  area before flashing (docs/HANDOFF.md). Old NVS pages 0x9000-0xEFFF are kept.
+- Core dump to flash (ELF, CRC32). Boot logs "Core dump from previous crash" with
+  the panic reason; read it with `idf.py -B build-fixes coredump-info`.
+- Wi-Fi: esp_wifi_set_storage(WIFI_STORAGE_RAM). Credentials come from AppConfig
+  every boot; the driver no longer writes NVS on each connect (flash writes
+  stall both cores: prime suspect for the ~0.7 s bus-1 stall at AWS connect).
+- I2C guard diagnostics: "i2c_guard: slow <op>: wait=.. xfer=.. err=.. task=.."
+  when a guarded operation takes > 80 ms, and "gate timeout" with the task name.
+- UI redraw: set_bg/set_border/set_txt_color/bg_opa/border_opa/hidden only write
+  when the value changes (LVGL 9 invalidates on every style set, even equal),
+  position_overlay no longer rewrites align; status bar repaints only on real
+  change (RSSI compared as bars). Expected: taskLVGL well below 42 %.
+- Pressure zero vs temperature: no code change; needs a warm measurement.
+
+### 1.5.22 hardware result (log8, after full erase-flash + SD import): VALIDATED
+- New partition table active (nvs 0x15000, coredump @0x620000 found). Config and
+  AWS certs re-imported from microSD; Wi-Fi + AWS OK (connected at 9.7 s).
+- taskLVGL 42% -> 3-5% CPU (IDLE1 89-92%): redundant style writes were the cost.
+- No "Acquisition stall", no "i2c_guard: slow", overruns=0 in 130 s including
+  the AWS TLS connect: the ~0.7 s bus stall is gone (Wi-Fi NVS writes removed).
+- Heap internal: free 43.5 KB, largest 20 KB, frag 53% (stable).
+- Pressure at atmosphere -0.40..-0.50 kPa at 37.5 C (was ~+0.1 at 46 C): zero
+  follows temperature (~0.06 kPa/C). Within MS5803-14BA accuracy; no code change.

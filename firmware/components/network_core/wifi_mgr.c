@@ -321,6 +321,13 @@ esp_err_t wifi_mgr_init(void)
         return err;
     }
 
+    // Credentials live in AppConfig and are applied on every boot, so the driver's
+    // own NVS copy is redundant. RAM storage avoids NVS writes (and flash-erase
+    // stalls of both cores) on every connect/config change.
+    esp_err_t serr = esp_wifi_set_storage(WIFI_STORAGE_RAM);
+    if (serr != ESP_OK)
+        ESP_LOGW(TAG, "esp_wifi_set_storage(RAM): %s", esp_err_to_name(serr));
+
     ESP_LOGI("Wifi_Status", "bien aqui 2");
     err = esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, wifi_event_handler, NULL);
 

@@ -47,3 +47,6 @@ sw_probe*.vbs
 
 # Local validation builds
 /firmware/build-fixes/
+
+# ===== Plantilla microSD con credenciales (WiFi) =====
+/firmware/sdcard/

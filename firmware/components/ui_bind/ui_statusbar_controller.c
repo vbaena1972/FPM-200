@@ -15,6 +15,9 @@ static const char *TAG = "ui_statusbar";
 
 /* Visibilidad (A/B) según configuración */
 static bool s_vis_wifi = false, s_vis_eth = false, s_vis_bt = false, s_vis_cloud = false;
+// Repaint only on a real change (or when forced by set_enabled/request_refresh).
+// Re-applying the same styles every 500 ms made LVGL redraw the status bar.
+static bool s_force_repaint = true;
 
 static lv_timer_t *s_watch_timer = NULL;
 static lv_timer_t *s_activity_timer = NULL;
@@ -105,13 +108,14 @@ static void statusbar_timer_cb(lv_timer_t *t)
     bool changed =
         (eth != s_prev_eth_link) ||
         (wi.connected != s_prev_wifi_link) ||
-        (wi.rssi_dbm != s_prev_wifi_rssi) ||
+        (ui_wifi_rssi_to_bars(wi.rssi_dbm) != ui_wifi_rssi_to_bars(s_prev_wifi_rssi)) ||
         (ble != s_prev_ble_conn) ||
         (ble_adv != s_prev_ble_adv) ||
         (cloud != s_prev_cloud_conn);
 
-    if (!changed && !s_vis_wifi && !s_vis_eth && !s_vis_bt && !s_vis_cloud)
+    if (!changed && !s_force_repaint)
         return;
+    s_force_repaint = false;
 
     s_prev_eth_link = eth;
     s_prev_wifi_link = wi.connected;
@@ -163,6 +167,7 @@ static void statusbar_timer_cb(lv_timer_t *t)
 
 void ui_statusbar_request_refresh(void)
 {
+    s_force_repaint = true;
     if (s_watch_timer) lv_timer_ready(s_watch_timer);
 }
 

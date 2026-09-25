@@ -13,6 +13,7 @@ idf_component_register(SRCS "main.c" "config_mode.c" "lv_port_mem.c" ${SRC_UI}
                          drivers
                          esp_driver_ledc
                          esp_event 
+                         espcoredump
                          esp_http_server
                          esp_sysview 
                          esp_trace

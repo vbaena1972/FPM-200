@@ -16,6 +16,9 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #   barra de splash animada (3.2 s), compilacion -O2 (PERF).
 #   1.5.21: stack LVGL 7168->9216 (-O2 dejo 784 B libres), PSRAM 40->80 MHz,
 #   strncpy->snprintf (errores -O2) y fix SSID 32 / PSK 64 recortados en wifi_config.
+#   1.5.22: NVS 24->84 KB + particion coredump (requiere erase-region, ver HANDOFF),
+#   WiFi storage RAM (sin escrituras NVS al conectar), UI solo redibuja cambios,
+#   diagnostico de operaciones I2C lentas (i2c_guard).
 #   Detalle en firmware/CONSUMPTION_FIXES.md y docs/HANDOFF.md.
 # 1.5.4-dev: microSD (ui_sd + sd_monitor) + BT-off REAL en "Configurar por app".
 #   microSD (main.c/ui_sd): (1) el overlay ahora tiene botón "Cerrar" SIEMPRE
@@ -82,5 +85,5 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.5.21-dev")
+set(PROJECT_VER "1.5.22-dev")
 project(esp32s3_hmi_skeleton)
