@@ -1,0 +1,156 @@
+# QA FORMAL — FPM-200 firmware **1.5.22-dev**
+
+**Fecha de inicio:** 2026-09-25 · **Objetivo:** batería de casos con evidencia para **establecer el
+primer baseline validado del FPM-200** (hoy no tiene ninguno). · **Equipo:** `fpm-0001` (identidad
+nativa, stack AWS `medguard-mvp`). · **Firmware:** 1.5.22-dev (commit `2d2dd33` + docs), ESP-IDF 6.0.2,
+`esp32s3`, flash 16 MB, PSRAM 2 MB @80 MHz. · **Referencia de formato:** QA MedGuard 1.5.3
+(`MedGuard-12IoT/docs/entrega/historial/QA_1.5.3_2026-09-15.md`).
+
+Estados: **PASS** · **FAIL** · **ACEPT** (limitación conocida/aceptada) · **PEND** · **N/A**.
+Verificación: visual (HMI) + log de monitor (`idf.py -B build-fixes -p COM3 monitor`) + telemetría
+(MQTT/DynamoDB/Athena) + app (LAN/BLE).
+
+**Precondición:** equipo **encendido ≥ 20 h** antes de la sesión (temperatura estable; la prueba
+de estabilidad K1 cuenta desde el último arranque). No reiniciar hasta capturar el log de K1.
+
+---
+
+## Alcance: qué cambia 1.5.22 respecto de 1.5.4 (último commit previo al ciclo)
+- **EEPROM**: transacciones byte a byte paceadas (10 ms), carga de calibración antes del touch con 4
+  lecturas idénticas, reparación de la migración v5→v6 interrumpida, cero de presión v6 (+0.415 kPa).
+- **Consumo**: integración trapezoidal con timestamps reales, checkpoint NVS cada 10 min, marca
+  PARCIAL, campos `consumption_*` en LAN/AWS.
+- **WiFi**: fin del bootloop de calibración PHY (sensores fuera del core 0), backoff de reconexión
+  1→30 s, `WIFI_STORAGE_RAM`, fix SSID de 32 / clave de 64 caracteres.
+- **Rendimiento**: 240 MHz, FreeRTOS 1000 Hz, `-O2`, PSRAM 80 MHz, UI sin redibujados (LVGL 42→4 %).
+- **Seguridad de alarmas**: datos inválidos ya no se evalúan como 0 kPa (evitaba ALERT falso).
+- **Arranque**: pantalla a 1.5 s, splash animado 3.2 s.
+- **Particiones**: NVS 84 KB + coredump 128 KB (requirió erase-flash + importación por microSD).
+
+---
+
+## Parte 0 — Pendientes previos (se ejecutan primero)
+
+| ID | Caso | Procedimiento | Esperado | Resultado | Evidencia |
+|----|------|---------------|----------|-----------|-----------|
+| P1 | Cero de presión en caliente | Tras ≥ 20 h, entrada abierta a atmósfera, 10 min de log `P=… T=…` | Registrar P0(T). Decidir: recalibrar offset en caliente y/o zona muerta de display alrededor de 0 | PEND | |
+| P2 | Consumo contra patrón | SFM3300 conectado en serie; caudal fijo (p. ej. 10 L/min) durante un tiempo medido (≥ 10 min) | `consumption_m3` ≈ caudal × tiempo (anotar error %); `consumption_partial=false` | PEND | |
+| P3 | Estabilidad 20 h (soak) | Equipo encendido sin reinicios desde la noche anterior | Sin `rst:` ni `task_wdt`; heap interno `largest` estable (≥ 15 KB); `StkHW` de tareas sin caer; WiFi/AWS conectados; touch y buzzer responden | PEND | |
+| P4 | Core dump funcional | Provocar un crash controlado (build de prueba o comando), reiniciar | Log al arrancar: `Core dump from previous crash … reason: …`; `idf.py -B build-fixes coredump-info` muestra backtrace | PEND | |
+| P5 | Pruebas de host | `./tests/host/run.ps1` (MSVC) | test_alarm, test_eeprom, test_flow_integrator: todos PASS | PEND | |
+| P6 | SFM3300 (referencia, bus 2) | Conectar con 5 V y pull-ups correctas | Log `SFMref=… slm` en vez de `SFM=noInit`; lecturas estables | PEND | |
+| P7 | Mantenimiento menor | (a) migrar `esp_lcd_touch_get_coordinates` → `esp_lcd_touch_get_data`; (b) aviso CMake `ui_bind`↔`main`; (c) quitar `read_slot_json` sin uso; (d) compilar Simulador VS con la UI actual | Compila sin esos avisos; simulador abre y navega | PEND | |
+
+---
+
+## Matriz de casos
+
+### A. Arranque / versión / estabilidad
+| ID | Caso | Resultado | Evidencia |
+|----|------|-----------|-----------|
+| A1 | Banner de versión `App version: 1.5.22-dev` | PEND | |
+| A2 | Pantalla encendida ≤ 2 s; splash con barra animada → dashboard | PEND | |
+| A3 | Versión en telemetría (`firmware`) | PEND | |
+| A4 | Estabilidad ≥ 20 h sin reinicio (= P3) | PEND | |
+| A5 | Tabla de particiones nueva (nvs 0x15000, coredump @0x620000) | PEND | |
+
+### B. Calibración EEPROM
+| ID | Caso | Resultado | Evidencia |
+|----|------|-----------|-----------|
+| B1 | 4 lecturas `stored=computed=7AF0`, `calibration loaded` antes del touch | PEND | |
+| B2 | `EEPROM=VERIFIED`, sin alarma de calibración (faults sin 0x10) | PEND | |
+| B3 | Guardar calibración desde HMI → reinicio → CRC nuevo estable | PEND | |
+
+### C. Medición presión / flujo
+| ID | Caso | Resultado | Evidencia |
+|----|------|-----------|-----------|
+| C1 | Presión gauge en atmósfera (en caliente) dentro de ±0.2 kPa tras P1 | PEND | |
+| C2 | Presión con línea presurizada vs manómetro de referencia | PEND | |
+| C3 | Flujo FS7 vs SFM3300 en 3 puntos (p. ej. 5 / 15 / 30 L/min) | PEND | |
+| C4 | Flujo cero estable (Ucta ≤ u0 → 0 L/min), sin "GLITCH" repetidos | PEND | |
+| C5 | Unidades (psi / kPa / bar) y decimales correctos en dashboard | PEND | |
+
+### D. Adquisición / temporización
+| ID | Caso | Resultado | Evidencia |
+|----|------|-----------|-----------|
+| D1 | `Acquisition work` ≈ 38 ms, `overruns` 0–1 por 30 s | PEND | |
+| D2 | Sin `Acquisition stall`/`gap` ni `i2c_guard: slow` durante conexión AWS | PEND | |
+| D3 | Pérdida controlada del sensor (desconectar módulo) → alarma técnica amarilla silenciable, **nunca** ALERT | PEND | |
+| D4 | Reconexión del sensor → `Sensors recovered`, alarma se limpia | PEND | |
+
+### E. Consumo
+| ID | Caso | Resultado | Evidencia |
+|----|------|-----------|-----------|
+| E1 | Exactitud contra patrón (= P2) | PEND | |
+| E2 | Reinicio: el total del día se conserva y queda PARCIAL | PEND | |
+| E3 | Cambio de día (00:00): total nuevo, intervalo cruzado marcado perdido | PEND | |
+| E4 | Hueco > 1 s (sensor desconectado) no suma y marca PARCIAL | PEND | |
+| E5 | `consumption_m3`, `consumption_missing_ms`, `consumption_partial` en LAN y AWS | PEND | |
+
+### F. Alarmas
+| ID | Caso | Resultado | Evidencia |
+|----|------|-----------|-----------|
+| F1 | Presión baja/alta (WARNING) y fuera de ±15 kPa (ALERT) | PEND | |
+| F2 | Silenciar: WARNING respeta `reannounce_minutes`, ALERT `max_silence_minutes` | PEND | |
+| F3 | Escalada WARNING→ALERT rompe el silencio | PEND | |
+| F4 | Delta de flujo (fuga) y flujo alto | PEND | |
+| F5 | Transición publicada a `.../fpm-0001/alarms` → alarm-router (email/push) | PEND | |
+| F6 | Cambiar límites en HMI → telemetría AWS usa los límites nuevos (sin reiniciar) | PEND | |
+
+### G. Red / AWS
+| ID | Caso | Resultado | Evidencia |
+|----|------|-----------|-----------|
+| G1 | WiFi conecta (radio start < 1 s, sin `task_wdt`) | PEND | |
+| G2 | Router apagado → reintentos 1→2→4…30 s; al volver, reconecta | PEND | |
+| G3 | AWS IoT MQTTS conecta con `client_id=fpm-0001`, shadow delta suscrito | PEND | |
+| G4 | Telemetría v2 cada 30 s con `channels[]` + `stats` | PEND | |
+| G5 | Ingesta DynamoDB `DEVICE#fpm-0001` y Athena (stats) | PEND | |
+| G6 | App/portal muestran el FPM por AWS | PEND | |
+
+### H. LAN / BLE / microSD
+| ID | Caso | Resultado | Evidencia |
+|----|------|-----------|-----------|
+| H1 | mDNS `fpm-0001.local`; app conecta por LAN (Bearer token) | PEND | |
+| H2 | `/api/v1/state` con 2 canales; `/config` GET/PUT | PEND | |
+| H3 | BLE: emparejar app, obtener token LAN, `set_config`, `set_clock` | PEND | |
+| H4 | microSD: importar AppConfig + certificados, "Aplicar y reiniciar" / "Cerrar" | PEND | |
+
+### I. HMI / roles / persistencia
+| ID | Caso | Resultado | Evidencia |
+|----|------|-----------|-----------|
+| I1 | Todas las pantallas navegables; touch responde | PEND | |
+| I2 | Login con PIN, roles, cambio de PIN obligatorio | PEND | |
+| I3 | Persistencia NVS tras reinicio (config, usuarios, consumo) | PEND | |
+| I4 | Brillo / atenuación por inactividad; no atenúa con alarma | PEND | |
+| I5 | Indicadores: pulso DATOS, nube con flecha al publicar | PEND | |
+
+### J. Recursos
+| ID | Caso | Resultado | Evidencia |
+|----|------|-----------|-----------|
+| J1 | taskLVGL ≤ 10 % CPU en dashboard | PEND | |
+| J2 | Heap interno: `largest` ≥ 15 KB estable; PSRAM sin fuga | PEND | |
+| J3 | `StkHW` taskLVGL ≥ 2 KB recorriendo todas las pantallas | PEND | |
+
+---
+
+## Hallazgos conocidos (a confirmar / aceptar)
+
+### OBS-1 — Cero de presión depende de la temperatura
+- ~0.06 kPa/°C: −0.45 kPa a 37.5 °C, ~+0.1 kPa a 46 °C (logs 2026-09-24). Dentro de la exactitud del
+  MS5803-14BA (~±2 kPa); en línea de O₂ (~345 kPa) ≈ 0.13 %. Decidir en P1: recalibrar en caliente,
+  zona muerta de display, o compensación por temperatura (requiere más puntos).
+
+### OBS-2 — SFM3300 no responde (bus 2)
+- `SFM3300 no responde en 0x40`. Hardware (5 V / pull-ups). Solo afecta la calibración de referencia.
+
+### OBS-3 — Arranque: 2.3 s de verificación EEPROM
+- Ya no se ve (queda detrás del splash). Aceptable.
+
+---
+
+## Cierre
+- **Verificados (PASS):** —
+- **Aceptados:** —
+- **Abiertos:** —
+- **Estado:** EN CURSO. Al cerrar con todos los casos PASS/ACEPT, promover **FPM 1.5.22** como baseline
+  validado en `MedGuard-12IoT/docs/entrega/ESTADO_ACTUAL.md` y en `CLAUDE.md`.

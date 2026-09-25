@@ -8,8 +8,18 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 
 ## Actualización 2026-09-24 — EEPROM, consumo, cero de presión (FW 1.5.5 → 1.5.22-dev)
 
-Trabajo hecho mayormente con Codex; detalle versión a versión en
-`firmware/CONSUMPTION_FIXES.md`. Nada de esto está commiteado aún.
+Trabajo iniciado con Codex (1.5.5–1.5.14) y cerrado con Claude (1.5.15–1.5.22); detalle
+versión a versión en `firmware/CONSUMPTION_FIXES.md`. Commits: `a25efbf` (1.5.18), `3f536c2`
+(1.5.21), `2d2dd33` (1.5.22) + docs de cierre.
+
+**CIERRE 2026-09-24 — estado:** FPM **1.5.22-dev validado en HW** (log8, tras `erase-flash` +
+importación por microSD): EEPROM 7AF0 OK, radio ~110 ms, AWS OK, taskLVGL 4 %, sin stall I2C,
+overruns 0, heap interno largest 20 KB estable. **Sin baseline formal aún.**
+**Mañana (2026-09-25), con el equipo ≥ 20 h encendido:** ejecutar `docs/QA_FPM_1.5.22.md`
+empezando por la Parte 0 (P1 cero de presión en caliente, P2 consumo vs SFM3300, P3 soak 20 h,
+P4 core dump, P5 tests de host, P6 SFM3300, P7 mantenimiento) y luego la matriz A–J. Recalibrar
+presión/flujo en caliente con el SFM3300 como referencia. La plantilla de microSD está en
+`firmware/sdcard/AppConfig.json` (ignorada por git: contiene la clave WiFi).
 
 - **EEPROM AT24C256**: driver pasó a transacciones byte a byte (dirección+STOP+lectura,
   100 kHz) con `vTaskDelay(1)` tras cada byte leído (sin pacing fallaba en 0x000C) y

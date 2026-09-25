@@ -6,15 +6,15 @@
     "semantic_hash": ""
   },
   "AGENTS.md": {
-    "mtime": 1789494037.444805,
-    "seen": 1789995249.2038758,
-    "ast_hash": "c90101c6797f559cb35dd377855d6bc2",
+    "mtime": 1790309517.3637452,
+    "seen": 1790309539.7490737,
+    "ast_hash": "07faae88b0af584f47864ab6741dfe6a",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1789523459.96593,
-    "seen": 1789995249.2038774,
-    "ast_hash": "f4e916b4326d2d7ffe22fcb1dccb5205",
+    "mtime": 1790309503.1268494,
+    "seen": 1790309539.7490757,
+    "ast_hash": "20486e2705956c196b914ec675d101e5",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/cert_store.c": {
@@ -846,9 +846,9 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1790307887.2310898,
-    "seen": 1790307893.7479396,
-    "ast_hash": "0bf774f5790beee4dc4d4748e12da8d4",
+    "mtime": 1790309503.1268494,
+    "seen": 1790309539.7490785,
+    "ast_hash": "d720a4225d50430bdce2478e3ab32ff1",
     "semantic_hash": ""
   },
   "docs/HMI_MIGRATION.md": {
@@ -1140,15 +1140,21 @@
     "semantic_hash": ""
   },
   "firmware/CONSUMPTION_FIXES.md": {
-    "mtime": 1790307887.132435,
-    "seen": 1790307893.7479527,
-    "ast_hash": "2be0a071a6ef2e209a484d8eae6314ec",
+    "mtime": 1790308972.6353633,
+    "seen": 1790309539.7490857,
+    "ast_hash": "4fe6654cce6693c480d24b152f034dcc",
     "semantic_hash": ""
   },
   "graphify-out/memory/query_20260924_160121_analisis_de_longfpm_log__bloqueo_de_interfaz__alar.md": {
     "mtime": 1790265681.4114337,
     "seen": 1790269086.4319007,
     "ast_hash": "4daec60fc338adc62f768183a407fc4e",
+    "semantic_hash": ""
+  },
+  "docs/QA_FPM_1.5.22.md": {
+    "mtime": 1790309485.9540744,
+    "seen": 1790309539.7490811,
+    "ast_hash": "27fc64d0798ca44316fce15748a33d7b",
     "semantic_hash": ""
   }
 }
