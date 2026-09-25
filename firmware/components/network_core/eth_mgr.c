@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "eth_mgr.h"
@@ -186,18 +187,12 @@ static void appcfg_to_eth_view(const AppConfig *c, eth_view_t *out)
 
     out->dhcp = (strcmp(c->eth.ip_mode, "dhcp") == 0);
 
-    strncpy(out->hostname, c->eth.hostname, sizeof(out->hostname) - 1);
-    out->hostname[sizeof(out->hostname) - 1] = '\0';
-    strncpy(out->ip, c->eth.ip, sizeof(out->ip) - 1);
-    out->ip[sizeof(out->ip) - 1] = '\0';
-    strncpy(out->mask, c->eth.mask, sizeof(out->mask) - 1);
-    out->mask[sizeof(out->mask) - 1] = '\0';
-    strncpy(out->gw, c->eth.gw, sizeof(out->gw) - 1);
-    out->gw[sizeof(out->gw) - 1] = '\0';
-    strncpy(out->dns1, c->eth.dns1, sizeof(out->dns1) - 1);
-    out->dns1[sizeof(out->dns1) - 1] = '\0';
-    strncpy(out->dns2, c->eth.dns2, sizeof(out->dns2) - 1);
-    out->dns2[sizeof(out->dns2) - 1] = '\0';
+    snprintf(out->hostname, sizeof(out->hostname), "%s", c->eth.hostname);
+    snprintf(out->ip, sizeof(out->ip), "%s", c->eth.ip);
+    snprintf(out->mask, sizeof(out->mask), "%s", c->eth.mask);
+    snprintf(out->gw, sizeof(out->gw), "%s", c->eth.gw);
+    snprintf(out->dns1, sizeof(out->dns1), "%s", c->eth.dns1);
+    snprintf(out->dns2, sizeof(out->dns2), "%s", c->eth.dns2);
 }
 
 // Conveniencia: inicializa ETH leyendo de NVS via storage.c
@@ -216,12 +211,12 @@ static void eth_view_from_appcfg(eth_view_t *out, const AppConfig *c)
 {
     memset(out, 0, sizeof(*out));
     out->dhcp = (strcasecmp(c->eth.ip_mode, "dhcp") == 0);
-    strncpy(out->hostname, c->eth.hostname, sizeof(out->hostname) - 1);
-    strncpy(out->ip, c->eth.ip, sizeof(out->ip) - 1);
-    strncpy(out->mask, c->eth.mask, sizeof(out->mask) - 1);
-    strncpy(out->gw, c->eth.gw, sizeof(out->gw) - 1);
-    strncpy(out->dns1, c->eth.dns1, sizeof(out->dns1) - 1);
-    strncpy(out->dns2, c->eth.dns2, sizeof(out->dns2) - 1);
+    snprintf(out->hostname, sizeof(out->hostname), "%s", c->eth.hostname);
+    snprintf(out->ip, sizeof(out->ip), "%s", c->eth.ip);
+    snprintf(out->mask, sizeof(out->mask), "%s", c->eth.mask);
+    snprintf(out->gw, sizeof(out->gw), "%s", c->eth.gw);
+    snprintf(out->dns1, sizeof(out->dns1), "%s", c->eth.dns1);
+    snprintf(out->dns2, sizeof(out->dns2), "%s", c->eth.dns2);
 }
 
 esp_err_t eth_mgr_init(void)

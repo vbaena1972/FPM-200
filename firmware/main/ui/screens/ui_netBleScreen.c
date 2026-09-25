@@ -29,7 +29,7 @@ static lv_obj_t *s_sw, *s_adv, *s_name, *s_pin, *s_sec, *s_txp;
  * Los campos bt.mesh.* siguen en AppConfig por compatibilidad de schema. */
 
 static void set_str(char *dst, size_t cap, const char *src)
-{ strncpy(dst, src ? src : "", cap - 1); dst[cap - 1] = '\0'; }
+{ snprintf(dst, cap, "%s", src ? src : ""); }
 
 static void save_cb(lv_event_t *e)
 {

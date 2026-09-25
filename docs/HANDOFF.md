@@ -6,7 +6,7 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 
 ---
 
-## Actualización 2026-09-24 — EEPROM, consumo, cero de presión (FW 1.5.5 → 1.5.18-dev)
+## Actualización 2026-09-24 — EEPROM, consumo, cero de presión (FW 1.5.5 → 1.5.21-dev)
 
 Trabajo hecho mayormente con Codex; detalle versión a versión en
 `firmware/CONSUMPTION_FIXES.md`. Nada de esto está commiteado aún.
@@ -33,6 +33,18 @@ Trabajo hecho mayormente con Codex; detalle versión a versión en
   datos inválidos como 0 kPa (evita ALERT falso por fallo de sensor); cJSON en PSRAM;
   caché AppConfig con mutex y sin copias de 2 KB en stack; límites AWS vivos; heap
   tracing OFF; CPU 240 MHz; diagnóstico `Acquisition stall/gap`. Pendiente probar en HW.
+- **1.5.18 validado (log4) y commiteado `a25efbf`.**
+- **1.5.19**: FreeRTOS 1000 Hz (pacing EEPROM fijado en 10 ms), backoff WiFi 1→30 s,
+  limpieza de código muerto BLE. Pendiente probar en HW. Siguen: -O2, PSRAM 80 MHz,
+  particiones/NVS + core dump.
+- **1.5.19 validado (log5)**: EEPROM OK a 1000 Hz, ciclo de adquisición 62→38 ms.
+- **1.5.20**: pantalla+splash antes de la verificación EEPROM (touch al final),
+  barra animada 3.2 s, compilación -O2. Pendiente probar. Luego PSRAM 80 MHz.
+- **1.5.20 validado (log6)**: pantalla a 1.5 s, heap interno largest 27.6 KB, LVGL 42 %.
+  Fix real WiFi: SSID 32 / clave 64 caracteres se recortaban.
+- **1.5.21 validado (log7)**: stack LVGL 9216 (2832 B libres), PSRAM 80 MHz OK.
+- **Abierto**: bus I2C 1 se detiene ~0.7 s durante el handshake TLS de AWS (no llega a
+  alarma). Cero de presión deriva con temperatura (-0.3 kPa en frío).
 - **Abierto**: hueco de ~2 s en adquisición durante el handshake TLS con AWS → alarma
   STALE (faults=0x2) al arrancar. Heap interno min 28 KB tras AWS (vigilar).
 - **Histórico** (resuelto con 1.5.17): causa raíz de la calibración PHY de 2–5+ s (sospecha: caída de 3.3 V

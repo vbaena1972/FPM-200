@@ -21,7 +21,7 @@ static lv_obj_t *s_sw, *s_type, *s_broker, *s_topic, *s_ota, *s_qos, *s_keep;
 static lv_obj_t *s_cert_pills[3];   /* CA raíz, cert cliente, clave privada */
 
 static void set_str(char *dst, size_t cap, const char *src)
-{ strncpy(dst, src ? src : "", cap - 1); dst[cap - 1] = '\0'; }
+{ snprintf(dst, cap, "%s", src ? src : ""); }
 
 /* ¿Está presente cada cert en NVS? (el sim muestra demo) */
 static void cert_presence(bool present[3])

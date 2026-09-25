@@ -141,10 +141,10 @@ void ui_init(void)
 
     ui_nav_init(ui_mainScreen);   /* registra main como raíz (no la carga aún) */
 
-    /* Splash de arranque -> main tras ~2.2 s */
+    /* Splash de arranque -> main tras UI_SPLASH_MS (cubre EEPROM + sensores) */
     ui_splashScreen_screen_init();
     lv_screen_load(ui_splashScreen);
-    lv_timer_t *t = lv_timer_create(splash_done_cb, 2200, NULL);
+    lv_timer_t *t = lv_timer_create(splash_done_cb, UI_SPLASH_MS, NULL);
     lv_timer_set_repeat_count(t, 1);
     lv_timer_create(display_idle_cb, 1000, NULL);
 }

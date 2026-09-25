@@ -1,4 +1,5 @@
 #include "flow_meter.h"
+#include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include <stdatomic.h>
@@ -274,8 +275,8 @@ static void aws_telemetry_task(void *pvParameters)
                  cfg_app->general.model,
                  cfg_app->general.serial);
 
-        strncpy(serial, cfg_app->general.serial, sizeof(serial) - 1);
-        strncpy(firmware, cfg_app->general.fw_version, sizeof(firmware) - 1);
+        snprintf(serial, sizeof(serial), "%s", cfg_app->general.serial);
+        snprintf(firmware, sizeof(firmware), "%s", cfg_app->general.fw_version);
 
         p_lim_min  = cfg_app->sensors.alarm_limits.pressure_min;
         p_lim_max  = cfg_app->sensors.alarm_limits.pressure_max;
@@ -413,8 +414,7 @@ static void aws_telemetry_task(void *pvParameters)
                 publish_alarm_transition(alarm_topic, serial, i + 1, ch_name[i],
                                          ch_unit[i], ch_value[i],
                                          prev_state[i], cur_state[i]);
-                strncpy(prev_state[i], cur_state[i], sizeof(prev_state[i]) - 1);
-                prev_state[i][sizeof(prev_state[i]) - 1] = '\0';
+                snprintf(prev_state[i], sizeof(prev_state[i]), "%s", cur_state[i]);
             }
         }
         xSemaphoreGive(s_client_gate);
@@ -463,7 +463,7 @@ static void mqtt_start_locked(void)
     appcfg_defaults(cfg_app);
     appcfg_load(cfg_app);
     // === NUEVO: Guardamos el serial en RAM para usarlo en los eventos MQTT ===
-    strncpy(s_thing_name, cfg_app->general.serial, sizeof(s_thing_name) - 1);
+    snprintf(s_thing_name, sizeof(s_thing_name), "%s", cfg_app->general.serial);
 
     // 3. Preparamos las cadenas PEM seguras (Inyectando el \n si falta)
     //    Las guardamos en las variables estáticas globales del archivo para que NO se destruyan

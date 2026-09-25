@@ -1,4 +1,5 @@
 #include "ui_netWifiScreen.h"
+#include <stdio.h>
 #include "ui_i18n.h"
 #include "ui_form.h"
 #include "ui_widgets.h"
@@ -20,8 +21,7 @@ static lv_obj_t *s_sw, *s_ssid, *s_pwd, *s_ipmode, *s_ip, *s_mask, *s_gw, *s_dns
 
 static void set_str(char *dst, size_t cap, const char *src)
 {
-    strncpy(dst, src ? src : "", cap - 1);
-    dst[cap - 1] = '\0';
+    snprintf(dst, cap, "%s", src ? src : "");
 }
 
 static void save_cb(lv_event_t *e)

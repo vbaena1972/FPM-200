@@ -579,8 +579,7 @@ void ui_mainScreen_screen_destroy(void)
 void ui_main_set_clock(const char *hhmm)
 {
     if (!hhmm) return;
-    strncpy(s_clock_prev, hhmm, sizeof(s_clock_prev) - 1);
-    s_clock_prev[sizeof(s_clock_prev) - 1] = '\0';
+    snprintf(s_clock_prev, sizeof(s_clock_prev), "%s", hhmm);
     if (s_clock_lbl) set_label_if_changed(s_clock_lbl, hhmm);
 }
 void ui_main_set_date(const char *date)

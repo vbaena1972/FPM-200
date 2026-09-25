@@ -21,8 +21,8 @@ static void set_str(char *dst, size_t cap, const char *src)
         dst[0] = '\0';
         return;
     }
-    strncpy(dst, src, cap - 1);
-    dst[cap - 1] = '\0';
+    // snprintf: always NUL-terminated, no strncpy truncation warning at -O2.
+    snprintf(dst, cap, "%s", src);
 }
 
 static void getstr(char *dst, size_t cap, const cJSON *obj, const char *key)

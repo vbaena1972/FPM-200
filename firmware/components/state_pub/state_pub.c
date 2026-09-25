@@ -8,9 +8,9 @@ static device_state_t g_state;
 void state_init(const char *hostname) {
     memset(&g_state, 0, sizeof(g_state));
     if (hostname && *hostname) {
-        strncpy(g_state.hostname, hostname, sizeof(g_state.hostname)-1);
+        snprintf(g_state.hostname, sizeof(g_state.hostname), "%s", hostname);
     } else {
-        strncpy(g_state.hostname, "axira", sizeof(g_state.hostname)-1);
+        snprintf(g_state.hostname, sizeof(g_state.hostname), "%s", "axira");
     }
 }
 

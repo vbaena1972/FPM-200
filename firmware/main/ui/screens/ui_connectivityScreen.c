@@ -35,7 +35,7 @@ typedef struct {
     char broker[128];
 } conn_status_t;
 
-static void cpy(char *d, size_t n, const char *s) { strncpy(d, s ? s : "", n - 1); d[n - 1] = '\0'; }
+static void cpy(char *d, size_t n, const char *s) { snprintf(d, n, "%s", s ? s : ""); }
 
 /* Firma del estado visible para detectar cambios y refrescar SOLO cuando algo
  * cambia (evita parpadeo por reconstruir cada tick). */

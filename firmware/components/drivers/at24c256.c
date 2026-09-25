@@ -80,7 +80,9 @@ esp_err_t at24c256_read(uint16_t mem_addr, uint8_t *buf, size_t len)
         if (err != ESP_OK) return err;
         // Hardware-tested pacing, including the last byte for back-to-back calls.
         // stop_read has already released the bus guard before this sleep.
-        vTaskDelay(1);
+        // Validated as vTaskDelay(1) at 100 Hz (~10 ms); expressed in ms so it
+        // stays ~10 ms at any tick rate (1000 Hz since 1.5.19).
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
     return ESP_OK;
 }

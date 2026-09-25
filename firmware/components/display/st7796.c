@@ -102,7 +102,7 @@ lv_display_t *bsp_display_start(void)
 
     lvgl_port_cfg_t lvgl_cfg = ESP_LVGL_PORT_INIT_CONFIG();
     lvgl_cfg.task_priority = 5;       // Prioridad ALTA (Mayor que ui_refresh=2)
-    lvgl_cfg.task_stack = 7168;       // Stack seguro
+    lvgl_cfg.task_stack = 9216;       // 1.5.21: -O2 inlining left only 784 B free at 7168
     lvgl_cfg.task_affinity = 1;       // ANCLAR AL NÚCLEO 1 (Mismo que tus tareas app)
                                       // Esto evita problemas de coherencia de caché.
     esp_err_t err = lvgl_port_init(&lvgl_cfg);

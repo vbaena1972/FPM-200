@@ -19,9 +19,8 @@ static char other_slot(char slot) { return slot=='A' ? 'B' : 'A'; }
 static void set_str(char *dst, size_t cap, const char *src) {
     if (!dst || cap == 0) return;
     if (!src) { dst[0] = '\0'; return; }
-    size_t n = strnlen(src, cap-1);
-    memcpy(dst, src, n);
-    dst[n] = '\0';
+    // snprintf: bounded copy (strnlen over-read warning at -O2).
+    snprintf(dst, cap, "%s", src);
 }
 
 // Simple FNV-1a 32-bit

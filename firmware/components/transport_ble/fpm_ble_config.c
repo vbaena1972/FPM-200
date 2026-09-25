@@ -1,4 +1,5 @@
 #include "fpm_ble_config.h"
+#include <stdio.h>
 #include "storage.h"
 #include "sensors_runtime.h"
 #include "cJSON.h"
@@ -77,7 +78,7 @@ static void press_unit_fpm(const char *app, char *out, size_t cap)
         else if (strcasecmp(app, "mpa") == 0) r = "mpa";
         else if (strcasecmp(app, "kpa") == 0) r = "kpa";
     }
-    strncpy(out, r, cap - 1); out[cap - 1] = 0;
+    snprintf(out, cap, "%s", r);
 }
 static void flow_unit_fpm(const char *app, char *out, size_t cap)
 {
@@ -87,7 +88,7 @@ static void flow_unit_fpm(const char *app, char *out, size_t cap)
         else if (strstr(app, "m\xC2\xB3") || strcasecmp(app, "m3/h") == 0) r = "m3h";
         else if (strcasecmp(app, "CFM") == 0) r = "sccm";
     }
-    strncpy(out, r, cap - 1); out[cap - 1] = 0;
+    snprintf(out, cap, "%s", r);
 }
 
 /* ================= gas (presión) <-> color ================= */
@@ -127,8 +128,7 @@ void fpm_lan_token(char *out, size_t n)
     size_t len = sizeof tok;
     if (nvs_get_str(h, "token", tok, &len) == ESP_OK && strlen(tok) == 32) {
         nvs_close(h);
-        strncpy(out, tok, n - 1);
-        out[n - 1] = '\0';
+        snprintf(out, n, "%s", tok);
         return;
     }
     uint8_t raw[16];
@@ -141,8 +141,7 @@ void fpm_lan_token(char *out, size_t n)
     tok[32] = '\0';
     if (nvs_set_str(h, "token", tok) == ESP_OK) nvs_commit(h);
     nvs_close(h);
-    strncpy(out, tok, n - 1);
-    out[n - 1] = '\0';
+    snprintf(out, n, "%s", tok);
 }
 
 /* ================= Info (característica 1001) ================= */
@@ -425,7 +424,7 @@ char *fpm_ble_config_read_json(bool redact)
 }
 
 /* ================= set_config (merge parcial) ================= */
-static void cpy(char *d, size_t n, const char *s) { strncpy(d, s ? s : "", n - 1); d[n - 1] = 0; }
+static void cpy(char *d, size_t n, const char *s) { snprintf(d, n, "%s", s ? s : ""); }
 static const char *jstr(const cJSON *o, const char *k, const char *def)
 {
     const cJSON *v = cJSON_GetObjectItemCaseSensitive(o, k);

@@ -85,16 +85,8 @@ static void on_alarm_state_change(alarm_clinical_state_t new_state)
 //#define MY_TASK_STACK_WORDS 16384
 #define MY_TASK_STACK_WORDS (16384 / sizeof(StackType_t))
 
-#define BLE_JSON_MAX 1024
 #define BLE_TASK_STACK_SIZE 4096
 
-typedef struct
-{
-    size_t len;
-    char *buf;
-} ble_json_msg_t;
-
-static QueueHandle_t s_ble_q = NULL;
 typedef struct
 {
     TaskHandle_t handle;
@@ -183,38 +175,6 @@ esp_trace_open_params_t esp_trace_get_user_params(void)
     return trace_params;
 }
 
-
-__attribute__((unused)) static void ble_json_worker(void *arg)
-{
-    ble_json_msg_t m;
-    while (xQueueReceive(s_ble_q, &m, portMAX_DELAY) == pdTRUE)
-    {
-        if (m.buf && m.len)
-        {
-            // Procesa AQUÃƒÂ, ya fuera del BTC_TASK
-            (void)appcfg_patch(-1, m.buf, "ble");
-            free(m.buf);
-        }
-    }
-}
-
-static void on_ble_json_shim(const char *buf, int len)
-{
-    if (!buf || len <= 0 || len > BLE_JSON_MAX)
-        return;
-
-    char *p = malloc(len + 1);
-    if (!p)
-        return;
-    memcpy(p, buf, len);
-    p[len] = '\0';
-
-    ble_json_msg_t m = {.len = (size_t)len, .buf = p};
-    if (xQueueSend(s_ble_q, &m, 0) != pdTRUE)
-    {
-        free(p);
-    }
-}
 
 static esp_err_t bsp_i2c_init(void)
 {
@@ -526,32 +486,10 @@ __attribute__((unused)) static void ui_main_deinit_cb(lv_event_t *e)
     ui_statusbar_controller_deinit();
 }
 
-static void screen_init_task(void *arg)
+// I2C bus-1 devices + calibration EEPROM (+ bus-2 SFM3300). Runs before touch
+// is started so the calibration read has no touch traffic on the shared bus.
+static void init_bus1_sensors(void)
 {
-    (void)arg;
-    UBaseType_t hwm_start = uxTaskGetStackHighWaterMark(NULL);
-    ESP_LOGI("screen_init", "Stack HWM at start (words): %u", (unsigned)hwm_start);
-
-    ESP_LOGI(TAG, "Starting screen initialization");
-
-    if (bsp_i2c_init() != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to initialize I2C");
-        if (init_events)
-        {
-            xEventGroupSetBits(init_events, EVT_SCREEN_DONE);
-        }
-        vTaskDelete(NULL);
-        return;
-    }
-    else
-    {
-        ESP_LOGI(TAG, "I2C initialized successfully");
-    }
-    // Dentro de screen_init_task, justo despuÃƒÂ©s de bsp_i2c_init():
-    rtc_rv3028_init(bus_handle); // Le pasamos el bus I2C que ya tienes creado
-    time_mgr_init();             // Intenta cargar la hora local
-
     // Sensores reales y EEPROM de calibraciÃ³n (comparten el mismo bus I2C).
     // Los handles quedan estÃ¡ticos dentro de cada driver; sensors_runtime
     // los usa mÃ¡s adelante en su tarea de adquisiciÃ³n.
@@ -599,11 +537,39 @@ static void screen_init_task(void *arg)
                  esp_err_to_name(sfm_bus_err));
         sfm_bus_handle = NULL;
     }
+}
+
+static void screen_init_task(void *arg)
+{
+    (void)arg;
+    UBaseType_t hwm_start = uxTaskGetStackHighWaterMark(NULL);
+    ESP_LOGI("screen_init", "Stack HWM at start (words): %u", (unsigned)hwm_start);
+
+    ESP_LOGI(TAG, "Starting screen initialization");
+
+    if (bsp_i2c_init() != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to initialize I2C");
+        if (init_events)
+        {
+            xEventGroupSetBits(init_events, EVT_SCREEN_DONE);
+        }
+        vTaskDelete(NULL);
+        return;
+    }
+    else
+    {
+        ESP_LOGI(TAG, "I2C initialized successfully");
+    }
+    // Dentro de screen_init_task, justo despuÃƒÂ©s de bsp_i2c_init():
+    rtc_rv3028_init(bus_handle); // Le pasamos el bus I2C que ya tienes creado
+    time_mgr_init();             // Intenta cargar la hora local
 
     lv_display_t *disp = bsp_display_start();
     if (!disp)
     {
         ESP_LOGE(TAG, "Failed to initialize display");
+        init_bus1_sensors(); // alarms/telemetry still need sensors without a display
         if (init_events)
         {
             xEventGroupSetBits(init_events, EVT_SCREEN_DONE);
@@ -616,7 +582,6 @@ static void screen_init_task(void *arg)
         ESP_LOGI(TAG, "Display initialized successfully");
     }
 
-    (void)bsp_display_indev_init(disp, bus_handle);
     // bsp_display_rotate(disp, LV_DISP_ROTATION_270);
 
     // if (bsp_display_lock(portMAX_DELAY) == ESP_OK)
@@ -680,6 +645,14 @@ static void screen_init_task(void *arg)
     bsp_display_on();
     ESP_LOGI(TAG, "UI iniciada");
 
+    // Display + splash first (SPI only, no I2C) so the screen lights at ~1 s and
+    // the splash covers the ~2.3 s EEPROM calibration check. Calibration is still
+    // read and verified BEFORE touch starts on the shared I2C bus (1.5.10 rule).
+    init_bus1_sensors();
+
+    // Touch last: only after calibration was read without touch traffic on bus 1.
+    (void)bsp_display_indev_init(disp, bus_handle);
+
     UBaseType_t hwm_end = uxTaskGetStackHighWaterMark(NULL);
     ESP_LOGI("screen_init", "Stack HWM before delete (words): %u", (unsigned)hwm_end);
 
@@ -720,7 +693,6 @@ static void ble_init_task(void *arg)
         return; // <-- NECESARIO
     }
 
-    transport_ble_set_cmd_handler(on_ble_json_shim);
     transport_ble_set_finish_cb(on_ble_finish);   /* "finish" de la app -> volver al dashboard */
     fpm_ble_config_set_clock_cb(on_ble_set_clock); /* "set_clock" de la app -> time_mgr (sistema + RTC) */
 
@@ -1031,7 +1003,6 @@ void app_main(void)
     // *** BLUETOOTH ***//
     if (appcfg_cache_get(&cfg) == ESP_OK && cfg.bt.enabled)
     {
-        s_ble_q = xQueueCreate(4, sizeof(ble_json_msg_t));
 
         // ASIGNAMOS DIRECTAMENTE AL CONTEXTO GLOBAL PARA PODER LIBERARLO DESPUÃƒâ€°S
         ble_task_ctx.stack_buf = (StackType_t *)heap_caps_malloc(BLE_TASK_STACK_SIZE, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);

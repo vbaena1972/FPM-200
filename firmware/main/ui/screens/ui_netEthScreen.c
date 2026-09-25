@@ -1,4 +1,5 @@
 #include "ui_netEthScreen.h"
+#include <stdio.h>
 #include "ui_i18n.h"
 #include "ui_form.h"
 #include "ui_widgets.h"
@@ -16,7 +17,7 @@ lv_obj_t *ui_netEthScreen = NULL;
 static lv_obj_t *s_sw, *s_hostname, *s_ipmode, *s_ip, *s_mask, *s_gw, *s_dns1, *s_dns2;
 
 static void set_str(char *dst, size_t cap, const char *src)
-{ strncpy(dst, src ? src : "", cap - 1); dst[cap - 1] = '\0'; }
+{ snprintf(dst, cap, "%s", src ? src : ""); }
 
 static void save_cb(lv_event_t *e)
 {

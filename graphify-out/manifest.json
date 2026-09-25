@@ -96,9 +96,9 @@
     "semantic_hash": ""
   },
   "firmware/components/display/st7796.c": {
-    "mtime": 1789502854.646298,
-    "seen": 1789995249.20373,
-    "ast_hash": "d4aca23a2ca1a81d4465d447f9374b85",
+    "mtime": 1790306588.1087563,
+    "seen": 1790306642.891457,
+    "ast_hash": "efbca4bec943db5226c9f5d8f14bb184",
     "semantic_hash": ""
   },
   "firmware/components/drivers/ads1115.c": {
@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "firmware/components/drivers/at24c256.c": {
-    "mtime": 1790296728.6250377,
-    "seen": 1790296736.783772,
-    "ast_hash": "949b140ad8e0450a3b8cd6f1d672ccde",
+    "mtime": 1790303537.378603,
+    "seen": 1790303581.4731686,
+    "ast_hash": "eb3c6d1c40836d5223a78e85584db8da",
     "semantic_hash": ""
   },
   "firmware/components/drivers/bmp280.c": {
@@ -186,9 +186,9 @@
     "semantic_hash": ""
   },
   "firmware/components/network_core/eth_mgr.c": {
-    "mtime": 1785686034.4415917,
-    "seen": 1789995249.203748,
-    "ast_hash": "cd27f5c9ce83c0b9f0160aea5cd47552",
+    "mtime": 1790306221.2509165,
+    "seen": 1790306642.891516,
+    "ast_hash": "1c40507e1980d97f91e92ab2f4b1d8c4",
     "semantic_hash": ""
   },
   "firmware/components/network_core/ethernet_init.c": {
@@ -246,15 +246,15 @@
     "semantic_hash": ""
   },
   "firmware/components/network_core/transport_mqtt.c": {
-    "mtime": 1790302304.931938,
-    "seen": 1790302392.2299893,
-    "ast_hash": "a255686ede426611a2d4e565256a780e",
+    "mtime": 1790306221.2525601,
+    "seen": 1790306642.891551,
+    "ast_hash": "e93d29f0433c91f1c7c5a4dc48c5ac92",
     "semantic_hash": ""
   },
   "firmware/components/network_core/wifi_mgr.c": {
-    "mtime": 1790300481.6685765,
-    "seen": 1790300505.6549208,
-    "ast_hash": "452bbb4eba07ae55646434f7e05782f8",
+    "mtime": 1790306231.0373065,
+    "seen": 1790306642.8915539,
+    "ast_hash": "58ee77f6fb6e96154af1ae44adf13eba",
     "semantic_hash": ""
   },
   "firmware/components/sensors_runtime/include/sensors_runtime.h": {
@@ -276,9 +276,9 @@
     "semantic_hash": ""
   },
   "firmware/components/state_pub/state_pub.c": {
-    "mtime": 1784734624.62843,
-    "seen": 1789995249.2037687,
-    "ast_hash": "01aa69506f8a3227e8766f7a7da74d40",
+    "mtime": 1790306221.253587,
+    "seen": 1790306642.8915744,
+    "ast_hash": "b1a95023453ad069dda72006624beddd",
     "semantic_hash": ""
   },
   "firmware/components/storage/include/metrics_store.h": {
@@ -300,15 +300,15 @@
     "semantic_hash": ""
   },
   "firmware/components/storage/storage.c": {
-    "mtime": 1790302293.4689152,
-    "seen": 1790302392.2300277,
-    "ast_hash": "171f205b464f35876864e545b99fee94",
+    "mtime": 1790305342.734288,
+    "seen": 1790306642.8915868,
+    "ast_hash": "42f4824f112176f19157d13521702f59",
     "semantic_hash": ""
   },
   "firmware/components/storage/storage_extras.c": {
-    "mtime": 1785516973.4179666,
-    "seen": 1789995249.2037742,
-    "ast_hash": "080d4ec3dfae66d7c81046f5f127ed0c",
+    "mtime": 1790305343.819869,
+    "seen": 1790306642.8915894,
+    "ast_hash": "1af95fff095ec717afe46f1d8c9d801e",
     "semantic_hash": ""
   },
   "firmware/components/task_tracer/include/task_tracer.h": {
@@ -318,15 +318,15 @@
     "semantic_hash": ""
   },
   "firmware/components/task_tracer/task_tracer.c": {
-    "mtime": 1790267865.338469,
-    "seen": 1790269086.4317434,
-    "ast_hash": "5fca52edc88bf4570a43f49fbd791506",
+    "mtime": 1790306221.256582,
+    "seen": 1790306642.8915946,
+    "ast_hash": "1c179b91b5cff8c99009a77eda105795",
     "semantic_hash": ""
   },
   "firmware/components/transport_ble/fpm_ble_config.c": {
-    "mtime": 1789917907.6264243,
-    "seen": 1789995249.2037773,
-    "ast_hash": "e32da320bd8daa2a205ae47f6df74e4f",
+    "mtime": 1790305447.5715067,
+    "seen": 1790306642.8915968,
+    "ast_hash": "7fe5614700b75c68442d4ca7c5e309bf",
     "semantic_hash": ""
   },
   "firmware/components/transport_ble/include/fpm_ble_config.h": {
@@ -342,9 +342,9 @@
     "semantic_hash": ""
   },
   "firmware/components/transport_ble/transport_ble.c": {
-    "mtime": 1786314708.8812284,
-    "seen": 1789995249.203781,
-    "ast_hash": "fd548b291bfc9adb8f37ad61355da6a7",
+    "mtime": 1790305447.5715067,
+    "seen": 1790306642.8916047,
+    "ast_hash": "4028f22b46be965090133840cde172d8",
     "semantic_hash": ""
   },
   "firmware/components/transport_http/http_api.c": {
@@ -426,9 +426,9 @@
     "semantic_hash": ""
   },
   "firmware/main/main.c": {
-    "mtime": 1790302246.453325,
-    "seen": 1790302392.230092,
-    "ast_hash": "2b0a02b7bff9e832948c2d92ec3eea6d",
+    "mtime": 1790304722.1336768,
+    "seen": 1790304798.0944252,
+    "ast_hash": "e505956ace49baf2f8c670641532c32f",
     "semantic_hash": ""
   },
   "firmware/main/pinmap.h": {
@@ -516,9 +516,9 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_connectivityScreen.c": {
-    "mtime": 1789656175.7601552,
-    "seen": 1789995249.2038162,
-    "ast_hash": "fa186e09fc71380b1711d30c912156a1",
+    "mtime": 1790305420.6128156,
+    "seen": 1790306642.891686,
+    "ast_hash": "7c81111e3fcbe7ef2419aef1e9eb28eb",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_connectivityScreen.h": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_generalScreen.c": {
-    "mtime": 1785506412.5919375,
-    "seen": 1789995249.2038205,
-    "ast_hash": "d407d3414ae6280e7e968e6dad02a248",
+    "mtime": 1790305447.5689912,
+    "seen": 1790306642.891697,
+    "ast_hash": "72bb395bc79a5be8edb01173a82ac14c",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_generalScreen.h": {
@@ -600,9 +600,9 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_mainScreen.c": {
-    "mtime": 1790276795.1600664,
-    "seen": 1790276802.4886107,
-    "ast_hash": "0a24f51d5b3e6881eb20a366f639e155",
+    "mtime": 1790305420.6149416,
+    "seen": 1790306642.8917248,
+    "ast_hash": "d9519ef4400822f0f1bd3961f7148801",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_mainScreen.h": {
@@ -612,9 +612,9 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_netBleScreen.c": {
-    "mtime": 1789950561.1896496,
-    "seen": 1789995249.2038345,
-    "ast_hash": "b31383218aee316b31cb404ae4ed894c",
+    "mtime": 1790305420.6149416,
+    "seen": 1790306642.8917322,
+    "ast_hash": "03e741257ffcd61f22fdd0aea6dc8a6d",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_netBleScreen.h": {
@@ -624,9 +624,9 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_netCloudScreen.c": {
-    "mtime": 1785506497.9888747,
-    "seen": 1789995249.2038367,
-    "ast_hash": "4019ce0339cd44dc550bbe5538e0efaa",
+    "mtime": 1790305420.6162548,
+    "seen": 1790306642.891738,
+    "ast_hash": "ae4df2548c637e0d209e1e4618ec5ffb",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_netCloudScreen.h": {
@@ -636,9 +636,9 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_netEthScreen.c": {
-    "mtime": 1784734624.6602294,
-    "seen": 1789995249.2038388,
-    "ast_hash": "ba6558caf17c59dfe1af652532e97884",
+    "mtime": 1790305447.5689912,
+    "seen": 1790306642.891743,
+    "ast_hash": "7262df44c3577fc9cfdf8d3d3e498201",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_netEthScreen.h": {
@@ -648,9 +648,9 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_netWifiScreen.c": {
-    "mtime": 1789656175.7601552,
-    "seen": 1789995249.2038407,
-    "ast_hash": "7f9ce4e9618637e0f7499eaa584d1154",
+    "mtime": 1790305447.5689912,
+    "seen": 1790306642.8917482,
+    "ast_hash": "252c77be7fc1876be96eea4a0cdba18d",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_netWifiScreen.h": {
@@ -696,15 +696,15 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_splashScreen.c": {
-    "mtime": 1789995167.0202515,
-    "seen": 1789995249.2038493,
-    "ast_hash": "30d1033dea526293e023f00b331a90c3",
+    "mtime": 1790304735.047603,
+    "seen": 1790304798.0944836,
+    "ast_hash": "5e364315ab5b09646735b41badfb61b3",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_splashScreen.h": {
-    "mtime": 1784734624.6602294,
-    "seen": 1789995249.2038503,
-    "ast_hash": "a78303abbe17c6062efa4c1c5f78c2d8",
+    "mtime": 1790304741.9867623,
+    "seen": 1790304798.0944848,
+    "ast_hash": "b34e2dd46e0a0aecb58abaabf09eeac7",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_userEditScreen.c": {
@@ -732,9 +732,9 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/ui.c": {
-    "mtime": 1786291263.8412757,
-    "seen": 1789995249.2038555,
-    "ast_hash": "57a6240c8ee21792c0c23a766b7e88bb",
+    "mtime": 1790304735.047603,
+    "seen": 1790304798.0944912,
+    "ast_hash": "15a0e9b5c13636adae43297c9669cf48",
     "semantic_hash": ""
   },
   "firmware/main/ui/ui.h": {
@@ -744,9 +744,9 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/ui_cfg.c": {
-    "mtime": 1789656175.7601552,
-    "seen": 1789995249.203858,
-    "ast_hash": "747d2dae9abb82dc38405ecc95476558",
+    "mtime": 1790305420.605695,
+    "seen": 1790306642.8917935,
+    "ast_hash": "90046332ac7b049e0985c43980633bba",
     "semantic_hash": ""
   },
   "firmware/main/ui/ui_cfg.h": {
@@ -846,9 +846,9 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1790302379.837192,
-    "seen": 1790302392.2303672,
-    "ast_hash": "b9d034e0c0769d41e8ec21aeb6281cb0",
+    "mtime": 1790306628.6682785,
+    "seen": 1790306642.8918812,
+    "ast_hash": "89de8820d37560215c5d1cea979336ef",
     "semantic_hash": ""
   },
   "docs/HMI_MIGRATION.md": {
@@ -864,9 +864,9 @@
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1790302379.5347853,
-    "seen": 1790302392.2303767,
-    "ast_hash": "fbc376a14fbd2014ef6229a4ec85d78e",
+    "mtime": 1790306613.7677326,
+    "seen": 1790306642.8918893,
+    "ast_hash": "8365e9ae45710573bccde58c938c0f3d",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {
@@ -1032,9 +1032,9 @@
     "semantic_hash": ""
   },
   "firmware/components/drivers/include/driver_delay.h": {
-    "mtime": 1790267865.2730806,
-    "seen": 1790269086.4317005,
-    "ast_hash": "da6d10aa9e40473e60755ff4c2b05107",
+    "mtime": 1790303537.378603,
+    "seen": 1790303581.4731858,
+    "ast_hash": "d779c53430514b8104bf308d3f7dc914",
     "semantic_hash": ""
   },
   "firmware/components/drivers/include/fpm_i2c_guard.h": {
@@ -1140,9 +1140,9 @@
     "semantic_hash": ""
   },
   "firmware/CONSUMPTION_FIXES.md": {
-    "mtime": 1790302379.6914523,
-    "seen": 1790302392.2303796,
-    "ast_hash": "a55dbd6312cc6a5cf9e15c3425ac8743",
+    "mtime": 1790306628.5760062,
+    "seen": 1790306642.8918917,
+    "ast_hash": "7d6c314b70a534c2d4ed259f310e5ffd",
     "semantic_hash": ""
   },
   "graphify-out/memory/query_20260924_160121_analisis_de_longfpm_log__bloqueo_de_interfaz__alar.md": {

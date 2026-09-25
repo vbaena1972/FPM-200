@@ -1,4 +1,5 @@
 #include "transport_ble.h"
+#include <stdio.h>
 #include <string.h>
 #include "esp_log.h"
 #include "esp_err.h"
@@ -427,8 +428,7 @@ esp_err_t transport_ble_set_name(const char *name)
     if (!name || !name[0])
         return ESP_ERR_INVALID_ARG;
 
-    strncpy(s_dev_name, name, sizeof(s_dev_name));
-    s_dev_name[sizeof(s_dev_name) - 1] = '\0';
+    snprintf(s_dev_name, sizeof(s_dev_name), "%s", name);
 
     if (s_stack_ready)
     {

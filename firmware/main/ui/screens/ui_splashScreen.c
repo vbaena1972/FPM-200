@@ -47,7 +47,11 @@ void ui_splashScreen_screen_init(void)
     lv_obj_set_style_bg_color(bar, ui_col(0x22262d), LV_PART_MAIN);
     lv_obj_set_style_radius(bar, 3, LV_PART_INDICATOR);
     lv_obj_set_style_bg_color(bar, ui_col(UI_C_OK), LV_PART_INDICATOR);
-    lv_bar_set_value(bar, 72, LV_ANIM_OFF);
+    /* Progreso animado 0 -> 100 % durante el splash (cubre la verificación de
+     * calibración EEPROM y el arranque de sensores, que corren detrás). */
+    lv_bar_set_value(bar, 0, LV_ANIM_OFF);
+    lv_obj_set_style_anim_duration(bar, UI_SPLASH_MS - 200, LV_PART_MAIN);
+    lv_bar_set_value(bar, 100, LV_ANIM_ON);
 
     /* línea "inicializando" */
     lv_obj_t *ini = status_chip(ui_splashScreen, UI_SYM_LOADER_2,

@@ -73,7 +73,7 @@ static unsigned long track_get_and_update(TaskHandle_t h, const char* name,
         s_track[s_track_n].handle       = h;
         s_track[s_track_n].last_runtime = current_rt;
         s_track[s_track_n].valid        = 1;
-        strncpy(s_track[s_track_n].name, name, configMAX_TASK_NAME_LEN - 1);
+        snprintf(s_track[s_track_n].name, configMAX_TASK_NAME_LEN, "%s", name);
         s_track_n++;
     }
     return current_rt;  // delta = 0, primera vez

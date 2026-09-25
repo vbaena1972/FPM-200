@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/timers.h"
 #include "freertos/task.h"
@@ -161,6 +162,38 @@ static void log_dns_info(void)
     }
 }
 
+// Reconnect backoff: 1 s, 2 s, 4 s ... capped at 30 s; reset on GOT_IP. Avoids a
+// tight connect/scan loop (radio + log flood) while the AP is missing.
+#define WIFI_RETRY_MIN_MS 1000
+#define WIFI_RETRY_MAX_MS 30000
+static esp_timer_handle_t s_retry_timer;
+static uint32_t s_retry_ms = WIFI_RETRY_MIN_MS;
+
+static void wifi_retry_cb(void *arg)
+{
+    (void)arg;
+    if (s_allow_reconnect)
+        esp_wifi_connect();
+}
+
+static void wifi_schedule_retry(void)
+{
+    if (!s_retry_timer) {
+        const esp_timer_create_args_t a = { .callback = wifi_retry_cb, .name = "wifi_retry" };
+        if (esp_timer_create(&a, &s_retry_timer) != ESP_OK) {
+            esp_wifi_connect(); // fallback: previous behaviour
+            return;
+        }
+    }
+    esp_timer_stop(s_retry_timer); // ignore "not running"
+    if (esp_timer_start_once(s_retry_timer, (uint64_t)s_retry_ms * 1000) != ESP_OK) {
+        esp_wifi_connect();
+        return;
+    }
+    ESP_LOGW(TAG, "STA_DISCONNECTED (reintento en %lu ms)", (unsigned long)s_retry_ms);
+    s_retry_ms = s_retry_ms * 2 > WIFI_RETRY_MAX_MS ? WIFI_RETRY_MAX_MS : s_retry_ms * 2;
+}
+
 // ----------------------- Event handler --------------------------------------
 static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id, void *data)
 {
@@ -181,8 +214,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id, voi
 
             if (s_allow_reconnect)
             {
-                ESP_LOGW(TAG, "STA_DISCONNECTED (reintentando)");
-                esp_wifi_connect();
+                wifi_schedule_retry();
             }
             else
             {
@@ -197,6 +229,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id, voi
     {
         ip_event_got_ip_t *ev = (ip_event_got_ip_t *)data;
         const esp_netif_ip_info_t *ipi = &ev->ip_info;
+        s_retry_ms = WIFI_RETRY_MIN_MS; // connected: next outage starts fast again
         ESP_LOGI(TAG, "GOT_IP  IP: " IPSTR "  MASK: " IPSTR "  GW: " IPSTR,
                  IP2STR(&ipi->ip), IP2STR(&ipi->netmask), IP2STR(&ipi->gw));
         log_dns_info();
@@ -229,7 +262,7 @@ esp_err_t wifi_mgr_get_netinfo(wifi_netinfo_t *o)
     if (esp_wifi_sta_get_ap_info(&ap) == ESP_OK)
     {
         o->connected = true;
-        strncpy(o->ssid, (const char *)ap.ssid, sizeof(o->ssid) - 1);
+        snprintf(o->ssid, sizeof(o->ssid), "%s", (const char *)ap.ssid);
         o->rssi_dbm = ap.rssi;
     }
 
@@ -352,8 +385,11 @@ static esp_err_t wifi_apply_pending(void)
     ESP_LOGI(TAGW, "Applying Wi-Fi config (%s)", s_enabled ? "running" : "before radio start");
     // Construye config STA
     wifi_config_t w = {0};
-    strncpy((char *)w.sta.ssid, (const char *)next.ssid, sizeof(w.sta.ssid) - 1);
-    strncpy((char *)w.sta.password, (const char *)next.password, sizeof(w.sta.password) - 1);
+    // wifi_config_t fields are NOT NUL-terminated strings: an SSID may use all 32
+    // bytes and a PSK all 64 (hex). The old "sizeof - 1" copy cut the last byte,
+    // so a 32-char SSID / 64-char key could never connect. w is zeroed above.
+    memcpy(w.sta.ssid, next.ssid, strnlen((const char *)next.ssid, sizeof(w.sta.ssid)));
+    memcpy(w.sta.password, next.password, strnlen((const char *)next.password, sizeof(w.sta.password)));
     w.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
 #if defined(WPA3_SAE_PWE_BOTH)
     w.sta.sae_pwe_h2e = WPA3_SAE_PWE_BOTH;
@@ -457,13 +493,13 @@ static void wifi_view_from_appcfg(wifi_view_t *out, const AppConfig *c)
 {
     memset(out, 0, sizeof(*out));
     out->dhcp = (strcasecmp(c->wifi.ip_mode, "dhcp") == 0);
-    strncpy(out->ssid, c->wifi.ssid, sizeof(out->ssid) - 1);
-    strncpy(out->password, c->wifi.password, sizeof(out->password) - 1);
-    strncpy(out->ip, c->wifi.ip, sizeof(out->ip) - 1);
-    strncpy(out->netmask, c->wifi.mask, sizeof(out->netmask) - 1);
-    strncpy(out->gw, c->wifi.gw, sizeof(out->gw) - 1);
-    strncpy(out->dns1, c->wifi.dns1, sizeof(out->dns1) - 1);
-    strncpy(out->dns2, c->wifi.dns2, sizeof(out->dns2) - 1);
+    snprintf(out->ssid, sizeof(out->ssid), "%s", c->wifi.ssid);
+    snprintf(out->password, sizeof(out->password), "%s", c->wifi.password);
+    snprintf(out->ip, sizeof(out->ip), "%s", c->wifi.ip);
+    snprintf(out->netmask, sizeof(out->netmask), "%s", c->wifi.mask);
+    snprintf(out->gw, sizeof(out->gw), "%s", c->wifi.gw);
+    snprintf(out->dns1, sizeof(out->dns1), "%s", c->wifi.dns1);
+    snprintf(out->dns2, sizeof(out->dns2), "%s", c->wifi.dns2);
 }
 
 esp_err_t wifi_mgr_apply_from_cache(void)

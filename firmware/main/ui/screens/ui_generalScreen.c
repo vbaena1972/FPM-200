@@ -1,4 +1,5 @@
 #include "ui_generalScreen.h"
+#include <stdio.h>
 #include "ui_i18n.h"
 #include "ui_widgets.h"
 #include "ui_theme.h"
@@ -22,8 +23,8 @@ static void general_loaded_cb(lv_event_t *e)
         lv_label_set_text_fmt(s_val_brightness, "%d%%", ui_cfg_brightness());
     if (s_val_units) {
         char p[8], f[8];
-        strncpy(p, ui_cfg_pressure_unit(), sizeof(p) - 1); p[sizeof(p) - 1] = '\0';
-        strncpy(f, ui_cfg_flow_unit(),     sizeof(f) - 1); f[sizeof(f) - 1] = '\0';
+        snprintf(p, sizeof(p), "%s", ui_cfg_pressure_unit());
+        snprintf(f, sizeof(f), "%s", ui_cfg_flow_unit());
         lv_label_set_text_fmt(s_val_units, "%s \xC2\xB7 %s", p, f);
     }
 }

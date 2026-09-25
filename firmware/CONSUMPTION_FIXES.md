@@ -258,3 +258,71 @@ Recommended, not applied (need a planned test):
 - BLE on_ble_json_shim queues into s_ble_q but ble_json_worker is never started:
   up to 4 buffers (<=1 KB) are never freed and those commands are ignored.
 - PSRAM at 40 MHz could run at 80 MHz (module permitting).
+
+### 1.5.18 hardware result (log4): VALIDATED, committed a25efbf
+- 240 MHz, radio 138 ms, AWS OK, splash done at 4.0 s (was 5.2 s).
+- Internal heap after AWS: largest 20 KB stable (was 11 KB), frag 56%, min 32 KB.
+- No STALE alarm and no stall/gap warnings at AWS connect.
+- taskLVGL still ~53% at 240 MHz: LVGL cost is not CPU-bound (SPI 40 MHz,
+  single 40-line buffer, flush wait / continuous redraw). -O2 will help little;
+  double buffering needs +25.6 KB internal DMA RAM. Left for a dedicated session.
+
+## Recommendations batch 1: 1.5.19-dev (Claude)
+- FreeRTOS tick 100 -> 1000 Hz. driver_delay_ms(10) now ~11 ms instead of 20 ms,
+  so an acquisition cycle should drop from ~62 ms to ~35 ms of work.
+  EEPROM byte pacing was vTaskDelay(1) (validated ~10 ms at 100 Hz); now
+  vTaskDelay(pdMS_TO_TICKS(10)) to keep the same tested pacing. Host stubs stay
+  at 100 Hz (pdMS_TO_TICKS(10) = 1 tick there, same as before).
+- Wi-Fi reconnect: exponential backoff 1 s -> 30 s via esp_timer, reset on GOT_IP
+  (was immediate esp_wifi_connect on every disconnect).
+- BLE: removed dead JSON pipe (on_ble_json_shim/s_ble_q/ble_json_worker). The
+  transport_ble cmd handler is never invoked, so this was dead code, not a leak.
+- Pending next batches: -O2, PSRAM 80 MHz, NVS/partitions + core dump.
+
+### 1.5.19 hardware result (log5)
+- EEPROM stored=computed=7AF0 with 10 ms pacing at 1000 Hz. Acquisition work
+  62 -> 38 ms. Radio 207 ms, AWS OK. Heap largest 20 KB stable.
+- One "Acquisition stall 701 ms: ms5803=686" at 9.8 s (during AWS connect):
+  the 2 s gap is inside the MS5803 read (I2C bus 1), not scheduling. Next step:
+  log ms5803 per-transaction timing / who holds the bus (touch, RTC) then.
+- User report: screen stayed dark ~4 s and the splash was barely visible.
+  Cause (since 1.5.10): 4 x EEPROM calibration reads (~2.3 s) ran BEFORE the
+  display was started; the 2.2 s splash then ended almost immediately.
+
+## Batch 2: 1.5.20-dev (Claude)
+- screen_init order: display + UI + splash first (SPI only, no I2C), then I2C
+  scan + EEPROM calibration + sensors (init_bus1_sensors), then touch LAST.
+  The 1.5.10 rule (calibration read before touch traffic on bus 1) is kept.
+  If the display fails, sensors are still initialized.
+- Splash: progress bar animates 0 -> 100 % over UI_SPLASH_MS = 3200 ms (was a
+  static 72 % for 2.2 s), covering calibration + sensor start.
+- Compiler -Og -> -O2 (CONFIG_COMPILER_OPTIMIZATION_PERF). Checked: no busy-wait
+  loops on non-volatile shared flags. App bin ~2.0 MB of 3 MB partition.
+- Next: PSRAM 80 MHz, then partitions/NVS + core dump (separate session).
+
+### 1.5.20 hardware result (log6): OK
+- Screen lights at 1.5 s (was 4.1 s); splash covers the EEPROM check; touch
+  starts after calibration (4.3 s). EEPROM 7AF0 OK. Radio 102 ms, AWS OK.
+- -O2: taskLVGL 49% -> 42%; internal heap free 49.8 KB, largest 27.6 KB,
+  frag 45% (was 20 KB / 56%). BUT taskLVGL stack HWM 1524 -> 784 B (inlining).
+- -O2 build needed strncpy -> snprintf everywhere (-Werror=stringop-truncation).
+  Real bug found: wifi_config ssid/password copied with sizeof-1, so a 32-char
+  SSID or 64-char hex PSK was truncated; now memcpy of strnlen(src, field).
+- Stall at AWS connect moved to the ADS read ("ads=664 ms") vs MS5803 before:
+  it is the whole I2C bus 1 stalling ~0.7 s during the TLS handshake, not one
+  sensor. Below the 1 s STALE threshold (no alarm). Next: time the bus guard /
+  I2C driver wait and check whether the touch read (LVGL) holds the bus.
+- Pressure at atmosphere read -0.30..-0.34 kPa at 37.7 C (board cold) vs ~0.1
+  at 46 C: MS5803 zero drifts with temperature; the +0.415 kPa v6 correction
+  was taken warm. Re-check zero after warm-up before any further correction.
+
+## Batch 3: 1.5.21-dev (Claude)
+- LVGL task stack 7168 -> 9216 B (internal RAM +2 KB; heap has margin).
+- PSRAM 40 -> 80 MHz (quad, flash already 80 MHz). If random crashes/garbled
+  display appear, revert CONFIG_SPIRAM_SPEED_80M first.
+
+### 1.5.21 hardware result (log7): VALIDATED
+- PSRAM 80 MHz: memory test OK, no resets in ~95 s run. LVGL stack HWM 2832 B.
+- Internal heap stable: free 47.7 KB, largest 27.6 KB, frag 43%.
+- taskLVGL still ~42%: not PSRAM-bound (flush/redraw cost; see 1.5.18 note).
+- I2C bus-1 stall at AWS TLS handshake unchanged (ads=668 ms), below alarm.

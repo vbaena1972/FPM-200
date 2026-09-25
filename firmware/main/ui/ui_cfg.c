@@ -15,8 +15,7 @@
 /* ---------- helpers internos ---------- */
 static void set_str(char *dst, size_t cap, const char *src)
 {
-    strncpy(dst, src, cap - 1);
-    dst[cap - 1] = '\0';
+    snprintf(dst, cap, "%s", src);
 }
 
 static void save_and_refresh(AppConfig *cfg)
