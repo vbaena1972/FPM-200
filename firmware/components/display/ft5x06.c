@@ -13,6 +13,8 @@
 #define FT5X06_REG_G_MODE  0xA4
 #define FT5X06_G_MODE_POLL 0x00
 
+esp_err_t fpm_new_panel_io_i2c(i2c_master_bus_handle_t bus, const esp_lcd_panel_io_i2c_config_t *cfg, esp_lcd_panel_io_handle_t *out);
+
 static const char *TAG = "ft5x06:";
 
 static lv_indev_t *disp_indev = NULL;
@@ -41,15 +43,8 @@ static void ft5x06_lvgl_read_cb(lv_indev_t *indev, lv_indev_data_t *data)
         return;
     }
 
-    // --- Guarda anti-deadlock del bus I2C 1 (compartido con los sensores) ---
-    // Con un dedo puesto SI leemos por I2C. esp_lcd_touch_read_data() ->
-    // esp_lcd_panel_io_i2c usa i2c_master_transmit_receive con timeout INFINITO
-    // (-1); si el bus se cuelga esa lectura NO retorna nunca y esta funcion corre
-    // con el mutex de LVGL/display tomado -> UI congelada y buzzer atascado. Si el
-    // subsistema de sensores ya detecto el bus colgado (ambos MS5803+ADS caidos),
-    // NO tocamos el bus. (No sondeamos con i2c_master_probe: hacerlo desde esta
-    // tarea concurrente con las transacciones de la tarea de sensores corrompia el
-    // driver I2C y provocaba un panic StoreProhibited en el ISR de recepcion.)
+    // Avoid extra traffic while sensors recover the bus. All touch transfers
+    // also have finite deadlines: a fault after this check cannot hang LVGL.
     if (sensors_runtime_bus1_hung())
     {
         data->state = LV_INDEV_STATE_RELEASED;
@@ -134,7 +129,7 @@ esp_err_t bsp_touch_new(const bsp_touch_config_t *config, esp_lcd_touch_handle_t
     esp_lcd_panel_io_handle_t tp_io_handle = NULL;
 
     const esp_lcd_panel_io_i2c_config_t tp_io_config = ESP_LCD_TOUCH_IO_I2C_FT5x06_CONFIG();
-    esp_err_t err = esp_lcd_new_panel_io_i2c(touch_handle, &tp_io_config, &tp_io_handle);
+    esp_err_t err = fpm_new_panel_io_i2c(touch_handle, &tp_io_config, &tp_io_handle);
     if (err != ESP_OK)
         return err;
 
@@ -145,6 +140,7 @@ esp_err_t bsp_touch_new(const bsp_touch_config_t *config, esp_lcd_touch_handle_t
     {
         ESP_LOGW(TAG, "Touch FT5x06 no disponible (%s). Continuo sin panel tactil.",
                  esp_err_to_name(err));
+        esp_lcd_panel_io_del(tp_io_handle);
         if (ret_touch)
             *ret_touch = NULL;
         return err;

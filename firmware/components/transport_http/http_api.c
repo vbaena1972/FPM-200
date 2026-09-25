@@ -1,3 +1,4 @@
+#include "flow_meter.h"
 #include <string.h>
 #include <inttypes.h>
 
@@ -277,13 +278,15 @@ static esp_err_t cfg_put_handler(httpd_req_t *req)
     }
 
     int copied = 0;
+    int timeouts = 0;
     while (remaining > 0)
     {
         int to_read = remaining > HTTP_API_RECV_BUF ? HTTP_API_RECV_BUF : remaining;
         int r = httpd_req_recv(req, buf, to_read);
         if (r <= 0)
         {
-            if (r == HTTPD_SOCK_ERR_TIMEOUT)
+            // Bounded: a silent client must not pin the single httpd task forever.
+            if (r == HTTPD_SOCK_ERR_TIMEOUT && ++timeouts < 5)
                 continue;
             free(buf);
             free(full);
@@ -430,11 +433,15 @@ static esp_err_t state_get_handler(httpd_req_t *req)
         f_hi_en = c->sensors.alarm_limits.flow_high_enabled;
         f_hi = c->sensors.alarm_limits.flow_high_limit;
     }
-    const char *p_state = (p_hi_en && p > p_hi) ? "high"
+    const char *p_state = (!have || (last.invalid_mask & SENSOR_INVALID_PRESSURE)) ? "fault" : (p_hi_en && p > p_hi) ? "high"
                         : (p_lo_en && p < p_lo) ? "low" : "normal";
-    const char *f_state = (f_hi_en && f > f_hi) ? "high" : "normal";
+    const char *f_state = (!have || (last.invalid_mask & SENSOR_INVALID_FLOW)) ? "fault" : (f_hi_en && f > f_hi) ? "high" : "normal";
 
     cJSON *root = cJSON_CreateObject();
+    flow_meter_snapshot_t meter = flow_meter_get();
+    cJSON_AddNumberToObject(root, "consumption_m3", meter.volume_m3);
+    cJSON_AddNumberToObject(root, "consumption_missing_ms", (double)meter.missing_ms);
+    cJSON_AddBoolToObject(root, "consumption_partial", meter.partial || !meter.dated);
     cJSON *chs = cJSON_AddArrayToObject(root, "channels");
     add_channel(chs, 1, "Presion", p_unit, p, p_state, p_hi_en, p_hi, p_lo_en, p_lo, 1);
     add_channel(chs, 2, "Flujo", f_unit, f, f_state, f_hi_en, f_hi, false, 0, 2);

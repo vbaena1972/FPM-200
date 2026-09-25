@@ -44,3 +44,6 @@ sw_probe*.vbs
 
 # Simulador VS anidado (repo git propio: FPM-200-Sim)
 /Simulator/
+
+# Local validation builds
+/firmware/build-fixes/

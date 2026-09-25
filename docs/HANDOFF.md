@@ -6,6 +6,40 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 
 ---
 
+## Actualización 2026-09-24 — EEPROM, consumo, cero de presión (FW 1.5.5 → 1.5.18-dev)
+
+Trabajo hecho mayormente con Codex; detalle versión a versión en
+`firmware/CONSUMPTION_FIXES.md`. Nada de esto está commiteado aún.
+
+- **EEPROM AT24C256**: driver pasó a transacciones byte a byte (dirección+STOP+lectura,
+  100 kHz) con `vTaskDelay(1)` tras cada byte leído (sin pacing fallaba en 0x000C) y
+  escritura verificada. Calibración se carga ANTES del touch con 4 lecturas idénticas.
+  Nunca regenera CRC arbitrariamente: solo reparaciones estrechas documentadas.
+- **Cero de presión v6**: migración única v5→v6 suma +0.415 kPa (unidad fpm-0001).
+- **1.5.15 (Claude)**: el log mostró CRC guardado 2987 (v5) vs calculado 7AF0 (v6) →
+  migración v6 interrumpida antes de escribir el CRC. Nueva recuperación: solo si
+  deshacer la migración reproduce el CRC guardado, reescribe los 2 bytes de CRC.
+- **Consumo**: integración trapezoidal del flujo, checkpoint NVS cada 10 min, marca
+  PARCIAL; `consumption_*` en LAN/AWS. Tests de host en `firmware/tests/host/`.
+- **1.5.16 WDT/WiFi**: Codex activó `CONFIG_ESP_TASK_WDT_PANIC=y`; la calibración PHY
+  lenta (>5 s) causaba bootloop. Se MANTIENE el panic; solo durante `esp_wifi_start()`
+  el timeout sube a 20 s y luego vuelve a 5 s (`wifi_mgr.c`).
+- **1.5.17**: con 20 s igual se cuelga en `pwdet_tone_start` → cuelgue real. Se revirtió
+  el pin a CPU0 de `sensors_acq`/`aws_pub` hecho por Codex (hipótesis). Si persiste:
+  A/B flasheando HEAD `640b15c` en la misma placa.
+- **1.5.17 VALIDADO en HW (log3)**: radio arranca en 163 ms, splash fluido, EEPROM OK,
+  AWS OK. CPU1 ya no saturado (LVGL 53 %, IDLE1 35 %).
+- **1.5.18 auditoría** (detalle en `firmware/CONSUMPTION_FIXES.md`): alarma ya no evalúa
+  datos inválidos como 0 kPa (evita ALERT falso por fallo de sensor); cJSON en PSRAM;
+  caché AppConfig con mutex y sin copias de 2 KB en stack; límites AWS vivos; heap
+  tracing OFF; CPU 240 MHz; diagnóstico `Acquisition stall/gap`. Pendiente probar en HW.
+- **Abierto**: hueco de ~2 s en adquisición durante el handshake TLS con AWS → alarma
+  STALE (faults=0x2) al arrancar. Heap interno min 28 KB tras AWS (vigilar).
+- **Histórico** (resuelto con 1.5.17): causa raíz de la calibración PHY de 2–5+ s (sospecha: caída de 3.3 V
+  en TX de calibración o temperatura ~45 °C). Mirar `Radio start returned ... after N ms`.
+- **Validar en HW**: reboot muestra `stored=computed=7AF0`, EEPROM=VERIFIED, sin alarma
+  de calibración; cero de presión ±0.055 kPa en atmósfera; pruebas de consumo.
+
 ## Actualización 2026-09-21 — microSD, AWS por SD, BT-off y splash (FW 1.5.4-dev)
 
 - **microSD (overlay `ui_sd` + `sd_monitor_task` en `main.c`)**: (1) botón **"Cerrar"**

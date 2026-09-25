@@ -1,7 +1,8 @@
 idf_component_register(
-    SRCS "st7796.c" "ft5x06.c"
+    SRCS "st7796.c" "ft5x06.c" "touch_io_bounded.c"
     INCLUDE_DIRS "include"
     REQUIRES 
+        drivers
         driver 
         freertos 
         esp_driver_ledc

@@ -1,11 +1,14 @@
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 #include "alarm_mgr.h"
 #include "driver/ledc.h"
 #include "esp_log.h"
 #include "esp_timer.h"
-#include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "storage.h"
+#include <math.h>
 
+static SemaphoreHandle_t s_alarm_lock;
 static const char *TAG = "alarm_mgr";
 
 // ParÃƒÆ’Ã‚Â¡metros de PWM adaptados para el Driver PAM8906
@@ -33,7 +36,7 @@ static bool s_audio_inhibit_noncritical = false;
 
 static void set_buzzer_acoustic(bool turn_on);
 
-void alarm_mgr_set_audio_inhibit_noncritical(bool inhibit)
+static void alarm_mgr_set_audio_inhibit_noncritical_impl(bool inhibit)
 {
     s_audio_inhibit_noncritical = inhibit;
     if (inhibit && s_current_state != ALARM_STATE_ALERT) {
@@ -42,7 +45,7 @@ void alarm_mgr_set_audio_inhibit_noncritical(bool inhibit)
     }
 }
 
-void alarm_mgr_set_state_change_cb(alarm_state_change_cb_t cb)
+static void alarm_mgr_set_state_change_cb_impl(alarm_state_change_cb_t cb)
 {
     s_state_cb = cb;
 }
@@ -53,6 +56,8 @@ static int64_t s_baseline_time_us = 0;
 
 esp_err_t alarm_mgr_init(int buzzer_gpio)
 {
+    if (!s_alarm_lock) s_alarm_lock = xSemaphoreCreateRecursiveMutex();
+    if (!s_alarm_lock) return ESP_ERR_NO_MEM;
     ESP_LOGI(TAG, "Inicializando PWM para Driver PAM8906 en GPIO %d...", buzzer_gpio);
 
     ledc_timer_config_t ledc_timer = {
@@ -84,36 +89,40 @@ static void set_buzzer_acoustic(bool turn_on)
     ledc_update_duty(LEDC_SPEED_MODE, LEDC_CHANNEL);
 }
 
-void alarm_mgr_process(float current_pressure, float current_flow, uint32_t sensor_faults)
+static void alarm_mgr_process_impl(float current_pressure, float current_flow, uint32_t sensor_faults)
 {
     s_sensor_faults = sensor_faults;
     // 1. Copia rápida del snapshot en RAM (memcpy, SIN parseo JSON de NVS).
     //    Antes hacía appcfg_load() en CADA muestra -> re-parseaba AppConfig.json
     //    ~1-2 Hz (visible en el log) y fragmentaba el heap. La caché se mantiene
     //    fresca por el UI (peek+save) y por appcfg_set/patch (reload) en remoto.
-    AppConfig cfg;
-    appcfg_cache_get(&cfg);
+    // Read the RAM snapshot in place: copying the whole AppConfig here cost
+    // ~2 KB of stack every 50 ms (main task) and on the LVGL stack for mute.
+    const AppConfig *cfg = appcfg_cache_peek();
 
     int64_t now = esp_timer_get_time();
-    s_volume = cfg.general.alarm.volume;
+    s_volume = cfg->general.alarm.volume;
     if (s_volume < 30) s_volume = 30;
     if (s_volume > 100) s_volume = 100;
     if (now < s_test_end_time_us) { set_buzzer_acoustic(true); return; }
 
     // --- EVALUACIÃƒÆ’Ã¢â‚¬Å“N DE PRESIÃƒÆ’Ã¢â‚¬Å“N ---
-    bool p_min_enabled = cfg.sensors.alarm_limits.pressure_min_enabled;
-    bool p_max_enabled = cfg.sensors.alarm_limits.pressure_max_enabled;
-    float p_min = cfg.sensors.alarm_limits.pressure_min;
-    float p_max = cfg.sensors.alarm_limits.pressure_max;
+    bool p_min_enabled = cfg->sensors.alarm_limits.pressure_min_enabled;
+    bool p_max_enabled = cfg->sensors.alarm_limits.pressure_max_enabled;
+    float p_min = cfg->sensors.alarm_limits.pressure_min;
+    float p_max = cfg->sensors.alarm_limits.pressure_max;
 
     // --- EVALUACIÃƒÆ’Ã¢â‚¬Å“N DE FLUJO (AnÃƒÆ’Ã‚Â¡lisis de Delta temporal) ---
-    float flow_delta_thresh = cfg.sensors.alarm_limits.flow_delta_threshold;
-    int flow_window_ms = cfg.sensors.alarm_limits.flow_delta_window_ms;
+    float flow_delta_thresh = cfg->sensors.alarm_limits.flow_delta_threshold;
+    int flow_window_ms = cfg->sensors.alarm_limits.flow_delta_window_ms;
     bool flow_warning = false;
-    bool flow_high = cfg.sensors.alarm_limits.flow_high_enabled && current_flow > cfg.sensors.alarm_limits.flow_high_limit;
+    bool flow_high = cfg->sensors.alarm_limits.flow_high_enabled && current_flow > cfg->sensors.alarm_limits.flow_high_limit;
 
     // Si la ventana de tiempo ya caducÃƒÆ’Ã‚Â³ o es el primer arranque, tomamos una nueva lÃƒÆ’Ã‚Â­nea base de flujo
-    if (s_baseline_time_us == 0 || (now - s_baseline_time_us) >= (flow_window_ms * 1000ULL)) {
+    if (!isfinite(current_flow)) {
+        // Invalid flow: restart the delta window once valid data returns.
+        s_baseline_time_us = 0;
+    } else if (s_baseline_time_us == 0 || (now - s_baseline_time_us) >= (flow_window_ms * 1000LL)) {
         s_baseline_flow = current_flow;
         s_baseline_time_us = now;
     } else {
@@ -121,7 +130,7 @@ void alarm_mgr_process(float current_pressure, float current_flow, uint32_t sens
         float delta = current_flow - s_baseline_flow;
         if (delta < 0) delta = -delta; // Convertimos a valor absoluto para detectar cambios hacia arriba o abajo
 
-        if (cfg.sensors.alarm_limits.flow_delta_enabled && delta > flow_delta_thresh) {
+        if (cfg->sensors.alarm_limits.flow_delta_enabled && delta > flow_delta_thresh) {
             flow_warning = true;
         }
     }
@@ -165,6 +174,10 @@ void alarm_mgr_process(float current_pressure, float current_flow, uint32_t sens
                  (int)flow_high, (int)flow_warning, (unsigned long)sensor_faults);
     }
     s_current_state = target_state;
+    if (state_changed) {
+        s_beep_active = false;
+        s_last_toggle_time_us = now - (target_state == ALARM_STATE_ALERT ? 150000 : 500000);
+    }
     if (state_changed && s_state_cb != NULL)
         s_state_cb(s_current_state);
 
@@ -176,6 +189,7 @@ void alarm_mgr_process(float current_pressure, float current_flow, uint32_t sens
 
     // Si todo estÃƒÆ’Ã‚Â¡ normal o el sistema estÃƒÆ’Ã‚Â¡ silenciado, apagamos el PWM de inmediato
     if (s_current_state == ALARM_STATE_NORMAL || s_is_muted) {
+        s_beep_active = false;
         set_buzzer_acoustic(false);
         return;
     }
@@ -183,6 +197,7 @@ void alarm_mgr_process(float current_pressure, float current_flow, uint32_t sens
     // Inhibicion de audio no-critico (p.ej. pantalla de login/config): un WARNING
     // o fallo tecnico NO debe pitar, pero un ALERT critico SI sigue sonando.
     if (s_audio_inhibit_noncritical && s_current_state != ALARM_STATE_ALERT) {
+        s_beep_active = false;
         set_buzzer_acoustic(false);
         return;
     }
@@ -197,31 +212,83 @@ void alarm_mgr_process(float current_pressure, float current_flow, uint32_t sens
         s_last_toggle_time_us = now;
         
         // Verificamos si las banderas en NVS tienen el sonido activo para este nivel
-        bool tone_allowed = (s_current_state == ALARM_STATE_ALERT) ? cfg.general.alarm.tone_alert : cfg.general.alarm.tone_warn;
+        bool tone_allowed = (s_current_state == ALARM_STATE_ALERT) ? cfg->general.alarm.tone_alert : cfg->general.alarm.tone_warn;
         
         set_buzzer_acoustic(s_beep_active && tone_allowed);
     }
 }
 
-void alarm_mgr_press_mute(void)
+static void alarm_mgr_press_mute_impl(void)
 {
     if (s_current_state == ALARM_STATE_NORMAL) return;
 
-    AppConfig cfg;
-    appcfg_cache_get(&cfg);   // snapshot en RAM (sin re-parsear NVS)
+    const AppConfig *cfg = appcfg_cache_peek();   // snapshot en RAM (sin copiar)
 
     // Extraemos el tiempo exacto que el usuario configurÃƒÆ’Ã‚Â³ desde AWS o SD
-    int timeout_seconds = 60 * ((s_current_state == ALARM_STATE_ALERT) ? cfg.general.alarm.max_silence_minutes : cfg.general.alarm.reannounce_minutes);
+    int timeout_seconds = 60 * ((s_current_state == ALARM_STATE_ALERT) ? cfg->general.alarm.max_silence_minutes : cfg->general.alarm.reannounce_minutes);
 
     s_is_muted = true;
+    s_beep_active = false;
     s_mute_end_time_us = esp_timer_get_time() + ((int64_t)timeout_seconds * 1000000ULL);
 
     ESP_LOGW(TAG, "Buzzer silenciado vÃƒÆ’Ã‚Â­a software por %d segundos.", timeout_seconds);
     set_buzzer_acoustic(false); // Apagado instantÃƒÆ’Ã‚Â¡neo
 }
 
-void alarm_mgr_test_buzzer(void) { s_test_end_time_us = esp_timer_get_time() + 2000000LL; }
+static void alarm_mgr_test_buzzer_impl(void) { s_test_end_time_us = esp_timer_get_time() + 2000000LL; }
 
-alarm_clinical_state_t alarm_mgr_get_current_state(void) { return s_current_state; }
-bool alarm_mgr_is_muted(void) { return s_is_muted; }
-uint32_t alarm_mgr_get_sensor_faults(void) { return s_sensor_faults; }
+static alarm_clinical_state_t alarm_mgr_get_current_state_impl(void) { return s_current_state; }
+static bool alarm_mgr_is_muted_impl(void) { return s_is_muted; }
+static uint32_t alarm_mgr_get_sensor_faults_impl(void) { return s_sensor_faults; }
+
+void alarm_mgr_set_audio_inhibit_noncritical(bool inhibit) {
+    if (!s_alarm_lock || xSemaphoreTakeRecursive(s_alarm_lock, pdMS_TO_TICKS(100)) != pdTRUE) return;
+    alarm_mgr_set_audio_inhibit_noncritical_impl(inhibit);
+    xSemaphoreGiveRecursive(s_alarm_lock);
+}
+
+void alarm_mgr_set_state_change_cb(alarm_state_change_cb_t cb) {
+    if (!s_alarm_lock || xSemaphoreTakeRecursive(s_alarm_lock, pdMS_TO_TICKS(100)) != pdTRUE) return;
+    alarm_mgr_set_state_change_cb_impl(cb);
+    xSemaphoreGiveRecursive(s_alarm_lock);
+}
+
+bool alarm_mgr_process(float current_pressure, float current_flow, uint32_t sensor_faults) {
+    if (!s_alarm_lock || xSemaphoreTakeRecursive(s_alarm_lock, pdMS_TO_TICKS(100)) != pdTRUE) return false;
+    alarm_mgr_process_impl(current_pressure, current_flow, sensor_faults);
+    xSemaphoreGiveRecursive(s_alarm_lock);
+    return true;
+}
+
+void alarm_mgr_press_mute(void) {
+    if (!s_alarm_lock || xSemaphoreTakeRecursive(s_alarm_lock, pdMS_TO_TICKS(100)) != pdTRUE) return;
+    alarm_mgr_press_mute_impl();
+    xSemaphoreGiveRecursive(s_alarm_lock);
+}
+
+void alarm_mgr_test_buzzer(void) {
+    if (!s_alarm_lock || xSemaphoreTakeRecursive(s_alarm_lock, pdMS_TO_TICKS(100)) != pdTRUE) return;
+    alarm_mgr_test_buzzer_impl();
+    xSemaphoreGiveRecursive(s_alarm_lock);
+}
+
+alarm_clinical_state_t alarm_mgr_get_current_state(void) {
+    if (!s_alarm_lock || xSemaphoreTakeRecursive(s_alarm_lock, pdMS_TO_TICKS(100)) != pdTRUE) return ALARM_STATE_WARNING;
+    alarm_clinical_state_t result = alarm_mgr_get_current_state_impl();
+    xSemaphoreGiveRecursive(s_alarm_lock);
+    return result;
+}
+
+bool alarm_mgr_is_muted(void) {
+    if (!s_alarm_lock || xSemaphoreTakeRecursive(s_alarm_lock, pdMS_TO_TICKS(100)) != pdTRUE) return false;
+    bool result = alarm_mgr_is_muted_impl();
+    xSemaphoreGiveRecursive(s_alarm_lock);
+    return result;
+}
+
+uint32_t alarm_mgr_get_sensor_faults(void) {
+    if (!s_alarm_lock || xSemaphoreTakeRecursive(s_alarm_lock, pdMS_TO_TICKS(100)) != pdTRUE) return UINT32_MAX;
+    uint32_t result = alarm_mgr_get_sensor_faults_impl();
+    xSemaphoreGiveRecursive(s_alarm_lock);
+    return result;
+}

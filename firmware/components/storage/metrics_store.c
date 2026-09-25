@@ -2,6 +2,7 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 #include <string.h>
+#include <stddef.h>
 
 #define MET_NS  "metrics"
 #define MET_KEY "m"
@@ -20,7 +21,7 @@ esp_err_t appmetrics_load(app_metrics_t *out)
         size_t len = sizeof(*out);
         r = nvs_get_blob(h, MET_KEY, out, &len);
         nvs_close(h);
-        if (r != ESP_OK || len != sizeof(*out))
+        if (r != ESP_OK || (len != sizeof(*out) && len != offsetof(app_metrics_t, partial)))
             memset(out, 0, sizeof(*out));   /* primera vez / blob de otra versión */
     }
     out->date[sizeof(out->date) - 1] = '\0';

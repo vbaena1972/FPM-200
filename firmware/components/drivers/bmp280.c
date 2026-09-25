@@ -1,3 +1,5 @@
+#include "fpm_i2c_guard.h"
+#include "driver_delay.h"
 #include "bmp280.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
@@ -77,7 +79,7 @@ esp_err_t bmp280_init(i2c_master_bus_handle_t bus_handle, uint8_t i2c_addr)
 
     // Soft reset y espera al arranque (NVM copy ~2 ms)
     (void)bmp280_write_reg(BMP280_REG_RESET, BMP280_RESET_WORD);
-    vTaskDelay(pdMS_TO_TICKS(10));
+    driver_delay_ms(10);
 
     // Calibracion de fabrica (24 bytes, little-endian)
     uint8_t c[24] = {0};
@@ -113,7 +115,7 @@ esp_err_t bmp280_init(i2c_master_bus_handle_t bus_handle, uint8_t i2c_addr)
         s_dev = NULL;
         return err;
     }
-    vTaskDelay(pdMS_TO_TICKS(50)); // primera conversion normal-mode
+    driver_delay_ms(50); // primera conversion normal-mode
 
     s_ready = true;
     ESP_LOGI(TAG, "%s OK en 0x%02X (referencia barometrica, osr_p=x16, IIR=x16)", name, addr);

@@ -4,7 +4,7 @@
 // runtime que ya estan habilitados (CONFIG_FREERTOS_GENERATE_RUN_TIME_STATS=y).
 //
 // Formato de salida por serie (filtrable con Python):
-//   TRACE,<ts_ms>,<nombre>,<estado>,<cpu_pct_x10>,<stack_hwm_words>,<core>
+//   TRACE,<ts_ms>,<nombre>,<estado>,<cpu_pct_x10>,<stack_hwm_bytes>,<core>
 //   TRACE_END,<ts_ms>
 //
 // cpu_pct_x10: CPU% * 10 para evitar floats (ej. 125 = 12.5%).
@@ -86,9 +86,7 @@ void task_tracer_dump_now(void) {
     UBaseType_t n = uxTaskGetSystemState(s_status, MAX_TASKS, &total_rt);
     if (n == 0) return;
 
-    unsigned long delta_total = (total_rt >= s_last_total)
-                                ? (total_rt - s_last_total)
-                                : total_rt;   // wraparound improbable en U32 a 1kHz
+    unsigned long delta_total = total_rt - s_last_total;
     s_last_total = total_rt;
 
     uint64_t ts_ms = (esp_timer_get_time() - s_start_us) / 1000ULL;
@@ -99,9 +97,7 @@ void task_tracer_dump_now(void) {
         unsigned long prev_rt = track_get_and_update(t->xHandle,
                                                      t->pcTaskName,
                                                      t->ulRunTimeCounter);
-        unsigned long delta_rt = (t->ulRunTimeCounter >= prev_rt)
-                                 ? (t->ulRunTimeCounter - prev_rt)
-                                 : 0;
+        unsigned long delta_rt = t->ulRunTimeCounter - prev_rt;
 
         // cpu_pct_x10 = (delta_rt / delta_total) * 1000
         // Evitamos float usando aritmetica entera.
@@ -109,7 +105,7 @@ void task_tracer_dump_now(void) {
                            ? (uint32_t)((uint64_t)delta_rt * 1000ULL / delta_total)
                            : 0u;
 
-        uint32_t hwm = (uint32_t)uxTaskGetStackHighWaterMark(t->xHandle);
+        uint32_t hwm = (uint32_t)t->usStackHighWaterMark;
 
         char core_s[12];
         if ((int)t->xCoreID == tskNO_AFFINITY)
@@ -129,11 +125,22 @@ void task_tracer_dump_now(void) {
     printf("TRACE_END,%llu\n", (unsigned long long)ts_ms);
 }
 
+static TaskHandle_t s_trace_worker;
+static void trace_worker(void *arg) {
+    while (true) {
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        task_tracer_dump_now();
+    }
+}
 static void timer_cb(void* arg) {
-    task_tracer_dump_now();
+    if (s_trace_worker) xTaskNotifyGive(s_trace_worker);
 }
 
 void task_tracer_start(uint32_t interval_ms) {
+    if (!s_trace_worker && xTaskCreate(trace_worker, "trace_worker", 4096, NULL, 1, &s_trace_worker) != pdPASS) {
+        ESP_LOGE(TAG, "Cannot create diagnostics worker");
+        return;
+    }
     if (s_timer) return;
 
     s_start_us   = esp_timer_get_time();

@@ -1,5 +1,16 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.5.5..1.5.15-dev (Codex + Claude, 2026-09-24): EEPROM byte-a-byte paceada,
+#   consumo integrado, cero de presion v6 (+0.415 kPa), secuencia WiFi, y
+#   1.5.15: completa migracion v5->v6 interrumpida (datos v6, CRC viejo v5).
+#   1.5.16: TWDT con panic se MANTIENE; timeout 20 s solo durante esp_wifi_start
+#   (calibracion PHY lenta causaba bootloop: panic antes de guardar cal en NVS).
+#   1.5.17: PHY sigue colgada con 20 s (hang real, no lentitud). Se revierte el
+#   pin a CPU0 de sensors_acq (NO_AFFINITY) y aws_pub (core 1) como en HEAD.
+#   1.5.18: auditoria: alarma no evalua datos invalidos como 0 kPa, cJSON en PSRAM,
+#   cache AppConfig con mutex y sin copias de 2 KB en stack, limites AWS vivos,
+#   heap tracing OFF (~16 KB RAM interna), CPU 240 MHz, diagnostico de stalls.
+#   Detalle en firmware/CONSUMPTION_FIXES.md y docs/HANDOFF.md.
 # 1.5.4-dev: microSD (ui_sd + sd_monitor) + BT-off REAL en "Configurar por app".
 #   microSD (main.c/ui_sd): (1) el overlay ahora tiene botón "Cerrar" SIEMPRE
 #   visible (antes solo aparecía "Aplicar y reiniciar" cuando había cambios y la
@@ -65,5 +76,5 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.5.4-dev")
+set(PROJECT_VER "1.5.18-dev")
 project(esp32s3_hmi_skeleton)

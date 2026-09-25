@@ -30,14 +30,17 @@ esp_err_t at24c256_init(i2c_master_bus_handle_t bus_handle, uint8_t i2c_addr);
 
 bool at24c256_is_ready(void);
 
+// Boot-only diagnostic: scratch 0x0130..0x016f, backed up and restored.
+esp_err_t at24c256_self_test(void);
+
 /**
- * Lee 'len' bytes a partir de la direccion interna 'mem_addr'.
+ * Lee 'len' bytes mediante lecturas individuales con STOP a 100 kHz.
  */
 esp_err_t at24c256_read(uint16_t mem_addr, uint8_t *buf, size_t len);
 
 /**
- * Escribe 'len' bytes a partir de 'mem_addr'. Maneja automaticamente los
- * limites de pagina (64 bytes) y el tiempo de ciclo de escritura (~5 ms).
+ * Escribe bytes individuales con espera de ciclo y verificacion; finalmente
+ * relee todo el rango dos veces. No utiliza escrituras por pagina.
  */
 esp_err_t at24c256_write(uint16_t mem_addr, const uint8_t *buf, size_t len);
 

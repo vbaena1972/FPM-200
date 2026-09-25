@@ -18,7 +18,7 @@ typedef enum {
 esp_err_t alarm_mgr_init(int buzzer_gpio);
 
 // Procesador central: EvalÃƒÂºa los sensores y maneja los timings de Mute
-void alarm_mgr_process(float current_pressure, float current_flow, uint32_t sensor_faults);
+bool alarm_mgr_process(float current_pressure, float current_flow, uint32_t sensor_faults);
 
 // AcciÃƒÂ³n fÃƒÂ­sica al presionar el botÃƒÂ³n de MUTE del HMI
 void alarm_mgr_press_mute(void);

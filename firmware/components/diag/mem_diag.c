@@ -83,7 +83,7 @@ void mem_diag_report_heap_full(const char* tag) {
 // CPU%: relativo al tiempo de reloj (wall-clock).  En dual-core el maximo
 //       teorico es 200% (100% por core).  Un idle task al ~50% significa
 //       que ese core esta libre ~la mitad del tiempo.
-// Stack watermark: palabras libres minimas vistas.  Si llega a 0 → desborde.
+// Stack watermark: bytes libres minimos vistas.  Si llega a 0 → desborde.
 // ---------------------------------------------------------------------------
 void mem_diag_report_tasks(void) {
     volatile UBaseType_t uxArraySize = uxTaskGetNumberOfTasks();
@@ -96,6 +96,11 @@ void mem_diag_report_tasks(void) {
     unsigned long ulTotalRunTime = 0;
     uxArraySize = uxTaskGetSystemState(tasks, uxArraySize, &ulTotalRunTime);
 
+    static unsigned long previous_total;
+    static TaskHandle_t previous_handles[32];
+    static unsigned long previous_runtime[32];
+    unsigned long delta_total = ulTotalRunTime - previous_total;
+    previous_total = ulTotalRunTime;
     ESP_LOGI(MEMTAG, "=== TASKS  (wall_time=%lu) ===", ulTotalRunTime);
     ESP_LOGI(MEMTAG, "%-16s %-3s %4s %5s %6s %4s",
              "Name", "St", "Prio", "CPU%", "StkHW", "Core");
@@ -103,11 +108,18 @@ void mem_diag_report_tasks(void) {
 
     for (UBaseType_t i = 0; i < uxArraySize; i++) {
         TaskStatus_t *t = &tasks[i];
-        UBaseType_t watermark = uxTaskGetStackHighWaterMark(t->xHandle);
+        UBaseType_t watermark = t->usStackHighWaterMark;
+        if (watermark < 512)
+            ESP_LOGW(MEMTAG, "LOW STACK: %s minimum free=%u bytes", t->pcTaskName, (unsigned)watermark);
 
-        uint32_t cpu_pct = (ulTotalRunTime > 0)
-            ? (uint32_t)((t->ulRunTimeCounter * 100ULL) / ulTotalRunTime)
-            : 0u;
+        unsigned long delta_runtime = 0;
+        for (unsigned j = 0; j < 32; ++j) {
+            if (previous_handles[j] == t->xHandle) {
+                delta_runtime = t->ulRunTimeCounter - previous_runtime[j];
+                break;
+            }
+        }
+        uint32_t cpu_pct = delta_total ? (uint32_t)((uint64_t)delta_runtime * 100 / delta_total) : 0;
 
         char core_str[12];
         if ((int)t->xCoreID == tskNO_AFFINITY) {
@@ -123,6 +135,11 @@ void mem_diag_report_tasks(void) {
                  (unsigned long)cpu_pct,
                  (unsigned long)watermark,
                  core_str);
+    }
+    memset(previous_handles, 0, sizeof(previous_handles));
+    for (unsigned j = 0; j < uxArraySize && j < 32; ++j) {
+        previous_handles[j] = tasks[j].xHandle;
+        previous_runtime[j] = tasks[j].ulRunTimeCounter;
     }
     free(tasks);
 }
@@ -144,11 +161,22 @@ void mem_diag_report_full(const char* tag) {
 // ---------------------------------------------------------------------------
 static esp_timer_handle_t s_diag_timer = NULL;
 
+static TaskHandle_t s_diag_worker;
+static void diag_worker(void *arg) {
+    while (true) {
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        mem_diag_report_full("PERIODIC");
+    }
+}
 static void diag_timer_cb(void* arg) {
-    mem_diag_report_full("PERIODIC");
+    if (s_diag_worker) xTaskNotifyGive(s_diag_worker);
 }
 
 void mem_diag_start_periodic(uint32_t interval_ms) {
+    if (!s_diag_worker && xTaskCreate(diag_worker, "diag_worker", 4096, NULL, 1, &s_diag_worker) != pdPASS) {
+        ESP_LOGE(MEMTAG, "Cannot create diagnostics worker");
+        return;
+    }
     if (s_diag_timer) return;
     const esp_timer_create_args_t args = {
         .callback = diag_timer_cb,

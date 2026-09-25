@@ -6,7 +6,7 @@
  * AppConfig para no reescribir el JSON completo en cada guardado periódico:
  *  - consumo de gas del día (m³) + fecha a la que pertenece
  *  - minutos de servicio acumulados (vida del equipo)
- * Las escribe main.c (ui_refresh_task) cada ~10 min; wear de NVS aceptable. */
+ * Las escribe flow_meter_service (time_sync worker) cada ~10 min; wear de NVS aceptable. */
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,6 +16,8 @@ typedef struct {
     char     date[12];     /* "YYYY-MM-DD" del acumulado de consumo */
     float    consumo_m3;   /* consumo acumulado de ese día */
     uint32_t service_min;  /* minutos de servicio totales del equipo */
+    uint32_t partial;     /* incomplete coverage (gaps/restart/clock adjustment) */
+    uint64_t missing_ms;  /* known unmeasured intervals, not estimated volume */
 } app_metrics_t;
 
 esp_err_t appmetrics_load(app_metrics_t *out);       /* ceros si no existe aún */

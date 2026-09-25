@@ -43,8 +43,6 @@ void ui_main_set_clock(const char *hhmm);
 void ui_main_set_date(const char *date);
 
 /* Consumo acumulado del día (m³) — para persistirlo desde main.c (metrics_store). */
-float ui_main_get_consumo(void);
-void  ui_main_set_consumo(float m3);   /* siembra el acumulador al arrancar */
 
 #ifdef __cplusplus
 }

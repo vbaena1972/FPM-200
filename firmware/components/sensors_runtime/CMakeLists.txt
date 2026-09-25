@@ -1,5 +1,5 @@
 idf_component_register(
-    SRCS "sensors_runtime.c"
+    SRCS "sensors_runtime.c" "flow_meter.c"
     INCLUDE_DIRS "include"
     REQUIRES
         freertos

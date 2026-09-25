@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 
 #define NVS_NS "cfg"
 #define NVS_KEY "appcfg"
@@ -689,14 +691,36 @@ esp_err_t appcfg_migrate(AppConfig *io)
 static AppConfig s_cfg_snapshot;
 static bool s_cfg_snapshot_inited = false;
 
+// Guards whole-struct copies so a reader never sees a half-copied snapshot.
+// Created on first use; the first reload runs in app_main before other tasks.
+static StaticSemaphore_t s_cfg_snapshot_lock_buf;
+static SemaphoreHandle_t s_cfg_snapshot_lock;
+static bool cfg_snapshot_lock(void)
+{
+    if (!s_cfg_snapshot_lock)
+        s_cfg_snapshot_lock = xSemaphoreCreateMutexStatic(&s_cfg_snapshot_lock_buf);
+    return xSemaphoreTake(s_cfg_snapshot_lock, pdMS_TO_TICKS(1000)) == pdTRUE;
+}
+static void cfg_snapshot_unlock(bool locked)
+{
+    if (locked) xSemaphoreGive(s_cfg_snapshot_lock);
+}
+
 esp_err_t appcfg_cache_reload(void)
 {
-    AppConfig tmp;
-    appcfg_defaults(&tmp); // por si falla NVS
-    esp_err_t r = appcfg_load(&tmp);
+    // Heap (PSRAM-capable), not stack: callers include httpd/BLE/MQTT/LVGL tasks
+    // whose stacks cannot spare a full AppConfig copy.
+    AppConfig *tmp = malloc(sizeof(AppConfig));
+    if (!tmp)
+        return ESP_ERR_NO_MEM;
+    appcfg_defaults(tmp); // por si falla NVS
+    esp_err_t r = appcfg_load(tmp);
     // copiamos siempre (si falla, quedan defaults)
-    memcpy(&s_cfg_snapshot, &tmp, sizeof(AppConfig));
+    bool locked = cfg_snapshot_lock();
+    memcpy(&s_cfg_snapshot, tmp, sizeof(AppConfig));
     s_cfg_snapshot_inited = true;
+    cfg_snapshot_unlock(locked);
+    free(tmp);
     return r;
 }
 
@@ -710,7 +734,9 @@ esp_err_t appcfg_cache_get(AppConfig *out)
         appcfg_defaults(&s_cfg_snapshot);
         s_cfg_snapshot_inited = true;
     }
+    bool locked = cfg_snapshot_lock();
     memcpy(out, &s_cfg_snapshot, sizeof(AppConfig));
+    cfg_snapshot_unlock(locked);
     return ESP_OK;
 }
 

@@ -1,3 +1,5 @@
+#include "fpm_i2c_guard.h"
+#include "driver_delay.h"
 #include "ms5803.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
@@ -45,7 +47,7 @@ static esp_err_t ms5803_reset_retry(void)
         err = ms5803_send_cmd(MS5803_CMD_RESET);
         if (err == ESP_OK)
             return ESP_OK;
-        vTaskDelay(pdMS_TO_TICKS(10));
+        driver_delay_ms(10);
     }
     return err;
 }
@@ -63,7 +65,7 @@ static esp_err_t ms5803_read_prom_word(uint8_t index, uint16_t *out)
             *out = ((uint16_t)rx[0] << 8) | rx[1];
             return ESP_OK;
         }
-        vTaskDelay(pdMS_TO_TICKS(5));
+        driver_delay_ms(5);
     }
     return err;
 }
@@ -132,7 +134,7 @@ static esp_err_t ms5803_try_addr(i2c_master_bus_handle_t bus, uint8_t addr)
     // algunos casos la 1a escritura NACKea pero la lectura ya funciona.
     esp_err_t rst = ms5803_reset_retry();
     ESP_LOGI(TAG, "0x%02X reset -> %s", addr, esp_err_to_name(rst));
-    vTaskDelay(pdMS_TO_TICKS(10)); // el reset recarga la PROM (~2.8 ms)
+    driver_delay_ms(10); // el reset recarga la PROM (~2.8 ms)
 
     bool any_ok = false;
     for (int i = 0; i < 8; i++)
@@ -223,7 +225,7 @@ esp_err_t ms5803_read(float *pressure_kpa, float *temp_c)
     err = ms5803_send_cmd(MS5803_CMD_CONV_D1);
     if (err != ESP_OK)
         return err;
-    vTaskDelay(pdMS_TO_TICKS(MS5803_CONV_DELAY_MS));
+    driver_delay_ms(MS5803_CONV_DELAY_MS);
     err = ms5803_read_adc(&d1);
     if (err != ESP_OK)
         return err;
@@ -232,7 +234,7 @@ esp_err_t ms5803_read(float *pressure_kpa, float *temp_c)
     err = ms5803_send_cmd(MS5803_CMD_CONV_D2);
     if (err != ESP_OK)
         return err;
-    vTaskDelay(pdMS_TO_TICKS(MS5803_CONV_DELAY_MS));
+    driver_delay_ms(MS5803_CONV_DELAY_MS);
     err = ms5803_read_adc(&d2);
     if (err != ESP_OK)
         return err;

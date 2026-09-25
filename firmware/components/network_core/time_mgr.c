@@ -1,3 +1,7 @@
+#include "flow_meter.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
 #include "time_mgr.h"
 #include "esp_log.h"
 #include "esp_sntp.h"
@@ -11,31 +15,43 @@
 static const char *TAG = "time_mgr";
 static bool s_time_valid = false;
 
-// Callback que llama ESP-IDF cuando SNTP logra sincronizar la hora
+// A single worker owns the slow RTC/MQTT work. The TCP/IP callback only
+// overwrites a one-element mailbox; repeated syncs cannot accumulate tasks.
+static QueueHandle_t s_sync_queue;
+static void time_sync_worker(void *arg)
+{
+    time_t stamp;
+    while (true) {
+        flow_meter_service();
+        if (xQueueReceive(s_sync_queue, &stamp, pdMS_TO_TICKS(1000)) != pdTRUE) continue;
+        struct tm local = {0};
+        localtime_r(&stamp, &local);
+        esp_err_t err = rtc_rv3028_set_time(&local);
+        if (err != ESP_OK)
+            ESP_LOGW(TAG, "RTC sync failed (%s); system time remains valid", esp_err_to_name(err));
+        else
+            ESP_LOGI(TAG, "RTC synchronized");
+        transport_mqtt_on_time_ready();
+    }
+}
 static void time_sync_notification_cb(struct timeval *tv)
 {
-    ESP_LOGI(TAG, "Sincronización SNTP completada con éxito.");
     s_time_valid = true;
-
-    // Tomamos la hora recién sincronizada del ESP32
-    time_t now = 0;
-    struct tm timeinfo = { 0 };
-    time(&now);
-    localtime_r(&now, &timeinfo);
-
-    // Actualizamos el RTC RV-3028-C7 de hardware
-    if (rtc_rv3028_set_time(&timeinfo) == ESP_OK) {
-        ESP_LOGI(TAG, "RTC RV-3028-C7 actualizado: %04d-%02d-%02d %02d:%02d:%02d",
-                 timeinfo.tm_year + 1900, timeinfo.tm_mon + 1, timeinfo.tm_mday,
-                 timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
-    }
-
-    // ¡Notificamos a MQTT que ya es seguro conectar!
-    transport_mqtt_on_time_ready(); 
+    time_t stamp = tv->tv_sec;
+    if (s_sync_queue) xQueueOverwrite(s_sync_queue, &stamp);
 }
 
 void time_mgr_init(void)
 {
+    if (!s_sync_queue) {
+        s_sync_queue = xQueueCreate(1, sizeof(time_t));
+        if (!s_sync_queue || xTaskCreate(time_sync_worker, "time_sync", 8192,
+                                        NULL, 3, NULL) != pdPASS) {
+            if (s_sync_queue) vQueueDelete(s_sync_queue);
+            s_sync_queue = NULL;
+            ESP_LOGE(TAG, "Cannot create time sync worker");
+        }
+    }
     // Configuramos la zona horaria de Colombia por defecto
     setenv("TZ", "COT5", 1);
     tzset();

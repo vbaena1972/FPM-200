@@ -1,3 +1,5 @@
+#include "fpm_i2c_guard.h"
+#include "driver_delay.h"
 #include "ads1115.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
@@ -76,7 +78,8 @@ esp_err_t ads1115_init(i2c_master_bus_handle_t bus_handle)
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "ADS1115 no responde en 0x%02X: %s", ADS1115_ADDR, esp_err_to_name(err));
-        i2c_master_bus_rm_device(s_dev);
+        esp_err_t removed = i2c_master_bus_rm_device(s_dev);
+        if (removed != ESP_OK) return removed;
         s_dev = NULL;
         return err;
     }
@@ -99,7 +102,8 @@ esp_err_t ads1115_recover(void)
     // Soltar el device actual (ignoramos error: puede estar ya invalido).
     if (s_dev)
     {
-        i2c_master_bus_rm_device(s_dev);
+        esp_err_t removed = i2c_master_bus_rm_device(s_dev);
+        if (removed != ESP_OK) return removed;
         s_dev = NULL;
     }
     s_ready = false;
@@ -121,7 +125,8 @@ esp_err_t ads1115_recover(void)
     err = ads1115_read_reg(ADS1115_REG_CONFIG, &cfg);
     if (err != ESP_OK)
     {
-        i2c_master_bus_rm_device(s_dev);
+        esp_err_t removed = i2c_master_bus_rm_device(s_dev);
+        if (removed != ESP_OK) return removed;
         s_dev = NULL;
         return err;
     }
@@ -147,7 +152,7 @@ static esp_err_t ads1115_read_raw_once(ads1115_channel_t ch, int16_t *raw)
         return err;
 
     // A 128 SPS la conversion tarda ~7.8 ms. Esperamos con margen y confirmamos OS=1.
-    vTaskDelay(pdMS_TO_TICKS(10));
+    driver_delay_ms(10);
 
     bool done = false;
     int i;
@@ -162,7 +167,7 @@ static esp_err_t ads1115_read_raw_once(ads1115_channel_t ch, int16_t *raw)
             done = true;
             break;
         }
-        vTaskDelay(pdMS_TO_TICKS(2));
+        driver_delay_ms(2);
     }
     if (!done) {
         // La conversion no reporto OS=1: si leyeramos ahora obtendriamos el dato
@@ -228,12 +233,16 @@ esp_err_t ads1115_read_raw(ads1115_channel_t ch, int16_t *raw)
         // Cada intento fallido (aunque un reintento lo recupere): revela
         // inestabilidad del bus (NACK/timeout/arbitraje) que de otro modo queda
         // oculta al tener éxito el reintento.
-        ESP_LOGW(TAG, "ads1115 ch=%d intento %d: %s (reintentando)",
+        ESP_LOGD(TAG, "ads1115 ch=%d intento %d: %s (reintentando)",
                  (int)ch, attempt, esp_err_to_name(err));
-        vTaskDelay(pdMS_TO_TICKS(ADS1115_RETRY_BACKOFF_MS * (attempt + 1)));
+        driver_delay_ms(ADS1115_RETRY_BACKOFF_MS * (attempt + 1));
     }
-    ESP_LOGW(TAG, "ads1115_read_raw ch=%d fallo tras %d intentos: %s",
-             (int)ch, ADS1115_IO_RETRIES, esp_err_to_name(err));
+    static TickType_t last_log;
+    TickType_t now_tick = xTaskGetTickCount();
+    if (!last_log || now_tick - last_log >= pdMS_TO_TICKS(5000)) {
+        last_log = now_tick;
+        ESP_LOGW(TAG, "ADS read failed after %d attempts: %s", ADS1115_IO_RETRIES, esp_err_to_name(err));
+    }
     return err;
 }
 

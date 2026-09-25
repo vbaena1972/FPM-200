@@ -1,5 +1,6 @@
 idf_component_register(
     SRCS
+        "fpm_i2c_guard.c"
         "rtc_rv3028.c"
         "alarm_mgr.c"
         "ms5803.c"

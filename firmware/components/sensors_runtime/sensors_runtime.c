@@ -1,3 +1,6 @@
+#include "flow_meter.h"
+#include "driver_delay.h"
+#include "fpm_i2c_guard.h"
 #include "sensors_runtime.h"
 
 #include <string.h>
@@ -24,7 +27,7 @@
 #define SENSORS_BUFFER_LEN 600      // ~600 muestras
 #define SENSORS_DEFAULT_PERIOD_MS 100 // 10 Hz de adquisiciÃ³n real
 #define SENSORS_TASK_STACK 4096
-#define SENSORS_TASK_PRIO 5
+#define SENSORS_TASK_PRIO 6
 
 // AntirrebÃ³te de fault de I2C: un NACK puntual en el bus compartido
 // (MS5803/ADS/EEPROM) es comÃºn y NO debe disparar la alarma crÃ­tica ni
@@ -57,7 +60,7 @@ static const char *TAG = "sensors_runtime";
 
 #define SENS_CFG_EEPROM_ADDR 0x0000
 #define SENS_CFG_MAGIC 0x53454E31u // "SEN1"
-#define SENS_CFG_VERSION 5 // v5: recalibracion FS7 (2026-08-21). Sube al cambiar defaults
+#define SENS_CFG_VERSION 6 // v6: user-confirmed atmospheric zero correction (+0.415 kPa).
 
 // Modos de presiÃ³n
 #define PRESSURE_MODE_ABS   0 // absoluta (por defecto)
@@ -114,6 +117,7 @@ static volatile float s_dbg_fs7_lpm = NAN;
 //------------------------------------------------------------------
 
 static sensor_sample_t s_buf[SENSORS_BUFFER_LEN];
+static int64_t s_last_pressure_ms = -1, s_last_flow_ms = -1;
 static size_t s_head = 0;  // prÃ³xima posiciÃ³n de escritura
 static size_t s_count = 0; // nÂº de elementos vÃ¡lidos en buffer
 
@@ -176,7 +180,7 @@ static void sensor_cfg_set_defaults(sensor_eeprom_cfg_t *c)
     c->version = SENS_CFG_VERSION;
     c->size = sizeof(*c);
 
-    c->pressure_offset_kpa = 0.0f;
+    c->pressure_offset_kpa = 0.415f;
     c->pressure_scale = 1.0f;
     c->pressure_ref_kpa = 0.0f; // sin tarar todavÃ­a
 
@@ -202,54 +206,120 @@ static void sensor_cfg_set_defaults(sensor_eeprom_cfg_t *c)
     c->sample_period_ms = SENSORS_DEFAULT_PERIOD_MS;
 }
 
-// Carga la configuraciÃ³n desde la EEPROM. Si no es vÃ¡lida (primera vez o CRC
-// incorrecto) escribe los valores por defecto y los deja activos.
-static void sensor_cfg_load_or_init(void)
+// Boot-only: called before display/touch and acquisition are started.
+static bool s_calibration_preloaded;
+void sensors_runtime_preload_calibration(void)
 {
-    sensor_cfg_set_defaults(&s_scfg); // base segura
+    if (s_calibration_preloaded) return;
+    s_calibration_preloaded = true;
+    sensor_cfg_set_defaults(&s_scfg);
     s_scfg_valid = false;
-
-    if (!at24c256_is_ready())
-    {
-        ESP_LOGW(TAG, "EEPROM no disponible: uso calibraciÃ³n por defecto (RAM)");
-        s_scfg_valid = true; // seguimos con defaults en RAM
+    if (!at24c256_is_ready()) {
+        ESP_LOGE(TAG, "EEPROM_CAL unavailable; RAM defaults only");
         return;
     }
-
-    sensor_eeprom_cfg_t tmp;
-    esp_err_t err = at24c256_read(SENS_CFG_EEPROM_ADDR, (uint8_t *)&tmp, sizeof(tmp));
-    if (err == ESP_OK &&
-        tmp.magic == SENS_CFG_MAGIC &&
-        tmp.version == SENS_CFG_VERSION &&
-        tmp.size == sizeof(tmp))
-    {
-        uint16_t crc = crc16_ccitt((const uint8_t *)&tmp, sizeof(tmp) - sizeof(tmp.crc16));
-        if (crc == tmp.crc16)
-        {
-            s_scfg = tmp;
-            s_scfg_valid = true;
-            ESP_LOGI(TAG, "CalibraciÃ³n cargada de EEPROM (v%u): U0=%.2f k=%.3f n=%.3f div=%.4f "
-                          "flow_scale=%.3f period=%u ms",
-                     s_scfg.version, s_scfg.fs7_u0, s_scfg.fs7_k, s_scfg.fs7_n,
-                     s_scfg.fs7_divider, s_scfg.flow_scale, s_scfg.sample_period_ms);
+    sensor_eeprom_cfg_t reference = {0}, tmp = {0};
+    bool stable = true;
+    for (unsigned attempt = 0; attempt < 4; ++attempt) {
+        esp_err_t err = at24c256_read(SENS_CFG_EEPROM_ADDR, (uint8_t *)&tmp, sizeof(tmp));
+        if (err != ESP_OK) {
+            ESP_LOGE(TAG, "EEPROM_CAL read=%u transport=%s; no writes", attempt, esp_err_to_name(err));
             return;
         }
-        ESP_LOGW(TAG, "EEPROM: CRC de calibraciÃ³n invÃ¡lido, reescribo defaults");
+        uint16_t crc = crc16_ccitt((const uint8_t *)&tmp, offsetof(sensor_eeprom_cfg_t, crc16));
+        ESP_LOGI(TAG, "EEPROM_CAL pre-touch read=%u CRC stored=%04X computed=%04X",
+                 attempt, tmp.crc16, crc);
+        if (attempt == 0) reference = tmp;
+        else if (memcmp(&reference, &tmp, sizeof(tmp))) stable = false;
+        driver_delay_ms(10);
     }
-    else
-    {
-        ESP_LOGW(TAG, "EEPROM sin calibraciÃ³n vÃ¡lida (magic/size), inicializo defaults");
+    if (!stable) {
+        ESP_LOGE(TAG, "EEPROM_CAL unstable before touch; preserving stored bytes");
+        return;
     }
-
-    // Escribimos los defaults en la EEPROM
-    sensor_cfg_set_defaults(&s_scfg);
-    s_scfg.crc16 = crc16_ccitt((const uint8_t *)&s_scfg, sizeof(s_scfg) - sizeof(s_scfg.crc16));
-    err = at24c256_write(SENS_CFG_EEPROM_ADDR, (const uint8_t *)&s_scfg, sizeof(s_scfg));
-    if (err == ESP_OK)
-        ESP_LOGI(TAG, "CalibraciÃ³n por defecto escrita en EEPROM");
-    else
-        ESP_LOGW(TAG, "No se pudo escribir calibraciÃ³n en EEPROM: %s", esp_err_to_name(err));
+    uint16_t crc = crc16_ccitt((const uint8_t *)&reference, offsetof(sensor_eeprom_cfg_t, crc16));
+    bool valid = reference.magic == SENS_CFG_MAGIC && (reference.version == SENS_CFG_VERSION || reference.version == 5) &&
+                 reference.size == sizeof(reference) && reference.crc16 == crc;
+    if (!valid && reference.magic == SENS_CFG_MAGIC && reference.version == SENS_CFG_VERSION &&
+        reference.size == sizeof(reference)) {
+        // Interrupted v5->v6 migration: data bytes already v6 but CRC (last bytes
+        // written) still holds the v5 CRC. Accept ONLY if undoing the migration
+        // reproduces a record whose CRC equals the stored one, bit-exact.
+        sensor_eeprom_cfg_t original = reference;
+        original.version = 5;
+        original.pressure_offset_kpa = reference.pressure_offset_kpa - 0.415f;
+        float remigrated = original.pressure_offset_kpa + 0.415f;
+        if (memcmp(&remigrated, &reference.pressure_offset_kpa, sizeof(float)) == 0 &&
+            crc16_ccitt((const uint8_t *)&original, offsetof(sensor_eeprom_cfg_t, crc16)) == reference.crc16) {
+            ESP_LOGW(TAG, "EEPROM_CAL completing interrupted v6 migration: CRC %04X -> %04X",
+                     reference.crc16, crc);
+            sensor_eeprom_cfg_t fixed = reference;
+            fixed.crc16 = crc;
+            esp_err_t err = at24c256_write(SENS_CFG_EEPROM_ADDR + offsetof(sensor_eeprom_cfg_t, crc16),
+                                           (const uint8_t *)&fixed.crc16, sizeof(fixed.crc16));
+            if (err != ESP_OK) return;
+            for (unsigned attempt = 0; attempt < 3; ++attempt) {
+                err = at24c256_read(SENS_CFG_EEPROM_ADDR, (uint8_t *)&tmp, sizeof(tmp));
+                if (err != ESP_OK || memcmp(&tmp, &fixed, sizeof(tmp))) {
+                    ESP_LOGE(TAG, "EEPROM_CAL migration CRC verification failed");
+                    return;
+                }
+                driver_delay_ms(10);
+            }
+            reference = fixed;
+            valid = true;
+        }
+    }
+    if (!valid) {
+        // Recover ONLY the documented Arduino overwrite (42 at 0x0010), and
+        // only when every other byte AND the original CRC match known defaults.
+        // Never invent a new CRC for damaged calibration or replace custom data.
+        sensor_eeprom_cfg_t expected;
+        sensor_cfg_set_defaults(&expected);
+        if (reference.version == 5) {
+            expected.version = 5;
+            expected.pressure_offset_kpa = 0.0f;
+        }
+        expected.crc16 = crc16_ccitt((const uint8_t *)&expected, offsetof(sensor_eeprom_cfg_t, crc16));
+        tmp = reference;
+        bool arduino_overwrite = ((uint8_t *)&tmp)[0x10] == 42;
+        ((uint8_t *)&tmp)[0x10] = ((const uint8_t *)&expected)[0x10];
+        if (!arduino_overwrite || memcmp(&tmp, &expected, sizeof(tmp))) {
+            ESP_LOGE(TAG, "EEPROM_CAL stable but invalid; calibration requires restoration, no writes");
+            return;
+        }
+        ESP_LOGW(TAG, "EEPROM_CAL restoring known Arduino overwrite at 0x0010; original CRC matches defaults");
+        esp_err_t err = at24c256_write(0x0010, ((const uint8_t *)&expected) + 0x10, 1);
+        if (err != ESP_OK) return;
+        for (unsigned attempt = 0; attempt < 3; ++attempt) {
+            err = at24c256_read(SENS_CFG_EEPROM_ADDR, (uint8_t *)&tmp, sizeof(tmp));
+            if (err != ESP_OK || memcmp(&tmp, &expected, sizeof(tmp))) {
+                ESP_LOGE(TAG, "EEPROM_CAL restoration verification failed");
+                return;
+            }
+            driver_delay_ms(10);
+        }
+        reference = expected;
+    }
+    if (reference.version == 5) {
+        // One-time migration for this unit, authorized with inlet at atmosphere.
+        // Version 6 prevents adding the correction again on later boots.
+        sensor_eeprom_cfg_t corrected = reference;
+        corrected.pressure_offset_kpa += 0.415f;
+        corrected.version = SENS_CFG_VERSION;
+        corrected.crc16 = crc16_ccitt((const uint8_t *)&corrected, offsetof(sensor_eeprom_cfg_t, crc16));
+        esp_err_t err = at24c256_write(SENS_CFG_EEPROM_ADDR, (const uint8_t *)&corrected, sizeof(corrected));
+        if (err != ESP_OK) {
+            ESP_LOGE(TAG, "EEPROM_CAL zero correction save failed: %s", esp_err_to_name(err));
+            return;
+        }
+        reference = corrected;
+        ESP_LOGI(TAG, "EEPROM_CAL v6 saved: pressure zero correction +0.415 kPa, offset=%.3f kPa",
+                 corrected.pressure_offset_kpa);
+    }
+    s_scfg = reference;
     s_scfg_valid = true;
+    ESP_LOGI(TAG, "EEPROM_CAL stable, CRC verified before touch; calibration loaded");
 }
 
 // Mediana de 3: rechaza un outlier aislado (pico o dropout del ADS) conservando
@@ -285,13 +355,15 @@ static float sensor_flow_from_voltage(float v_ain0, float *v_out_cta)
 // Recalcula el CRC y persiste s_scfg en la EEPROM. Devuelve ESP_OK si se guardÃ³.
 static esp_err_t sensor_cfg_persist(void)
 {
-    s_scfg.crc16 = crc16_ccitt((const uint8_t *)&s_scfg, sizeof(s_scfg) - sizeof(s_scfg.crc16));
+    s_scfg.crc16 = crc16_ccitt((const uint8_t *)&s_scfg, offsetof(sensor_eeprom_cfg_t, crc16));
     if (!at24c256_is_ready())
     {
+        s_scfg_valid = false;
         ESP_LOGW(TAG, "EEPROM no disponible: cambios de calibraciÃ³n solo en RAM");
         return ESP_ERR_INVALID_STATE;
     }
     esp_err_t err = at24c256_write(SENS_CFG_EEPROM_ADDR, (const uint8_t *)&s_scfg, sizeof(s_scfg));
+    s_scfg_valid = (err == ESP_OK);
     if (err != ESP_OK)
         ESP_LOGW(TAG, "No se pudo persistir calibraciÃ³n en EEPROM: %s", esp_err_to_name(err));
     return err;
@@ -422,13 +494,13 @@ bool sensors_runtime_init(const AppConfig *cfg)
     unlock();
 
     // Cargamos la calibraciÃ³n desde la EEPROM (o escribimos defaults la 1a vez).
-    sensor_cfg_load_or_init();
+    sensors_runtime_preload_calibration();
 
     // Estado de los sensores fÃ­sicos (los drivers se inicializan en main.c).
     ESP_LOGI(TAG, "Sensores: MS5803=%s  ADS1115=%s  EEPROM=%s",
              ms5803_is_ready() ? "OK" : "NO",
              ads1115_is_ready() ? "OK" : "NO",
-             at24c256_is_ready() ? "OK" : "NO");
+             !at24c256_is_ready() ? "ABSENT" : (s_scfg_valid ? "VERIFIED" : "CALIBRATION_UNVERIFIED"));
 
     // Arrancamos la tarea de adquisiciÃ³n real.
     if (!s_acq_task_handle)
@@ -440,7 +512,7 @@ bool sensors_runtime_init(const AppConfig *cfg)
             /* pvParameters */ NULL,
             /* uxPriority   */ SENSORS_TASK_PRIO,
             /* pxCreatedTask*/ &s_acq_task_handle,
-            /* xCoreID      */ tskNO_AFFINITY);
+            /* xCoreID      */ tskNO_AFFINITY); // 1.5.17: back to HEAD; core-0 pin coincided with PHY-cal hang
         if (ok != pdPASS)
         {
             ESP_LOGE(TAG, "No se pudo crear la tarea de adquisiciÃ³n de sensores");
@@ -490,6 +562,8 @@ void sensors_runtime_push_sample(const sensor_sample_t *s)
 
     lock();
 
+    if (!(s->invalid_mask & SENSOR_INVALID_PRESSURE)) s_last_pressure_ms = s->ts_ms;
+    if (!(s->invalid_mask & SENSOR_INVALID_FLOW)) s_last_flow_ms = s->ts_ms;
     s_buf[s_head] = *s;
     s_head = (s_head + 1) % SENSORS_BUFFER_LEN;
     if (s_count < SENSORS_BUFFER_LEN)
@@ -506,18 +580,34 @@ void sensors_runtime_report_faults(uint32_t faults)
 uint32_t sensors_runtime_get_faults(void)
 {
     uint32_t faults; sensor_sample_t last = {0}; bool have = false; bool cfg_ok;
+    int64_t last_pressure_ms, last_flow_ms;
+    float fullscale;
     lock();
     faults = s_reported_faults; cfg_ok = s_cfg_valid;
+    last_pressure_ms = s_last_pressure_ms; last_flow_ms = s_last_flow_ms;
+    fullscale = s_cfg_cache.sensors.flow_fullscale_lpm;
     if (s_count) { size_t i=(s_head+SENSORS_BUFFER_LEN-1)%SENSORS_BUFFER_LEN; last=s_buf[i]; have=true; }
     unlock();
     if (!cfg_ok) faults |= SENSOR_FAULT_CONFIG;
+    if (!s_scfg_valid) faults |= SENSOR_FAULT_EEPROM_CRC;
     if (!have) return faults | SENSOR_FAULT_NO_DATA;
-    int64_t age_ms = esp_timer_get_time()/1000 - last.ts_ms;
+    int64_t now_ms = esp_timer_get_time()/1000;
+    int64_t age_ms = now_ms - last.ts_ms;
+    if (last_pressure_ms < 0 || last_flow_ms < 0 ||
+        now_ms - last_pressure_ms > 1000 || now_ms - last_flow_ms > 1000)
+        faults |= SENSOR_FAULT_STALE;
     if (age_ms < 0 || age_ms > 1000) faults |= SENSOR_FAULT_STALE;
     float pmax = 1379.0f * 1.10f;
-    float fmax = s_cfg_cache.sensors.flow_fullscale_lpm > 0 ? s_cfg_cache.sensors.flow_fullscale_lpm * 1.20f : 120.0f;
+    float fmax = fullscale > 0 ? fullscale * 1.20f : 120.0f;
     if (!isfinite(last.pressure_kpa) || !isfinite(last.flow_lpm) || last.pressure_kpa < -5.f || last.pressure_kpa > pmax || last.flow_lpm < -1.f || last.flow_lpm > fmax) faults |= SENSOR_FAULT_INVALID;
     return faults;
+}
+void sensors_runtime_get_ages(int64_t *pressure_ms, int64_t *flow_ms) {
+    int64_t now = esp_timer_get_time()/1000;
+    lock();
+    if (pressure_ms) *pressure_ms = s_last_pressure_ms < 0 ? -1 : now - s_last_pressure_ms;
+    if (flow_ms) *flow_ms = s_last_flow_ms < 0 ? -1 : now - s_last_flow_ms;
+    unlock();
 }
 bool sensors_runtime_get_last(sensor_sample_t *out)
 {
@@ -534,6 +624,8 @@ bool sensors_runtime_get_last(sensor_sample_t *out)
 
     size_t last_idx = (s_head + SENSORS_BUFFER_LEN - 1) % SENSORS_BUFFER_LEN;
     *out = s_buf[last_idx];
+    if (esp_timer_get_time()/1000 - out->ts_ms > 1000)
+        out->invalid_mask |= SENSOR_INVALID_PRESSURE | SENSOR_INVALID_FLOW | SENSOR_INVALID_TEMP;
 
     unlock();
     return true;
@@ -568,6 +660,8 @@ bool sensors_runtime_get_min_max(int64_t window_ms,
 
         if (s->ts_ms < from_ms)
             break; // mÃ¡s allÃ¡ de la ventana
+
+        if (s->invalid_mask) continue;
 
         if (!has)
         {
@@ -673,9 +767,9 @@ bool sensors_runtime_get_window_stats(int64_t window_ms,
         const sensor_sample_t *s = &s_buf[idx];
         if (s->ts_ms < from_ms)
             break;
-        sig_acc_add(&ap, s->pressure_kpa);
-        sig_acc_add(&af, s->flow_lpm);
-        sig_acc_add(&at, s->temp_c);
+        if (!(s->invalid_mask & SENSOR_INVALID_PRESSURE)) sig_acc_add(&ap, s->pressure_kpa);
+        if (!(s->invalid_mask & SENSOR_INVALID_FLOW)) sig_acc_add(&af, s->flow_lpm);
+        if (!(s->invalid_mask & SENSOR_INVALID_TEMP)) sig_acc_add(&at, s->temp_c);
     }
 
     unlock();
@@ -709,45 +803,16 @@ bool sensors_runtime_get_series(int64_t window_ms,
     int64_t now_ms = esp_timer_get_time() / 1000;
     int64_t from_ms = now_ms - window_ms;
 
-    // Primero contamos cuÃ¡ntos entran en la ventana (desde el mÃ¡s antiguo hacia arriba)
-    // Para devolverlos en orden cronolÃ³gico ascendente.
     size_t n = 0;
-    sensor_sample_t tmp[SENSORS_BUFFER_LEN]; // buffer temporal en stack (16 bytes * 600 = ~9.6 kB)
-
-    size_t idx = (s_head + SENSORS_BUFFER_LEN - s_count) % SENSORS_BUFFER_LEN; // Ã­ndice del mÃ¡s antiguo
-    for (size_t i = 0; i < s_count; ++i)
-    {
-        const sensor_sample_t *s = &s_buf[idx];
-
-        if (s->ts_ms >= from_ms)
-        {
-            if (n < SENSORS_BUFFER_LEN)
-            {
-                tmp[n++] = *s;
-            }
-        }
-
+    size_t idx = (s_head + SENSORS_BUFFER_LEN - s_count) % SENSORS_BUFFER_LEN;
+    for (size_t i = 0; i < s_count && n < max; ++i) {
+        const sensor_sample_t *sample = &s_buf[idx];
+        if (sample->ts_ms >= from_ms && !sample->invalid_mask) out[n++] = *sample;
         idx = (idx + 1) % SENSORS_BUFFER_LEN;
     }
-
-    if (n == 0)
-    {
-        unlock();
-        if (out_count)
-            *out_count = 0;
-        return false;
-    }
-
-    // Copiamos hasta max elementos al buffer de salida
-    size_t copy_n = (n < max) ? n : max;
-    memcpy(out, tmp, copy_n * sizeof(sensor_sample_t));
-
     unlock();
-
-    if (out_count)
-        *out_count = copy_n;
-
-    return true;
+    if (out_count) *out_count = n;
+    return n != 0;
 }
 
 //------------------------------------------------------------------
@@ -780,23 +845,35 @@ static void sensors_acq_task(void *arg)
     int ms5803_miss = 0;
     int ads_miss = 0;
     int sfm_miss = 0;
-    int bus_recover_wait = 0;
-    int ads_recover_wait = 0;
+    int64_t next_recovery_ms = 0;
+    uint32_t recovery_backoff_ms = 1000;
+    TickType_t sample_wake = xTaskGetTickCount();
+    uint32_t overruns = 0;
+    int64_t next_timing_log = 0;
+    int64_t prev_cycle_ms = 0;
 
     while (1)
     {
         int64_t now_ms = esp_timer_get_time() / 1000;
         uint32_t faults = SENSOR_FAULT_NONE;
+        // A gap between cycle starts with short work means the task was not
+        // scheduled (preempted/blocked outside the loop body), not a slow sensor.
+        if (prev_cycle_ms && now_ms - prev_cycle_ms > 1000)
+            ESP_LOGW(TAG, "Acquisition gap %lld ms between cycles", (long long)(now_ms - prev_cycle_ms));
+        prev_cycle_ms = now_ms;
 
         float pressure_kpa = NAN;
         float temp_c = NAN;
         float v_ain0 = NAN;
         float u_cta = NAN;
         float flow_lpm = NAN;
+        int64_t flow_sample_us = 0;
         float sfm_slm = NAN; // caudalimetro de referencia SFM3300 (slm)
         float atm_kpa = NAN; // presiÃ³n atmosfÃ©rica de referencia (BMP280)
         bool ms5803_read_ok = false;
         bool ads_read_ok = false;
+        // Phase timestamps (ms) to locate any long stall (e.g. ~2 s during AWS connect).
+        int64_t t_bmp = 0, t_ms58 = 0, t_ads = 0, t_meter = 0;
 
         // --- Referencia atmosfÃ©rica (BMP280) para el cero de presiÃ³n de lÃ­nea ---
         if (bmp280_is_ready())
@@ -806,6 +883,7 @@ static void sensors_acq_task(void *arg)
                 atm_kpa = ap;
         }
         s_dbg_atm_kpa = atm_kpa;
+        t_bmp = esp_timer_get_time() / 1000;
 
         // --- PresiÃ³n / temperatura (MS5803-14BA) ---
         if (ms5803_is_ready())
@@ -817,7 +895,7 @@ static void sensors_acq_task(void *arg)
                 // Un NACK puntual en el bus compartido es comÃºn: reintentamos 1 vez.
                 // Solo en la fase transitoria: si el fault ya esta latcheado (bus
                 // colgado) NO duplicamos trafico -> deja actuar al recovery.
-                vTaskDelay(pdMS_TO_TICKS(2));
+                driver_delay_ms(2);
                 err = ms5803_read(&p, &t);
             }
             if (err == ESP_OK)
@@ -877,6 +955,8 @@ static void sensors_acq_task(void *arg)
             faults |= SENSOR_FAULT_MODULE_I2C;
         }
 
+        t_ms58 = esp_timer_get_time() / 1000;
+
         // --- Flujo (FS7 va ADS1115 AIN0) ---
         // Si el FS7 no esta habilitado (no conectado), no leemos: la entrada
         // AIN0 flota y daria ruido/valores aleatorios. Reportamos flujo 0.
@@ -891,11 +971,12 @@ static void sensors_acq_task(void *arg)
             if (err != ESP_OK && ads_miss < SENSORS_FAULT_DEBOUNCE)
             {
                 // Reintento Ãºnico ante un NACK puntual (solo fase transitoria).
-                vTaskDelay(pdMS_TO_TICKS(2));
+                driver_delay_ms(2);
                 err = ads1115_read_voltage(ADS1115_MUX_AIN0, &v);
             }
             if (err == ESP_OK)
             {
+                flow_sample_us = esp_timer_get_time();
                 ads_read_ok = true;
                 ads_miss = 0;
                 v_ain0 = v;
@@ -935,8 +1016,14 @@ static void sensors_acq_task(void *arg)
         }
         else
         {
+            ++ads_miss;
             faults |= SENSOR_FAULT_MODULE_I2C;
         }
+
+        t_ads = esp_timer_get_time() / 1000;
+        flow_meter_record(flow_sample_us ? flow_sample_us : esp_timer_get_time(),
+                          flow_lpm, s_scfg.flow_enabled && ads_read_ok);
+        t_meter = esp_timer_get_time() / 1000;
 
         // --- Flujo de referencia (Sensirion SFM3300-D, para calibrar el FS7) ---
         // Guardamos el codigo de error para diagnosticar en el log por que falla
@@ -968,7 +1055,9 @@ static void sensors_acq_task(void *arg)
         // Publicamos la muestra (usamos 0 cuando un canal no tiene lectura vÃ¡lida
         // para no romper a los consumidores que esperan floats finitos).
         sensor_sample_t s = {
-            .ts_ms = now_ms,
+            .invalid_mask = (ms5803_read_ok ? 0 : SENSOR_INVALID_PRESSURE | SENSOR_INVALID_TEMP) |
+                            ((!s_scfg.flow_enabled || ads_read_ok) ? 0 : SENSOR_INVALID_FLOW),
+            .ts_ms = esp_timer_get_time()/1000,
             .pressure_kpa = isfinite(pressure_kpa) ? pressure_kpa : 0.0f,
             .flow_lpm = isfinite(flow_lpm) ? flow_lpm : 0.0f,
             .temp_c = isfinite(temp_c) ? temp_c : 0.0f,
@@ -984,39 +1073,18 @@ static void sensors_acq_task(void *arg)
         bool ads_down = s_scfg.flow_enabled ? (ads_miss >= SENSORS_FAULT_DEBOUNCE) : true;
         bool bus1_down = (ms5803_miss >= SENSORS_FAULT_DEBOUNCE) && ads_down;
         s_bus1_hung = bus1_down;   // visible al touch (ft5x06.c) para que se aparte del bus
-        if (bus1_down && s_i2c_bus)
-        {
-            if (++bus_recover_wait >= BUS_RECOVER_EVERY)
-            {
-                bus_recover_wait = 0;
-                esp_err_t r = i2c_master_bus_reset(s_i2c_bus);
-                ESP_LOGW(TAG, "Bus I2C 1 colgado (MS5803+ADS): i2c_master_bus_reset -> %s",
-                         esp_err_to_name(r));
-            }
-        }
-        else
-        {
-            bus_recover_wait = 0;
-        }
-
-        // --- Recuperacion ESPECIFICA del ADS1115 ---
-        // Caso observado: el MS5803 lee OK (bus 1 sano) pero el ADS hace NACK
-        // sostenido (INVALID_RESPONSE). El reset de bus de arriba no aplica
-        // (exige que AMBOS caigan), asi que re-agregamos solo el device del ADS
-        // cada BUS_RECOVER_EVERY ciclos mientras siga caido y el bus no lo este.
-        if (s_scfg.flow_enabled && ads_down && !bus1_down)
-        {
-            if (++ads_recover_wait >= BUS_RECOVER_EVERY)
-            {
-                ads_recover_wait = 0;
-                esp_err_t r = ads1115_recover();
-                ESP_LOGW(TAG, "ADS1115 NACK sostenido: ads1115_recover -> %s",
-                         esp_err_to_name(r));
-            }
-        }
-        else
-        {
-            ads_recover_wait = 0;
+        if ((bus1_down || ads_down) && now_ms >= next_recovery_ms) {
+            esp_err_t recovery = bus1_down && s_i2c_bus
+                ? i2c_master_bus_reset(s_i2c_bus) : ads1115_recover();
+            ESP_LOGW(TAG, "Recovery attempt: %s; next in %lu ms (requires valid reads)",
+                     esp_err_to_name(recovery), (unsigned long)recovery_backoff_ms);
+            next_recovery_ms = esp_timer_get_time()/1000 + recovery_backoff_ms;
+            if (recovery_backoff_ms < 30000) recovery_backoff_ms *= 2;
+            if (recovery_backoff_ms > 30000) recovery_backoff_ms = 30000;
+        } else if (ms5803_read_ok && (!s_scfg.flow_enabled || ads_read_ok)) {
+            if (recovery_backoff_ms > 1000) ESP_LOGI(TAG, "Sensors recovered: valid reads");
+            recovery_backoff_ms = 1000;
+            next_recovery_ms = 0;
         }
 
 #if SENSORS_TARE_ON_BOOT
@@ -1081,7 +1149,24 @@ static void sensors_acq_task(void *arg)
             }
         }
 
-        vTaskDelay(pdMS_TO_TICKS(period_ms));
+        int64_t elapsed_ms = esp_timer_get_time()/1000 - now_ms;
+        TickType_t period_ticks = pdMS_TO_TICKS(bus1_down ? 1000 : period_ms);
+        if (!period_ticks) period_ticks = 1;
+        if (elapsed_ms > period_ms) ++overruns;
+        if (elapsed_ms > 500)
+            ESP_LOGW(TAG, "Acquisition stall %lld ms: bmp=%lld ms5803=%lld ads=%lld meter=%lld rest=%lld",
+                     (long long)elapsed_ms, (long long)(t_bmp - now_ms), (long long)(t_ms58 - t_bmp),
+                     (long long)(t_ads - t_ms58), (long long)(t_meter - t_ads),
+                     (long long)(esp_timer_get_time() / 1000 - t_meter));
+        if (now_ms >= next_timing_log) {
+            ESP_LOGI(TAG, "Acquisition target=%lu ms work=%lld ms overruns=%lu",
+                     (unsigned long)period_ms, (long long)elapsed_ms, (unsigned long)overruns);
+            next_timing_log = now_ms + 30000;
+        }
+        if (xTaskDelayUntil(&sample_wake, period_ticks) == pdFALSE) {
+            sample_wake = xTaskGetTickCount();
+            vTaskDelay(1); // No catch-up burst when hardware misses its deadline.
+        }
     }
 }
 
@@ -1109,7 +1194,7 @@ bool sensors_runtime_get_aws_telemetry(int64_t window_ms,
     for (size_t i = 0; i < s_count; i++) {
         size_t idx = (s_head + SENSORS_BUFFER_LEN - s_count + i) % SENSORS_BUFFER_LEN;
         
-        if (s_buf[idx].ts_ms >= start_ms) {
+        if (s_buf[idx].ts_ms >= start_ms && !s_buf[idx].invalid_mask) {
             float p = s_buf[idx].pressure_kpa;
             float f = s_buf[idx].flow_lpm;
 

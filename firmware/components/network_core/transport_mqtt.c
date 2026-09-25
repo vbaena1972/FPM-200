@@ -1,6 +1,9 @@
+#include "flow_meter.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+#include <stdatomic.h>
 #include "esp_log.h"
 #include "mqtt_client.h"
-#include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_timer.h"
 #include "cJSON.h"
@@ -15,10 +18,15 @@
 #include "alarm_mgr.h"
 #include "ui_statusbar_controller.h"
 
+static StaticSemaphore_t s_client_gate_storage;
+static SemaphoreHandle_t s_client_gate;
+void transport_mqtt_runtime_init(void) {
+    if (!s_client_gate) s_client_gate = xSemaphoreCreateMutexStatic(&s_client_gate_storage);
+}
 static const char *TAG = "aws_mqtt";
 
 static esp_mqtt_client_handle_t s_client = NULL;
-static bool s_is_connected = false;
+static atomic_bool s_is_connected = false;
 static TaskHandle_t s_pub_task = NULL;   /* tarea aws_pub: se crea una sola vez */
 
 // === AGREGA ESTAS TRES LÍNEAS AQUÍ ===
@@ -221,7 +229,7 @@ static void publish_alarm_transition(const char *alarm_topic, const char *device
     char *payload = cJSON_PrintUnformatted(root);
     cJSON_Delete(root);
     if (payload) {
-        int id = esp_mqtt_client_publish(s_client, alarm_topic, payload, 0, 1, 0);
+        int id = esp_mqtt_client_enqueue(s_client, alarm_topic, payload, 0, 1, 0, true);
         ESP_LOGI(TAG, "Alarma CH%d %s->%s publicada a AWS (id=%d)",
                  channel_id, prev_state, cur_state, id);
         free(payload);
@@ -289,14 +297,36 @@ static void aws_telemetry_task(void *pvParameters)
         // transport_mqtt_publish_now() notifica (cambio de estado de alarma).
         ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(AWS_TELEMETRY_PERIOD_MS));
 
-        if (!s_is_connected)
+        if (!s_client_gate || xSemaphoreTake(s_client_gate, pdMS_TO_TICKS(100)) != pdTRUE)
             continue;
+        if (!s_is_connected || !s_client) {
+            xSemaphoreGive(s_client_gate);
+            continue;
+        }
+        if (esp_mqtt_client_get_outbox_size(s_client) > 16384) {
+            ESP_LOGW(TAG, "MQTT backlog: deferring telemetry");
+            xSemaphoreGive(s_client_gate);
+            continue;
+        }
 
         sensor_sample_t last;
         if (!sensors_runtime_get_last(&last))
         {
             ESP_LOGW(TAG, "Esperando datos válidos del runtime de sensores...");
+            xSemaphoreGive(s_client_gate);
             continue;
+        }
+
+        // Limits can change at runtime (UI/BLE/LAN/shadow): read the live
+        // snapshot every cycle instead of the copy taken when the task started.
+        {
+            const AppConfig *lc = appcfg_cache_peek();
+            p_lim_min  = lc->sensors.alarm_limits.pressure_min;
+            p_lim_max  = lc->sensors.alarm_limits.pressure_max;
+            p_min_en   = lc->sensors.alarm_limits.pressure_min_enabled;
+            p_max_en   = lc->sensors.alarm_limits.pressure_max_enabled;
+            f_high_lim = lc->sensors.alarm_limits.flow_high_limit;
+            f_high_en  = lc->sensors.alarm_limits.flow_high_enabled;
         }
 
         sensor_window_stats_t ws;
@@ -306,15 +336,15 @@ static void aws_telemetry_task(void *pvParameters)
         // Vocabulario en minúsculas idéntico a MedGuard (state_name en aws_service.c):
         // normal/high/low/fault/disabled -> el mismo portal/app trata a ambos equipos igual.
         const char *p_state = "normal";
-        if (!isfinite(last.pressure_kpa))                    p_state = "fault";
+        if ((last.invalid_mask & SENSOR_INVALID_PRESSURE) || !isfinite(last.pressure_kpa))                    p_state = "fault";
         else if (p_min_en && last.pressure_kpa < p_lim_min)  p_state = "low";
         else if (p_max_en && last.pressure_kpa > p_lim_max)  p_state = "high";
 
         const char *f_state = "normal";
-        if (!isfinite(last.flow_lpm))                        f_state = "fault";
+        if ((last.invalid_mask & SENSOR_INVALID_FLOW) || !isfinite(last.flow_lpm))                        f_state = "fault";
         else if (f_high_en && last.flow_lpm > f_high_lim)    f_state = "high";
 
-        const char *t_state = isfinite(last.temp_c) ? "normal" : "fault";
+        const char *t_state = (!(last.invalid_mask & SENSOR_INVALID_TEMP) && isfinite(last.temp_c)) ? "normal" : "fault";
 
         // device_status sigue la máquina clínica (incluye flow_delta y fallos
         // técnicos) además del estado individual de los canales. Así el publish
@@ -327,11 +357,19 @@ static void aws_telemetry_task(void *pvParameters)
 
         // --- Envelope v2 (mismo contrato que MedGuard: channels[] + stats) ---
         cJSON *root = cJSON_CreateObject();
+        flow_meter_snapshot_t meter = flow_meter_get();
+        cJSON_AddNumberToObject(root, "consumption_m3", meter.volume_m3);
+        cJSON_AddNumberToObject(root, "consumption_missing_ms", (double)meter.missing_ms);
+        cJSON_AddBoolToObject(root, "consumption_partial", meter.partial || !meter.dated);
         cJSON_AddNumberToObject(root, "timestamp", (double)time(NULL)); // epoch s (SNTP listo)
         cJSON_AddStringToObject(root, "device_id", serial);
         cJSON_AddStringToObject(root, "thing_name", serial);
         cJSON_AddStringToObject(root, "firmware", firmware);
         cJSON_AddStringToObject(root, "device_status", dev_status);
+        int64_t pressure_age, flow_age;
+        sensors_runtime_get_ages(&pressure_age, &flow_age);
+        cJSON_AddNumberToObject(root, "pressure_age_ms", (double)pressure_age);
+        cJSON_AddNumberToObject(root, "flow_age_ms", (double)flow_age);
         cJSON_AddNumberToObject(root, "window_s", AWS_TELEMETRY_WINDOW_MS / 1000);
         cJSON_AddNumberToObject(root, "configured_channel_count", 3);
         cJSON_AddNumberToObject(root, "enabled_channel_count", 3);
@@ -353,9 +391,9 @@ static void aws_telemetry_task(void *pvParameters)
 
         if (pub_payload)
         {
-            int msg_id = esp_mqtt_client_publish(s_client, topic, pub_payload, 0, 1, 0);
+            int msg_id = esp_mqtt_client_enqueue(s_client, topic, pub_payload, 0, 1, 0, true);
             if (msg_id >= 0)
-                ESP_LOGI(TAG, "Telemetría v2 enviada a AWS. ID: %d", msg_id);
+                ESP_LOGI(TAG, "Telemetría v2 encolada para AWS. ID: %d", msg_id);
             else
                 ESP_LOGE(TAG, "Fallo al publicar telemetría en el broker.");
             free(pub_payload);
@@ -379,13 +417,14 @@ static void aws_telemetry_task(void *pvParameters)
                 prev_state[i][sizeof(prev_state[i]) - 1] = '\0';
             }
         }
+        xSemaphoreGive(s_client_gate);
     }
 }
 
 // ------------------------------------------------------------------
 // Inicialización Segura
 // ------------------------------------------------------------------
-void transport_mqtt_on_time_ready(void)
+static void mqtt_start_locked(void)
 {
     if (s_client)
     {
@@ -440,19 +479,11 @@ void transport_mqtt_on_time_ready(void)
     free(client_cert);
     free(client_key);
 
-    // =========================================================
-    // TU LOG DE DEBUG FORENSE (Mantenido intacto para verificar)
-    // =========================================================
-    ESP_LOGE(TAG, "========= DEBUG CERTIFICADO CA =========");
-    size_t final_ca_len = strlen(s_safe_ca);
-    ESP_LOGE(TAG, "Longitud original de cert_store: %d", r_len);
-    ESP_LOGE(TAG, "Longitud final calculada (strlen): %d", final_ca_len);
-    ESP_LOGE(TAG, "Ultimos 25 caracteres en texto:");
-    printf("-->%s<--\n", s_safe_ca + (final_ca_len > 25 ? final_ca_len - 25 : 0));
-    ESP_LOGE(TAG, "Ultimos 25 bytes en HEX (Buscando basura o falta de \\n):");
-    ESP_LOG_BUFFER_HEX_LEVEL(TAG, s_safe_ca + (final_ca_len > 25 ? final_ca_len - 25 : 0), 25, ESP_LOG_ERROR);
-    ESP_LOGE(TAG, "========================================");
-    // =========================================================
+    if (!s_safe_ca || !s_safe_cert || !s_safe_key) {
+        ESP_LOGE(TAG, "Cannot allocate MQTT credentials");
+        free(cfg_app);
+        return;
+    }
 
     // 4. Configuramos el motor MQTT apuntando a las variables estáticas s_safe_...
     esp_mqtt_client_config_t cfg = {
@@ -463,19 +494,27 @@ void transport_mqtt_on_time_ready(void)
         .broker.verification.certificate = s_safe_ca};
 
     s_client = esp_mqtt_client_init(&cfg);
-    esp_mqtt_client_register_event(s_client, ESP_EVENT_ANY_ID, mqtt_event, NULL);
-
-    // Lanzamos el cliente
-    esp_mqtt_client_start(s_client);
+    if (!s_client) { free(cfg_app); ESP_LOGE(TAG, "MQTT init failed"); return; }
+    if (esp_mqtt_client_register_event(s_client, ESP_EVENT_ANY_ID, mqtt_event, NULL) != ESP_OK ||
+        esp_mqtt_client_start(s_client) != ESP_OK) {
+        esp_mqtt_client_destroy(s_client);
+        s_client = NULL;
+        free(cfg_app);
+        ESP_LOGE(TAG, "MQTT start failed");
+        return;
+    }
 
     // Devolvemos los 6.5 KB de la estructura de configuración inmediatamente al Heap
     free(cfg_app);
 
-    // Bajamos el stack a 4096 bytes (1024 palabras), suficiente para cJSON.
+    // 8 KiB: previous 4 KiB stack overflowed during a long MQTT run.
     // Se crea UNA sola vez: si el cliente se detiene y reinicia (modo config),
     // la tarea sigue viva e inactiva (s_is_connected=false) para no duplicarla.
-    if (!s_pub_task)
-        xTaskCreatePinnedToCore(aws_telemetry_task, "aws_pub", 4096, NULL, 5, &s_pub_task, 1);
+    if (!s_pub_task && xTaskCreatePinnedToCore(aws_telemetry_task, "aws_pub",
+            8192, NULL, 5, &s_pub_task, 1) != pdPASS) { // 1.5.17: core 1 as in HEAD, keep CPU0 for Wi-Fi/PHY
+        s_pub_task = NULL;
+        ESP_LOGE(TAG, "Cannot create aws_pub");
+    }
 }
 
 void transport_mqtt_publish_now(void)
@@ -491,16 +530,30 @@ void transport_mqtt_on_net_down(void) {}
 // Detiene y libera el cliente MQTT (para el "modo configuración": libera RAM
 // de AWS/TLS). La tarea aws_pub queda viva pero inactiva (s_is_connected=false),
 // así no toca s_client. transport_mqtt_on_time_ready() lo re-inicializa luego.
-void transport_mqtt_stop(void)
+static void mqtt_stop_locked(void)
 {
     s_is_connected = false;                 // la tarea deja de publicar (no usa s_client)
     if (s_client)
     {
         esp_mqtt_client_stop(s_client);
-        vTaskDelay(pdMS_TO_TICKS(50));       // deja salir cualquier publish en vuelo
         esp_mqtt_client_destroy(s_client);
         s_client = NULL;                    // resetea el guard de on_time_ready()
         ESP_LOGW(TAG, "Cliente MQTT detenido y liberado (modo configuración)");
     }
 }
 bool cloud_mgr_connected(void) { return s_is_connected; }
+
+void transport_mqtt_on_time_ready(void) {
+    if (!s_client_gate || xSemaphoreTake(s_client_gate, pdMS_TO_TICKS(2000)) != pdTRUE) {
+        ESP_LOGE(TAG, "MQTT start: lifecycle busy"); return;
+    }
+    mqtt_start_locked();
+    xSemaphoreGive(s_client_gate);
+}
+void transport_mqtt_stop(void) {
+    if (!s_client_gate || xSemaphoreTake(s_client_gate, pdMS_TO_TICKS(2000)) != pdTRUE) {
+        ESP_LOGE(TAG, "MQTT stop: lifecycle busy"); return;
+    }
+    mqtt_stop_locked();
+    xSemaphoreGive(s_client_gate);
+}

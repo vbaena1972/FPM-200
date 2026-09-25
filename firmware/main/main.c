@@ -1,3 +1,7 @@
+#include "flow_meter.h"
+#include "fpm_i2c_guard.h"
+#include "esp_task_wdt.h"
+#include "cJSON.h"
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -17,6 +21,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <string.h>
+#include <math.h>
 #include <time.h>
 
 #include "nvs_flash.h"
@@ -138,8 +143,7 @@ static bool wifi_cfg_valid = false;
 static SemaphoreHandle_t s_sd_sem = NULL;
 /* La UI del flujo SD vive ahora en main/ui/ui_sd.c (overlay modal del design system). */
 
-static heap_trace_record_t trace_record[400];
-
+static volatile TickType_t s_ui_progress;
 static void ui_refresh_task(void *arg);
 
 // ISR (Manejador de la interrupciÃƒÂ³n por hardware)
@@ -179,11 +183,6 @@ esp_trace_open_params_t esp_trace_get_user_params(void)
     return trace_params;
 }
 
-void trace_init(void)
-{
-    ESP_ERROR_CHECK(heap_trace_init_standalone(trace_record,
-                                               sizeof(trace_record) / sizeof(trace_record[0])));
-}
 
 __attribute__((unused)) static void ble_json_worker(void *arg)
 {
@@ -405,7 +404,10 @@ static void sd_monitor_task(void *pvParameters)
                 long size = ftell(f_cfg);
                 fseek(f_cfg, 0, SEEK_SET);
 
-                char *buf = malloc(size + 1);
+                // ftell() may fail (-1); cap size so a bad file cannot exhaust RAM.
+                char *buf = (size > 0 && size <= 64 * 1024) ? malloc(size + 1) : NULL;
+                if (!buf)
+                    ESP_LOGE("SD_CD", "AppConfig.json invalido o demasiado grande (%ld bytes)", size);
                 if (buf)
                 {
                     size_t bytes_read = fread(buf, 1, size, f_cfg);
@@ -571,6 +573,7 @@ static void screen_init_task(void *arg)
     }
 
     at24c256_init(bus_handle, 0); // EEPROM AT24C256C @ 0x50 (parametros de calibraciÃ³n)
+    sensors_runtime_preload_calibration(); // Read/verify before starting touch or acquisition.
     ms5803_init(bus_handle);      // Sensor de presiÃ³n/temperatura MS5803-14BA @ 0x76
     ads1115_init(bus_handle);     // ADC del sensor de flujo FS7 @ 0x48 (AIN0)
     bmp280_init(bus_handle, 0x77); // BMP280/BME280 @ 0x77: referencia atmosferica (cero de presion)
@@ -827,6 +830,7 @@ static void wifi_init_task(void *arg)
     vTaskSuspend(NULL);
 }
 
+static volatile TickType_t s_ui_progress;
 static void ui_refresh_task(void *arg)
 {
     const AppConfig *cfg = (const AppConfig *)arg;
@@ -839,25 +843,17 @@ static void ui_refresh_task(void *arg)
     char datebuf[16];
     time_t last_clock_min = -1;
 
-    /* --- MÃƒÂ©tricas persistentes (consumo del dÃƒÂ­a + minutos de servicio) --- */
-    app_metrics_t metrics;
-    appmetrics_load(&metrics);
-    bool metrics_seeded = false;      /* siembra del consumo pendiente hasta tener fecha vÃƒÂ¡lida */
-    time_t last_metrics_save = 0;
-
     while (true)
     {
         bool have_last = sensors_runtime_get_last(&last);
         bool have_mm = sensors_runtime_get_min_max(60000, &min_s, &max_s);
 
-        // Alimentar la mÃƒÂ¡quina de alarmas con las muestras en vivo
-        uint32_t sensor_faults = sensors_runtime_get_faults();
-        alarm_mgr_process(have_last ? last.pressure_kpa : 0.f, have_last ? last.flow_lpm : 0.f, sensor_faults);
+        // Alarm processing runs independently in app_main.
         alarm_clinical_state_t current_state = alarm_mgr_get_current_state();
         bool is_muted = alarm_mgr_is_muted();
 
         // Refrescar la HMI: todo el manejo de widgets vive en la capa UI (ui_main_update)
-        if (bsp_display_lock(pdMS_TO_TICKS(100)))
+        if (bsp_display_lock(100))
         {
             /* NULL -> ui_main_update usa el AppConfig del cachÃƒÂ© VIVO (appcfg_cache_peek),
                asÃƒÂ­ los cambios de unidad/umbral hechos desde la UI se reflejan sin reiniciar. */
@@ -881,43 +877,43 @@ static void ui_refresh_task(void *arg)
                 ui_main_set_date(datebuf);
                 last_clock_min = now / 60;
 
-                /* --- MÃƒÂ©tricas: siembra al arrancar + guardado cada 10 min --- */
-                char today[12];
-                strftime(today, sizeof(today), "%Y-%m-%d", &tm_now);
-                if (!metrics_seeded)
-                {
-                    /* si lo guardado es de HOY, restaurar el consumo tras el reinicio */
-                    if (strcmp(metrics.date, today) == 0)
-                        ui_main_set_consumo(metrics.consumo_m3);
-                    metrics_seeded = true;
-                    last_metrics_save = now;
-                }
-                else if (now - last_metrics_save >= 600)
-                {
-                    metrics.service_min += (uint32_t)((now - last_metrics_save) / 60);
-                    strncpy(metrics.date, today, sizeof(metrics.date) - 1);
-                    metrics.date[sizeof(metrics.date) - 1] = '\0';
-                    metrics.consumo_m3 = ui_main_get_consumo();
-                    (void)appmetrics_store(&metrics);
-                    last_metrics_save = now;
-                }
+
             }
 
-            if (ui_mainScreen)
-                lv_obj_invalidate(ui_mainScreen);
+            // LVGL invalidates changed widgets; avoid repainting the whole screen.
+            s_ui_progress = xTaskGetTickCount();
             bsp_display_unlock();
         }
         else
         {
-            ESP_LOGW("ui_refresh", "Mutex ocupado (Timeout 100ms).");
+            static TickType_t last_warn;
+            TickType_t now_tick = xTaskGetTickCount();
+            if (now_tick - last_warn >= pdMS_TO_TICKS(5000)) {
+                last_warn = now_tick;
+                ESP_LOGW("ui_refresh", "Display mutex timeout (100 ms)");
+            }
         }
 
         vTaskDelay(pdMS_TO_TICKS(200));
     }
 }
 
+// cJSON makes many small allocations (<8 KB -> internal RAM by
+// SPIRAM_MALLOC_ALWAYSINTERNAL) on every telemetry/HTTP/BLE document, which
+// fragmented internal heap (largest block 31 KB -> 11 KB). Keep them in PSRAM;
+// fall back to the default heap if PSRAM is exhausted. free() handles both.
+static void *cjson_psram_malloc(size_t sz)
+{
+    void *p = heap_caps_malloc(sz, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    return p ? p : malloc(sz);
+}
+
 void app_main(void)
 {
+    cJSON_Hooks cjson_hooks = { .malloc_fn = cjson_psram_malloc, .free_fn = free };
+    cJSON_InitHooks(&cjson_hooks);
+    fpm_i2c_init();
+    transport_mqtt_runtime_init();
 
     // --- TRAMPA PARA EL LINKER ---
     // Forzamos al compilador a inyectar la telemetrÃƒÂ­a en el binario final
@@ -937,6 +933,7 @@ void app_main(void)
         ESP_ERROR_CHECK(nvs_flash_init());
     }
     mem_diag_report("AFTER-NVS");
+    ESP_ERROR_CHECK(flow_meter_init());
 
     // ... tras nvs_flash_init() OK
     extern esp_err_t appcfg_cache_reload(void);
@@ -951,7 +948,6 @@ void app_main(void)
     mem_diag_report("AFTER-APPCFG-RELOAD");
     // LVGL init
     lv_init();
-    vTaskDelay(pdMS_TO_TICKS(1000));
     mem_diag_report("AFTER-LV-INIT");
 
     alarm_mgr_init(BUZZER_PWM_GPIO);
@@ -1197,8 +1193,30 @@ void app_main(void)
     // Traza de tareas: muestrea CPU%+estado cada 2 s.
     // Captura con: idf.py -p COMX monitor | tee captura.log
     // Analiza con: python tools/trace_analyze.py captura.log
-    task_tracer_start(2000);
+    task_tracer_start(10000);
 
-    while (true)
-        vTaskDelay(pdMS_TO_TICKS(50));
+    ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
+    TickType_t alarm_wake = xTaskGetTickCount();
+    TickType_t health_log = alarm_wake;
+    while (true) {
+        sensor_sample_t sample = {0};
+        bool have = sensors_runtime_get_last(&sample);
+        uint32_t faults = sensors_runtime_get_faults();
+        // Invalid/stale/missing channels are passed as NAN: they raise the technical
+        // (silenceable) fault via `faults`, never a clinical ALERT from a fake 0 kPa.
+        float p_eval = (have && !(sample.invalid_mask & SENSOR_INVALID_PRESSURE)) ? sample.pressure_kpa : NAN;
+        float f_eval = (have && !(sample.invalid_mask & SENSOR_INVALID_FLOW)) ? sample.flow_lpm : NAN;
+        bool alarm_updated = alarm_mgr_process(p_eval, f_eval, faults);
+        TickType_t tick = xTaskGetTickCount();
+        if (tick - health_log >= pdMS_TO_TICKS(5000)) {
+            health_log = tick;
+            if (tick - s_ui_progress > pdMS_TO_TICKS(5000))
+                ESP_LOGE("health", "UI has made no progress for >5 s; alarm control remains active");
+            if (faults & SENSOR_FAULT_STALE)
+                ESP_LOGW("health", "Sensor data stale; technical alarm active");
+        }
+        if (alarm_updated) esp_task_wdt_reset();
+        if (xTaskDelayUntil(&alarm_wake, pdMS_TO_TICKS(50)) == pdFALSE)
+            alarm_wake = xTaskGetTickCount();
+    }
 }

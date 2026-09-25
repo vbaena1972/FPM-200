@@ -22,12 +22,16 @@ typedef enum {
     SENSOR_FAULT_EEPROM_CRC  = 1u << 4,
     SENSOR_FAULT_CONFIG      = 1u << 5
 } sensor_fault_t;
+#define SENSOR_INVALID_PRESSURE 1u
+#define SENSOR_INVALID_FLOW 2u
+#define SENSOR_INVALID_TEMP 4u
 typedef struct
 {
     int64_t ts_ms;        ///< timestamp en milisegundos (esp_timer_get_time()/1000)
     float   pressure_kpa; ///< presiÃƒÂ³n en kPa
     float   flow_lpm;     ///< flujo en L/min
     float   temp_c;       ///< temperatura del sensor de presiÃ³n (MS5803) en Â°C
+    uint32_t invalid_mask; // Retained values are not fresh measurements.
 } sensor_sample_t;
 
 /**
@@ -41,6 +45,8 @@ typedef struct
  *  - Cuando luego tengas el driver real, podrÃƒÂ¡s llamar a sensors_runtime_push_sample()
  *    desde tu propia tarea en vez de usar la dummy.
  */
+// Call once after EEPROM init, before touch/display and acquisition tasks.
+void sensors_runtime_preload_calibration(void);
 bool sensors_runtime_init(const AppConfig *cfg);
 
 /**
@@ -79,6 +85,7 @@ void sensors_runtime_push_sample(const sensor_sample_t *s);
  * Devuelve true si hay datos vÃƒÂ¡lidos, false si el buffer estÃƒÂ¡ vacÃƒÂ­o.
  */
 bool sensors_runtime_get_last(sensor_sample_t *out);
+void sensors_runtime_get_ages(int64_t *pressure_ms, int64_t *flow_ms);
 uint32_t sensors_runtime_get_faults(void);
 void sensors_runtime_report_faults(uint32_t faults);
 

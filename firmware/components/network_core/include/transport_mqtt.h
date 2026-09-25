@@ -8,6 +8,7 @@ extern "C"
 #endif
 
     // ¡Nombre corregido!
+    void transport_mqtt_runtime_init(void);
     void transport_mqtt_on_time_ready(void);
     void transport_mqtt_on_net_down(void);
 

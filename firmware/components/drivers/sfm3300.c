@@ -1,3 +1,4 @@
+#include "fpm_i2c_guard.h"
 #include "sfm3300.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"

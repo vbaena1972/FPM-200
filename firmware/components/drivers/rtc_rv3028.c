@@ -1,3 +1,4 @@
+#include "fpm_i2c_guard.h"
 #include "rtc_rv3028.h"
 #include "esp_log.h"
 
@@ -74,7 +75,7 @@ esp_err_t rtc_rv3028_set_time(const struct tm *timeinfo)
     data[6] = dec2bcd(timeinfo->tm_mon + 1);
     data[7] = dec2bcd(timeinfo->tm_year - 100);
 
-    esp_err_t err = i2c_master_transmit(s_rtc_dev, data, 8, -1);
+    esp_err_t err = i2c_master_transmit(s_rtc_dev, data, 8, 100);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Error escribiendo hora al RTC");

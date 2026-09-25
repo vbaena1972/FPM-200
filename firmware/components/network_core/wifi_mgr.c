@@ -1,6 +1,9 @@
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/timers.h"
+#include "freertos/task.h"
+#include "esp_timer.h"
+#include "esp_task_wdt.h"
 
 #include "esp_wifi.h"
 #include "esp_wifi_types.h"
@@ -328,12 +331,11 @@ esp_err_t wifi_mgr_init(void)
     return ESP_OK;
 }
 
-// Timer callback: aplica la config pendiente si cambió algo relevante
-static void wifi_apply_cb(TimerHandle_t xTimer)
+// Apply synchronously before first start; later changes are deferred.
+static esp_err_t wifi_apply_pending(void)
 {
-    (void)xTimer;
     if (!s_have_pending)
-        return;
+        return ESP_OK;
 
     // Snapshot y limpia bandera de pending
     s_have_pending = false;
@@ -344,10 +346,10 @@ static void wifi_apply_cb(TimerHandle_t xTimer)
     if (net_cfg_equals(&s_cfg_cur, &next))
     {
         ESP_LOGI(TAGW, "No net changes; nothing to apply");
-        return;
+        return ESP_OK;
     }
 
-    ESP_LOGI(TAGW, "Applying Wi-Fi config (deferred)");
+    ESP_LOGI(TAGW, "Applying Wi-Fi config (%s)", s_enabled ? "running" : "before radio start");
     // Construye config STA
     wifi_config_t w = {0};
     strncpy((char *)w.sta.ssid, (const char *)next.ssid, sizeof(w.sta.ssid) - 1);
@@ -366,6 +368,7 @@ static void wifi_apply_cb(TimerHandle_t xTimer)
     // Si la STA está encendida, desconecta para aplicar SSID/clave/IP
     if (s_enabled)
     {
+        s_allow_reconnect = false; // Do not reconnect with old credentials during apply.
         esp_wifi_disconnect();
     }
 
@@ -377,7 +380,7 @@ static void wifi_apply_cb(TimerHandle_t xTimer)
         if (wifi_mgr_init() != ESP_OK)
         {
             ESP_LOGE(TAGW, "wifi_apply_cb: wifi_mgr_init() failed, aborting apply");
-            return;
+            return ESP_FAIL;
         }
         // opcional: esp_wifi_set_mode(WIFI_MODE_STA); etc.
     }
@@ -387,25 +390,50 @@ static void wifi_apply_cb(TimerHandle_t xTimer)
     if (err != ESP_OK)
     {
         ESP_LOGE(TAGW, "esp_wifi_set_config: %s", esp_err_to_name(err));
-        // aún así actualiza s_cfg_cur para evitar loops
+        return err;
     }
-    (void)apply_ip_mode(&next);
+    err = apply_ip_mode(&next);
+    if (err != ESP_OK) return err;
 
     // Reconecta si está habilitada la STA
     if (s_enabled)
     {
-        esp_wifi_connect();
+        s_allow_reconnect = true;
+        err = esp_wifi_connect();
+        if (err != ESP_OK) return err;
     }
 
     // Actualiza config actual
     s_cfg_cur = next;
 
     ui_statusbar_request_refresh();
+    return ESP_OK;
+}
+
+// Timer only wakes a worker; never block the FreeRTOS timer service on Wi-Fi.
+static TaskHandle_t s_apply_worker;
+static void wifi_apply_worker(void *arg)
+{
+    (void)arg;
+    for (;;) {
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        esp_err_t err = wifi_apply_pending();
+        if (err != ESP_OK) ESP_LOGE(TAGW, "Deferred config failed: %s", esp_err_to_name(err));
+    }
+}
+static void wifi_apply_cb(TimerHandle_t timer)
+{
+    (void)timer;
+    if (s_apply_worker) xTaskNotifyGive(s_apply_worker);
 }
 
 // Programa aplicación diferida (coalesce si ya hay una pendiente)
 static void wifi_schedule_apply(void)
 {
+    if (!s_apply_worker && xTaskCreate(wifi_apply_worker, "wifi_apply", 4096, NULL, 3, &s_apply_worker) != pdPASS) {
+        ESP_LOGE(TAGW, "Cannot create Wi-Fi apply worker");
+        return;
+    }
     if (!s_wifi_apply_timer)
     {
         s_wifi_apply_timer = xTimerCreate("wifi_apply",
@@ -454,9 +482,40 @@ esp_err_t wifi_mgr_apply_from_cache(void)
     s_cfg_pending = v;
     s_have_pending = true;
 
+    if (!s_enabled) return wifi_apply_pending();
     wifi_schedule_apply();
 
     return ESP_OK;
+}
+
+// PHY calibration inside esp_wifi_start() can hold CPU0 for several seconds
+// (observed 2.2 s to >5 s). Keep the task WDT armed WITH panic, but widen its
+// timeout only for this call so a slow-but-progressing calibration can finish
+// and be saved to NVS instead of reboot-looping. A real hang still panics.
+#define WIFI_START_WDT_TIMEOUT_MS 20000
+
+static void wifi_start_wdt_timeout(uint32_t timeout_ms)
+{
+    uint32_t idle_mask = 0;
+#if CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU0
+    idle_mask |= 1u << 0;
+#endif
+#if CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1
+    idle_mask |= 1u << 1;
+#endif
+#if CONFIG_ESP_TASK_WDT_PANIC
+    const bool panic = true;
+#else
+    const bool panic = false;
+#endif
+    const esp_task_wdt_config_t cfg = {
+        .timeout_ms = timeout_ms,
+        .idle_core_mask = idle_mask,
+        .trigger_panic = panic,
+    };
+    esp_err_t err = esp_task_wdt_reconfigure(&cfg);
+    if (err != ESP_OK)
+        ESP_LOGW(TAG, "TWDT reconfigure(%lu ms): %s", (unsigned long)timeout_ms, esp_err_to_name(err));
 }
 
 esp_err_t wifi_mgr_start(void)
@@ -465,7 +524,18 @@ esp_err_t wifi_mgr_start(void)
     s_enabled = true;
     notify(WIFI_STATUS_CONNECTING);
     ui_statusbar_request_refresh();
-    return esp_wifi_start();
+    int64_t begin = esp_timer_get_time();
+    ESP_LOGI(TAG, "Starting radio: configuration already applied, PHY calibration may run");
+    wifi_start_wdt_timeout(WIFI_START_WDT_TIMEOUT_MS);
+    esp_err_t err = esp_wifi_start();
+    wifi_start_wdt_timeout(CONFIG_ESP_TASK_WDT_TIMEOUT_S * 1000);
+    ESP_LOGI(TAG, "Radio start returned %s after %lld ms", esp_err_to_name(err),
+             (long long)((esp_timer_get_time() - begin) / 1000));
+    if (err != ESP_OK) {
+        s_enabled = false;
+        s_allow_reconnect = false;
+    }
+    return err;
 }
 
 esp_err_t wifi_mgr_stop(void)
