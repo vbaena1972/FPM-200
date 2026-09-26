@@ -50,3 +50,7 @@ sw_probe*.vbs
 
 # ===== Plantilla microSD con credenciales (WiFi) =====
 /firmware/sdcard/
+
+# ===== Clave de firma OTA: SECRETA, nunca al repo (respaldo fuera de linea) =====
+/firmware/keys/
+*signing_key*.pem

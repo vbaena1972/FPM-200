@@ -1,6 +1,7 @@
 #include "flow_meter.h"
 #include "fpm_i2c_guard.h"
 #include "esp_task_wdt.h"
+#include "esp_ota_ops.h"
 #include "cJSON.h"
 #include "esp_core_dump.h"
 #include <stdio.h>
@@ -1169,6 +1170,21 @@ void app_main(void)
         ESP_LOGI("ui_refresh", "ui_refresh_task creada OK");
     }
     mem_diag_report("AFTER-UI-REFRESH");
+
+    /* Vuelta atras de OTA (igual que MedGuard): con
+     * CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE una imagen recien instalada arranca
+     * "pendiente de verificar"; si se reinicia (panic/WDT) antes de llegar aqui,
+     * el bootloader vuelve sola a la version anterior. Se confirma SOLO tras
+     * completar pantalla, almacenamiento, red y sensores. No toca eFuses. */
+    {
+        const esp_partition_t *running = esp_ota_get_running_partition();
+        esp_ota_img_states_t ota_state;
+        if (running && esp_ota_get_state_partition(running, &ota_state) == ESP_OK &&
+            ota_state == ESP_OTA_IMG_PENDING_VERIFY) {
+            esp_err_t err = esp_ota_mark_app_valid_cancel_rollback();
+            ESP_LOGI("ota", "Imagen OTA confirmada: %s", esp_err_to_name(err));
+        }
+    }
     mem_diag_report_full("END");
 
     // Diagnostico de heap cada 30 s

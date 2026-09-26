@@ -189,7 +189,7 @@ bool ui_cfg_check_pin(const char *pin)
 {
     const AppConfig *c = appcfg_cache_peek();
     if (!c || !pin) return false;
-    return strcmp(pin, c->general.admin.pass) == 0;
+    return ui_pin_verify(c->general.admin.pass, pin);   /* hash o claro heredado */
 }
 
 #define UI_SESSION_MS (5U * 60U * 1000U)
@@ -202,7 +202,7 @@ const app_user_t *ui_auth_user_at(int index) { const AppConfig *c=appcfg_cache_p
 const app_user_t *ui_auth_factory(void) { const AppConfig *c=appcfg_cache_peek(); return c?&c->general.factory:NULL; }
 bool ui_auth_login(const app_user_t *user, const char *pin)
 {
-    if (!user || !pin || user->role < APP_ROLE_TECH || strcmp(user->pin,pin)!=0) return false;
+    if (!user || !pin || user->role < APP_ROLE_TECH || !ui_pin_verify(user->pin, pin)) return false;
     s_auth_role=user->role; snprintf(s_auth_user,sizeof(s_auth_user),"%s",user->name);
     s_auth_until=lv_tick_get()+UI_SESSION_MS; return true;
 }
@@ -249,7 +249,7 @@ bool ui_auth_user_add(const char *name, const char *pin, app_user_role_t role)
     app_user_t *u = &c->general.users[c->general.users_count];
     memset(u, 0, sizeof(*u));
     set_str(u->name, sizeof(u->name), name);
-    set_str(u->pin, sizeof(u->pin), pin);
+    if (!ui_pin_hash(pin, u->pin, sizeof(u->pin))) return false;   /* nunca en claro */
     u->role = role;
     set_str(u->last, sizeof(u->last), "nunca");
     c->general.users_count++;
@@ -265,7 +265,7 @@ bool ui_auth_user_update(int index, const char *name, const char *pin, app_user_
     if (role < APP_ROLE_TECH || role > ui_auth_max_assignable()) return false;
     app_user_t *u = &c->general.users[index];
     set_str(u->name, sizeof(u->name), name);
-    if (pin && pin[0]) { if (!valid_pin(pin)) return false; set_str(u->pin, sizeof(u->pin), pin); }
+    if (pin && pin[0]) { if (!valid_pin(pin)) return false; ui_pin_hash(pin, u->pin, sizeof(u->pin)); }
     u->role = role;
     (void)appcfg_save(c);
     return true;
@@ -288,7 +288,7 @@ bool ui_auth_set_factory_pin(const char *pin)
     AppConfig *c = appcfg_cache_peek();
     if (!c || !ui_auth_can(APP_ROLE_FACTORY)) return false;
     if (!pin || strlen(pin) < 8 || strlen(pin) >= 24) return false;
-    set_str(c->general.factory.pin, sizeof(c->general.factory.pin), pin);
+    if (!ui_pin_hash(pin, c->general.factory.pin, sizeof(c->general.factory.pin))) return false;
     c->general.factory.must_change_pin = false;
     (void)appcfg_save(c);
     return true;

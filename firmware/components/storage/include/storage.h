@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "cJSON.h" // <-- importa cJSON para los prototipos
+#include "ui_pin_hash.h" // PIN como hash con sal (igual que MedGuard)
 
 #ifdef __cplusplus
 extern "C"
@@ -41,7 +42,7 @@ extern "C"
     typedef struct
     {
         char name[24];
-        char pin[24];
+        char pin[UI_PIN_STORE_LEN]; /* hash "p1$sal$dk" (ui_pin_hash.h); sin prefijo = claro heredado */
         app_user_role_t role;
         bool locked;
         bool must_change_pin;
@@ -90,7 +91,7 @@ extern "C"
             struct
             {
                 char user[16];
-                char pass[16];
+                char pass[UI_PIN_STORE_LEN]; /* PIN de entrada a config, como hash */
             } admin;
         } general;
 
@@ -207,7 +208,10 @@ extern "C"
     void cfg_from_json(AppConfig *c, const cJSON *root);
 
     esp_err_t appcfg_load(AppConfig *out);
-    esp_err_t appcfg_save(const AppConfig *in); // ya existe
+    esp_err_t appcfg_save(const AppConfig *in);
+/* true (una vez) si al cargar la config se convirtieron PIN en texto plano a
+ * hash: appcfg_cache_reload ya lo persiste; expuesto para diagnostico. */
+bool appcfg_take_pin_migration(void); // ya existe
 
     // Nuevas:
     cfg_result_t appcfg_set(int base_rev, const char *cfg_json_full, const char *updated_by);

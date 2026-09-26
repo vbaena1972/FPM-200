@@ -111,3 +111,19 @@ CONFIG_COMPILER_OPTIMIZATION_PERF=y
 CONFIG_SPIRAM_SPEED_80M=y
 CONFIG_ESP_COREDUMP_ENABLE_TO_FLASH=y
 CONFIG_ESP_COREDUMP_DATA_FORMAT_ELF=y
+
+# ---- Robustez de actualizaciones (paridad con MedGuard, 2026-09-26) ----
+# Vuelta atras: una OTA que no completa el arranque (panic/WDT antes de
+# esp_ota_mark_app_valid_cancel_rollback en main.c) vuelve sola a la anterior.
+# Requiere grabar el BOOTLOADER por USB una vez (el bootloader no viaja por OTA).
+CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=y
+
+# OTA firmada SIN Secure Boot: NO quema eFuses, 100 % reversible. El build firma
+# con keys/ota_signing_key.pem (RSA-3072, secreta, fuera de git: ver .gitignore y
+# tools/gen_ota_signing_key.sh). Solo se aceptan OTA firmadas con la misma clave;
+# por USB se puede grabar siempre. Ver docs/SEGURIDAD_PRODUCCION.md.
+CONFIG_SECURE_SIGNED_APPS_NO_SECURE_BOOT=y
+CONFIG_SECURE_SIGNED_APPS_RSA_SCHEME=y
+CONFIG_SECURE_SIGNED_ON_UPDATE_NO_SECURE_BOOT=y
+CONFIG_SECURE_BOOT_BUILD_SIGNED_BINARIES=y
+CONFIG_SECURE_BOOT_SIGNING_KEY="keys/ota_signing_key.pem"

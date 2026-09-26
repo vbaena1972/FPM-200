@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.5.25-dev (2026-09-26, paridad de seguridad con MedGuard 1.7.0-dev, SIN eFuses):
+#   vuelta atras de OTA (BOOTLOADER_APP_ROLLBACK + confirmacion en main.c; grabar
+#   bootloader por USB una vez), OTA firmada sin Secure Boot (clave en
+#   firmware/keys/, tools/gen_ota_signing_key.sh), PIN/passphrase como hash
+#   PBKDF2-SHA256 con migracion automatica, y el PIN ya no se borra cuando la app
+#   reenvia la config redactada. Ver docs/SEGURIDAD_PRODUCCION.md. Sin HW.
 # 1.5.5..1.5.15-dev (Codex + Claude, 2026-09-24): EEPROM byte-a-byte paceada,
 #   consumo integrado, cero de presion v6 (+0.415 kPa), secuencia WiFi, y
 #   1.5.15: completa migracion v5->v6 interrumpida (datos v6, CRC viejo v5).
@@ -89,5 +95,5 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.5.24-dev")
+set(PROJECT_VER "1.5.25-dev")
 project(esp32s3_hmi_skeleton)

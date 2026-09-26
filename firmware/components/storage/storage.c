@@ -174,7 +174,12 @@ static void json_to_user(const cJSON *o, app_user_t *u)
 {
     if (!cJSON_IsObject(o) || !u) return;
     getstr(u->name, sizeof(u->name), o, "name");
-    getstr(u->pin, sizeof(u->pin), o, "pin");
+    /* PIN = secreto (igual que MedGuard): vacio/ausente CONSERVA el actual. Las
+     * lecturas remotas lo envian redactado ("") y reenviarlo borraba el PIN,
+     * dejando la cuenta sin acceso. */
+    const cJSON *pin = cJSON_GetObjectItemCaseSensitive(o, "pin");
+    if (cJSON_IsString(pin) && pin->valuestring && pin->valuestring[0])
+        set_str(u->pin, sizeof(u->pin), pin->valuestring);
     getstr(u->last, sizeof(u->last), o, "last");
     const cJSON *role = cJSON_GetObjectItemCaseSensitive(o, "role");
     const cJSON *locked = cJSON_GetObjectItemCaseSensitive(o, "locked");
@@ -309,6 +314,15 @@ cJSON *json_from_cfg(const AppConfig *c)
     return root;
 }
 
+static bool s_pins_migrated;
+
+bool appcfg_take_pin_migration(void)
+{
+    bool migrated = s_pins_migrated;
+    s_pins_migrated = false;
+    return migrated;
+}
+
 void cfg_from_json(AppConfig *c, const cJSON *root)
 {
     if (!root)
@@ -367,7 +381,9 @@ void cfg_from_json(AppConfig *c, const cJSON *root)
         if (adm)
         {
             getstr(c->general.admin.user, sizeof(c->general.admin.user), adm, "user");
-            getstr(c->general.admin.pass, sizeof(c->general.admin.pass), adm, "pass");
+            { const cJSON *pw = cJSON_GetObjectItemCaseSensitive(adm, "pass");   /* secreto: vacio = conservar */
+              if (cJSON_IsString(pw) && pw->valuestring && pw->valuestring[0])
+                  set_str(c->general.admin.pass, sizeof(c->general.admin.pass), pw->valuestring); }
         }
 
         const cJSON *users = cJSON_GetObjectItemCaseSensitive(general, "users");
@@ -573,6 +589,16 @@ void cfg_from_json(AppConfig *c, const cJSON *root)
         }
     }
     ESP_LOGI("STORAGE", "Parseo profundo de AppConfig.json completado.");
+
+    /* PIN / passphrase en texto plano (NVS de firmware anterior, set_config
+     * remoto) -> hash con sal. Igual que MedGuard (ui_pin_hash.h). */
+    for (int u = 0; u < c->general.users_count && u < APP_MAX_USERS; ++u)
+        if (ui_pin_normalize(c->general.users[u].pin, sizeof(c->general.users[u].pin)))
+            s_pins_migrated = true;
+    if (ui_pin_normalize(c->general.factory.pin, sizeof(c->general.factory.pin)))
+        s_pins_migrated = true;
+    if (ui_pin_normalize(c->general.admin.pass, sizeof(c->general.admin.pass)))
+        s_pins_migrated = true;
 }
 
 esp_err_t appcfg_load(AppConfig *out)
@@ -715,6 +741,12 @@ esp_err_t appcfg_cache_reload(void)
         return ESP_ERR_NO_MEM;
     appcfg_defaults(tmp); // por si falla NVS
     esp_err_t r = appcfg_load(tmp);
+    /* Migracion de seguridad: si la carga convirtio PIN en claro a hash,
+     * persistir ya para que la NVS no conserve PIN legibles (una sola vez). */
+    if (r == ESP_OK && appcfg_take_pin_migration()) {
+        esp_err_t sr = appcfg_save(tmp);
+        ESP_LOGW("storage", "PIN en texto plano migrados a hash (guardado: %s)", esp_err_to_name(sr));
+    }
     // copiamos siempre (si falla, quedan defaults)
     bool locked = cfg_snapshot_lock();
     memcpy(&s_cfg_snapshot, tmp, sizeof(AppConfig));

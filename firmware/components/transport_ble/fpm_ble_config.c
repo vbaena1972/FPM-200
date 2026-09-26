@@ -762,14 +762,14 @@ bool fpm_ble_user_op_json(const char *json)
             cpy(u->name, sizeof(u->name), name);
             u->role = (app_user_role_t)role;
             u->locked = locked;
-            if (pin[0]) cpy(u->pin, sizeof(u->pin), pin);           /* preserva si vacío */
+            if (pin[0]) ui_pin_hash(pin, u->pin, sizeof(u->pin));   /* preserva si vacío; guarda hash */
             ok = true;
         } else if (index == c->general.users_count &&
                    c->general.users_count < APP_MAX_USERS && pin[0]) { /* alta (PIN oblig.) */
             app_user_t *u = &c->general.users[c->general.users_count];
             memset(u, 0, sizeof(*u));
             cpy(u->name, sizeof(u->name), name);
-            cpy(u->pin, sizeof(u->pin), pin);
+            ui_pin_hash(pin, u->pin, sizeof(u->pin));                /* nunca en claro */
             u->role = (app_user_role_t)role;
             u->locked = locked;
             cpy(u->last, sizeof(u->last), "nunca");
