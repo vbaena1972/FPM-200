@@ -1,5 +1,6 @@
 #include "flow_meter.h"
 #include <stdio.h>
+#include "esp_app_desc.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include <stdatomic.h>
@@ -242,7 +243,7 @@ static void aws_telemetry_task(void *pvParameters)
     char topic[256] = {0};
     char alarm_topic[256] = {0};
     char serial[32] = {0};
-    char firmware[24] = {0};
+    char firmware[32] = {0}; // esp_app_desc_t.version is 32 bytes
     // Estado por canal publicado la ultima vez (para detectar transiciones).
     // Indices: 0=presion, 1=flujo, 2=temperatura.
     char prev_state[3][12] = { "normal", "normal", "normal" };
@@ -276,7 +277,10 @@ static void aws_telemetry_task(void *pvParameters)
                  cfg_app->general.serial);
 
         snprintf(serial, sizeof(serial), "%s", cfg_app->general.serial);
-        snprintf(firmware, sizeof(firmware), "%s", cfg_app->general.fw_version);
+        // Real build version (PROJECT_VER), like LAN/BLE/mDNS. general.fw_version is a
+        // stale config field (default "1.0.0"): AWS always reported 1.0.0 (QA A3).
+        const esp_app_desc_t *ad = esp_app_get_description();
+        snprintf(firmware, sizeof(firmware), "%s", ad ? ad->version : cfg_app->general.fw_version);
 
         p_lim_min  = cfg_app->sensors.alarm_limits.pressure_min;
         p_lim_max  = cfg_app->sensors.alarm_limits.pressure_max;

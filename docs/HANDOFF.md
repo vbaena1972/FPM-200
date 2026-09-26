@@ -6,6 +6,20 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 
 ---
 
+## Cierre 2026-09-25 — FW 1.5.24-dev flasheado, QA formal en curso
+
+- **1.5.23** (commit `5bb4856`) validado en arranque: calibración v7 cargada (CRC E9E8),
+  integrador de consumo verificado (915.5 L vs 914.8 L integrados del log, 0.1 %).
+- **1.5.24**: la telemetría AWS reportaba `firmware:"1.0.0"` fijo (campo de config viejo);
+  ahora usa la versión del build (como LAN/BLE/mDNS). Buffer `firmware` 24→32 B (-O2).
+- **Build estándar**: se eliminaron `build-fixes/` y el `build/` viejo; ahora
+  `idf.py -p COM3 build flash monitor` (carpeta `build/`). Pruebas de host en `build/host-tests`.
+- **P4**: el volcado de crash era real: `InterruptWDTTimoutCPU0` en contexto de la tarea WiFi
+  (core 0); motivo original perdido; ya borrado. Vigilar si se repite.
+- **QA**: 18 casos PASS/ACEPT con evidencia de logs. Mañana: alarmas (flujo > 30 L/min y
+  límites de presión), desconexión del módulo, recorrido de HMI, router, medianoche. Ver
+  "Plan para completar" en `docs/QA_FPM_1.5.22.md`. Sin equipo: C2 y flujo < 12 L/min.
+
 ## Actualización 2026-09-25 — Soak 18.8 h + calibración FS7 (FW 1.5.23-dev)
 
 Resultados de `longFPM.log` (18.8 h) y `lonCal.log` (calibración con SFM3300 en serie),
@@ -15,7 +29,7 @@ analizados por script. Detalle en `firmware/CONSUMPTION_FIXES.md` y `docs/QA_FPM
 - **FS7 recalibrado** (v7): volumen 800 L con error −0.0 % (antes +14.3 %).
 - **Alarmas falsas de fuga** por ruido del TX WiFi → mediana de 5 + confirmación 500 ms.
 - **Hay un volcado de crash real** (30 KB) previo al soak: leer con
-  `idf.py -B build-fixes -p COM3 coredump-info` y borrar con
+  `idf.py -p COM3 coredump-info` y borrar con
   `python -m esptool --chip esp32s3 -p COM3 erase-region 0x620000 0x20000`.
 - 1.5.23 pendiente de compilar/flashear: verificar `EEPROM_CAL v7: FS7 refit` al arrancar,
   línea `Consumo:` cada 30 s y ausencia de alarmas falsas de fuga.
@@ -71,10 +85,10 @@ presión/flujo en caliente con el SFM3300 como referencia. La plantilla de micro
   escrituras NVS, UI redibuja solo cambios, diagnóstico `i2c_guard: slow`.
   **Flasheo especial UNA vez** (cambia la tabla de particiones, conserva la NVS):
   ```
-  idf.py -B build-fixes build
+  idf.py build
   python -m esptool --chip esp32s3 -p COM3 erase-region 0xF000 0xF000
   python -m esptool --chip esp32s3 -p COM3 erase-region 0x620000 0x20000
-  idf.py -B build-fixes -p COM3 flash monitor
+  idf.py -p COM3 flash monitor
   ```
   (0xF000-0x1DFFF = nueva cola de la NVS, antes otadata+hueco; 0x620000 = coredump.)
   Volver a una versión ≤1.5.21 requiere el partitions.csv viejo.

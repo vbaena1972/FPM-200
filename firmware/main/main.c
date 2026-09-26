@@ -907,7 +907,7 @@ void app_main(void)
     }
     mem_diag_report("AFTER-NVS");
     // A previous crash leaves an ELF core dump in the "coredump" partition. Report
-    // it at boot; read it with: idf.py -B build-fixes coredump-info
+    // it at boot; read it with: idf.py coredump-info
     {
         size_t cd_addr = 0, cd_size = 0;
         if (esp_core_dump_image_check() == ESP_OK &&

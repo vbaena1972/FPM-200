@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $testRoot = $PSScriptRoot
 $repoFirmware = Split-Path (Split-Path $testRoot)
-$testBuild = Join-Path $repoFirmware 'build-fixes/host-tests'
+$testBuild = Join-Path $repoFirmware 'build/host-tests'
 New-Item -ItemType Directory -Force -Path $testBuild | Out-Null
 $vswhere = 'C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe'
 $vsRoot = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath

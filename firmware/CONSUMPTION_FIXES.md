@@ -384,3 +384,12 @@ git-ignored).
   Removed unused read_slot_json. CMake ui_bind<->main warning kept (circular dep,
   refactor later, same as MedGuard).
 - Host tests (MSVC): all PASS including the new flow-confirmation case.
+
+### 1.5.23 boot check + 1.5.24-dev (2026-09-25)
+- 1.5.23 on HW: EEPROM v7 loaded (CRC E9E8 = new FS7 fit), `Consumo: 0.9155 m3` after reboot
+  = 914.8 L integrated offline from lonCal.log with the old fit (integrator correct, 0.1 %).
+- I2C bus-1 stall (~0.7 s) still appears once per AWS TLS handshake (`xfer=372 ms`, err OK);
+  accepted (below STALE threshold). CONFIG_MBEDTLS_MPI_USE_INTERRUPT already enabled.
+- 1.5.24: AWS telemetry `firmware` used general.fw_version (stale "1.0.0"); now
+  esp_app_get_description()->version. Buffer 24 -> 32 B (-Wformat-truncation at -O2).
+- Build switched to the standard `build/` directory (build-fixes removed).

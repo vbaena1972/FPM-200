@@ -22,6 +22,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #   1.5.23 (soak 18.8 h + calibracion vs SFM3300): curva FS7 v7 (EEPROM v6->v7),
 #   mediana de 5 + confirmacion 500 ms en alarmas de flujo (ruido del TX WiFi),
 #   SFM3300 rechaza 00 00 00, linea "Consumo:" cada 30 s, touch get_data.
+#   1.5.24: telemetria AWS reporta la version real (antes "1.0.0" fijo).
 #   Detalle en firmware/CONSUMPTION_FIXES.md y docs/HANDOFF.md.
 # 1.5.4-dev: microSD (ui_sd + sd_monitor) + BT-off REAL en "Configurar por app".
 #   microSD (main.c/ui_sd): (1) el overlay ahora tiene botón "Cerrar" SIEMPRE
@@ -88,5 +89,5 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.5.23-dev")
+set(PROJECT_VER "1.5.24-dev")
 project(esp32s3_hmi_skeleton)
