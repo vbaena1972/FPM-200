@@ -60,7 +60,17 @@ static const char *TAG = "sensors_runtime";
 
 #define SENS_CFG_EEPROM_ADDR 0x0000
 #define SENS_CFG_MAGIC 0x53454E31u // "SEN1"
-#define SENS_CFG_VERSION 6 // v6: user-confirmed atmospheric zero correction (+0.415 kPa).
+#define SENS_CFG_VERSION 7 // v6: atmospheric zero +0.415 kPa; v7: FS7 refit vs SFM3300 (2026-09-25).
+// FS7 factory parameters before v7 (used to recognise untouched records).
+#define FS7_V6_U0    3.466f
+#define FS7_V6_N     0.857f
+#define FS7_V6_SCALE 209.0f
+// v7 fit (lonCal.log, 32 min, 800 L vs SFM3300, equipo caliente ~46 C): volumen -0.0 %,
+// +/-2 % entre 15 y 40 slm, RMS 1.0 slm. u0 fijado sobre el cero real (3.462-3.471 V).
+// Pocos datos bajo 12 slm: refinar con otra sesion en ese rango.
+#define FS7_V7_U0    3.472f
+#define FS7_V7_N     0.75f
+#define FS7_V7_SCALE 253.4f
 
 // Modos de presiÃ³n
 #define PRESSURE_MODE_ABS   0 // absoluta (por defecto)
@@ -192,10 +202,10 @@ static void sensor_cfg_set_defaults(sensor_eeprom_cfg_t *c)
     // satura): flujo[slm] = 209*(Ucta-3.466)^1.17, que en el modelo
     // ((U-u0)/k)^(1/n)*scale es k=1, n=0.857, scale=209. RMS del ajuste ~2.6 slm.
     // Refinar arriba de ~37 slm (no cubierto); la auto-tara corrige la deriva del cero.
-    c->fs7_u0 = 3.466f;     // cero reconstruido (Ucta), medido estable
-    c->fs7_k = 1.0f;        // la ganancia va en flow_scale
-    c->fs7_n = 0.857f;      // exponente (1/n = 1.17: respuesta convexa)
-    c->flow_scale = 209.0f; // ley de potencia vs SFM3300 (RMS ~2.6 slm)
+    c->fs7_u0 = FS7_V7_U0;         // v7 (antes 3.466, ver FS7_V6_*)
+    c->fs7_k = 1.0f;               // la ganancia va en flow_scale
+    c->fs7_n = FS7_V7_N;           // v7 (antes 0.857)
+    c->flow_scale = FS7_V7_SCALE;  // v7 (antes 209)
     c->flow_offset = 0.0f;
 
     c->flow_enabled = 1;   // FS7 conectado y calibrado (salida analog. a 3.6 V @ 0 flujo)
@@ -238,9 +248,10 @@ void sensors_runtime_preload_calibration(void)
         return;
     }
     uint16_t crc = crc16_ccitt((const uint8_t *)&reference, offsetof(sensor_eeprom_cfg_t, crc16));
-    bool valid = reference.magic == SENS_CFG_MAGIC && (reference.version == SENS_CFG_VERSION || reference.version == 5) &&
+    bool valid = reference.magic == SENS_CFG_MAGIC &&
+                 (reference.version == SENS_CFG_VERSION || reference.version == 6 || reference.version == 5) &&
                  reference.size == sizeof(reference) && reference.crc16 == crc;
-    if (!valid && reference.magic == SENS_CFG_MAGIC && reference.version == SENS_CFG_VERSION &&
+    if (!valid && reference.magic == SENS_CFG_MAGIC && reference.version == 6 &&
         reference.size == sizeof(reference)) {
         // Interrupted v5->v6 migration: data bytes already v6 but CRC (last bytes
         // written) still holds the v5 CRC. Accept ONLY if undoing the migration
@@ -270,15 +281,44 @@ void sensors_runtime_preload_calibration(void)
             valid = true;
         }
     }
+    if (!valid && reference.magic == SENS_CFG_MAGIC && reference.version == 7 &&
+        reference.size == sizeof(reference) && reference.fs7_u0 == FS7_V7_U0 &&
+        reference.fs7_n == FS7_V7_N && reference.flow_scale == FS7_V7_SCALE) {
+        // Interrupted v6->v7 migration: same rule, undo the FS7 refit bit-exact.
+        sensor_eeprom_cfg_t original = reference;
+        original.version = 6;
+        original.fs7_u0 = FS7_V6_U0; original.fs7_n = FS7_V6_N; original.flow_scale = FS7_V6_SCALE;
+        if (crc16_ccitt((const uint8_t *)&original, offsetof(sensor_eeprom_cfg_t, crc16)) == reference.crc16) {
+            ESP_LOGW(TAG, "EEPROM_CAL completing interrupted v7 migration: CRC %04X -> %04X",
+                     reference.crc16, crc);
+            sensor_eeprom_cfg_t fixed = reference;
+            fixed.crc16 = crc;
+            esp_err_t err = at24c256_write(SENS_CFG_EEPROM_ADDR + offsetof(sensor_eeprom_cfg_t, crc16),
+                                           (const uint8_t *)&fixed.crc16, sizeof(fixed.crc16));
+            if (err != ESP_OK) return;
+            for (unsigned attempt = 0; attempt < 3; ++attempt) {
+                err = at24c256_read(SENS_CFG_EEPROM_ADDR, (uint8_t *)&tmp, sizeof(tmp));
+                if (err != ESP_OK || memcmp(&tmp, &fixed, sizeof(tmp))) {
+                    ESP_LOGE(TAG, "EEPROM_CAL migration CRC verification failed");
+                    return;
+                }
+                driver_delay_ms(10);
+            }
+            reference = fixed;
+            valid = true;
+        }
+    }
     if (!valid) {
         // Recover ONLY the documented Arduino overwrite (42 at 0x0010), and
         // only when every other byte AND the original CRC match known defaults.
         // Never invent a new CRC for damaged calibration or replace custom data.
         sensor_eeprom_cfg_t expected;
         sensor_cfg_set_defaults(&expected);
-        if (reference.version == 5) {
-            expected.version = 5;
-            expected.pressure_offset_kpa = 0.0f;
+        if (reference.version == 5 || reference.version == 6) {
+            // Pre-v7 records carried the old FS7 factory fit.
+            expected.version = reference.version;
+            expected.fs7_u0 = FS7_V6_U0; expected.fs7_n = FS7_V6_N; expected.flow_scale = FS7_V6_SCALE;
+            if (reference.version == 5) expected.pressure_offset_kpa = 0.0f;
         }
         expected.crc16 = crc16_ccitt((const uint8_t *)&expected, offsetof(sensor_eeprom_cfg_t, crc16));
         tmp = reference;
@@ -301,21 +341,40 @@ void sensors_runtime_preload_calibration(void)
         }
         reference = expected;
     }
-    if (reference.version == 5) {
-        // One-time migration for this unit, authorized with inlet at atmosphere.
-        // Version 6 prevents adding the correction again on later boots.
+    if (reference.version < SENS_CFG_VERSION) {
+        // One-time migrations for this unit, applied in order and written once.
+        // The version bump prevents applying them again on later boots.
         sensor_eeprom_cfg_t corrected = reference;
-        corrected.pressure_offset_kpa += 0.415f;
-        corrected.version = SENS_CFG_VERSION;
+        if (corrected.version == 5) {
+            // v6: authorized with inlet at atmosphere.
+            corrected.pressure_offset_kpa += 0.415f;
+            corrected.version = 6;
+        }
+        if (corrected.version == 6) {
+            // v7: FS7 refit vs SFM3300. Only replaces the untouched factory fit;
+            // a flow calibration done from the HMI/BLE is preserved.
+            if (corrected.fs7_u0 == FS7_V6_U0 && corrected.fs7_n == FS7_V6_N &&
+                corrected.flow_scale == FS7_V6_SCALE && corrected.fs7_k == 1.0f) {
+                corrected.fs7_u0 = FS7_V7_U0;
+                corrected.fs7_n = FS7_V7_N;
+                corrected.flow_scale = FS7_V7_SCALE;
+                ESP_LOGI(TAG, "EEPROM_CAL v7: FS7 refit u0=%.3f n=%.3f scale=%.1f",
+                         corrected.fs7_u0, corrected.fs7_n, corrected.flow_scale);
+            } else {
+                ESP_LOGW(TAG, "EEPROM_CAL v7: custom FS7 calibration kept (u0=%.3f n=%.3f scale=%.1f)",
+                         corrected.fs7_u0, corrected.fs7_n, corrected.flow_scale);
+            }
+            corrected.version = 7;
+        }
         corrected.crc16 = crc16_ccitt((const uint8_t *)&corrected, offsetof(sensor_eeprom_cfg_t, crc16));
         esp_err_t err = at24c256_write(SENS_CFG_EEPROM_ADDR, (const uint8_t *)&corrected, sizeof(corrected));
         if (err != ESP_OK) {
-            ESP_LOGE(TAG, "EEPROM_CAL zero correction save failed: %s", esp_err_to_name(err));
+            ESP_LOGE(TAG, "EEPROM_CAL migration save failed: %s", esp_err_to_name(err));
             return;
         }
         reference = corrected;
-        ESP_LOGI(TAG, "EEPROM_CAL v6 saved: pressure zero correction +0.415 kPa, offset=%.3f kPa",
-                 corrected.pressure_offset_kpa);
+        ESP_LOGI(TAG, "EEPROM_CAL v%u saved: pressure offset=%.3f kPa",
+                 (unsigned)corrected.version, corrected.pressure_offset_kpa);
     }
     s_scfg = reference;
     s_scfg_valid = true;
@@ -330,6 +389,16 @@ static float median3f(float a, float b, float c)
     if (b > c) { float t = b; b = c; c = t; }
     if (a > b) { float t = a; a = b; b = t; }
     return b;
+}
+
+// Mediana de 5 (flujo): rechaza hasta 2 outliers consecutivos.
+static float median5f(const float v[5])
+{
+    float s[5];
+    memcpy(s, v, sizeof(s));
+    for (int i = 1; i < 5; ++i)
+        for (int j = i; j > 0 && s[j - 1] > s[j]; --j) { float t = s[j]; s[j] = s[j - 1]; s[j - 1] = t; }
+    return s[2];
 }
 
 // Convierte el voltaje leÃ­do en AIN0 a flujo (L/min) usando el modelo FS7.
@@ -987,15 +1056,17 @@ static void sensors_acq_task(void *arg)
                  * de alarmas (era la causa de la "alarma fantasma": una muestra a
                  * 0 con flujo real ~22 disparaba flow_delta). Cuesta 1 muestra de
                  * retraso; un cambio REAL sostenido sí pasa (2 de 3 muestras). */
-                static float s_flow_med[3];
+                /* 1.5.23: mediana de 5. El soak de 18 h mostro picos de DOS
+                 * muestras seguidas (~50 ms tras cada publish MQTT: el TX WiFi
+                 * acopla ruido en Vain0) que la mediana de 3 dejaba pasar y
+                 * disparaban flow_delta. Rechaza hasta 2 outliers seguidos;
+                 * cuesta 2 muestras (200 ms) de retraso en cambios reales. */
+                static float s_flow_med[5];
                 static int s_flow_med_n = 0;
-                s_flow_med[2] = s_flow_med[1];
-                s_flow_med[1] = s_flow_med[0];
+                memmove(&s_flow_med[1], &s_flow_med[0], 4 * sizeof(float));
                 s_flow_med[0] = raw_flow;
-                if (s_flow_med_n < 3) s_flow_med_n++;
-                flow_lpm = (s_flow_med_n == 3)
-                               ? median3f(s_flow_med[0], s_flow_med[1], s_flow_med[2])
-                               : raw_flow;
+                if (s_flow_med_n < 5) s_flow_med_n++;
+                flow_lpm = (s_flow_med_n == 5) ? median5f(s_flow_med) : raw_flow;
                 last_good_flow = flow_lpm;
                 /* Diagnóstico: si el filtro DESCARTÓ un outlier grande, lo
                  * registra (confirma glitch del ADS sin disparar falsa alarma). */
@@ -1162,6 +1233,11 @@ static void sensors_acq_task(void *arg)
             ESP_LOGI(TAG, "Acquisition target=%lu ms work=%lld ms overruns=%lu",
                      (unsigned long)period_ms, (long long)elapsed_ms, (unsigned long)overruns);
             next_timing_log = now_ms + 30000;
+            // QA evidence for the consumption integrator (compare with SFM3300 / AWS).
+            flow_meter_snapshot_t fm = flow_meter_get();
+            ESP_LOGI(TAG, "Consumo: %.4f m3 (%.1f L) missing=%llu ms partial=%d dated=%d",
+                     fm.volume_m3, fm.volume_m3 * 1000.0, (unsigned long long)fm.missing_ms,
+                     (int)fm.partial, (int)fm.dated);
         }
         if (xTaskDelayUntil(&sample_wake, period_ticks) == pdFALSE) {
             sample_wake = xTaskGetTickCount();

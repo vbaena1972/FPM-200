@@ -39,5 +39,18 @@ int main(void) {
  alarm_mgr_test_buzzer(); now=2700000; alarm_mgr_process(0,0,0); assert(duty>0);
  now=4700000; alarm_mgr_process(0,0,0); assert(duty==0);
  assert(transitions>=4);
- puts("PASS: alarm cadence, mute/escalation, UI inhibit, normal reset, bounded buzzer test");
+
+ // 1.5.23 flow confirmation: a 200 ms Wi-Fi-noise spike must not raise a leak
+ // alarm; a sustained step must, within ~0.5 s, and must clear after ~a window.
+ cfg.sensors.alarm_limits.flow_delta_enabled=true; cfg.sensors.alarm_limits.flow_delta_threshold=5;
+ cfg.sensors.alarm_limits.flow_delta_window_ms=2000;
+ now=10000000; alarm_mgr_process(0,0,0);                 // baseline 0 L/min
+ for (int i=1;i<=2;i++){ now=10000000+i*100000; alarm_mgr_process(0,12,0);
+   assert(alarm_mgr_get_current_state()==ALARM_STATE_NORMAL); }
+ now=10300000; alarm_mgr_process(0,0,0); assert(alarm_mgr_get_current_state()==ALARM_STATE_NORMAL);
+ for (int i=1;i<=4;i++){ now=10300000+i*100000; alarm_mgr_process(0,12,0);
+   assert(alarm_mgr_get_current_state()==ALARM_STATE_NORMAL); }   // < 500 ms: pending
+ now=10900000; alarm_mgr_process(0,12,0); assert(alarm_mgr_get_current_state()==ALARM_STATE_WARNING);
+ now=15000000; alarm_mgr_process(0,12,0); assert(alarm_mgr_get_current_state()==ALARM_STATE_NORMAL);
+ puts("PASS: alarm cadence, mute/escalation, UI inhibit, normal reset, bounded buzzer test, flow confirmation");
 }

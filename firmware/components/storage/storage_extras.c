@@ -119,20 +119,6 @@ static esp_err_t write_active(char slot) {
     return r;
 }
 
-static esp_err_t read_slot_json(char slot, char **out, size_t *outlen) {
-    *out = NULL; *outlen = 0;
-    nvs_handle_t h; esp_err_t r = nvs_open(NVS_NS, NVS_READONLY, &h);
-    if (r != ESP_OK) return r;
-    size_t len=0; r = nvs_get_blob(h, slot_key(slot), NULL, &len);
-    if (r != ESP_OK) { nvs_close(h); return r; }
-    char *buf = (char*)malloc(len+1); if (!buf) { nvs_close(h); return ESP_ERR_NO_MEM; }
-    r = nvs_get_blob(h, slot_key(slot), buf, &len);
-    nvs_close(h);
-    if (r != ESP_OK) { free(buf); return r; }
-    buf[len] = '\0'; *out = buf; *outlen = len;
-    return ESP_OK;
-}
-
 static esp_err_t write_slot_json(char slot, const char *json) {
     nvs_handle_t h; esp_err_t r = nvs_open(NVS_NS, NVS_READWRITE, &h);
     if (r != ESP_OK) return r;

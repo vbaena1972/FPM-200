@@ -355,3 +355,32 @@ Recommended, not applied (need a planned test):
 - Heap internal: free 43.5 KB, largest 20 KB, frag 53% (stable).
 - Pressure at atmosphere -0.40..-0.50 kPa at 37.5 C (was ~+0.1 at 46 C): zero
   follows temperature (~0.06 kPa/C). Within MS5803-14BA accuracy; no code change.
+
+
+## Soak 18.8 h + calibration session -> 1.5.23-dev (Claude, 2026-09-25)
+Evidence: `firmware/longFPM.log` (18.8 h, 36 MB) and `firmware/lonCal.log` (40 min with
+flow through FS7 + SFM3300 in series). Analysed with scripts (not committed; logs are
+git-ignored).
+- Stability: 0 resets, 0 errors, heap internal free 42.4 KB / largest 19.4 KB flat for
+  18 h, taskLVGL 5 %, 2261 telemetry messages, 0 Wi-Fi disconnects.
+- Pressure zero: 0.00 +/- 0.035 kPa from hour 4 on (T ~47 C). The -0.45 kPa seen before
+  was a cold start (37 C). No recalibration needed.
+- Core dump: a real 30 112 B dump with valid checksum exists (crash between the 1.5.22
+  validation and the soak). Panic reason not extracted; read with coredump-info.
+- FS7 vs SFM3300 (800 L): old fit +10..25 % in 12-30 slm, +14.3 % in volume. New fit
+  with u0 pinned above the real zero (3.462-3.471 V): u0 3.472, n 0.75, k 1,
+  scale 253.4 -> volume -0.0 %, +/-2 % in 15-40 slm, RMS 1.0 slm. Few points < 12 slm.
+  Applied as EEPROM calibration v7 (one-time v6->v7 migration only when the FS7 fit is
+  still the factory one; interrupted-migration recovery like v6).
+- False leak alarms: 5 in 18 h + 8 in the calibration session, all ~50 ms after an MQTT
+  publish; Vain0 jumps for TWO consecutive samples (Wi-Fi TX coupling into the FS7/ADS
+  analog input). Median-3 let them through. Now median-5 on flow + 500 ms confirmation
+  for flow_delta / flow_high (re-checked against the baseline captured at detection,
+  lifetime ~one window). New host test case. Hardware follow-up: FS7/ADS decoupling.
+- SFM3300 `00 00 00` passes CRC-8 and decodes to -273 slm (62 times): now rejected
+  outside +/-250 slm.
+- New log line every 30 s: `Consumo: <m3> (<L>) missing=.. partial=.. dated=..`.
+- Touch: esp_lcd_touch_get_coordinates (deprecated) -> esp_lcd_touch_get_data.
+  Removed unused read_slot_json. CMake ui_bind<->main warning kept (circular dep,
+  refactor later, same as MedGuard).
+- Host tests (MSVC): all PASS including the new flow-confirmation case.

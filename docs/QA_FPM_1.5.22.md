@@ -1,4 +1,4 @@
-# QA FORMAL — FPM-200 firmware **1.5.22-dev**
+# QA FORMAL — FPM-200 firmware **1.5.22-dev → 1.5.23-dev**
 
 **Fecha de inicio:** 2026-09-25 · **Objetivo:** batería de casos con evidencia para **establecer el
 primer baseline validado del FPM-200** (hoy no tiene ninguno). · **Equipo:** `fpm-0001` (identidad
@@ -33,13 +33,13 @@ de estabilidad K1 cuenta desde el último arranque). No reiniciar hasta capturar
 
 | ID | Caso | Procedimiento | Esperado | Resultado | Evidencia |
 |----|------|---------------|----------|-----------|-----------|
-| P1 | Cero de presión en caliente | Tras ≥ 20 h, entrada abierta a atmósfera, 10 min de log `P=… T=…` | Registrar P0(T). Decidir: recalibrar offset en caliente y/o zona muerta de display alrededor de 0 | PEND | |
-| P2 | Consumo contra patrón | SFM3300 conectado en serie; caudal fijo (p. ej. 10 L/min) durante un tiempo medido (≥ 10 min) | `consumption_m3` ≈ caudal × tiempo (anotar error %); `consumption_partial=false` | PEND | |
-| P3 | Estabilidad 20 h (soak) | Equipo encendido sin reinicios desde la noche anterior | Sin `rst:` ni `task_wdt`; heap interno `largest` estable (≥ 15 KB); `StkHW` de tareas sin caer; WiFi/AWS conectados; touch y buzzer responden | PEND | |
-| P4 | Core dump funcional | Provocar un crash controlado (build de prueba o comando), reiniciar | Log al arrancar: `Core dump from previous crash … reason: …`; `idf.py -B build-fixes coredump-info` muestra backtrace | PEND | |
-| P5 | Pruebas de host | `./tests/host/run.ps1` (MSVC) | test_alarm, test_eeprom, test_flow_integrator: todos PASS | PEND | |
-| P6 | SFM3300 (referencia, bus 2) | Conectar con 5 V y pull-ups correctas | Log `SFMref=… slm` en vez de `SFM=noInit`; lecturas estables | PEND | |
-| P7 | Mantenimiento menor | (a) migrar `esp_lcd_touch_get_coordinates` → `esp_lcd_touch_get_data`; (b) aviso CMake `ui_bind`↔`main`; (c) quitar `read_slot_json` sin uso; (d) compilar Simulador VS con la UI actual | Compila sin esos avisos; simulador abre y navega | PEND | |
+| P1 | Cero de presión en caliente | Tras ≥ 20 h, entrada abierta a atmósfera, 10 min de log `P=… T=…` | Registrar P0(T). Decidir: recalibrar offset en caliente y/o zona muerta de display alrededor de 0 | **PASS** | `longFPM.log`: desde la hora 4 (T≈47 °C) cero = 0.00 ± 0.035 kPa hasta la hora 18. Sin recalibración; el −0.45 era arranque en frío (37 °C) |
+| P2 | Consumo contra patrón | SFM3300 conectado en serie; caudal fijo (p. ej. 10 L/min) durante un tiempo medido (≥ 10 min) | `consumption_m3` ≈ caudal × tiempo (anotar error %); `consumption_partial=false` | **PASS (integrador + modelo) / PEND (< 12 slm)** | Integrador en HW: 915.5 L vs 914.8 L integrados del log con la curva vieja (0.1 %). Curva v7: volumen -0.0 % vs SFM3300 (800 L). Falta sesion 2-12 slm (ventilador no llega; usar estrangulamiento, bomba de acuario o aire/O2 con regulador) |
+| P3 | Estabilidad 20 h (soak) | Equipo encendido sin reinicios desde la noche anterior | Sin `rst:` ni `task_wdt`; heap interno `largest` estable (≥ 15 KB); `StkHW` de tareas sin caer; WiFi/AWS conectados; touch y buzzer responden | **PASS** | `longFPM.log`: 18.8 h sin reinicios ni errores; heap interno 42.4 KB / largest 19.4 KB planos; taskLVGL 5 %; 2261 telemetrías; 0 desconexiones WiFi |
+| P4 | Core dump funcional | Provocar un crash controlado (build de prueba o comando), reiniciar | Log al arrancar: `Core dump from previous crash … reason: …`; `idf.py -B build-fixes coredump-info` muestra backtrace | **PASS (captura)** / ABIERTO (causa) | Volcado real 30 112 B: `InterruptWDTTimoutCPU0`, contexto de interrupcion, handle en la zona de la tarea del driver WiFi (core 0). Motivo original perdido: el IWDT salto de nuevo al escribir el volcado (PC en `esp_core_dump_do_write_elf_pass`). Volcado ya borrado. Una sola vez, antes del soak (hipotesis: calibracion PHY completa tras erase-flash). Vigilar: si se repite, guardar con `esptool read-flash 0x620000 0x20000` y `coredump-info --gdb-timeout-sec 20` |
+| P5 | Pruebas de host | `./tests/host/run.ps1` (MSVC) | test_alarm, test_eeprom, test_flow_integrator: todos PASS | **PASS** | `tests/host/run.ps1` (MSVC, 2026-09-25): test_eeprom, test_alarm (+ caso nuevo de confirmación de flujo), test_flow_integrator |
+| P6 | SFM3300 (referencia, bus 2) | Conectar con 5 V y pull-ups correctas | Log `SFMref=… slm` en vez de `SFM=noInit`; lecturas estables | **PASS** | SFM3300 leyendo en ambos logs. Fix 1.5.23: `00 00 00` pasaba el CRC y decodificaba −273 slm (62 veces) → rechazado fuera de ±250 slm |
+| P7 | Mantenimiento menor | (a) migrar `esp_lcd_touch_get_coordinates` → `esp_lcd_touch_get_data`; (b) aviso CMake `ui_bind`↔`main`; (c) quitar `read_slot_json` sin uso; (d) compilar Simulador VS con la UI actual | Compila sin esos avisos; simulador abre y navega | **PASS** (a,c) / ACEPT (b) / PEND (d) | (a) touch migrado a `esp_lcd_touch_get_data`; (b) aviso CMake = dependencia circular ui_bind↔network_core, refactor futuro (igual que MedGuard); (c) `read_slot_json` eliminado; (d) simulador con LVGL 9.5 y APIs verificadas, falta compilar en VS |
 
 ---
 
@@ -57,7 +57,7 @@ de estabilidad K1 cuenta desde el último arranque). No reiniciar hasta capturar
 ### B. Calibración EEPROM
 | ID | Caso | Resultado | Evidencia |
 |----|------|-----------|-----------|
-| B1 | 4 lecturas `stored=computed=7AF0`, `calibration loaded` antes del touch | PEND | |
+| B1 | 4 lecturas `stored=computed=7AF0`, `calibration loaded` antes del touch | **PASS** | 1.5.23: 4 lecturas stored=computed=E9E8 (= registro v7 con curva nueva), calibration loaded, EEPROM=VERIFIED |
 | B2 | `EEPROM=VERIFIED`, sin alarma de calibración (faults sin 0x10) | PEND | |
 | B3 | Guardar calibración desde HMI → reinicio → CRC nuevo estable | PEND | |
 
@@ -74,7 +74,7 @@ de estabilidad K1 cuenta desde el último arranque). No reiniciar hasta capturar
 | ID | Caso | Resultado | Evidencia |
 |----|------|-----------|-----------|
 | D1 | `Acquisition work` ≈ 38 ms, `overruns` 0–1 por 30 s | PEND | |
-| D2 | Sin `Acquisition stall`/`gap` ni `i2c_guard: slow` durante conexión AWS | PEND | |
+| D2 | Sin `Acquisition stall`/`gap` ni `i2c_guard: slow` durante conexión AWS | **ACEPT** | 1 bloqueo del bus I2C ~0.7 s por conexion AWS (handshake TLS: `xfer=372 ms` err OK); < 1 s, sin alarma. Causa no identificada (MPI por interrupcion ya activo) |
 | D3 | Pérdida controlada del sensor (desconectar módulo) → alarma técnica amarilla silenciable, **nunca** ALERT | PEND | |
 | D4 | Reconexión del sensor → `Sensors recovered`, alarma se limpia | PEND | |
 
@@ -133,6 +133,19 @@ de estabilidad K1 cuenta desde el último arranque). No reiniciar hasta capturar
 
 ---
 
+## Hallazgos del soak (2026-09-25) → 1.5.23
+
+### OBS-4 — Alarmas de fuga falsas por ruido del TX WiFi (CORREGIDO en 1.5.23)
+- 5 alarmas `flow_warn` en 18 h (y 8 en la sesión de calibración) sin flujo real (SFM3300 = 0).
+  Cada una ~50 ms después de un publish MQTT: `v_ain0` salta 1.018 → 1.04–1.12 V durante **dos**
+  muestras seguidas, que la mediana de 3 dejaba pasar. Origen: acople del TX WiFi en la entrada
+  analógica del FS7/ADS1115 (revisar desacople/tierra en la próxima revisión de HW).
+- Firmware: mediana de 5 en el flujo + confirmación de 500 ms en `flow_delta` y `flow_high`
+  (re-evaluada contra la línea base del momento de detección). Test de host agregado.
+
+### OBS-5 — Curva del FS7 marcaba +10…25 % (CORREGIDO en 1.5.23, calibración v7)
+- Ver P2. Migración EEPROM v6→v7 solo si los parámetros del FS7 siguen de fábrica.
+
 ## Hallazgos conocidos (a confirmar / aceptar)
 
 ### OBS-1 — Cero de presión depende de la temperatura
@@ -152,5 +165,6 @@ de estabilidad K1 cuenta desde el último arranque). No reiniciar hasta capturar
 - **Verificados (PASS):** —
 - **Aceptados:** —
 - **Abiertos:** —
+- **Parte 0 (2026-09-25):** P1, P3, P5, P6 PASS; P2 modelo PASS (falta verificar en HW con 1.5.23); P4 captura PASS (falta leer el volcado); P7 parcial.
 - **Estado:** EN CURSO. Al cerrar con todos los casos PASS/ACEPT, promover **FPM 1.5.22** como baseline
   validado en `MedGuard-12IoT/docs/entrega/ESTADO_ACTUAL.md` y en `CLAUDE.md`.

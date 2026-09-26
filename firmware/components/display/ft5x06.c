@@ -29,7 +29,7 @@ static SemaphoreHandle_t refresh_finish __attribute__((unused)) = NULL;
 static void ft5x06_lvgl_read_cb(lv_indev_t *indev, lv_indev_data_t *data)
 {
     (void)indev;
-    uint16_t x = 0, y = 0, strength = 0;
+    esp_lcd_touch_point_data_t pt = {0};
     uint8_t cnt = 0;
 
     // --- INT-gating: solo leemos el touch por I2C cuando el pin INT (GPIO39,
@@ -58,11 +58,12 @@ static void ft5x06_lvgl_read_cb(lv_indev_t *indev, lv_indev_data_t *data)
         return;
     }
 
-    bool pressed = esp_lcd_touch_get_coordinates(tp, &x, &y, &strength, &cnt, 1);
-    if (pressed && cnt > 0)
+    // esp_lcd_touch_get_data: replacement for the deprecated get_coordinates
+    // (same coordinate processing; returns ESP_OK with cnt=0 when not touched).
+    if (esp_lcd_touch_get_data(tp, &pt, &cnt, 1) == ESP_OK && cnt > 0)
     {
-        data->point.x = x;
-        data->point.y = y;
+        data->point.x = pt.x;
+        data->point.y = pt.y;
         data->state = LV_INDEV_STATE_PRESSED;
     }
     else

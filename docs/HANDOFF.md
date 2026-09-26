@@ -6,6 +6,20 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 
 ---
 
+## Actualización 2026-09-25 — Soak 18.8 h + calibración FS7 (FW 1.5.23-dev)
+
+Resultados de `longFPM.log` (18.8 h) y `lonCal.log` (calibración con SFM3300 en serie),
+analizados por script. Detalle en `firmware/CONSUMPTION_FIXES.md` y `docs/QA_FPM_1.5.22.md`.
+- **Estable 18.8 h** (0 reinicios, heap plano, LVGL 5 %). **Cero de presión OK en caliente**
+  (0.00 ± 0.035 kPa); no requiere recalibración.
+- **FS7 recalibrado** (v7): volumen 800 L con error −0.0 % (antes +14.3 %).
+- **Alarmas falsas de fuga** por ruido del TX WiFi → mediana de 5 + confirmación 500 ms.
+- **Hay un volcado de crash real** (30 KB) previo al soak: leer con
+  `idf.py -B build-fixes -p COM3 coredump-info` y borrar con
+  `python -m esptool --chip esp32s3 -p COM3 erase-region 0x620000 0x20000`.
+- 1.5.23 pendiente de compilar/flashear: verificar `EEPROM_CAL v7: FS7 refit` al arrancar,
+  línea `Consumo:` cada 30 s y ausencia de alarmas falsas de fuga.
+
 ## Actualización 2026-09-24 — EEPROM, consumo, cero de presión (FW 1.5.5 → 1.5.22-dev)
 
 Trabajo iniciado con Codex (1.5.5–1.5.14) y cerrado con Claude (1.5.15–1.5.22); detalle

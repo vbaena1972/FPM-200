@@ -54,6 +54,13 @@ static void alarm_mgr_set_state_change_cb_impl(alarm_state_change_cb_t cb)
 static float s_baseline_flow = 0.0f;
 static int64_t s_baseline_time_us = 0;
 
+// Flow alarm confirmation (see alarm_mgr_process_impl).
+#define FLOW_CONFIRM_US 500000LL
+static bool s_delta_pending = false;
+static float s_delta_base = 0.0f;
+static int64_t s_delta_since_us = 0;
+static int64_t s_high_since_us = 0;
+
 esp_err_t alarm_mgr_init(int buzzer_gpio)
 {
     if (!s_alarm_lock) s_alarm_lock = xSemaphoreCreateRecursiveMutex();
@@ -133,6 +140,34 @@ static void alarm_mgr_process_impl(float current_pressure, float current_flow, u
         if (cfg->sensors.alarm_limits.flow_delta_enabled && delta > flow_delta_thresh) {
             flow_warning = true;
         }
+    }
+
+    // 1.5.23: confirmation. The 18 h soak showed 100-200 ms Vain0 spikes right
+    // after each MQTT publish (Wi-Fi TX noise) raising false leak alarms. A flow
+    // condition must now hold FLOW_CONFIRM_US. The delta is re-checked against the
+    // baseline captured at detection, so a real step is not lost if the window
+    // rolls over meanwhile.
+    if (flow_warning && !s_delta_pending) {
+        s_delta_pending = true;
+        s_delta_base = s_baseline_flow;
+        s_delta_since_us = now;
+    }
+    if (s_delta_pending) {
+        float d = isfinite(current_flow) ? current_flow - s_delta_base : 0.f;
+        if (d < 0) d = -d;
+        if (!cfg->sensors.alarm_limits.flow_delta_enabled || d <= flow_delta_thresh)
+            s_delta_pending = false;               // transient: it came back
+        // Same lifetime as before (about one window): a legitimate new flow level
+        // must not latch the warning forever.
+        if (now - s_delta_since_us > flow_window_ms * 1000LL + FLOW_CONFIRM_US)
+            s_delta_pending = false;
+        flow_warning = s_delta_pending && (now - s_delta_since_us) >= FLOW_CONFIRM_US;
+    }
+    if (flow_high) {
+        if (!s_high_since_us) s_high_since_us = now;
+        flow_high = (now - s_high_since_us) >= FLOW_CONFIRM_US;
+    } else {
+        s_high_since_us = 0;
     }
 
     // 2. ClasificaciÃƒÆ’Ã‚Â³n del peor escenario segÃƒÆ’Ã‚Âºn norma hospitalaria

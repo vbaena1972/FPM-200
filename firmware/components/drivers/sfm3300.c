@@ -143,6 +143,11 @@ esp_err_t sfm3300_read(float *slm)
     if (raw == 0xFFFF)
         return ESP_ERR_INVALID_RESPONSE; // dato marcado invalido
 
-    *slm = ((float)raw - SFM3300_OFFSET) / SFM3300_SCALE;
+    float v = ((float)raw - SFM3300_OFFSET) / SFM3300_SCALE;
+    // 00 00 00 passes the CRC (crc8 of zeros is 0) and decodes to -273 slm: seen
+    // 62 times in the 18 h soak. The SFM3300 range is +/-250 slm.
+    if (v < -250.0f || v > 250.0f)
+        return ESP_ERR_INVALID_RESPONSE;
+    *slm = v;
     return ESP_OK;
 }
