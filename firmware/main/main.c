@@ -2,6 +2,8 @@
 #include "fpm_i2c_guard.h"
 #include "esp_task_wdt.h"
 #include "esp_ota_ops.h"
+#include "ota_update.h"
+#include <sys/stat.h>
 #include "cJSON.h"
 #include "esp_core_dump.h"
 #include <stdio.h>
@@ -135,6 +137,9 @@ static bool wifi_cfg_valid = false;
     }
 
 static SemaphoreHandle_t s_sd_sem = NULL;
+/* Firmware firmado para actualizar por microSD (build/esp32s3_hmi_skeleton.bin
+ * renombrado). Tras procesarlo se renombra a .instalado / .rechazado. */
+#define SD_FIRMWARE_PATH "/sdcard/firmware.bin"
 /* La UI del flujo SD vive ahora en main/ui/ui_sd.c (overlay modal del design system). */
 
 static volatile TickType_t s_ui_progress;
@@ -260,6 +265,18 @@ static void sd_ui_close_cb(lv_event_t *e)
     ui_sd_close();
     sd_flow_clear();
     ESP_LOGI("SD_CD", "Overlay microSD cerrado por el usuario.");
+}
+
+/* Progreso de la actualizacion de firmware en el overlay de microSD: se mapea
+ * al tramo 72..98 % de la barra (antes van config y certificados). */
+static void sd_ota_progress_cb(int pct, const char *stage, void *user)
+{
+    (void)user;
+    if (bsp_display_lock(pdMS_TO_TICKS(200)))
+    {
+        ui_sd_progress(72 + pct * 26 / 100, stage);
+        bsp_display_unlock();
+    }
 }
 
 static void sd_monitor_task(void *pvParameters)
@@ -441,6 +458,37 @@ static void sd_monitor_task(void *pvParameters)
                 ESP_LOGI("SD_CD", "Certificados procesados.");
             }
 
+            /* 6. FIRMWARE (OTA por microSD, igual que MedGuard). Si la tarjeta trae
+             *    /sdcard/firmware.bin se valida (proyecto + FIRMA), se instala en la
+             *    otra particion y se aplica al reiniciar. El archivo se renombra
+             *    para no reinstalarlo en cada insercion. Un .bin ajeno o sin
+             *    firma se rechaza y el equipo sigue con su firmware actual. */
+            bool ota_failed = false;
+            char ota_msg[96] = "";
+            struct stat fw_st;
+            if (stat(SD_FIRMWARE_PATH, &fw_st) == 0)
+            {
+                char version[32] = "";
+                esp_err_t ota_err = ota_update_from_file(SD_FIRMWARE_PATH, sd_ota_progress_cb,
+                                                         NULL, version, sizeof(version));
+                if (ota_err == ESP_OK)
+                {
+                    rename(SD_FIRMWARE_PATH, SD_FIRMWARE_PATH ".instalado");
+                    debede_actualizar = true;
+                    ESP_LOGW("SD_CD", "Firmware %s instalado; pendiente de reinicio.", version);
+                }
+                else
+                {
+                    rename(SD_FIRMWARE_PATH, SD_FIRMWARE_PATH ".rechazado");
+                    ota_failed = true;
+                    snprintf(ota_msg, sizeof(ota_msg),
+                             "Firmware rechazado (%s). El equipo sigue con su versión actual.",
+                             ota_err == ESP_ERR_INVALID_VERSION ? "no es de FPM-200"
+                                                                : esp_err_to_name(ota_err));
+                    ESP_LOGE("SD_CD", "%s", ota_msg);
+                }
+            }
+
             if (bsp_display_lock(portMAX_DELAY))
             {
                 ui_sd_progress(100, "Completado");
@@ -454,6 +502,18 @@ static void sd_monitor_task(void *pvParameters)
             //    host quedaba ocupado y los rebotes de la CD provocaban el storm
             //    "0x105 no available sd host controller".
             unmount_sdcard_hotplug();
+
+            if (ota_failed)
+            {
+                /* Mostrar el rechazo (overlay rojo + "Cerrar"). Si ademas se
+                 * aplico config/certificados, entran en vigor al proximo reinicio. */
+                if (bsp_display_lock(portMAX_DELAY))
+                {
+                    ui_sd_error(ota_msg);
+                    bsp_display_unlock();
+                }
+                continue;
+            }
 
             // 7. CONCLUSIÃƒâ€œN (UI ADENTRO DEL MUTEX)
             if (debede_actualizar)
@@ -954,7 +1014,9 @@ void app_main(void)
     mem_diag_report("AFTER-STATE-PUB");
 
     // Monta microSD (para import/borrado de certs desde UI_CloudCfg)
-    xTaskCreate(sd_monitor_task, "sd_monitor", 4096, NULL, 5, NULL);
+    /* 8 KB: la verificacion de firma RSA de la OTA por microSD (esp_ota_end)
+     * necesita mas pila que el flujo de config/certificados. */
+    xTaskCreate(sd_monitor_task, "sd_monitor", 8192, NULL, 5, NULL);
     mem_diag_report("AFTER-SDCARD");
 
     init_events = xEventGroupCreate();

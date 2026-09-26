@@ -41,8 +41,13 @@ se puede grabar cualquier firmware**: no hay forma de dejar una placa inservible
   actualizan por USB con un firmware firmado con una clave nueva. Nada se daña.
 - Verificar una imagen: `espsecure.py verify_signature --version 2 --keyfile
   firmware/keys/ota_signing_key.pem build/<app>.bin`.
-- Nota FPM-200: hoy FPM no tiene flujo de OTA (solo el campo URL). La firma y el
-  rollback ya quedan listos para cuando se porte el `ota_service` de MedGuard.
+- **OTA por microSD en FPM-200** (1.5.26-dev): copiar el `.bin` FIRMADO
+  (`build/esp32s3_hmi_skeleton.bin`) a la raíz de la tarjeta como `firmware.bin` e
+  insertarla: el mismo overlay que aplica `AppConfig.json` y certificados valida el
+  proyecto y la firma, instala en la otra partición y pide reiniciar. El archivo se
+  renombra a `firmware.bin.instalado` / `.rechazado`. Un corte de energía durante la
+  escritura deja el firmware actual intacto. (OTA por red: pendiente, la URL ya
+  existe en la config.)
 
 ## 3. PIN con hash — cómo funciona
 
