@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.5.27-dev (2026-09-28): OTA por microSD con nombre versionado
+#   fpm200_<version>.bin (el build lo genera; firmware.bin sigue valiendo; si hay
+#   varios gana la version mas alta del descriptor). FIX de seguridad: se borra la
+#   zona de firma vieja de la particion antes de verificar (un .bin SIN firmar
+#   identico al firmado que ya ocupaba la particion heredaba su firma; HW 09-27).
 # 1.5.26-dev (2026-09-26): OTA por microSD (components/ota_update, portado de
 #   MedGuard): /sdcard/firmware.bin firmado -> valida proyecto + firma RSA,
 #   instala en la otra particion (escritura secuencial) y pide reiniciar dentro
@@ -99,5 +104,16 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.5.26-dev")
+set(PROJECT_VER "1.5.27-dev")
 project(esp32s3_hmi_skeleton)
+
+# Copia del binario FIRMADO con nombre versionado para la microSD:
+# build/fpm200_<version>.bin (p.ej. fpm200_1.5.27.bin). El equipo valida
+# proyecto, version y firma que van DENTRO de la imagen; el nombre es para las
+# personas. No se genera desde el -unsigned.
+add_custom_command(TARGET app POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.bin"
+            "${CMAKE_BINARY_DIR}/fpm200_${PROJECT_VER}.bin"
+    COMMENT "Firmware para microSD: build/fpm200_${PROJECT_VER}.bin"
+    VERBATIM)

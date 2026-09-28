@@ -9,15 +9,35 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <dirent.h>
+#include <strings.h>
 
 #include "esp_app_desc.h"
 #include "esp_app_format.h"
 #include "esp_log.h"
 #include "esp_ota_ops.h"
+#include "esp_partition.h"
 
 #define OTA_IO_BUFFER_SIZE 4096
 
 static const char *TAG = "ota_update";
+
+/* Con escritura secuencial (o borrado de solo el tamano de la imagen) el resto
+ * de la particion conserva lo que tenia. El bloque de firma se busca justo
+ * despues del final de la imagen (alineado a 4 KB): si la particion guardaba la
+ * version FIRMADA de este mismo binario, un .bin SIN firmar heredaria esa firma
+ * vieja y se aceptaria (visto en HW 2026-09-28). Se borra esa zona antes de
+ * esp_ota_end para que la verificacion solo vea lo que trae el archivo. */
+#define OTA_STALE_TAIL_ERASE (64U * 1024U)
+static esp_err_t erase_stale_tail(const esp_partition_t *partition, size_t written)
+{
+    const size_t sector = partition->erase_size ? partition->erase_size : 4096U;
+    size_t start = (written + sector - 1U) / sector * sector;
+    if (start >= partition->size) return ESP_OK;
+    size_t len = OTA_STALE_TAIL_ERASE;
+    if (len > partition->size - start) len = partition->size - start;
+    return esp_partition_erase_range(partition, start, len);
+}
 
 static void notify(ota_update_progress_cb_t cb, void *user, int pct, const char *stage)
 {
@@ -122,6 +142,12 @@ esp_err_t ota_update_from_file(const char *path, ota_update_progress_cb_t cb,
         return err != ESP_OK ? err : ESP_ERR_INVALID_SIZE;
     }
 
+    err = erase_stale_tail(partition, written);
+    if (err != ESP_OK) {
+        esp_ota_abort(handle);
+        return err;
+    }
+
     /* Verifica checksum + FIRMA (OTA firmada). Imagen ajena => se rechaza aqui. */
     notify(cb, user, 97, "Verificando firma");
     err = esp_ota_end(handle);
@@ -137,5 +163,72 @@ esp_err_t ota_update_from_file(const char *path, ota_update_progress_cb_t cb,
     notify(cb, user, 100, "Firmware listo");
     ESP_LOGW(TAG, "Firmware %s instalado en %s; se aplica al reiniciar",
              desc.version, partition->label);
+    return ESP_OK;
+}
+
+/* ---- Seleccion del archivo (misma regla que MedGuard storage_service) ---- */
+
+static bool ends_with_ci(const char *s, const char *suffix)
+{
+    size_t n = strlen(s), m = strlen(suffix);
+    return n >= m && strcasecmp(s + n - m, suffix) == 0;
+}
+
+/* <0, 0, >0 como strcmp, comparando los numeros de "1.10.2-dev" por valor;
+ * a igualdad numerica, la version sin sufijo ("-dev", "-rc1") es mayor. */
+static int version_cmp(const char *a, const char *b)
+{
+    while (*a || *b) {
+        bool da = *a >= '0' && *a <= '9', db = *b >= '0' && *b <= '9';
+        if (da && db) {
+            unsigned long va = strtoul(a, (char **)&a, 10);
+            unsigned long vb = strtoul(b, (char **)&b, 10);
+            if (va != vb) return va < vb ? -1 : 1;
+            continue;
+        }
+        if (*a == '.' && *b == '.') { ++a; ++b; continue; }
+        if (!*a) return 1;           /* a termino: "1.5.27" > "1.5.27-dev" */
+        if (!*b) return -1;
+        return strcmp(a, b);
+    }
+    return 0;
+}
+
+esp_err_t ota_update_find_file(const char *dir, char *path, size_t path_size,
+                               char *version, size_t version_size)
+{
+    if (!dir || !path || path_size == 0) return ESP_ERR_INVALID_ARG;
+    path[0] = '\0';
+    char best_version[32] = "";
+    DIR *d = opendir(dir);
+    if (!d) return ESP_ERR_NOT_FOUND;
+    struct dirent *entry;
+    char candidate[160];
+    while ((entry = readdir(d)) != NULL) {
+        const char *name = entry->d_name;
+        if (!ends_with_ci(name, ".bin")) continue;
+        if (strncasecmp(name, "fpm", 3) != 0 && strcasecmp(name, "firmware.bin") != 0)
+            continue;
+        if (snprintf(candidate, sizeof candidate, "%s/%s", dir, name) >=
+            (int)sizeof candidate)
+            continue;
+        FILE *file = fopen(candidate, "rb");
+        if (!file) continue;
+        esp_app_desc_t desc;
+        esp_err_t err = read_description(file, &desc);
+        fclose(file);
+        if (err != ESP_OK) {
+            ESP_LOGW(TAG, "Ignorado %s: no es una imagen de este equipo", candidate);
+            continue;
+        }
+        if (!path[0] || version_cmp(desc.version, best_version) > 0) {
+            strlcpy(path, candidate, path_size);
+            strlcpy(best_version, desc.version, sizeof best_version);
+        }
+    }
+    closedir(d);
+    if (!path[0]) return ESP_ERR_NOT_FOUND;
+    if (version && version_size) strlcpy(version, best_version, version_size);
+    ESP_LOGI(TAG, "Firmware en microSD: %s (version %s)", path, best_version);
     return ESP_OK;
 }

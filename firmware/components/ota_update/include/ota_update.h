@@ -31,6 +31,15 @@ typedef void (*ota_update_progress_cb_t)(int pct, const char *stage, void *user)
 esp_err_t ota_update_from_file(const char *path, ota_update_progress_cb_t cb,
                                void *user, char *version_out, size_t version_size);
 
+/* Busca en `dir` el firmware a instalar. Nombres aceptados (sin distinguir
+ * mayusculas): versionados fpm200_<version>.bin (p.ej. fpm200_1.5.27.bin, el
+ * build los deja en build/) o el heredado firmware.bin. Ignora imagenes de otro
+ * proyecto y, si hay varias, elige la de VERSION MAS ALTA segun el descriptor
+ * interno (el nombre es para las personas). Devuelve ESP_ERR_NOT_FOUND si no
+ * hay ninguna. Los ya procesados (.instalado/.rechazado) no terminan en .bin. */
+esp_err_t ota_update_find_file(const char *dir, char *path, size_t path_size,
+                               char *version, size_t version_size);
+
 #ifdef __cplusplus
 }
 #endif

@@ -41,11 +41,34 @@ se puede grabar cualquier firmware**: no hay forma de dejar una placa inservible
   actualizan por USB con un firmware firmado con una clave nueva. Nada se daña.
 - Verificar una imagen: `espsecure.py verify_signature --version 2 --keyfile
   firmware/keys/ota_signing_key.pem build/<app>.bin`.
-- **OTA por microSD en FPM-200** (1.5.26-dev): copiar el `.bin` FIRMADO
-  (`build/esp32s3_hmi_skeleton.bin`) a la raíz de la tarjeta como `firmware.bin` e
-  insertarla: el mismo overlay que aplica `AppConfig.json` y certificados valida el
+- **Nombre del archivo para microSD** (2026-09-28): el build deja una copia firmada
+  con la versión en el nombre — MedGuard `build/medguard_<version>.bin`, FPM-200
+  `build/fpm200_<version>.bin`. Los equipos aceptan ese nombre (y el heredado
+  `firmware.bin`); si hay varios, eligen la **versión más alta** leída del
+  descriptor DENTRO de la imagen e ignoran imágenes de otro producto. El nombre es
+  solo para las personas: lo que se valida es proyecto + versión + firma internos.
+- **Cómo probar el rechazo de una imagen sin firma/ajena** (no usar el
+  `-unsigned.bin` del MISMO build que ya está instalado en la otra partición: antes
+  del fix 2026-09-28 heredaba la firma que quedaba en la flash — falso positivo, ver
+  §2.1): firmar un build con OTRA clave (`espsecure.py generate_signing_key ...
+  otra.pem` + `sign_data`) o usar el `-unsigned.bin` de una versión distinta.
+
+### 2.1 Fix 2026-09-28: bloque de firma residual
+
+El bloque de firma va justo después del final de la imagen (alineado a 4 KB). La
+escritura OTA secuencial borra solo lo que escribe, así que el resto de la partición
+conserva lo que tenía. Si la partición destino guardaba la versión FIRMADA de un
+binario y se copiaba el mismo binario SIN firmar, la verificación encontraba la
+firma vieja (válida para ese mismo contenido) y lo aceptaba. No permitía instalar
+código distinto al ya firmado, pero debilitaba la garantía. Ahora ambos equipos
+borran esa zona (64 KB tras el final escrito) antes de `esp_ota_end`
+(MedGuard `storage/ota_service.c`, FPM `components/ota_update/ota_update.c`).
+- **OTA por microSD en FPM-200** (1.5.26-dev; nombre versionado desde 1.5.27-dev):
+  copiar el `.bin` FIRMADO (`build/fpm200_<version>.bin`, o
+  `build/esp32s3_hmi_skeleton.bin` renombrado `firmware.bin`) a la raíz de la
+  tarjeta e insertarla: el mismo overlay que aplica `AppConfig.json` y certificados valida el
   proyecto y la firma, instala en la otra partición y pide reiniciar. El archivo se
-  renombra a `firmware.bin.instalado` / `.rechazado`. Un corte de energía durante la
+  renombra a `<nombre>.instalado` / `.rechazado`. Un corte de energía durante la
   escritura deja el firmware actual intacto. (OTA por red: pendiente, la URL ya
   existe en la config.)
 

@@ -137,9 +137,10 @@ static bool wifi_cfg_valid = false;
     }
 
 static SemaphoreHandle_t s_sd_sem = NULL;
-/* Firmware firmado para actualizar por microSD (build/esp32s3_hmi_skeleton.bin
- * renombrado). Tras procesarlo se renombra a .instalado / .rechazado. */
-#define SD_FIRMWARE_PATH "/sdcard/firmware.bin"
+/* Firmware firmado para actualizar por microSD, en la raiz de la tarjeta:
+ * fpm200_<version>.bin (lo genera el build) o el heredado firmware.bin; ver
+ * ota_update_find_file. Tras procesarlo se renombra a .instalado / .rechazado. */
+#define SD_FIRMWARE_DIR "/sdcard"
 /* La UI del flujo SD vive ahora en main/ui/ui_sd.c (overlay modal del design system). */
 
 static volatile TickType_t s_ui_progress;
@@ -459,27 +460,30 @@ static void sd_monitor_task(void *pvParameters)
             }
 
             /* 6. FIRMWARE (OTA por microSD, igual que MedGuard). Si la tarjeta trae
-             *    /sdcard/firmware.bin se valida (proyecto + FIRMA), se instala en la
+             *    fpm200_<version>.bin (o firmware.bin) se valida (proyecto + FIRMA), se instala en la
              *    otra particion y se aplica al reiniciar. El archivo se renombra
              *    para no reinstalarlo en cada insercion. Un .bin ajeno o sin
              *    firma se rechaza y el equipo sigue con su firmware actual. */
             bool ota_failed = false;
             char ota_msg[96] = "";
-            struct stat fw_st;
-            if (stat(SD_FIRMWARE_PATH, &fw_st) == 0)
+            char fw_path[160];
+            if (ota_update_find_file(SD_FIRMWARE_DIR, fw_path, sizeof(fw_path), NULL, 0) == ESP_OK)
             {
                 char version[32] = "";
-                esp_err_t ota_err = ota_update_from_file(SD_FIRMWARE_PATH, sd_ota_progress_cb,
+                char done_path[176];
+                esp_err_t ota_err = ota_update_from_file(fw_path, sd_ota_progress_cb,
                                                          NULL, version, sizeof(version));
                 if (ota_err == ESP_OK)
                 {
-                    rename(SD_FIRMWARE_PATH, SD_FIRMWARE_PATH ".instalado");
+                    snprintf(done_path, sizeof(done_path), "%s.instalado", fw_path);
+                    rename(fw_path, done_path);
                     debede_actualizar = true;
                     ESP_LOGW("SD_CD", "Firmware %s instalado; pendiente de reinicio.", version);
                 }
                 else
                 {
-                    rename(SD_FIRMWARE_PATH, SD_FIRMWARE_PATH ".rechazado");
+                    snprintf(done_path, sizeof(done_path), "%s.rechazado", fw_path);
+                    rename(fw_path, done_path);
                     ota_failed = true;
                     snprintf(ota_msg, sizeof(ota_msg),
                              "Firmware rechazado (%s). El equipo sigue con su versión actual.",
