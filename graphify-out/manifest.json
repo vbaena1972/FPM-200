@@ -12,9 +12,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1790697056.712472,
-    "seen": 1790697648.6892676,
-    "ast_hash": "7dad1f59b49933ec0dc87ef667a60002",
+    "mtime": 1790722189.3651655,
+    "seen": 1790722211.7719738,
+    "ast_hash": "26e7ff96ed15baeda3e537b6c9bb0cc5",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/cert_store.c": {
@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "firmware/components/network_core/transport_mqtt.c": {
-    "mtime": 1790383814.4604816,
-    "seen": 1790385600.7005966,
-    "ast_hash": "aa7cc986c67069bd047355169f165ca4",
+    "mtime": 1790721820.052043,
+    "seen": 1790722211.7715502,
+    "ast_hash": "5e77789b86fbefa960409f246f1b25cf",
     "semantic_hash": ""
   },
   "firmware/components/network_core/wifi_mgr.c": {
@@ -846,9 +846,9 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1790697056.712472,
-    "seen": 1790697648.6892703,
-    "ast_hash": "89cad3227048edb8310c3457afdd2a68",
+    "mtime": 1790721900.955494,
+    "seen": 1790722211.7719789,
+    "ast_hash": "f159de77ccd440600cd3c54a1545be34",
     "semantic_hash": ""
   },
   "docs/HMI_MIGRATION.md": {
@@ -864,9 +864,9 @@
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1790695117.3518457,
-    "seen": 1790697648.6892765,
-    "ast_hash": "b01d038f5ac6f84a00a348597a639155",
+    "mtime": 1790721869.9620175,
+    "seen": 1790722211.7719886,
+    "ast_hash": "7ea884fd07b041293d0deec4c2cb313f",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {
@@ -1152,9 +1152,9 @@
     "semantic_hash": ""
   },
   "docs/QA_FPM_1.5.22.md": {
-    "mtime": 1790697056.712472,
-    "seen": 1790697648.6892729,
-    "ast_hash": "188f27f8835d948fb2ee13ef2e4faf50",
+    "mtime": 1790721891.201679,
+    "seen": 1790722211.7719827,
+    "ast_hash": "421c1c3cddc6b6de086278d53551341d",
     "semantic_hash": ""
   },
   "firmware/components/ota_update/include/ota_update.h": {

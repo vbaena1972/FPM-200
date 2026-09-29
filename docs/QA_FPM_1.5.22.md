@@ -124,6 +124,7 @@ de estabilidad K1 cuenta desde el último arranque). No reiniciar hasta capturar
 | G4 | Telemetría v2 cada 30 s con `channels[]` + `stats` | **PASS** | 2261 telemetrías en 18.8 h (= 1 cada 30 s) |
 | G5 | Ingesta DynamoDB `DEVICE#fpm-0001` y Athena (stats) | PEND | |
 | G6 | App/portal muestran el FPM por AWS | PEND | |
+| G7 | Config por AWS (shadow `config`, 1.5.29): cambiar un límite desde la app por AWS → `Config aplicada desde shadow (delta)` + `reported`; cambio con el equipo apagado se aplica al conectar (`get`) | PEND | |
 
 ### H. LAN / BLE / microSD
 | ID | Caso | Resultado | Evidencia |
@@ -196,5 +197,5 @@ de estabilidad K1 cuenta desde el último arranque). No reiniciar hasta capturar
 - **Aceptados:** —
 - **Abiertos:** —
 - **Parte 0 (2026-09-25):** P1, P3, P5, P6 PASS; P2 modelo PASS (falta verificar en HW con 1.5.23); P4 captura PASS (falta leer el volcado); P7 parcial.
-- **Estado:** EN CURSO. Al cerrar con todos los casos PASS/ACEPT, promover **FPM 1.5.22** como baseline
+- **Estado:** EN CURSO. Al cerrar con todos los casos PASS/ACEPT, promover como baseline la versión que se valide (hoy **FPM 1.5.28-dev** tras su soak; el documento empezó sobre 1.5.22)
   validado en `MedGuard-12IoT/docs/entrega/ESTADO_ACTUAL.md` y en `CLAUDE.md`.

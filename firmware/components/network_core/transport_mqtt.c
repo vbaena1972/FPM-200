@@ -13,17 +13,22 @@
 #include <time.h>
 #include <math.h>
 
+#include "esp_heap_caps.h"
 #include "storage.h"
 #include "cert_store.h"
 #include "sensors_runtime.h"
 #include "state_pub.h"
 #include "alarm_mgr.h"
 #include "ui_statusbar_controller.h"
+#include "fpm_ble_config.h"
 
 static StaticSemaphore_t s_client_gate_storage;
 static SemaphoreHandle_t s_client_gate;
+static StaticSemaphore_t s_shadow_lock_storage;
+static SemaphoreHandle_t s_shadow_lock;
 void transport_mqtt_runtime_init(void) {
     if (!s_client_gate) s_client_gate = xSemaphoreCreateMutexStatic(&s_client_gate_storage);
+    if (!s_shadow_lock) s_shadow_lock = xSemaphoreCreateMutexStatic(&s_shadow_lock_storage);
 }
 static const char *TAG = "aws_mqtt";
 
@@ -38,6 +43,34 @@ static char *s_safe_key = NULL;
 
 // === NUEVO: Para guardar el Serial y armar el Topic del Shadow ===
 static char s_thing_name[32] = {0};
+
+// ------------------------------------------------------------------
+// Config remota por Device Shadow CON NOMBRE "config" (DEC-023), igual que
+// MedGuard: la API escribe `desired` con el MISMO esquema set_config que LAN/BLE;
+// el equipo aplica el delta con fpm_ble_config_apply_json() (el aplicador de LAN)
+// y publica `reported` con lo aplicado para cerrar el delta (ACK reported==desired).
+// Al conectar pide el documento (`/get`) para aplicar cambios hechos mientras el
+// equipo estaba desconectado. El apply corre en aws_pub, no en la tarea MQTT.
+// ------------------------------------------------------------------
+#define SHADOW_DOC_MAX (12 * 1024)   /* get/accepted trae desired+reported+metadata */
+
+typedef enum { SHADOW_DOC_NONE, SHADOW_DOC_DELTA, SHADOW_DOC_GET } shadow_doc_kind_t;
+
+static char s_shadow_delta_topic[128];    /* .../shadow/name/config/update/delta */
+static char s_shadow_update_topic[128];   /* .../shadow/name/config/update */
+static char s_shadow_get_topic[128];      /* .../shadow/name/config/get */
+static char s_shadow_get_acc_topic[128];  /* .../shadow/name/config/get/accepted */
+static int  s_shadow_get_sub_id = -1;
+
+/* Reensamblado de mensajes troceados (buffer MQTT por defecto = 1 KB). Solo lo
+ * toca la tarea del cliente MQTT. */
+static char *s_rx_buf;
+static int   s_rx_total, s_rx_got;
+static shadow_doc_kind_t s_rx_kind;
+
+/* Documento completo pendiente de aplicar por aws_pub (protegido por s_shadow_lock). */
+static char *s_shadow_pending;
+static shadow_doc_kind_t s_shadow_pending_kind;
 
 // ------------------------------------------------------------------
 // HELPER CRÍTICO: Inyecta salto de línea y terminador nulo de forma segura
@@ -68,10 +101,139 @@ static char *prepare_pem(const uint8_t *raw_data, size_t actual_len)
 }
 
 // ------------------------------------------------------------------
+// Shadow "config": recepción (tarea MQTT) y aplicación (aws_pub)
+// ------------------------------------------------------------------
+static void shadow_topics_init(void)
+{
+    snprintf(s_shadow_delta_topic, sizeof(s_shadow_delta_topic),
+             "$aws/things/%s/shadow/name/config/update/delta", s_thing_name);
+    snprintf(s_shadow_update_topic, sizeof(s_shadow_update_topic),
+             "$aws/things/%s/shadow/name/config/update", s_thing_name);
+    snprintf(s_shadow_get_topic, sizeof(s_shadow_get_topic),
+             "$aws/things/%s/shadow/name/config/get", s_thing_name);
+    snprintf(s_shadow_get_acc_topic, sizeof(s_shadow_get_acc_topic),
+             "$aws/things/%s/shadow/name/config/get/accepted", s_thing_name);
+}
+
+static bool topic_is(const esp_mqtt_event_handle_t e, const char *topic)
+{
+    return topic[0] && e->topic && e->topic_len > 0 &&
+           (size_t)e->topic_len == strlen(topic) &&
+           strncmp(e->topic, topic, (size_t)e->topic_len) == 0;
+}
+
+static void shadow_rx_reset(void)
+{
+    free(s_rx_buf);
+    s_rx_buf = NULL;
+    s_rx_total = s_rx_got = 0;
+    s_rx_kind = SHADOW_DOC_NONE;
+}
+
+static void shadow_rx_chunk(const esp_mqtt_event_handle_t e)
+{
+    if (e->current_data_offset == 0) {
+        shadow_rx_reset();
+        shadow_doc_kind_t kind = topic_is(e, s_shadow_delta_topic)   ? SHADOW_DOC_DELTA
+                               : topic_is(e, s_shadow_get_acc_topic) ? SHADOW_DOC_GET
+                                                                     : SHADOW_DOC_NONE;
+        if (kind == SHADOW_DOC_NONE) return;
+        if (e->total_data_len <= 0 || e->total_data_len > SHADOW_DOC_MAX) {
+            ESP_LOGW(TAG, "Shadow config: documento ignorado (%d B)", e->total_data_len);
+            return;
+        }
+        s_rx_buf = heap_caps_malloc((size_t)e->total_data_len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+        if (!s_rx_buf) s_rx_buf = malloc((size_t)e->total_data_len + 1);
+        if (!s_rx_buf) {
+            ESP_LOGW(TAG, "Shadow config: sin memoria para %d B", e->total_data_len);
+            return;
+        }
+        s_rx_total = e->total_data_len;
+        s_rx_kind = kind;
+    }
+    if (!s_rx_buf) return; /* continuación de un mensaje ignorado */
+    if (e->current_data_offset != s_rx_got || s_rx_got + e->data_len > s_rx_total) {
+        ESP_LOGW(TAG, "Shadow config: trozo fuera de orden, descartado");
+        shadow_rx_reset();
+        return;
+    }
+    memcpy(s_rx_buf + s_rx_got, e->data, (size_t)e->data_len);
+    s_rx_got += e->data_len;
+    if (s_rx_got < s_rx_total) return;
+
+    s_rx_buf[s_rx_total] = '\0';
+    xSemaphoreTake(s_shadow_lock, portMAX_DELAY);
+    free(s_shadow_pending); /* un delta nuevo reemplaza al que no se aplicó aún */
+    s_shadow_pending = s_rx_buf;
+    s_shadow_pending_kind = s_rx_kind;
+    xSemaphoreGive(s_shadow_lock);
+    s_rx_buf = NULL;
+    shadow_rx_reset();
+    if (s_pub_task) xTaskNotifyGive(s_pub_task);
+}
+
+/* Corre en aws_pub con s_client_gate tomado y el cliente conectado. */
+static void shadow_apply_pending(void)
+{
+    xSemaphoreTake(s_shadow_lock, portMAX_DELAY);
+    char *doc = s_shadow_pending;
+    shadow_doc_kind_t kind = s_shadow_pending_kind;
+    s_shadow_pending = NULL;
+    xSemaphoreGive(s_shadow_lock);
+    if (!doc) return;
+
+    cJSON *root = cJSON_Parse(doc);
+    free(doc);
+    if (!root) {
+        ESP_LOGW(TAG, "Shadow config: JSON invalido");
+        return;
+    }
+    /* delta: {state:{...}}; get/accepted: {state:{desired,reported,delta?}} */
+    cJSON *parent = root;
+    cJSON *state = cJSON_GetObjectItemCaseSensitive(root, "state");
+    if (kind == SHADOW_DOC_GET && cJSON_IsObject(state)) {
+        parent = state;
+        state = cJSON_GetObjectItemCaseSensitive(state, "delta");
+    }
+    if (!cJSON_IsObject(state)) {
+        if (kind == SHADOW_DOC_GET) ESP_LOGI(TAG, "Shadow config: sin cambios pendientes");
+        cJSON_Delete(root);
+        return;
+    }
+
+    char *json = cJSON_PrintUnformatted(state);
+    bool ok = json && fpm_ble_config_apply_json(json);
+    free(json);
+    if (!ok) {
+        ESP_LOGW(TAG, "Shadow config: delta rechazado");
+        cJSON_Delete(root);
+        return;
+    }
+    ESP_LOGI(TAG, "Config aplicada desde shadow (%s)", kind == SHADOW_DOC_GET ? "get" : "delta");
+
+    /* Reporta los mismos campos para cerrar el delta. */
+    cJSON *reported = cJSON_DetachItemViaPointer(parent, state);
+    cJSON *out = cJSON_CreateObject();
+    cJSON *st = cJSON_CreateObject();
+    if (out && st && reported) {
+        cJSON_AddItemToObject(st, "reported", reported);
+        cJSON_AddItemToObject(out, "state", st);
+        char *payload = cJSON_PrintUnformatted(out);
+        if (payload) {
+            int id = esp_mqtt_client_enqueue(s_client, s_shadow_update_topic, payload, 0, 1, 0, true);
+            ESP_LOGI(TAG, "Shadow config: reported publicado id=%d (cierra delta)", id);
+            free(payload);
+        }
+    } else {
+        cJSON_Delete(st);
+        cJSON_Delete(reported);
+    }
+    cJSON_Delete(out);
+    cJSON_Delete(root);
+}
+
+// ------------------------------------------------------------------
 // Eventos MQTT
-// ------------------------------------------------------------------
-// ------------------------------------------------------------------
-// Eventos MQTT (Con Soporte para AWS Shadow Delta)
 // ------------------------------------------------------------------
 static void mqtt_event(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
@@ -81,23 +243,35 @@ static void mqtt_event(void *handler_args, esp_event_base_t base, int32_t event_
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "Conectado exitosamente a AWS IoT Core");
         s_is_connected = true;
+        shadow_rx_reset();
 
-        // SUSCRIPCIÓN AL SHADOW DELTA
-        if (strlen(s_thing_name) > 0)
+        // Shadow "config": delta en vivo + documento completo al conectar.
+        if (s_shadow_delta_topic[0])
         {
-            char delta_topic[128];
-            snprintf(delta_topic, sizeof(delta_topic), "$aws/things/%s/shadow/update/delta", s_thing_name);
-            int msg_id = esp_mqtt_client_subscribe(event->client, delta_topic, 1);
-            ESP_LOGI(TAG, "Suscrito al Shadow Delta (ID: %d): %s", msg_id, delta_topic);
+            int msg_id = esp_mqtt_client_subscribe(event->client, s_shadow_delta_topic, 1);
+            ESP_LOGI(TAG, "Suscrito al shadow config (ID: %d): %s", msg_id, s_shadow_delta_topic);
+            s_shadow_get_sub_id = esp_mqtt_client_subscribe(event->client, s_shadow_get_acc_topic, 1);
         }
         break;
 
     case MQTT_EVENT_DISCONNECTED:
         ESP_LOGW(TAG, "Desconectado de AWS");
         s_is_connected = false;
+        shadow_rx_reset();
         break;
     case MQTT_EVENT_SUBSCRIBED:
         ESP_LOGI(TAG, "Suscripción confirmada por AWS. ¡Estamos a la escucha!");
+        // Con get/accepted ya suscrito, pide el documento para aplicar lo que
+        // cambió mientras el equipo estaba desconectado. 0x80 = SUBACK rechazado
+        // (policy sin permiso): no publicar, AWS desconecta ante un publish denegado.
+        if (event->msg_id == s_shadow_get_sub_id && s_shadow_get_sub_id >= 0)
+        {
+            s_shadow_get_sub_id = -1;
+            if (event->data_len > 0 && (uint8_t)event->data[0] == 0x80)
+                ESP_LOGW(TAG, "Shadow config: suscripcion a get/accepted rechazada (revisar policy)");
+            else
+                esp_mqtt_client_enqueue(event->client, s_shadow_get_topic, "{}", 2, 0, 0, true);
+        }
         break;
     case MQTT_EVENT_PUBLISHED:
         /* QoS 1: AWS confirmo el publish. El controlador difiere cualquier
@@ -106,55 +280,9 @@ static void mqtt_event(void *handler_args, esp_event_base_t base, int32_t event_
         ui_statusbar_signal_cloud_activity();
         break;
     case MQTT_EVENT_DATA:
-        ESP_LOGI(TAG, "Datos recibidos en el topic: %.*s", event->topic_len, event->topic);
-
-        if (strstr(event->topic, "/shadow/update/delta") != NULL)
-        {
-            ESP_LOGW(TAG, "¡Cambio de configuración recibido desde la Nube!");
-
-            char *payload = malloc(event->data_len + 1);
-            if (payload)
-            {
-                memcpy(payload, event->data, event->data_len);
-                payload[event->data_len] = '\0';
-
-                cJSON *root = cJSON_Parse(payload);
-                if (root)
-                {
-                    cJSON *state = cJSON_GetObjectItem(root, "state");
-                    if (state)
-                    {
-                        AppConfig *tmp_cfg = malloc(sizeof(AppConfig));
-                        if (tmp_cfg)
-                        {
-                            appcfg_load(tmp_cfg);
-                            cfg_from_json(tmp_cfg, state);
-                            appcfg_save(tmp_cfg);
-
-                            ESP_LOGW(TAG, "=================================================");
-                            ESP_LOGW(TAG, "NVS actualizada vía Shadow. Reiniciando equipo...");
-                            ESP_LOGW(TAG, "=================================================");
-
-                            // Liberamos la memoria antes de reiniciar
-                            free(tmp_cfg);
-                            cJSON_Delete(root);
-                            free(payload);
-
-                            // Esperamos 1.5 segundos para que los hilos de NVS vacíen los buffers a la Flash
-                            vTaskDelay(pdMS_TO_TICKS(1500));
-
-                            // REINICIO DE HARDWARE CONTROLADO POR SOFTWARE
-                            esp_restart();
-                        }
-                    }
-                    // Si el flujo continuara normalmente (no delta), se borraría aquí
-                    if (root)
-                        cJSON_Delete(root);
-                }
-                if (payload)
-                    free(payload);
-            }
-        }
+        if (event->current_data_offset == 0)
+            ESP_LOGI(TAG, "Datos recibidos en el topic: %.*s", event->topic_len, event->topic);
+        shadow_rx_chunk(event);
         break;
     case MQTT_EVENT_ERROR:
         ESP_LOGE(TAG, "Error MQTT (Revisa certificados o política de AWS)");
@@ -308,6 +436,9 @@ static void aws_telemetry_task(void *pvParameters)
             xSemaphoreGive(s_client_gate);
             continue;
         }
+        // Un delta del shadow "config" también despierta esta tarea; tras aplicarlo
+        // se publica la telemetría enseguida (ya con los límites nuevos).
+        shadow_apply_pending();
         if (esp_mqtt_client_get_outbox_size(s_client) > 16384) {
             ESP_LOGW(TAG, "MQTT backlog: deferring telemetry");
             xSemaphoreGive(s_client_gate);
@@ -468,6 +599,7 @@ static void mqtt_start_locked(void)
     appcfg_load(cfg_app);
     // === NUEVO: Guardamos el serial en RAM para usarlo en los eventos MQTT ===
     snprintf(s_thing_name, sizeof(s_thing_name), "%s", cfg_app->general.serial);
+    shadow_topics_init();
 
     // 3. Preparamos las cadenas PEM seguras (Inyectando el \n si falta)
     //    Las guardamos en las variables estáticas globales del archivo para que NO se destruyan

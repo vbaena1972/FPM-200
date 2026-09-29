@@ -6,6 +6,24 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 
 ---
 
+## 2026-09-29 (cont.) — FW 1.5.29-dev: config remota por shadow NOMBRADO `config`
+
+- `transport_mqtt.c` deja el shadow CLÁSICO (`$aws/things/<serial>/shadow/update/delta`, esquema
+  interno `cfg_from_json` + `esp_restart()` dentro del callback MQTT) y usa el **shadow con nombre
+  `config`** que escribe la API (`PUT /devices/{id}/config`, DEC-023), igual que MedGuard.
+- El delta se aplica con `fpm_ble_config_apply_json()` (el mismo aplicador que LAN/BLE, esquema
+  de la app), en la tarea `aws_pub` (no en la tarea MQTT), **sin reiniciar**; luego publica
+  `reported` con lo aplicado (ACK reported==desired). Igual que por LAN: límites/alarmas/pantalla
+  toman en vivo (leen `appcfg_cache_peek`); red, nube y Bluetooth se persisten y toman al reiniciar.
+- Al conectar se suscribe a `.../name/config/get/accepted` y pide el documento (`/get`) para
+  aplicar lo cambiado mientras estaba desconectado. Si AWS rechaza esa suscripción (SUBACK 0x80)
+  no publica el `/get` (un publish denegado desconecta).
+- Mensajes troceados se reensamblan (tope 12 KB, en PSRAM): el buffer MQTT del FPM es de 1 KB.
+- **Probar en HW:** log `Suscrito al shadow config`, luego desde la app/API cambiar un límite →
+  `Config aplicada desde shadow (delta)` + `reported publicado`; con el equipo apagado cambiar otro
+  valor y encender → `Config aplicada desde shadow (get)`. **Verificar que la policy IoT de
+  `fpm-0001` permita `$aws/things/fpm-0001/shadow/name/config/*`** (Subscribe/Receive/Publish).
+
 ## Cierre 2026-09-29 — FW 1.5.28-dev en `main` (auditoría y paridad con MedGuard)
 
 - **Rama única `main`**: la rama `claude/code-audit-optimization-qp3h01` se unió y se borró.
