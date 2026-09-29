@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.5.28-dev (2026-09-29): diagnostico (mem_diag/task_tracer) copia los nombres
+#   de tarea en la foto: leer pcTaskName de una tarea borrada mientras se imprime
+#   provoco panic en MedGuard (soak 12 h). Mismo riesgo latente aqui.
 # 1.5.27-dev (2026-09-28): OTA por microSD con nombre versionado
 #   fpm200_<version>.bin (el build lo genera; firmware.bin sigue valiendo; si hay
 #   varios gana la version mas alta del descriptor). FIX de seguridad: se borra la
@@ -104,7 +107,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.5.27-dev")
+set(PROJECT_VER "1.5.28-dev")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:

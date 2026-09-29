@@ -85,6 +85,15 @@ void task_tracer_dump_now(void) {
     unsigned long total_rt = 0;
     UBaseType_t n = uxTaskGetSystemState(s_status, MAX_TASKS, &total_rt);
     if (n == 0) return;
+    /* pcTaskName apunta DENTRO del TCB: si la tarea se borra mientras se
+     * imprime (lento, por UART) se leeria memoria liberada -> panic (visto en
+     * MedGuard, soak 12 h, 2026-09-29). Copiar los nombres ya, en la foto. */
+    static char s_names[MAX_TASKS][configMAX_TASK_NAME_LEN];
+    for (UBaseType_t i = 0; i < n; i++) {
+        snprintf(s_names[i], configMAX_TASK_NAME_LEN, "%s",
+                 s_status[i].pcTaskName ? s_status[i].pcTaskName : "?");
+        s_status[i].pcTaskName = s_names[i];
+    }
 
     unsigned long delta_total = total_rt - s_last_total;
     s_last_total = total_rt;
