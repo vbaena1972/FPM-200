@@ -87,14 +87,25 @@ void mem_diag_report_heap_full(const char* tag) {
 // ---------------------------------------------------------------------------
 void mem_diag_report_tasks(void) {
     volatile UBaseType_t uxArraySize = uxTaskGetNumberOfTasks();
-    TaskStatus_t *tasks = malloc(uxArraySize * sizeof(TaskStatus_t));
+    TaskStatus_t *tasks = malloc(uxArraySize * (sizeof(TaskStatus_t) + configMAX_TASK_NAME_LEN));
     if (!tasks) {
         ESP_LOGW(MEMTAG, "No RAM para listar tareas");
         return;
     }
 
     unsigned long ulTotalRunTime = 0;
+    UBaseType_t capacity = uxArraySize;
     uxArraySize = uxTaskGetSystemState(tasks, uxArraySize, &ulTotalRunTime);
+    /* pcTaskName apunta DENTRO del TCB: si la tarea se borra mientras se
+     * imprime (lento, por UART) se leeria memoria liberada -> panic (visto en
+     * MedGuard, soak 12 h, 2026-09-29). Copiar los nombres ya, en la foto. */
+    char *names = (char *)(tasks + capacity);
+    for (UBaseType_t i = 0; i < uxArraySize; i++) {
+        char *copy = names + i * configMAX_TASK_NAME_LEN;
+        snprintf(copy, configMAX_TASK_NAME_LEN, "%s",
+                 tasks[i].pcTaskName ? tasks[i].pcTaskName : "?");
+        tasks[i].pcTaskName = copy;
+    }
 
     static unsigned long previous_total;
     static TaskHandle_t previous_handles[32];
