@@ -69,7 +69,7 @@ de estabilidad K1 cuenta desde el último arranque). No reiniciar hasta capturar
 | A1 | Banner de versión `App version: 1.5.22-dev` | **PASS** | log 1.5.23: `App version: 1.5.23-dev` |
 | A2 | Pantalla encendida ≤ 2 s; splash con barra animada → dashboard | **PASS** | backlight a 1.32 s, UI antes de la verificación EEPROM; splash animado (1.5.20, confirmado por el usuario) |
 | A3 | Versión en telemetría (`firmware`) | **FAIL → corregido 1.5.24** | AWS publicaba `firmware:"1.0.0"` (campo de config viejo). Ahora usa la versión del build como LAN/BLE/mDNS. Verificar en AWS |
-| A4 | Estabilidad ≥ 20 h sin reinicio (= P3) | **ACEPT (18.8 h)** | `longFPM.log`: 18.8 h continuas sin reinicio (criterio 20 h; la corrida actual puede completarlo) |
+| A4 | Estabilidad ≥ 20 h sin reinicio (= P3) | **PASS (21 h, 1.5.27)** | `logFPM_12H.log` (2026-09-28/29): 75 590 s con un solo arranque, 0 panics/WDT; antes 18.8 h con 1.5.22 |
 | A5 | Tabla de particiones nueva (nvs 0x15000, coredump @0x620000) | **PASS** | boot: nvs 0x9000/0x15000, coredump 0x620000/0x20000 |
 
 ### B. Calibración EEPROM
@@ -111,7 +111,7 @@ de estabilidad K1 cuenta desde el último arranque). No reiniciar hasta capturar
 | F1 | Presión baja/alta (WARNING) y fuera de ±15 kPa (ALERT) | PEND | |
 | F2 | Silenciar: WARNING respeta `reannounce_minutes`, ALERT `max_silence_minutes` | PEND | |
 | F3 | Escalada WARNING→ALERT rompe el silencio | PEND | |
-| F4 | Delta de flujo (fuga) y flujo alto | PEND | |
+| F4 | Delta de flujo (fuga) y flujo alto | **PASS (flujo alto)** / fuga PEND | Soak 1.5.27: 3 simulaciones de alto consumo del usuario → 23 alarmas `flow_warn` (≈10 L/min) y `flow_high` (≈30 L/min); el flujo volvió a 0.00 al terminar. Filtro descartó 842 glitches sin bloquear flujo real |
 | F5 | Transición publicada a `.../fpm-0001/alarms` → alarm-router (email/push) | PEND | |
 | F6 | Cambiar límites en HMI → telemetría AWS usa los límites nuevos (sin reiniciar) | PEND | |
 
@@ -150,6 +150,18 @@ de estabilidad K1 cuenta desde el último arranque). No reiniciar hasta capturar
 | J3 | `StkHW` taskLVGL ≥ 2 KB recorriendo todas las pantallas | PEND | |
 
 ---
+
+## Soak 2026-09-28/29 — FPM 1.5.27-dev (21 h) → 1.5.28-dev
+
+- **0 reinicios** en 21 h; RAM interna libre estable ~36.1 KB (h1–h21, mínimo histórico 30.7 KB);
+  PSRAM 1.99 MB libres estable; sin avisos LOW STACK.
+- Adquisición: trabajo 39 ms de 100 ms; **2 overruns en 21 h** (MS5803 ~700 ms puntual).
+- Errores aislados (5 en 21 h): SFM3300 sin respuesta al arrancar (OBS-2), 1 I2C del touch, 2 de reenvío MQTT.
+- Seguridad (paridad con MedGuard, SIN eFuses): OTA por microSD firmada **validada en HW** (acepta la
+  firmada; rechaza `-unsigned`, tras el fix de firma residual de 1.5.27), vuelta atrás de OTA, PIN con hash.
+  Nombre versionado `fpm200_<version>.bin`. Ver `docs/SEGURIDAD_PRODUCCION.md`.
+- **1.5.28-dev**: el diagnóstico (mem_diag/task_tracer) copia los nombres de tarea en la foto; el mismo
+  patrón causó 2 panics en MedGuard (soak 12 h). Pendiente: soak de 1.5.28.
 
 ## Hallazgos del soak (2026-09-25) → 1.5.23
 

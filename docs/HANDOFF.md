@@ -6,6 +6,27 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 
 ---
 
+## Cierre 2026-09-29 — FW 1.5.28-dev en `main` (auditoría y paridad con MedGuard)
+
+- **Rama única `main`**: la rama `claude/code-audit-optimization-qp3h01` se unió y se borró.
+- **1.5.25**: vuelta atrás de OTA (`BOOTLOADER_APP_ROLLBACK_ENABLE`, confirmación en `main.c`; el
+  bootloader se graba por USB una vez), **OTA firmada sin Secure Boot** (RSA-3072, clave
+  `firmware/keys/ota_signing_key.pem` fuera de git; crear con `tools/gen_ota_signing_key.ps1`/`.sh`),
+  **PIN/passphrase con hash PBKDF2** (`components/storage/ui_pin_hash.c`, idéntico a MedGuard, migración
+  automática) y el PIN ya no se borra cuando la app reenvía la config redactada. **Nada de eFuses.**
+- **1.5.26**: OTA por microSD (`components/ota_update`): valida proyecto + firma, instala en la otra
+  partición, pide reiniciar en el overlay de la SD; renombra a `.instalado` / `.rechazado`.
+- **1.5.27**: borrado de la firma residual antes de verificar (un `-unsigned.bin` idéntico al firmado
+  heredaba su firma) y nombre versionado `fpm200_<version>.bin` generado por el build (gana la versión
+  más alta del descriptor). **Validado en HW**: instala la firmada, rechaza la sin firma.
+- **Soak 1.5.27 (21 h, 2026-09-28/29): APROBADO.** 0 reinicios, RAM interna ~36.1 KB estable, 2 overruns
+  (MS5803), 842 glitches de flujo filtrados, alarmas de flujo correctas en 3 simulaciones del usuario.
+  Detalle en `docs/QA_FPM_1.5.22.md`.
+- **1.5.28**: `mem_diag`/`task_tracer` copian los nombres de tarea en la foto (leer `pcTaskName` de una
+  tarea borrada provocó 2 panics en MedGuard). Pendiente: soak.
+- Logs: capturar en UTF-8 (`idf.py -p COM3 monitor | Out-File -Encoding utf8 log.txt`); comprimir en
+  `.zip` si pasan de 30 MB.
+
 ## Cierre 2026-09-25 — FW 1.5.24-dev flasheado, QA formal en curso
 
 - **1.5.23** (commit `5bb4856`) validado en arranque: calibración v7 cargada (CRC E9E8),
