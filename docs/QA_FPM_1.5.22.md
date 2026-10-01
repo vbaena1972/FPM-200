@@ -152,6 +152,13 @@ de estabilidad K1 cuenta desde el último arranque). No reiniciar hasta capturar
 
 ---
 
+## Soak 2026-09-29/10-01 — FPM 1.5.29-dev (~47 h) → 1.5.30-dev
+
+- 43.6 h estables (RAM interna ~35 KB, sin fugas). Reinicio al cambiar SSID/clave desde la HMI tras
+  ~4 h sin router: RAM interna 23 B → `ESP_ERR_NO_MEM` en el driver Wi-Fi (abort). Corregido en 1.5.30
+  (malloc → PSRAM). Nuevo caso a cubrir: **G-x Cambio de router en caliente** (SSID/clave desde la HMI,
+  sin reiniciar). Pendiente: prueba corta + soak ≥ 24 h de 1.5.30.
+
 ## Soak 2026-09-28/29 — FPM 1.5.27-dev (21 h) → 1.5.28-dev
 
 - **0 reinicios** en 21 h; RAM interna libre estable ~36.1 KB (h1–h21, mínimo histórico 30.7 KB);

@@ -24,6 +24,21 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
   valor y encender → `Config aplicada desde shadow (get)`. **Verificar que la policy IoT de
   `fpm-0001` permita `$aws/things/fpm-0001/shadow/name/config/*`** (Subscribe/Receive/Publish).
 
+## Cierre 2026-10-01 — FW 1.5.30-dev en `main` (pendiente de validar en HW)
+
+- **1.5.29** (shadow `config`, paridad con MedGuard): soak ~47 h. Sin fugas (RAM interna ~35 KB plana).
+  Reinicio a las 43.6 h: se apagó el router, ~4 h de Wi-Fi caída sin daño, y al cambiar SSID/clave desde
+  la HMI la RAM interna bajó a 23 B → el driver Wi-Fi abortó (`ESP_ERR_NO_MEM` en `esp_timer_create`).
+- **1.5.30**: `SPIRAM_MALLOC_ALWAYSINTERNAL` 8192→0 (malloc prefiere PSRAM; lo que necesita RAM
+  interna/DMA la pide con `heap_caps_*` y conserva los 32 KB reservados). Driver KSZ8851SNL vendorizado
+  y parcheado (`firmware/components/espressif__ksz8851snl`, `README_PARCHE.md`): el original desborda el
+  buffer RX con un contador de bytes corrupto (causa de los panics de MedGuard).
+- **Validación pendiente:** (1) apagar router ≥30 min y cambiar SSID/clave desde la HMI sin reiniciar:
+  debe reconectar Wi-Fi y AWS; `INT free` no debe bajar de ~15–20 KB. (2) soak ≥ 24 h con diagnóstico.
+- Tras el `git pull`: `idf.py fullclean`; si queda `firmware/managed_components/espressif__ksz8851snl`,
+  borrarla. La clave `firmware/keys/ota_signing_key.pem` se copia a mano entre PCs (no está en git).
+- Logs en PowerShell 7: `idf.py -p COMx monitor 2>&1 | Tee-Object -FilePath <archivo> -Encoding utf8`.
+
 ## Cierre 2026-09-29 — FW 1.5.28-dev en `main` (auditoría y paridad con MedGuard)
 
 - **Rama única `main`**: la rama `claude/code-audit-optimization-qp3h01` se unió y se borró.
