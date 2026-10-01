@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.5.30-dev (2026-10-01): malloc() prefiere PSRAM (SPIRAM_MALLOC_ALWAYSINTERNAL
+#   8192 -> 0, igual que MedGuard): en el soak de 1.5.29 la RAM interna llego a
+#   23 B al usar la HMI con Wi-Fi caida y el driver Wi-Fi aborto (ESP_ERR_NO_MEM,
+#   43.6 h). Driver KSZ8851SNL vendorizado con el fix de desborde RX de MedGuard.
 # 1.5.28-dev (2026-09-29): diagnostico (mem_diag/task_tracer) copia los nombres
 #   de tarea en la foto: leer pcTaskName de una tarea borrada mientras se imprime
 #   provoco panic en MedGuard (soak 12 h). Mismo riesgo latente aqui.
@@ -107,7 +111,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.5.29-dev")
+set(PROJECT_VER "1.5.30-dev")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:

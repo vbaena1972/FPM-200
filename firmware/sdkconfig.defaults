@@ -40,8 +40,13 @@ CONFIG_SPIRAM=y
 # libera RAM interna (antes SPIRAM_USE_CAPS_ALLOC hacia que TODO malloc fuera
 # interno -> RAM interna a ~1KB, fallo de mbedtls/wifi y watchdog).
 CONFIG_SPIRAM_USE_MALLOC=y
-# Allocaciones < este tamano se sirven de RAM interna; >= van a PSRAM.
-CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL=8192
+# Allocaciones < este tamano se sirven de RAM interna; >= van a PSRAM (ver abajo).
+# 0 (antes 8192), igual que MedGuard: malloc() prefiere PSRAM a cualquier tamano.
+# Con 8192 todo malloc < 8 KB salia de la RAM interna; en el soak de 1.5.29 la
+# RAM interna bajo de ~35 KB a 23 B al usar la HMI con Wi-Fi caida y el driver
+# Wi-Fi aborto (ESP_ERR_NO_MEM en esp_timer_create, 43.6 h). Lo que necesita RAM
+# interna/DMA la pide explicitamente con heap_caps_* y sigue los 32 KB reservados.
+CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL=0
 # RAM interna reservada que las allocaciones PSRAM NO tocan (para DMA/drivers).
 CONFIG_SPIRAM_MALLOC_RESERVE_INTERNAL=32768
 CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP=y
