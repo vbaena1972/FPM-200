@@ -87,16 +87,6 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 1.1.1
-  espressif/ksz8851snl:
-    component_hash: 248c4eafb0359941810a304f197ec9c3a5a898a89d18a12dae29343ad869f6bd
-    dependencies:
-    - name: idf
-      require: private
-      version: '>=6.0'
-    source:
-      registry_url: https://components.espressif.com/
-      type: service
-    version: 1.2.0
   espressif/mdns:
     component_hash: e81ca7a7f53ea34e78274df054da692c272e1315572876b237b1748e267c013b
     dependencies:
@@ -135,11 +125,10 @@ direct_dependencies:
 - espressif/esp_lcd_touch_ft5x06
 - espressif/esp_lvgl_port
 - espressif/esp_sysview
-- espressif/ksz8851snl
 - espressif/mdns
 - espressif/mqtt
 - idf
 - lvgl/lvgl
-manifest_hash: 7b91ff26ce1315c32aa55a2055c9cc4f7143c03860ba798ff73050172f09f71a
+manifest_hash: 5e14b234907d161fc36f69af00e16159dfc383d3fdc949135580a63a9fea6976
 target: esp32s3
 version: 3.0.0

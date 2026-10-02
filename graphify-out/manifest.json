@@ -6,15 +6,15 @@
     "semantic_hash": ""
   },
   "AGENTS.md": {
-    "mtime": 1790697056.696748,
-    "seen": 1790697648.6892664,
-    "ast_hash": "67d5eeff6ff045f4a93281156a091427",
+    "mtime": 1790944100.7116916,
+    "seen": 1790944120.997898,
+    "ast_hash": "a34ea528b169f258b60bca1d8a7f9ed1",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1790722189.3651655,
-    "seen": 1790722211.7719738,
-    "ast_hash": "26e7ff96ed15baeda3e537b6c9bb0cc5",
+    "mtime": 1790944100.7126896,
+    "seen": 1790944120.997899,
+    "ast_hash": "bf50b39894cd217024732ebf63fe45f9",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/cert_store.c": {
@@ -846,9 +846,9 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1790721900.955494,
-    "seen": 1790722211.7719789,
-    "ast_hash": "f159de77ccd440600cd3c54a1545be34",
+    "mtime": 1790944100.7136364,
+    "seen": 1790944120.9979012,
+    "ast_hash": "5ba3cc7ed961cd485d0b2d26b433805d",
     "semantic_hash": ""
   },
   "docs/HMI_MIGRATION.md": {
@@ -864,9 +864,9 @@
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1790721869.9620175,
-    "seen": 1790722211.7719886,
-    "ast_hash": "7ea884fd07b041293d0deec4c2cb313f",
+    "mtime": 1790944100.7136364,
+    "seen": 1790944120.997907,
+    "ast_hash": "85e4b37f6c0f7acf592bacc561414e89",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {
@@ -912,9 +912,9 @@
     "semantic_hash": ""
   },
   "firmware/components/network_core/idf_component.yml": {
-    "mtime": 1789915607.3469377,
-    "seen": 1789995249.2038968,
-    "ast_hash": "ec191e48cdbcc8512c16def024ba395c",
+    "mtime": 1790944100.7251196,
+    "seen": 1790944120.9979224,
+    "ast_hash": "5818b698efa5ad5256b9dc699ea11ec5",
     "semantic_hash": ""
   },
   "firmware/components/sensors_runtime/CMakeLists.txt": {
@@ -1152,9 +1152,9 @@
     "semantic_hash": ""
   },
   "docs/QA_FPM_1.5.22.md": {
-    "mtime": 1790721891.201679,
-    "seen": 1790722211.7719827,
-    "ast_hash": "421c1c3cddc6b6de086278d53551341d",
+    "mtime": 1790944100.7136364,
+    "seen": 1790944120.9979036,
+    "ast_hash": "0dfdcf64ed17e902f3de58061841678b",
     "semantic_hash": ""
   },
   "firmware/components/ota_update/include/ota_update.h": {
@@ -1203,6 +1203,66 @@
     "mtime": 1790558550.453916,
     "seen": 1790697648.6892889,
     "ast_hash": "fd53a790db2e8627562d6b95f604e935",
+    "semantic_hash": ""
+  },
+  "firmware/components/espressif__ksz8851snl/include/esp_eth_mac_ksz8851snl.h": {
+    "mtime": 1790944100.7193425,
+    "seen": 1790944120.997732,
+    "ast_hash": "f14353ba188cff052e9f6f1e7dd44612",
+    "semantic_hash": ""
+  },
+  "firmware/components/espressif__ksz8851snl/include/esp_eth_phy_ksz8851snl.h": {
+    "mtime": 1790944100.7193425,
+    "seen": 1790944120.9977338,
+    "ast_hash": "d48880a68d6a3d45c92b935d384818b5",
+    "semantic_hash": ""
+  },
+  "firmware/components/espressif__ksz8851snl/src/esp_eth_mac_ksz8851snl.c": {
+    "mtime": 1790944100.7193425,
+    "seen": 1790944120.9977353,
+    "ast_hash": "5e3afde0e79b89ea3aba2cc5a5cce11a",
+    "semantic_hash": ""
+  },
+  "firmware/components/espressif__ksz8851snl/src/esp_eth_phy_ksz8851snl.c": {
+    "mtime": 1790944100.7193425,
+    "seen": 1790944120.9977362,
+    "ast_hash": "f9036d40677d98e615b77ff0d450cb8f",
+    "semantic_hash": ""
+  },
+  "firmware/components/espressif__ksz8851snl/src/ksz8851.h": {
+    "mtime": 1790944100.7193425,
+    "seen": 1790944120.9977374,
+    "ast_hash": "140124c60d621417c2c0688234948879",
+    "semantic_hash": ""
+  },
+  "firmware/components/espressif__ksz8851snl/CHANGELOG.md": {
+    "mtime": 1790944100.7136364,
+    "seen": 1790944120.9979162,
+    "ast_hash": "bd045ee98baf66b8feac2e86cf75b6b3",
+    "semantic_hash": ""
+  },
+  "firmware/components/espressif__ksz8851snl/CMakeLists.txt": {
+    "mtime": 1790944100.7136364,
+    "seen": 1790944120.9979172,
+    "ast_hash": "87db4d09d2564bb4d655a62740ca1bad",
+    "semantic_hash": ""
+  },
+  "firmware/components/espressif__ksz8851snl/README.md": {
+    "mtime": 1790944100.7136364,
+    "seen": 1790944120.9979181,
+    "ast_hash": "e69ed8a0a29f8d835c3e31ca215fdf89",
+    "semantic_hash": ""
+  },
+  "firmware/components/espressif__ksz8851snl/README_PARCHE.md": {
+    "mtime": 1790944100.7193425,
+    "seen": 1790944120.997919,
+    "ast_hash": "19aaa70c8eafed50cdc14f167b05f359",
+    "semantic_hash": ""
+  },
+  "firmware/components/espressif__ksz8851snl/idf_component.yml": {
+    "mtime": 1790944100.7193425,
+    "seen": 1790944120.99792,
+    "ast_hash": "d67b547a535fd6b47aefb2b913471f80",
     "semantic_hash": ""
   }
 }
