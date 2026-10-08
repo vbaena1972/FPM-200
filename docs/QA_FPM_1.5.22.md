@@ -152,6 +152,13 @@ de estabilidad K1 cuenta desde el último arranque). No reiniciar hasta capturar
 
 ---
 
+## Soak 2026-10-02/05 — FPM 1.5.30-dev (~80 h) → 1.5.31-dev
+
+- **0 reinicios** en ~80 h; sin fugas; sin LOW STACK. Caso **G-x Cambio de router en caliente: PASS**
+  (SSID/clave desde la HMI sin reiniciar; RAM interna ~78 KB; Wi-Fi ~2 s, AWS ~11 s).
+- Hallazgo: +0.9 L de consumo fantasma al arrancar (flujo crudo integrado durante el llenado de la
+  mediana) → corregido en 1.5.31. SFM3300 desconectado (calibración suspendida).
+
 ## Soak 2026-09-29/10-01 — FPM 1.5.29-dev (~47 h) → 1.5.30-dev
 
 - 43.6 h estables (RAM interna ~35 KB, sin fugas). Reinicio al cambiar SSID/clave desde la HMI tras

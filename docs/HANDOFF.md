@@ -24,7 +24,25 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
   valor y encender → `Config aplicada desde shadow (get)`. **Verificar que la policy IoT de
   `fpm-0001` permita `$aws/things/fpm-0001/shadow/name/config/*`** (Subscribe/Receive/Publish).
 
-## Cierre 2026-10-01 — FW 1.5.30-dev en `main` (pendiente de validar en HW)
+## Cierre 2026-10-08 — 1.5.30 VALIDADO; FW 1.5.31-dev en `main`
+
+- **Soak 1.5.30 (~80 h, 2–5 oct):** 0 reinicios, sin fugas (RAM interna estable), NTP OK. Cortes de AWS
+  = router/ISP (mismo minuto que MedGuard: 3-oct 13:50 DNS caído, 4-oct 13:29 SSID ausente ~4 min),
+  recuperación automática. 4023 glitches de flujo descartados (misma tasa que 1.5.27), 4 demoras de
+  adquisición de 650–786 ms (MS5803/bus 1), sin cambio respecto a soaks anteriores.
+- **Cambio de SSID desde la HMI (SALOMON→Sussy1→SALOMON): APROBADO.** RAM interna ~78 KB (en 1.5.29
+  llegó a 23 B y abortó); AWS reconecta en ~11 s. Fix malloc→PSRAM validado.
+- **1.5.31**: el totalizador integraba flujo CRUDO mientras la mediana de 5 se llenaba (4 muestras al
+  arrancar): 3 SALTO ADC al arranque (~600 L/min crudos) sumaron 0.9 L sin flujo. Ahora esas muestras
+  son flujo inválido (~400 ms; el lazo de alarmas arranca después, ~5.3 s).
+- **SFM3300** desconectado (no aparece en 0x40): pruebas de calibración suspendidas por decisión.
+- Core dump en flash = abort de 1.5.29 (NO_MEM), ya analizado; se puede borrar
+  (`parttool.py erase_partition --partition-name coredump`).
+- Menores no corregidos: "Error MQTT (Revisa certificados…)" sale también por DNS/enlace caído; texto
+  "WiFi forzada OFF por Ethernet" al aplicar config (es la pausa normal del apply); si
+  `esp_wifi_set_config` falla en el apply, `s_allow_reconnect` queda en false.
+
+## Cierre 2026-10-01 — FW 1.5.30-dev en `main` (validado 2026-10-08)
 
 - **1.5.29** (shadow `config`, paridad con MedGuard): soak ~47 h. Sin fugas (RAM interna ~35 KB plana).
   Reinicio a las 43.6 h: se apagó el router, ~4 h de Wi-Fi caída sin daño, y al cambiar SSID/clave desde
