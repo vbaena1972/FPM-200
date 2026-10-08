@@ -941,6 +941,7 @@ static void sensors_acq_task(void *arg)
         float atm_kpa = NAN; // presiÃ³n atmosfÃ©rica de referencia (BMP280)
         bool ms5803_read_ok = false;
         bool ads_read_ok = false;
+        bool flow_valid = false; // lectura OK y mediana ya llena (ver warm-up abajo)
         // Phase timestamps (ms) to locate any long stall (e.g. ~2 s during AWS connect).
         int64_t t_bmp = 0, t_ms58 = 0, t_ads = 0, t_meter = 0;
 
@@ -1066,11 +1067,18 @@ static void sensors_acq_task(void *arg)
                 memmove(&s_flow_med[1], &s_flow_med[0], 4 * sizeof(float));
                 s_flow_med[0] = raw_flow;
                 if (s_flow_med_n < 5) s_flow_med_n++;
-                flow_lpm = (s_flow_med_n == 5) ? median5f(s_flow_med) : raw_flow;
+                /* 1.5.31: mientras la mediana se llena (primeras 4 muestras) el
+                 * flujo CRUDO llegaba al totalizador y a las alarmas. En el
+                 * arranque el ADS da saltos (soak 2026-10-02: 3 SALTO ADC seguidos
+                 * a ~600 L/min crudos) y el consumo subia 0.9 L sin flujo real.
+                 * Ahora esas muestras se reportan como flujo invalido (0 L/min,
+                 * intervalo "missing" en el totalizador): son solo ~400 ms. */
+                flow_valid = (s_flow_med_n == 5);
+                flow_lpm = flow_valid ? median5f(s_flow_med) : 0.0f;
                 last_good_flow = flow_lpm;
                 /* Diagnóstico: si el filtro DESCARTÓ un outlier grande, lo
                  * registra (confirma glitch del ADS sin disparar falsa alarma). */
-                if (fabsf(raw_flow - flow_lpm) > 5.0f)
+                if (flow_valid && fabsf(raw_flow - flow_lpm) > 5.0f)
                 {
                     ESP_LOGW(TAG, "GLITCH flujo descartado: crudo=%.2f -> filtrado=%.2f "
                                   "L/min  v_ain0=%.4f V", raw_flow, flow_lpm, v);
@@ -1093,7 +1101,7 @@ static void sensors_acq_task(void *arg)
 
         t_ads = esp_timer_get_time() / 1000;
         flow_meter_record(flow_sample_us ? flow_sample_us : esp_timer_get_time(),
-                          flow_lpm, s_scfg.flow_enabled && ads_read_ok);
+                          flow_lpm, s_scfg.flow_enabled && flow_valid);
         t_meter = esp_timer_get_time() / 1000;
 
         // --- Flujo de referencia (Sensirion SFM3300-D, para calibrar el FS7) ---
@@ -1127,7 +1135,7 @@ static void sensors_acq_task(void *arg)
         // para no romper a los consumidores que esperan floats finitos).
         sensor_sample_t s = {
             .invalid_mask = (ms5803_read_ok ? 0 : SENSOR_INVALID_PRESSURE | SENSOR_INVALID_TEMP) |
-                            ((!s_scfg.flow_enabled || ads_read_ok) ? 0 : SENSOR_INVALID_FLOW),
+                            ((!s_scfg.flow_enabled || flow_valid) ? 0 : SENSOR_INVALID_FLOW),
             .ts_ms = esp_timer_get_time()/1000,
             .pressure_kpa = isfinite(pressure_kpa) ? pressure_kpa : 0.0f,
             .flow_lpm = isfinite(flow_lpm) ? flow_lpm : 0.0f,

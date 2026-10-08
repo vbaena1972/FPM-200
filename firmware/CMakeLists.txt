@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.5.31-dev (2026-10-08): el totalizador de consumo integraba flujo CRUDO mientras
+#   la mediana de 5 se llenaba (4 muestras al arrancar): saltos del ADS1115 en el
+#   arranque sumaban ~0.9 L sin flujo. Ahora esas muestras son flujo invalido.
 # 1.5.30-dev (2026-10-01): malloc() prefiere PSRAM (SPIRAM_MALLOC_ALWAYSINTERNAL
 #   8192 -> 0, igual que MedGuard): en el soak de 1.5.29 la RAM interna llego a
 #   23 B al usar la HMI con Wi-Fi caida y el driver Wi-Fi aborto (ESP_ERR_NO_MEM,
@@ -111,7 +114,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.5.30-dev")
+set(PROJECT_VER "1.5.31-dev")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:
