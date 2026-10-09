@@ -5,13 +5,13 @@
     "semantic_hash": ""
   },
   "AGENTS.md": {
-    "mtime": 1791495748.5557666,
-    "ast_hash": "c5e5ef77585482240a845dfc28f9eb84",
+    "mtime": 1791511041.129691,
+    "ast_hash": "02c1fb09962edbe73c1597f1f0cabd71",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1791495748.557397,
-    "ast_hash": "e45736903901839e61bc86f3b96e51c1",
+    "mtime": 1791511041.119501,
+    "ast_hash": "277704d353132aae6937a6dc248adafb",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/cert_store.c": {
@@ -705,8 +705,8 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1791495748.5557666,
-    "ast_hash": "753ac208cd96c00c4a78090f11734e68",
+    "mtime": 1791511041.1412575,
+    "ast_hash": "06d3c39509e38034bc41fcc826c39011",
     "semantic_hash": ""
   },
   "docs/HMI_MIGRATION.md": {

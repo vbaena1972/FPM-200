@@ -1,7 +1,7 @@
 # Graph Report - FPM-200  (2026-10-08)
 
 ## Corpus Check
-- 186 files · ~357,276 words
+- 186 files · ~357,352 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6467cdb2`
+- Built from commit: `d5882655`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -234,8 +234,8 @@ Cohesion: 0.47
 Nodes (4): app_metrics_t, appmetrics_load(), appmetrics_store(), esp_err_t
 
 ### Community 29 - "ui_nav_load"
-Cohesion: 0.15
-Nodes (15): bleapp_goroot_async(), get_general(), lv_event_t, lv_obj_t, ui_nav_back(), ui_nav_back_event_cb(), ui_nav_current(), ui_nav_init() (+7 more)
+Cohesion: 0.20
+Nodes (10): bleapp_goroot_async(), lv_event_t, lv_obj_t, ui_nav_back(), ui_nav_back_event_cb(), ui_nav_current(), ui_nav_init(), ui_nav_load() (+2 more)
 
 ### Community 30 - "esp_eth_phy_ksz8851snl.c"
 Cohesion: 0.16
@@ -270,8 +270,8 @@ Cohesion: 0.50
 Nodes (4): lv_event_t, general_loaded_cb(), protected_back_cb(), ui_auth_logout()
 
 ### Community 38 - "ui_generalSimpleScreen.c"
-Cohesion: 0.33
-Nodes (7): ui_generalScreen_screen_destroy(), lv_event_t, dim_cb(), lang_cb(), rebuild(), retranslate_parent_general(), theme_cb()
+Cohesion: 0.20
+Nodes (12): ui_generalScreen_screen_destroy(), lv_event_t, dim_cb(), lang_cb(), rebuild(), retranslate_parent_general(), theme_cb(), get_general() (+4 more)
 
 ### Community 39 - "vTaskDelay"
 Cohesion: 0.22
