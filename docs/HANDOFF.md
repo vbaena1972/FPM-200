@@ -26,6 +26,11 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 
 ## Cierre 2026-10-08 — 1.5.30 VALIDADO; FW 1.5.31-dev en `main`
 
+- **Migración a ESP-IDF 6.1** (decisión del usuario, igual que MedGuard): 1.5.31-dev se compiló y
+  flasheó con 6.1 (`sdkconfig`/`dependencies.lock` regenerados; ajustes propios verificados: malloc→PSRAM,
+  sys_evt 4096, rollback OTA, TWDT panic, coredump, 240 MHz, PSRAM 80 MHz, FreeRTOS 1000 Hz). Perfil:
+  `. C:\Espressif\tools\Microsoft.v6.1.PowerShell_profile.ps1`. **Soak de 1.5.31 (IDF 6.1) en curso.**
+
 - **Soak 1.5.30 (~80 h, 2–5 oct):** 0 reinicios, sin fugas (RAM interna estable), NTP OK. Cortes de AWS
   = router/ISP (mismo minuto que MedGuard: 3-oct 13:50 DNS caído, 4-oct 13:29 SSID ausente ~4 min),
   recuperación automática. 4023 glitches de flujo descartados (misma tasa que 1.5.27), 4 demoras de
