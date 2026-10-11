@@ -39,7 +39,7 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 ## 2026-10-11 — 1.5.32 probado en HW; FW 1.5.33-dev (sin compilar, pendiente de HW)
 
 - **Pruebas de 1.5.32** (log `firmware/logMedFPM_1.5.32_20261011_0713.txt`; detalle en
-  `MedGuard-12IoT/docs/entrega/PRUEBAS_HW_1.7.13_1.5.32.md`, sección Resultados): OK arranque/AWS/telemetría,
+  `MedGuard-12IoT/docs/entrega/historial/PRUEBAS_HW_1.7.13_1.5.32.md`, sección Resultados): OK arranque/AWS/telemetría,
   total con decimal, hora inválida + SNTP, reinicio en caliente (FS7 estable en 3400 ms). **Falla tras un corte
   real:** `FS7 estabilizado tras 16799 ms (flujo 2.41 L/min…)` sin flujo; el valor decayó solo a 0 en ~115 s y
   sumó ≈ 1,1 L (la banda de ±0,3 L/min en 3 s no ve una deriva lenta de ~0,09 L/min por s). ESTABILIZANDO se
@@ -83,7 +83,7 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 - **Ojo:** la config de fábrica deja Wi-Fi, Ethernet y BT deshabilitados: tras "Restablecer config." hay que
   configurar la Wi-Fi (AWS conecta sin reaprovisionar); tras "Borrado total", además certificados por
   microSD (`/sdcard/aws`) y la passphrase de Fabricante vuelve a la de demostración (pide cambiarla).
-- **Procedimiento completo de pruebas:** `MedGuard-12IoT/docs/entrega/PRUEBAS_HW_1.7.13_1.5.32.md` (secciones
+- **Procedimiento completo de pruebas:** `MedGuard-12IoT/docs/entrega/historial/PRUEBAS_HW_1.7.13_1.5.32.md` (secciones
   A, B, C, F, G). Prompt de la próxima sesión: `MedGuard-12IoT/docs/entrega/PROMPT_PROXIMA_SESION.md`.
 - **El usuario compila y flashea** (Claude no corre `idf.py build`). 1.5.32 compiló sin warnings (31 % libre).
 
