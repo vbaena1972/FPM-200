@@ -320,7 +320,8 @@ static void update_metric_card(metric_card_t *m, float value_disp, float frac,
                                float mn_disp, float mx_disp)
 {
     char buf[48];
-    snprintf(buf, sizeof(buf), "%.*f", dec, value_disp);
+    if (isfinite(value_disp)) snprintf(buf, sizeof(buf), "%.*f", dec, value_disp);
+    else snprintf(buf, sizeof(buf), "--");   /* sin valor valido (p. ej. FS7 calentando) */
     set_label_if_changed(m->value, buf);
 
     /* colores por estado */
@@ -813,9 +814,15 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         if (fhi_en && last->flow_lpm > f_axis * FLOW_HIGH_ZONE_FRAC) { fst = CARD_WARN; ftx = _t("CONSUMO ALTO"); }
         float fmn = have_mm ? flow_to_disp(mn->flow_lpm, fu) : f_disp;
         float fmx = have_mm ? flow_to_disp(mx->flow_lpm, fu) : f_disp;
+        /* 1.5.33: durante el calentamiento del FS7 el valor grande es "--" (no
+         * 0.00, que parece un flujo real) y la etiqueta central muestra el
+         * progreso. La EMA se reinicia para arrancar del primer valor valido. */
+        const bool f_warming = (last->invalid_mask & SENSOR_INVALID_FLOW) &&
+                               sensors_runtime_flow_warming();
+        if (f_warming) { s_f_disp_ema = NAN; f_show = NAN; }
         if (last->invalid_mask & SENSOR_INVALID_FLOW) {
             fst = CARD_WARN;
-            ftx = sensors_runtime_flow_warming() ? _t("ESTABILIZANDO") : _t("SIN DATO NUEVO");
+            ftx = f_warming ? _t("ESTABILIZANDO") : _t("SIN DATO NUEVO");
         }
         update_metric_card(&s_flow, f_show, f_frac, 0.f, FLOW_HIGH_ZONE_FRAC, false,
                            false, fhi_en, fdec, fst, ftx, fmn, fmx);
@@ -823,14 +830,18 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         snprintf(fb, sizeof(fb), "%.*f", fdec, flow_to_disp(f_axis, fu));
         set_label_if_changed(s_flow.ax_right, fb);
         /* Etiqueta central = umbral de "alto" (solo si la alarma de flujo alto
-         * esta habilitada). */
+         * esta habilitada), o el progreso del calentamiento. */
         char fmb[36];
-        if (fhi_en)
+        if (f_warming)
+            snprintf(fmb, sizeof(fmb), "%s %u s", _t("calentando"),
+                     (unsigned)(sensors_runtime_flow_warming_elapsed_ms() / 1000));
+        else if (fhi_en)
             snprintf(fmb, sizeof(fmb), "%.*f %s",
                      fdec, (double)flow_to_disp(f_axis * FLOW_HIGH_ZONE_FRAC, fu), _t("alto"));
         else
             snprintf(fmb, sizeof(fmb), "%s", _t("sin limites"));
         set_label_if_changed(s_flow.ax_mid, fmb);
+        set_txt_color(s_flow.ax_mid, f_warming ? UI_C_WARN : UI_C_OK_DIM);
 
         /* --- Diagnóstico TEMPORAL en las tarjetas (se elimina en producción) ---
          * Presión: atmosférica del BMP280 (referencia del cero).

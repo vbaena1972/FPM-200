@@ -22,6 +22,7 @@ static const tr_t TR[] = {
     { "CONSUMO",          "USAGE" },
     { "CONSUMO ALTO",     "HIGH FLOW" },
     { "ESTABILIZANDO",    "STABILIZING" },
+    { "calentando",       "warming up" },
     { "Sin fecha",        "No date" },
     { "Restablecer config.", "Reset settings" },
     { "Borrado total", "Full wipe" },

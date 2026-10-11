@@ -39,7 +39,12 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
   (3) **Acceso de Fabricante** en el login: candado arriba a la derecha → hoja con passphrase y teclado QWERTY
   (`ui_auth_login(ui_auth_factory(), …)`, mismo bloqueo de 5 intentos/30 s) — cierra §6.2. (4) DEC-028:
   "Restablecer config." = Administrador o Fabricante; "Borrado total" = solo Fabricante. Toda la calibración
-  del FPM (ajuste del FS7, ceros; EEPROM) es de fábrica: ningún nivel la toca.
+  del FPM (ajuste del FS7, ceros; EEPROM) es de fábrica: ningún nivel la toca. (5) Progreso en la tarjeta de
+  flujo: valor "--" y "calentando N s" (`sensors_runtime_flow_warming_elapsed_ms`); no se alarga el splash a
+  propósito: la presión y sus alarmas deben volver en segundos tras un corte (decisión 2026-10-11).
+- **Simulador VS del FPM desactualizado:** `ui_infoScreen.c` incluye `nvs.h`, `cert_store.h`, `esp_system.h` y
+  FreeRTOS, y `ui_mainScreen.c` incluye `flow_meter.h` y usa `sensors_runtime_get_debug/flow_warming*`; los stubs
+  de `Simulator/sim_app` no tienen nada de eso → el sim no compila. Pendiente: completar los stubs.
 - Sintaxis verificada con la toolchain del proyecto (`-fsyntax-only` con `build/compile_commands.json`).
   **Probar:** `MedGuard-12IoT/docs/entrega/PRUEBAS_HW_1.7.14_1.5.33.md` (B, F, G). Pendiente menor:
   `general.factory.must_change_pin` se guarda pero ninguna pantalla obliga a cambiar la passphrase demo.

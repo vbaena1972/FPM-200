@@ -153,6 +153,8 @@ static volatile bool s_flow_warming = true;
 // Diagnostico del calentamiento para el log de 1 Hz (media de 1 s y deriva).
 static volatile float s_fs7_warm_flow = NAN;
 static volatile float s_fs7_warm_drift = NAN;
+// Inicio del calentamiento (ms de esp_timer) para el progreso en la HMI.
+static volatile int64_t s_fs7_warm_start_ms = 0;
 
 //------------------------------------------------------------------
 // Estado interno
@@ -708,6 +710,13 @@ bool sensors_runtime_flow_warming(void)
     return s_scfg.flow_enabled && s_flow_warming;
 }
 
+uint32_t sensors_runtime_flow_warming_elapsed_ms(void)
+{
+    if (!sensors_runtime_flow_warming() || s_fs7_warm_start_ms == 0) return 0;
+    int64_t elapsed = esp_timer_get_time() / 1000 - s_fs7_warm_start_ms;
+    return elapsed > 0 ? (uint32_t)elapsed : 0;
+}
+
 void sensors_runtime_get_ages(int64_t *pressure_ms, int64_t *flow_ms) {
     int64_t now = esp_timer_get_time()/1000;
     lock();
@@ -1078,6 +1087,7 @@ static void sensors_acq_task(void *arg)
         {
             s_flow_warming = true;
             fs7_warm_start_ms = now_ms;
+            s_fs7_warm_start_ms = now_ms;
             fs7_sec_start_ms = 0;
             fs7_acc = 0.0f;
             fs7_acc_n = 0;

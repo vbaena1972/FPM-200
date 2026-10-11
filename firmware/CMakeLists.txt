@@ -9,6 +9,8 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #   (3) Acceso de Fabricante en el login: candado arriba a la derecha + passphrase
 #   con teclado QWERTY (antes no habia forma de entrar). (4) Restablecer config. =
 #   Administrador o Fabricante; Borrado total = solo Fabricante.
+#   (5) Progreso del calentamiento en la tarjeta: valor "--" (no 0.00) y "calentando
+#   N s" en la etiqueta central; la presion y sus alarmas siguen en vivo.
 # 1.5.32-dev (2026-10-10): (1) Calentamiento del FS7: tras un corte de energia el
 #   sensor termico arranca frio y el flujo "converge" a 0 desde valores altos (sumaba
 #   ~1 L al totalizador). El flujo queda invalido (no suma, sin alarma clinica, sin

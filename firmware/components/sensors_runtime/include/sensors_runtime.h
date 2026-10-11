@@ -91,6 +91,9 @@ void sensors_runtime_report_faults(uint32_t faults);
 /* true mientras el FS7 (sensor termico) se estabiliza tras arrancar o habilitarse:
  * el flujo viene marcado invalido pero no es una falla (no hay STALE). */
 bool sensors_runtime_flow_warming(void);
+/* Progreso del calentamiento para la HMI (1.5.33): ms desde que empezo (0 si no
+ * esta calentando). */
+uint32_t sensors_runtime_flow_warming_elapsed_ms(void);
 
 /**
  * Tara de presiÃ³n (opciÃ³n B, gauge por offset local):
