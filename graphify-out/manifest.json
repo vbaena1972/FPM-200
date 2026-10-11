@@ -10,8 +10,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1791738546.5763357,
-    "ast_hash": "3e551d586d0c38c76c9d63deff1341f1",
+    "mtime": 1791741957.3683946,
+    "ast_hash": "19e9b641301aaa5362e40cdcf62f1bbe",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/cert_store.c": {
@@ -705,23 +705,13 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1791738545.5298817,
-    "ast_hash": "11e8d74c2c28c43c6724d9fdc8dc814a",
-    "semantic_hash": ""
-  },
-  "docs/HMI_MIGRATION.md": {
-    "mtime": 1789516270.389158,
-    "ast_hash": "42ed4f6fe71167b126cc4898f3d29db6",
-    "semantic_hash": ""
-  },
-  "docs/SESION_HMI.md": {
-    "mtime": 1789516270.389158,
-    "ast_hash": "8b4d6a231acc7681f3f6a4facbf98f81",
+    "mtime": 1791741923.9384074,
+    "ast_hash": "daf690a12ea80a1a60b5117b56f44149",
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1791741236.0015419,
-    "ast_hash": "60c7bce0246782c485c0df4a8fe68b40",
+    "mtime": 1791741957.3683946,
+    "ast_hash": "5f436e13c7fac1100c43a558fed39497",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {
@@ -949,11 +939,6 @@
     "ast_hash": "eb38602f3a4391e47176731264dc4d6e",
     "semantic_hash": ""
   },
-  "firmware/CONSUMPTION_FIXES.md": {
-    "mtime": 1790563213.9004319,
-    "ast_hash": "f052aa6127a9f244f7bde31e2b321780",
-    "semantic_hash": ""
-  },
   "docs/QA_FPM_1.5.22.md": {
     "mtime": 1791717870.891119,
     "ast_hash": "74c7a8f41ee08f6ab1f2c3d593cadb3c",
@@ -1062,6 +1047,26 @@
   "graphify-out/memory/query_20260916_185606_revisa_cada_cuando_el_fpm_esta_enviando_los_datos.md": {
     "mtime": 1789584966.893503,
     "ast_hash": "ca027f34ee15156729ff6432f9879cfb",
+    "semantic_hash": ""
+  },
+  "docs/historial/CONSUMPTION_FIXES.md": {
+    "mtime": 1790563213.9004319,
+    "ast_hash": "f052aa6127a9f244f7bde31e2b321780",
+    "semantic_hash": ""
+  },
+  "docs/historial/HANDOFF_sesiones_2026-08_a_2026-10-08.md": {
+    "mtime": 1791741867.0847552,
+    "ast_hash": "4f7477d7e04ed4c4f0a85f14564d34b7",
+    "semantic_hash": ""
+  },
+  "docs/historial/HMI_MIGRATION.md": {
+    "mtime": 1789516270.389158,
+    "ast_hash": "42ed4f6fe71167b126cc4898f3d29db6",
+    "semantic_hash": ""
+  },
+  "docs/historial/SESION_HMI.md": {
+    "mtime": 1789516270.389158,
+    "ast_hash": "8b4d6a231acc7681f3f6a4facbf98f81",
     "semantic_hash": ""
   }
 }
