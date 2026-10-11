@@ -5,13 +5,13 @@
     "semantic_hash": ""
   },
   "AGENTS.md": {
-    "mtime": 1791725759.5397341,
-    "ast_hash": "4835dace156e8f03698d5eb5e15d3138",
+    "mtime": 1791734793.4707434,
+    "ast_hash": "27e6248ef6432843639b63cda08a18e7",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1791725759.5397341,
-    "ast_hash": "8ff665969a7abe001bcab56c7887e897",
+    "mtime": 1791734793.4547522,
+    "ast_hash": "583bd1e3633f021fa85761b4df4f2b94",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/cert_store.c": {
@@ -470,8 +470,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_infoScreen.c": {
-    "mtime": 1791724859.8315158,
-    "ast_hash": "0832f6e72c7a5f1b8c433972c1b4fa97",
+    "mtime": 1791734651.1787598,
+    "ast_hash": "cc21e136450b3aea5c6ef1b430792613",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_infoScreen.h": {
@@ -690,8 +690,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/ui_widgets.c": {
-    "mtime": 1789595924.0238705,
-    "ast_hash": "95e33ca033a1652f6fcce063cb28ab1b",
+    "mtime": 1791734651.1787598,
+    "ast_hash": "3c1fd217cb418a024926f51f186f49cb",
     "semantic_hash": ""
   },
   "firmware/main/ui/ui_widgets.h": {
@@ -705,8 +705,8 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1791730750.9300244,
-    "ast_hash": "cf54dc691cf3ab1f08b9cd08eb860533",
+    "mtime": 1791734792.3595932,
+    "ast_hash": "540ec8506441cbcb6c9d759a02a27009",
     "semantic_hash": ""
   },
   "docs/HMI_MIGRATION.md": {
@@ -720,8 +720,8 @@
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1791730750.9300244,
-    "ast_hash": "06e0396575bf2e62662156f13ff70729",
+    "mtime": 1791734687.851507,
+    "ast_hash": "b5625b4527fbc8a0330c57c6b915d1e0",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {
