@@ -33,6 +33,7 @@
 #include "lvgl.h"
 #include "ui.h"
 #include "ui_sd.h"
+#include "ui_i18n.h"
 #include "driver/i2c_master.h"
 #include "driver/sdmmc_host.h"
 #include "driver/gpio.h"
@@ -907,11 +908,18 @@ static void ui_refresh_task(void *arg)
             time_t now = time(NULL);
             if (now / 60 != last_clock_min)
             {
-                struct tm tm_now;
-                localtime_r(&now, &tm_now);
-                strftime(clockbuf, sizeof(clockbuf), "%H:%M", &tm_now);
+                /* 1.5.32: sin hora valida (RTC sin respaldo y aun sin NTP) el
+                 * reloj del sistema esta en 1970: no se muestra como si fuera real. */
+                if (time_mgr_is_time_valid()) {
+                    struct tm tm_now;
+                    localtime_r(&now, &tm_now);
+                    strftime(clockbuf, sizeof(clockbuf), "%H:%M", &tm_now);
+                    strftime(datebuf, sizeof(datebuf), "%d/%m/%Y", &tm_now);
+                } else {
+                    snprintf(clockbuf, sizeof(clockbuf), "--:--");
+                    snprintf(datebuf, sizeof(datebuf), "%s", _t("Sin fecha"));
+                }
                 ui_main_set_clock(clockbuf);
-                strftime(datebuf, sizeof(datebuf), "%d/%m/%Y", &tm_now);
                 ui_main_set_date(datebuf);
                 last_clock_min = now / 60;
 

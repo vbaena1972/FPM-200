@@ -4,6 +4,9 @@
 #include "ui_theme.h"
 #include "ui_nav.h"
 #include "storage.h"
+#include "cert_store.h"
+#include "ui_cfg.h"
+#include "nvs.h"
 #include "metrics_store.h"
 #include "esp_app_desc.h" // esp_app_get_description() -> version real (PROJECT_VER)
 #include "esp_system.h"   // esp_restart (botón de reinicio)
@@ -12,6 +15,7 @@
 #include "freertos/task.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /* Información del equipo (mockup 4f). */
 
@@ -55,6 +59,97 @@ static void reboot_cb(lv_event_t *e)
     }
     s_reboot_arm_tick = lv_tick_get();
     if (lbl) lv_label_set_text(lbl, _t("Toca otra vez para reiniciar"));
+}
+
+/* Restablecer de fabrica en dos niveles (1.5.32, paridad con MedGuard 1.7.13).
+ * Ambos conservan la identidad de hardware (modelo/serie/version HW) y la
+ * calibracion de sensores (la del FS7 vive en la EEPROM y no se toca).
+ * Nivel 1 "Restablecer config.": ademas conserva la nube (broker/topico) y la
+ * cuenta Fabricante; certificados, token LAN y vinculos BLE intactos.
+ * Nivel 2 "Borrado total": borra ademas certificados AWS, token LAN y vinculos
+ * BLE (hay que reaprovisionar los certificados por microSD). */
+static void erase_nvs_namespace(const char *ns)
+{
+    nvs_handle_t h;
+    esp_err_t err = nvs_open(ns, NVS_READWRITE, &h);
+    if (err == ESP_ERR_NVS_NOT_FOUND) return;
+    if (err == ESP_OK) {
+        err = nvs_erase_all(h);
+        if (err == ESP_OK) err = nvs_commit(h);
+        nvs_close(h);
+    }
+    if (err == ESP_OK) ESP_LOGW("info", "Borrado total: NVS '%s' borrado", ns);
+    else ESP_LOGE("info", "Borrado total: NVS '%s': %s", ns, esp_err_to_name(err));
+}
+
+static void factory_reset_apply(bool wipe)
+{
+    AppConfig *cur = malloc(sizeof *cur);
+    AppConfig *def = malloc(sizeof *def);
+    if (!cur || !def) {
+        ESP_LOGE("info", "Restablecer: sin memoria");
+        free(cur); free(def);
+        return;
+    }
+    if (appcfg_cache_get(cur) != ESP_OK) appcfg_load(cur);
+    appcfg_defaults(def);
+    memcpy(def->general.model, cur->general.model, sizeof def->general.model);
+    memcpy(def->general.serial, cur->general.serial, sizeof def->general.serial);
+    memcpy(def->general.hw_version, cur->general.hw_version, sizeof def->general.hw_version);
+    def->sensors.cal = cur->sensors.cal;
+    if (!wipe) {
+        def->general.factory = cur->general.factory;
+        def->cloud = cur->cloud;
+    }
+    esp_err_t err = appcfg_save(def);
+    free(cur); free(def);
+    if (err != ESP_OK) {
+        ESP_LOGE("info", "Restablecer: no se pudo guardar la config: %s", esp_err_to_name(err));
+        return;
+    }
+    if (wipe) {
+        esp_err_t c = cert_store_erase_all();
+        if (c != ESP_OK) ESP_LOGE("info", "Borrado total: certificados: %s", esp_err_to_name(c));
+        erase_nvs_namespace("httpmon");
+        erase_nvs_namespace("nimble_bond");
+    }
+    ESP_LOGW("info", "%s hecho; reiniciando", wipe ? "Borrado total" : "Restablecer configuracion");
+    vTaskDelay(pdMS_TO_TICKS(150));
+    esp_restart();
+}
+
+/* Mismo doble toque que el reinicio (~4 s); cada boton arma su propio contador. */
+static uint32_t s_reset_arm_tick = 0, s_wipe_arm_tick = 0;
+static void factory_btn_cb(lv_event_t *e)
+{
+    lv_obj_t *lbl = (lv_obj_t *)lv_event_get_user_data(e);
+    bool wipe = lv_obj_get_user_data(lv_event_get_current_target(e)) != NULL;
+    uint32_t *arm = wipe ? &s_wipe_arm_tick : &s_reset_arm_tick;
+    if (!ui_auth_can(APP_ROLE_FACTORY)) return;
+    if (*arm != 0 && lv_tick_elaps(*arm) < 4000) {
+        if (lbl) lv_label_set_text(lbl, _t("Aplicando…"));
+        factory_reset_apply(wipe);
+        return;
+    }
+    *arm = lv_tick_get();
+    if (lbl) lv_label_set_text(lbl, _t("Toca otra vez para confirmar"));
+}
+
+static void factory_btn(lv_obj_t *parent, const char *text, bool wipe)
+{
+    lv_obj_t *b = ui_card(parent);
+    lv_obj_set_height(b, LV_SIZE_CONTENT);
+    lv_obj_set_flex_grow(b, 1);
+    lv_obj_set_style_radius(b, 10, 0);
+    lv_obj_set_style_pad_ver(b, 11, 0);
+    lv_obj_set_flex_flow(b, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(b, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_column(b, 8, 0);
+    lv_obj_add_flag(b, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_set_user_data(b, wipe ? (void *)1 : NULL);
+    ui_icon(b, UI_SYM_ALERT_TRIANGLE, UI_ICON_SM, UI_C_ALARM);
+    lv_obj_t *l = ui_label(b, text, UI_FONT_SM, UI_C_ALARM);
+    lv_obj_add_event_cb(b, factory_btn_cb, LV_EVENT_CLICKED, l);
 }
 
 static const char *gas_label(const char *g)
@@ -174,6 +269,17 @@ void ui_infoScreen_screen_init(void)
     ui_icon(rb, UI_SYM_REFRESH, UI_ICON_SM, UI_C_WARN_SOFT);
     lv_obj_t *rl = ui_label(rb, _t("Reiniciar equipo"), UI_FONT_SM, UI_C_WARN_SOFT);
     lv_obj_add_event_cb(rb, reboot_cb, LV_EVENT_CLICKED, rl);
+
+    /* Restablecer de fabrica (solo Fabricante): dos niveles, doble toque. */
+    if (ui_auth_can(APP_ROLE_FACTORY)) {
+        s_reset_arm_tick = s_wipe_arm_tick = 0;
+        lv_obj_t *fr = ui_box(ui_infoScreen);
+        lv_obj_set_size(fr, LV_PCT(100), LV_SIZE_CONTENT);
+        lv_obj_set_flex_flow(fr, LV_FLEX_FLOW_ROW);
+        lv_obj_set_style_pad_column(fr, 8, 0);
+        factory_btn(fr, _t("Restablecer config."), false);
+        factory_btn(fr, _t("Borrado total"), true);
+    }
 
     /* pie con QR */
     lv_obj_t *foot = ui_box(ui_infoScreen);

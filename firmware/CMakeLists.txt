@@ -1,5 +1,14 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.5.32-dev (2026-10-10): (1) Calentamiento del FS7: tras un corte de energia el
+#   sensor termico arranca frio y el flujo "converge" a 0 desde valores altos (sumaba
+#   ~1 L al totalizador). El flujo queda invalido (no suma, sin alarma clinica, sin
+#   STALE) hasta que el filtrado se estabiliza 3 s (max 60 s); la tarjeta dice
+#   ESTABILIZANDO. (2) Total del dia con un decimal ("0.4 L hoy") y fuente 28.
+#   (3) Sin hora valida el reloj muestra "--:--"/"Sin fecha" (antes 1970).
+#   (4) Restablecer de fabrica en dos niveles en Informacion (solo Fabricante,
+#   doble toque): config (conserva identidad, nube y certificados) o borrado total
+#   (ademas certificados AWS, token LAN y vinculos BLE).
 # 1.5.31-dev (2026-10-08): el totalizador de consumo integraba flujo CRUDO mientras
 #   la mediana de 5 se llenaba (4 muestras al arrancar): saltos del ADS1115 en el
 #   arranque sumaban ~0.9 L sin flujo. Ahora esas muestras son flujo invalido.
@@ -114,7 +123,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.5.31-dev")
+set(PROJECT_VER "1.5.32-dev")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:

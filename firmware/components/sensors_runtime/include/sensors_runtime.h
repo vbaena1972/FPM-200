@@ -88,6 +88,9 @@ bool sensors_runtime_get_last(sensor_sample_t *out);
 void sensors_runtime_get_ages(int64_t *pressure_ms, int64_t *flow_ms);
 uint32_t sensors_runtime_get_faults(void);
 void sensors_runtime_report_faults(uint32_t faults);
+/* true mientras el FS7 (sensor termico) se estabiliza tras arrancar o habilitarse:
+ * el flujo viene marcado invalido pero no es una falla (no hay STALE). */
+bool sensors_runtime_flow_warming(void);
 
 /**
  * Tara de presiÃ³n (opciÃ³n B, gauge por offset local):

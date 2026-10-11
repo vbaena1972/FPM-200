@@ -566,7 +566,7 @@ void ui_mainScreen_screen_init(void)
     ui_icon(cons, UI_SYM_CHART_BAR, UI_ICON_SM, UI_C_TEXT_3);
     s_consumo_cap = ui_label(cons, _t("CONSUMO"), UI_FONT_XS, UI_C_TEXT_3);
     lv_obj_set_style_text_letter_space(s_consumo_cap, 1, 0);
-    s_consumo_val = ui_label(cons, "-- m³ hoy", UI_FONT_XL, UI_C_TEXT_STRONG);
+    s_consumo_val = ui_label(cons, "-- m³ hoy", UI_FONT_XXL, UI_C_TEXT_STRONG);
     lv_obj_set_style_margin_left(s_consumo_val, 4, 0);
     /* Subtítulo como el mockup ("· desde 00:00 · acum. mes ...").
      * El acumulado mensual necesita un contador persistente (pendiente); por
@@ -798,7 +798,10 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         if (fhi_en && last->flow_lpm > f_axis * FLOW_HIGH_ZONE_FRAC) { fst = CARD_WARN; ftx = _t("CONSUMO ALTO"); }
         float fmn = have_mm ? flow_to_disp(mn->flow_lpm, fu) : f_disp;
         float fmx = have_mm ? flow_to_disp(mx->flow_lpm, fu) : f_disp;
-        if (last->invalid_mask & SENSOR_INVALID_FLOW) { fst = CARD_WARN; ftx = _t("SIN DATO NUEVO"); }
+        if (last->invalid_mask & SENSOR_INVALID_FLOW) {
+            fst = CARD_WARN;
+            ftx = sensors_runtime_flow_warming() ? _t("ESTABILIZANDO") : _t("SIN DATO NUEVO");
+        }
         update_metric_card(&s_flow, f_show, f_frac, 0.f, FLOW_HIGH_ZONE_FRAC, false,
                            false, fhi_en, fdec, fst, ftx, fmn, fmx);
         char fb[24];
@@ -855,7 +858,7 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         if (s_consumo_val) {
             char cb[40];
             if (s_consumo_m3 < 0.1f)
-                snprintf(cb, sizeof(cb), "%.0f %s", (double)(s_consumo_m3 * 1000.f), _t("L hoy"));
+                snprintf(cb, sizeof(cb), "%.1f %s", (double)(s_consumo_m3 * 1000.f), _t("L hoy"));
             else
                 snprintf(cb, sizeof(cb), "%.2f %s", (double)s_consumo_m3, _t("m\xC2\xB3 hoy"));
             set_label_if_changed(s_consumo_val, cb);

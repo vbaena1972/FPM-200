@@ -24,6 +24,26 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
   valor y encender → `Config aplicada desde shadow (get)`. **Verificar que la policy IoT de
   `fpm-0001` permita `$aws/things/fpm-0001/shadow/name/config/*`** (Subscribe/Receive/Publish).
 
+## 2026-10-10 (tarde) — FW 1.5.32-dev (compilado, pendiente de HW): corte de energía + DEC-027
+
+- **Prueba de corte de energía (usuario):** arranca solo, conserva la config y reconecta a AWS; la hora
+  se pierde si el corte supera ~5–10 s en V1. **El totalizador seguía sumando ~1 L tras el corte.**
+- **Causa:** calentamiento del FS7 (anemómetro térmico frío tras un corte; con reset por USB sigue
+  caliente, por eso no salía en los soaks). No es el búfer del filtro (arranca en ceros y 1.5.31 ya
+  descarta las 4 primeras muestras).
+- **1.5.32:** (1) flujo inválido mientras el FS7 se estabiliza (filtrado estable 3 s dentro de ±max(0,3
+  L/min; 5 %), máx. 60 s; reinicia al habilitar el flujo): no suma, no evalúa alarmas clínicas y NO marca
+  STALE; la tarjeta dice ESTABILIZANDO; logs `FS7: esperando estabilizacion…` / `FS7 estabilizado tras N
+  ms`; el log de 1 Hz marca `[FS7 calentando]`. (2) Total del día con un decimal y fuente 28 (`mg_font_28`
+  copiada de MedGuard, añadida al `.vcxproj` del simulador). (3) Sin hora válida (`time_mgr_is_time_valid`)
+  el reloj muestra `--:--`/"Sin fecha" (antes 01/01/1970). (4) **Restablecer de fábrica en dos niveles**
+  en Información (solo Fabricante, doble toque): "Restablecer config." conserva identidad HW, calibración,
+  nube y cuenta Fabricante; "Borrado total" además borra certificados (`cert_store_erase_all`), token LAN
+  (`httpmon`) y vínculos BLE (`nimble_bond`).
+- **DEC-027:** OTA HTTPS, patrones IEC 60601-1-8 del buzzer y el ensayo de Secure Boot (en DevKit) se
+  hacen ya en V1. **Probar en HW:** corte de energía (≥ 1 min) → log `FS7 estabilizado tras …` y el total
+  no debe subir; los dos niveles de restablecer.
+
 ## Cierre 2026-10-10 — 1.5.31 VALIDADO; FIN de las pruebas en Hardware V1 (DEC-026)
 
 - **Soak 1.5.31-dev (ESP-IDF 6.1), 42 h** (8-oct 20:17 → 10-oct ~14:20), log

@@ -25,6 +25,7 @@ LV_FONT_DECLARE(mg_font_12);
 LV_FONT_DECLARE(mg_font_14);
 LV_FONT_DECLARE(mg_font_18);
 LV_FONT_DECLARE(mg_font_22);
+LV_FONT_DECLARE(mg_font_28);
 LV_FONT_DECLARE(mg_font_36);
 LV_FONT_DECLARE(mg_num_48);
 
@@ -33,6 +34,7 @@ LV_FONT_DECLARE(mg_num_48);
 #define UI_FONT_MD      &mg_font_14
 #define UI_FONT_LG      &mg_font_18
 #define UI_FONT_XL      &mg_font_22
+#define UI_FONT_XXL     &mg_font_28    /* total de consumo (1.5.32) */
 #define UI_FONT_TITLE   &mg_font_18
 #define UI_FONT_BIG     &mg_font_36
 #define UI_FONT_HUGE    &mg_num_48    /* valor grande de presión/flujo (numérico) */

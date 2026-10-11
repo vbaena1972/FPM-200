@@ -122,6 +122,19 @@ static volatile float s_dbg_atm_kpa = NAN;
 static volatile float s_dbg_sfm_slm = NAN;
 static volatile float s_dbg_fs7_lpm = NAN;
 
+/* 1.5.32: calentamiento del FS7 (anemometro termico). Tras un corte de energia
+ * real el sensor arranca frio: Ucta parte alto y baja durante segundos, y el
+ * flujo "converge" a 0 desde valores altos (el totalizador sumaba ~1 L). En un
+ * reset por USB el sensor sigue caliente, por eso no aparecia en los soaks.
+ * Mientras dura, el flujo es INVALIDO (no suma, no evalua alarmas clinicas) pero
+ * NO se reporta como dato viejo (STALE): no es una falla tecnica. Termina cuando
+ * el flujo filtrado queda estable FS7_WARM_STABLE_MS, o a los FS7_WARM_MAX_MS. */
+#define FS7_WARM_STABLE_MS 3000
+#define FS7_WARM_MAX_MS    60000
+#define FS7_WARM_TOL_LPM   0.3f   // banda minima de estabilidad (L/min)
+#define FS7_WARM_TOL_FRAC  0.05f  // o 5 % del flujo, si es mayor
+static volatile bool s_flow_warming = true;
+
 //------------------------------------------------------------------
 // Estado interno
 //------------------------------------------------------------------
@@ -662,8 +675,8 @@ uint32_t sensors_runtime_get_faults(void)
     if (!have) return faults | SENSOR_FAULT_NO_DATA;
     int64_t now_ms = esp_timer_get_time()/1000;
     int64_t age_ms = now_ms - last.ts_ms;
-    if (last_pressure_ms < 0 || last_flow_ms < 0 ||
-        now_ms - last_pressure_ms > 1000 || now_ms - last_flow_ms > 1000)
+    bool flow_stale = !s_flow_warming && (last_flow_ms < 0 || now_ms - last_flow_ms > 1000);
+    if (last_pressure_ms < 0 || now_ms - last_pressure_ms > 1000 || flow_stale)
         faults |= SENSOR_FAULT_STALE;
     if (age_ms < 0 || age_ms > 1000) faults |= SENSOR_FAULT_STALE;
     float pmax = 1379.0f * 1.10f;
@@ -671,6 +684,11 @@ uint32_t sensors_runtime_get_faults(void)
     if (!isfinite(last.pressure_kpa) || !isfinite(last.flow_lpm) || last.pressure_kpa < -5.f || last.pressure_kpa > pmax || last.flow_lpm < -1.f || last.flow_lpm > fmax) faults |= SENSOR_FAULT_INVALID;
     return faults;
 }
+bool sensors_runtime_flow_warming(void)
+{
+    return s_scfg.flow_enabled && s_flow_warming;
+}
+
 void sensors_runtime_get_ages(int64_t *pressure_ms, int64_t *flow_ms) {
     int64_t now = esp_timer_get_time()/1000;
     lock();
@@ -920,6 +938,11 @@ static void sensors_acq_task(void *arg)
     uint32_t overruns = 0;
     int64_t next_timing_log = 0;
     int64_t prev_cycle_ms = 0;
+    // Calentamiento del FS7 (ver FS7_WARM_*): inicio y ventana de estabilidad.
+    bool prev_flow_enabled = false;
+    int64_t fs7_warm_start_ms = 0;
+    int64_t fs7_win_start_ms = 0;
+    float fs7_win_min = 0.0f, fs7_win_max = 0.0f;
 
     while (1)
     {
@@ -1028,6 +1051,25 @@ static void sensors_acq_task(void *arg)
         t_ms58 = esp_timer_get_time() / 1000;
 
         // --- Flujo (FS7 va ADS1115 AIN0) ---
+        // Calentamiento: arranca al boot y cada vez que se habilita el flujo.
+        if (s_scfg.flow_enabled && !prev_flow_enabled)
+        {
+            s_flow_warming = true;
+            fs7_warm_start_ms = now_ms;
+            fs7_win_start_ms = 0;
+            ESP_LOGI(TAG, "FS7: esperando estabilizacion del sensor termico (max %d s)",
+                     FS7_WARM_MAX_MS / 1000);
+        }
+        prev_flow_enabled = s_scfg.flow_enabled;
+        if (!s_scfg.flow_enabled)
+            s_flow_warming = false;
+        else if (s_flow_warming && now_ms - fs7_warm_start_ms >= FS7_WARM_MAX_MS)
+        {
+            s_flow_warming = false;
+            ESP_LOGW(TAG, "FS7: sin estabilizar tras %d s; se acepta el flujo",
+                     FS7_WARM_MAX_MS / 1000);
+        }
+
         // Si el FS7 no esta habilitado (no conectado), no leemos: la entrada
         // AIN0 flota y daria ruido/valores aleatorios. Reportamos flujo 0.
         if (!s_scfg.flow_enabled)
@@ -1075,14 +1117,44 @@ static void sensors_acq_task(void *arg)
                  * intervalo "missing" en el totalizador): son solo ~400 ms. */
                 flow_valid = (s_flow_med_n == 5);
                 flow_lpm = flow_valid ? median5f(s_flow_med) : 0.0f;
-                last_good_flow = flow_lpm;
                 /* Diagnóstico: si el filtro DESCARTÓ un outlier grande, lo
                  * registra (confirma glitch del ADS sin disparar falsa alarma). */
-                if (flow_valid && fabsf(raw_flow - flow_lpm) > 5.0f)
+                if (flow_valid && !s_flow_warming && fabsf(raw_flow - flow_lpm) > 5.0f)
                 {
                     ESP_LOGW(TAG, "GLITCH flujo descartado: crudo=%.2f -> filtrado=%.2f "
                                   "L/min  v_ain0=%.4f V", raw_flow, flow_lpm, v);
                 }
+                /* 1.5.32: calentamiento del FS7. La ventana se reinicia cada vez
+                 * que el flujo filtrado sale de la banda; estable = la ventana
+                 * dura FS7_WARM_STABLE_MS. Mientras tanto el flujo es invalido. */
+                if (flow_valid && s_flow_warming)
+                {
+                    if (fs7_win_start_ms == 0)
+                    {
+                        fs7_win_start_ms = now_ms;
+                        fs7_win_min = fs7_win_max = flow_lpm;
+                    }
+                    if (flow_lpm < fs7_win_min) fs7_win_min = flow_lpm;
+                    if (flow_lpm > fs7_win_max) fs7_win_max = flow_lpm;
+                    float tol = fmaxf(FS7_WARM_TOL_LPM, FS7_WARM_TOL_FRAC * fabsf(flow_lpm));
+                    if (fs7_win_max - fs7_win_min > tol)
+                    {
+                        fs7_win_start_ms = now_ms;
+                        fs7_win_min = fs7_win_max = flow_lpm;
+                    }
+                    if (now_ms - fs7_win_start_ms >= FS7_WARM_STABLE_MS)
+                    {
+                        s_flow_warming = false;
+                        ESP_LOGI(TAG, "FS7 estabilizado tras %lld ms (flujo %.2f L/min, Ucta=%.3f V)",
+                                 (long long)(now_ms - fs7_warm_start_ms), flow_lpm, u_cta);
+                    }
+                    else
+                    {
+                        flow_valid = false;
+                        flow_lpm = 0.0f;
+                    }
+                }
+                last_good_flow = flow_lpm;
             }
             else
             {
@@ -1220,9 +1292,10 @@ static void sensors_acq_task(void *arg)
             else
             {
                 ESP_LOGI(TAG,
-                         "P=%.2f kPa (%s) | T=%.2f C | Flujo=%.2f L/min | Vain0=%.4f V (Ucta=%.3f V)%s%s",
+                         "P=%.2f kPa (%s) | T=%.2f C | Flujo=%.2f L/min%s | Vain0=%.4f V (Ucta=%.3f V)%s%s",
                          s.pressure_kpa, pmode, isfinite(temp_c) ? temp_c : 0.0f,
-                         s.flow_lpm, isfinite(v_ain0) ? v_ain0 : 0.0f,
+                         s.flow_lpm, s_flow_warming ? " [FS7 calentando]" : "",
+                         isfinite(v_ain0) ? v_ain0 : 0.0f,
                          isfinite(u_cta) ? u_cta : 0.0f,
                          sfm_str, diag);
             }
