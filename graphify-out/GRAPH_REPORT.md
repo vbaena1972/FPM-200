@@ -1,22 +1,22 @@
 # Graph Report - FPM-200  (2026-10-11)
 
 ## Corpus Check
-- 187 files · ~423,896 words
+- 187 files · ~424,007 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1564 nodes · 4249 edges · 89 communities (82 shown, 7 thin omitted)
-- Extraction: 76% EXTRACTED · 24% INFERRED · 0% AMBIGUOUS · INFERRED: 1031 edges (avg confidence: 0.8)
+- 1564 nodes · 4251 edges · 86 communities (78 shown, 8 thin omitted)
+- Extraction: 76% EXTRACTED · 24% INFERRED · 0% AMBIGUOUS · INFERRED: 1033 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `68eaf048`
+- Built from commit: `62b26fe8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- string
-- esp_err_to_name
+- esp_log.h
+- wifi_mgr.c
 - time_mgr.c
 - ui_card
 - alarm_mgr.c
@@ -43,16 +43,16 @@
 - Seguridad del firmware — MedGuard 12-IoT y FPM-200 (2026-09-26)
 - bsp_touch_new
 - eth_mgr.c
-- ui_wifi_main_icon.c
-- task_tracer.c
+- string
+- sd_monitor_task
 - esp_eth_phy_ksz8851snl.c
 - ui_mainScreen.c
 - esp_err.h
-- wifi_mgr.c
-- screen_init_task
+- ui_bleAppScreen.c
+- esp_err_to_name
 - ui_statusbar_controller.c
 - gas_label_color
-- ui_generalSimpleScreen.c
+- rebuild
 - cert_store.c
 - sensors_acq_task
 - ui_connectivityScreen.c
@@ -63,18 +63,18 @@
 - ft5x06.h
 - README.md
 - transport_mqtt.c
-- lv_obj_t
+- get_datetime
 - gen_ota_signing_key.sh script
 - esp_timer.h
 - ui_col
-- ui_cfg_preview_brightness
+- sensor_cfg_persist
 - Migración HMI: SquareLine → Claude Design
 - ui_nav.c
 - Changelog
 - mem_diag.c
 - esp_eth_driver
-- apply_authenticated_cb
-- get_bleapp
+- ui_cfg.c
+- ui_nav_replace
 - ui_style_button
 - lv_event_t
 - Consumo y endurecimiento 1.5.5-dev
@@ -84,20 +84,17 @@
 - app_main
 - Microchip KSZ8851SNL Ethernet Driver
 - Q: Implement WiFi password visibility toggle, keep SSID/password above LVGL keyboard, refresh connectivity after WiFi save, suppress auth-screen buzzer, and publish device_status immediately on alarm changes
-- ui_cfg.c
+- ui_auth_can
 - AGENTS.md
 - CLAUDE.md
-- esp_app_desc
-- fac_try
-- save_cb
+- mdns_svc.c
+- ui_auth_user_at
+- key_cb
 - Q: Revisa cada cuando el FPM esta enviando los datos a AWS
 - fresh_pin
 - ui_open_useredit_cb
 - include/storage.h
-- get_connectivity
 - math
-- next
-- get_users
 - README_PARCHE.md
 - ota_update.c
 - ui_nav_load
@@ -129,31 +126,31 @@
 ## Import Cycles
 - None detected.
 
-## Communities (89 total, 7 thin omitted)
+## Communities (86 total, 8 thin omitted)
 
-### Community 0 - "string"
-Cohesion: 0.14
-Nodes (16): cdefs, config_mode, esp_compiler, esp_heap_caps, esp_lcd_panel_io, esp_lcd_panel_io_interface, esp_system, bleapp_pair_pin() (+8 more)
+### Community 0 - "esp_log.h"
+Cohesion: 0.12
+Nodes (15): cdefs, esp_compiler, esp_heap_caps, esp_lcd_panel_io, esp_lcd_panel_io_interface, eTaskState, state_str(), task_tracer_dump_now() (+7 more)
 
-### Community 1 - "esp_err_to_name"
-Cohesion: 0.18
-Nodes (20): esp_err_t, mdns_svc_start(), apply_ip_mode(), AppConfig, esp_err_t, net_cfg_equals(), wifi_apply_pending(), wifi_apply_worker() (+12 more)
+### Community 1 - "wifi_mgr.c"
+Cohesion: 0.16
+Nodes (18): esp_wifi_types, apply_ip_mode(), AppConfig, esp_err_t, net_cfg_equals(), wifi_apply_cb(), wifi_apply_pending(), wifi_apply_worker() (+10 more)
 
 ### Community 2 - "time_mgr.c"
 Cohesion: 0.13
-Nodes (19): esp_netif_sntp, esp_sntp, bcd2dec(), esp_err_t, i2c_master_bus_handle_t, dec2bcd(), rtc_rv3028_get_time(), rtc_rv3028_init() (+11 more)
+Nodes (17): esp_netif_sntp, esp_sntp, bcd2dec(), esp_err_t, i2c_master_bus_handle_t, dec2bcd(), rtc_rv3028_get_time(), rtc_rv3028_init() (+9 more)
 
 ### Community 3 - "ui_card"
 Cohesion: 0.22
-Nodes (20): lv_obj_t, key(), ui_netBleScreen_screen_init(), ui_netCloudScreen_screen_init(), ui_netEthScreen_screen_init(), ui_netWifiScreen_screen_init(), ui_userEditScreen_screen_init(), lv_event_cb_t (+12 more)
+Nodes (20): base_card(), lv_obj_t, ui_netBleScreen_screen_init(), ui_netCloudScreen_screen_init(), ui_netEthScreen_screen_init(), ui_netWifiScreen_screen_init(), ui_userEditScreen_screen_init(), lv_event_cb_t (+12 more)
 
 ### Community 4 - "alarm_mgr.c"
-Cohesion: 0.10
-Nodes (39): alarm_state_change_cb_t, alarm_mgr_get_current_state(), alarm_mgr_get_current_state_impl(), alarm_mgr_get_sensor_faults(), alarm_mgr_get_sensor_faults_impl(), alarm_mgr_init(), alarm_mgr_is_muted(), alarm_mgr_is_muted_impl() (+31 more)
+Cohesion: 0.06
+Nodes (61): alarm_state_change_cb_t, bsp_display_backlight_off(), bsp_display_backlight_on(), bsp_display_brightness_init(), bsp_display_brightness_set(), bsp_display_lock(), bsp_display_off(), bsp_display_on() (+53 more)
 
 ### Community 5 - "ui.c"
-Cohesion: 0.14
-Nodes (18): ui_confirmScreen_screen_destroy(), ui_mainScreen_screen_destroy(), ui_netEthScreen_screen_destroy(), ui_sensorDiagScreen_screen_destroy(), lv_timer_t, fresh_confirm(), fresh_net_eth(), get_general() (+10 more)
+Cohesion: 0.10
+Nodes (30): ui_confirmScreen_screen_destroy(), ui_connectivityScreen_screen_destroy(), ui_generalSimpleScreen_screen_destroy(), ui_keypadScreen_screen_destroy(), ui_mainScreen_screen_destroy(), ui_netCloudScreen_screen_destroy(), ui_netEthScreen_screen_destroy(), ui_netWifiScreen_screen_destroy() (+22 more)
 
 ### Community 6 - "ui_loginScreen.c"
 Cohesion: 0.24
@@ -192,12 +189,12 @@ Cohesion: 0.11
 Nodes (17): 1. GATT, 2. Dos esquemas de canal (importante), 3. Correspondencia de campos (firmware `AppConfig` ↔ JSON ↔ Flutter), 4. Límites de longitud (deben coincidir), 5. Secretos y versión, 6. Cambios aplicados en el firmware (esta tanda), 7. Pendiente, alarms ↔ `general.alarm` / `AlarmsConfig` (+9 more)
 
 ### Community 15 - "net_core.c"
-Cohesion: 0.19
-Nodes (14): esp_eth, esp_event, esp_wifi, esp_event_base_t, on_eth_event(), on_ip_event(), on_wifi_event(), rearm_net_services() (+6 more)
+Cohesion: 0.16
+Nodes (16): esp_eth, esp_event, esp_wifi, esp_err_t, esp_event_base_t, net_core_init(), on_eth_event(), on_ip_event() (+8 more)
 
 ### Community 16 - "ui_label"
-Cohesion: 0.14
-Nodes (46): ui_bleAppScreen_screen_init(), lv_event_cb_t, lv_obj_t, conn_card(), ui_connectivityScreen_screen_init(), lv_obj_t, row(), ui_datetimeScreen_screen_init() (+38 more)
+Cohesion: 0.13
+Nodes (48): ui_bleAppScreen_screen_init(), lv_event_cb_t, lv_obj_t, conn_card(), ui_connectivityScreen_screen_init(), lv_obj_t, row(), ui_datetimeScreen_screen_init() (+40 more)
 
 ### Community 17 - "QA FORMAL — FPM-200 firmware **1.5.24-dev** (iniciado sobre 1.5.22)"
 Cohesion: 0.07
@@ -208,8 +205,8 @@ Cohesion: 0.23
 Nodes (18): esp_random, derive(), from_hex(), hmac(), hmac_key_init(), random_salt(), sha256_block(), sha256_final() (+10 more)
 
 ### Community 19 - "save_and_refresh"
-Cohesion: 0.24
-Nodes (12): is_press_unit(), unit_cb(), AppConfig, save_and_refresh(), set_str(), ui_cfg_set_color_code(), ui_cfg_set_flow_unit(), ui_cfg_set_gas() (+4 more)
+Cohesion: 0.31
+Nodes (10): is_press_unit(), unit_cb(), AppConfig, save_and_refresh(), set_str(), ui_cfg_set_color_code(), ui_cfg_set_flow_unit(), ui_cfg_set_gas() (+2 more)
 
 ### Community 20 - "storage.c"
 Cohesion: 0.11
@@ -220,8 +217,8 @@ Cohesion: 0.13
 Nodes (29): esp_chip_info, esp_http_server, add_channel(), alarms_get_handler(), cJSON, esp_err_t, httpd_handle_t, httpd_req_t (+21 more)
 
 ### Community 22 - "sensors_runtime.c"
-Cohesion: 0.15
-Nodes (29): esp_err_t, sensor_sample_t, sensor_signal_stats_t, crc16_ccitt(), lock(), sensor_cfg_persist(), sensors_runtime_cal_flow_point(), sensors_runtime_flow_warming() (+21 more)
+Cohesion: 0.20
+Nodes (22): sensor_sample_t, sensor_signal_stats_t, lock(), sensors_runtime_flow_warming(), sensors_runtime_flow_warming_elapsed_ms(), sensors_runtime_get_ages(), sensors_runtime_get_aws_telemetry(), sensors_runtime_get_debug() (+14 more)
 
 ### Community 23 - "test_eeprom.c"
 Cohesion: 0.33
@@ -243,45 +240,45 @@ Nodes (27): bsp_touch_config_t, esp_lcd_panel_io_callbacks_t, esp_lcd_panel_io_h
 Cohesion: 0.15
 Nodes (19): esp_eth_netif_glue, eth_view_t, appcfg_to_eth_view(), apply_ip_config(), AppConfig, esp_err_t, esp_netif_t, eth_mgr_init() (+11 more)
 
-### Community 28 - "ui_wifi_main_icon.c"
+### Community 28 - "string"
 Cohesion: 0.24
-Nodes (10): wifi_mgr_set_status_cb(), apply_icon(), lv_obj_t, lv_timer_t, wifi_status_t, timer_cb(), ui_wifi_main_icon_init(), ui_wifi_rssi_to_bars() (+2 more)
+Nodes (14): cert_store, esp_app_desc, esp_system, stdio, stdlib, storage, string, tz_map (+6 more)
 
-### Community 29 - "task_tracer.c"
-Cohesion: 0.31
-Nodes (6): eTaskState, state_str(), task_tracer_dump_now(), trace_worker(), track_get_and_update(), TaskHandle_t
+### Community 29 - "sd_monitor_task"
+Cohesion: 0.20
+Nodes (12): ui_statusbar_controller_deinit(), ui_wifi_main_icon_deinit(), lv_event_t, restart_btn_event_cb(), sd_flow_clear(), sd_monitor_task(), sd_ui_close_cb(), ui_main_deinit_cb() (+4 more)
 
 ### Community 30 - "esp_eth_phy_ksz8851snl.c"
 Cohesion: 0.05
 Nodes (55): esp_check, esp_eth_com, esp_eth_handle_t, esp_eth_mac_ksz8851snl, esp_eth_mac_spi, esp_eth_phy, esp_eth_phy_ksz8851snl, esp_mac (+47 more)
 
 ### Community 31 - "ui_mainScreen.c"
-Cohesion: 0.12
-Nodes (43): card_state_t, alarm_condition(), alarm_overlay_close(), alarm_overlay_close_cb(), alarm_overlay_open(), alarm_overlay_silence_cb(), apply_data_activity_visual(), banner_open_cb() (+35 more)
+Cohesion: 0.11
+Nodes (45): card_state_t, alarm_condition(), alarm_overlay_close(), alarm_overlay_close_cb(), alarm_overlay_open(), alarm_overlay_silence_cb(), apply_data_activity_visual(), banner_open_cb() (+37 more)
 
 ### Community 32 - "esp_err.h"
 Cohesion: 0.12
 Nodes (5): esp_netif, stdbool, stddef, stdint, time
 
-### Community 33 - "wifi_mgr.c"
-Cohesion: 0.15
-Nodes (13): esp_wifi_types, esp_event_base_t, wifi_status_t, log_dns_info(), notify(), wifi_apply_cb(), wifi_event_handler(), wifi_mgr_get_netinfo() (+5 more)
+### Community 33 - "ui_bleAppScreen.c"
+Cohesion: 0.24
+Nodes (8): config_mode, transport_ble_is_connected(), bleapp_is_connected(), bleapp_leave_to_dashboard(), bleapp_pair_pin(), bleapp_tick_cb(), AppConfig, lv_timer_t
 
-### Community 34 - "screen_init_task"
-Cohesion: 0.22
-Nodes (17): bsp_display_backlight_off(), bsp_display_backlight_on(), bsp_display_brightness_init(), bsp_display_brightness_set(), bsp_display_lock(), bsp_display_off(), bsp_display_on(), bsp_display_rotate() (+9 more)
+### Community 34 - "esp_err_to_name"
+Cohesion: 0.29
+Nodes (10): esp_err_t, mdns_svc_start(), time_sync_worker(), wifi_mgr_start(), wifi_start_wdt_timeout(), flow_meter_service(), on_network_ready(), wifi_init_task() (+2 more)
 
 ### Community 35 - "ui_statusbar_controller.c"
 Cohesion: 0.20
-Nodes (12): eth_mgr, transport_ble_is_advertising(), activity_timer_cb(), apply_cloud_visual(), lv_obj_t, lv_timer_t, set_glyph(), set_visible() (+4 more)
+Nodes (16): transport_ble_is_advertising(), activity_timer_cb(), apply_cloud_visual(), lv_obj_t, lv_timer_t, set_glyph(), set_visible(), statusbar_timer_cb() (+8 more)
 
 ### Community 36 - "gas_label_color"
 Cohesion: 0.31
 Nodes (9): gas_label_color(), ui_cfg_color_code(), ui_cfg_color_is_iso(), ui_cfg_gas(), ui_cfg_gas_color_at(), ui_cfg_gas_count(), ui_cfg_gas_index(), ui_cfg_gas_key() (+1 more)
 
-### Community 37 - "ui_generalSimpleScreen.c"
-Cohesion: 0.46
-Nodes (6): lv_event_t, dim_cb(), lang_cb(), rebuild(), retranslate_parent_general(), theme_cb()
+### Community 37 - "rebuild"
+Cohesion: 0.25
+Nodes (11): bright_cb(), lv_event_t, dim_cb(), lang_cb(), rebuild(), theme_cb(), clamp_brightness(), ui_cfg_preview_brightness() (+3 more)
 
 ### Community 38 - "cert_store.c"
 Cohesion: 0.20
@@ -292,24 +289,24 @@ Cohesion: 0.17
 Nodes (17): bmp280_is_ready(), esp_err_t, i2c_master_bus_handle_t, sfm3300_crc8(), sfm3300_get_last_rx(), sfm3300_init(), sfm3300_is_ready(), sfm3300_read() (+9 more)
 
 ### Community 40 - "ui_connectivityScreen.c"
-Cohesion: 0.18
-Nodes (14): conn_status_t, cloud_mgr_connected(), transport_ble_is_connected(), bleapp_is_connected(), bleapp_leave_to_dashboard(), bleapp_tick_cb(), lv_timer_t, lv_timer_t (+6 more)
+Cohesion: 0.24
+Nodes (10): conn_status_t, eth_mgr, cloud_mgr_connected(), lv_timer_t, conn_signature(), cpy(), gather(), live_tick() (+2 more)
 
 ### Community 41 - "main.c"
-Cohesion: 0.07
-Nodes (31): bmp280, errno, esp_app_trace, esp_core_dump, esp_heap_trace, esp_task_wdt, esp_trace, esp_trace_open_params_t (+23 more)
+Cohesion: 0.08
+Nodes (21): bmp280, errno, esp_app_trace, esp_core_dump, esp_heap_trace, esp_task_wdt, esp_trace, esp_trace_open_params_t (+13 more)
 
 ### Community 42 - "appcfg_cache_peek"
 Cohesion: 0.11
-Nodes (25): appcfg_cache_peek(), appcfg_save(), transport_ble_stop_adv(), bleapp_off_cb(), lv_event_t, save_cb(), set_str(), save_cb() (+17 more)
+Nodes (24): appcfg_cache_peek(), appcfg_save(), transport_ble_stop_adv(), bleapp_off_cb(), lv_event_t, save_cb(), set_str(), save_cb() (+16 more)
 
 ### Community 43 - "fpm_i2c_guard.c"
 Cohesion: 0.38
 Nodes (15): esp_err_t, i2c_device_config_t, i2c_master_bus_handle_t, i2c_master_dev_handle_t, fpm_i2c_bus_add_device(), fpm_i2c_bus_reset(), fpm_i2c_bus_rm_device(), fpm_i2c_multi_buffer_transmit() (+7 more)
 
 ### Community 44 - "ui_sensorEditScreen.c"
-Cohesion: 0.18
-Nodes (24): accept_cb(), lv_event_t, lv_obj_t, ui_edit_target_t, card(), dec_cb(), dec_seg(), flow_card() (+16 more)
+Cohesion: 0.17
+Nodes (25): accept_cb(), lv_event_t, lv_obj_t, ui_edit_target_t, card(), dec_cb(), dec_seg(), flow_card() (+17 more)
 
 ### Community 45 - "ft5x06.h"
 Cohesion: 0.17
@@ -319,29 +316,29 @@ Nodes (8): esp_idf_version, esp_lcd_mipi_dsi, esp_lcd_panel_ops, esp_lcd_panel_v
 Cohesion: 0.12
 Nodes (24): esp_mqtt_event_handle_t, add_channel(), aws_telemetry_task(), cJSON, esp_event_base_t, sensor_signal_stats_t, mqtt_event(), mqtt_start_locked() (+16 more)
 
-### Community 49 - "lv_obj_t"
-Cohesion: 0.17
-Nodes (12): ui_datetimeScreen_screen_destroy(), ui_netBleScreen_screen_destroy(), ui_netCloudScreen_screen_destroy(), ui_netWifiScreen_screen_destroy(), lv_obj_t, fresh_net_ble(), fresh_net_cloud(), fresh_net_wifi() (+4 more)
+### Community 49 - "get_datetime"
+Cohesion: 0.67
+Nodes (3): ui_datetimeScreen_screen_destroy(), get_datetime(), ui_open_datetime_cb()
 
 ### Community 51 - "esp_timer.h"
 Cohesion: 0.25
 Nodes (5): device_state_t, state_build_json(), state_get(), state_update_sensors(), state_pub
 
 ### Community 52 - "ui_col"
-Cohesion: 0.12
-Nodes (25): bleapp_set_connected(), ui_confirmScreen_screen_init(), gas_label(), ui_keypadScreen_screen_init(), build_metric_card(), cert_pills_refresh(), lv_obj_t, pkey() (+17 more)
+Cohesion: 0.18
+Nodes (16): bleapp_set_connected(), gas_label(), cert_pills_refresh(), lv_obj_t, pkey(), refresh_dots(), ui_pinScreen_screen_init(), _t() (+8 more)
 
-### Community 54 - "ui_cfg_preview_brightness"
-Cohesion: 0.38
-Nodes (7): bright_cb(), clamp_brightness(), ui_cfg_brightness(), ui_cfg_dim_minutes(), ui_cfg_preview_brightness(), ui_cfg_set_brightness(), display_idle_cb()
+### Community 54 - "sensor_cfg_persist"
+Cohesion: 0.48
+Nodes (7): esp_err_t, crc16_ccitt(), sensor_cfg_persist(), sensors_runtime_cal_flow_point(), sensors_runtime_set_pressure_gauge(), sensors_runtime_tare_flow(), sensors_runtime_tare_pressure()
 
 ### Community 55 - "Migración HMI: SquareLine → Claude Design"
 Cohesion: 0.17
 Nodes (11): 🩹 Arreglos preexistentes (NO relacionados con la HMI), 💾 Backup, ✅ Completado (Fases 0–2), 🔨 Cómo compilar (en tu terminal ESP-IDF), Fase 0 — Tooling y sistema de diseño, Fase 1 — Esqueleto + limpieza, Fase 2 — Pantalla principal + integración, Migración HMI: SquareLine → Claude Design (+3 more)
 
 ### Community 56 - "ui_nav.c"
-Cohesion: 0.15
-Nodes (17): bleapp_goroot_async(), ui_connectivityScreen_refresh(), lv_event_t, pin_key_cb(), pin_wrong_flash(), ui_sensorDiagScreen_refresh(), lv_event_t, lv_obj_t (+9 more)
+Cohesion: 0.13
+Nodes (19): bleapp_goroot_async(), ui_connectivityScreen_refresh(), ui_generalScreen_screen_destroy(), retranslate_parent_general(), lv_event_t, pin_key_cb(), pin_wrong_flash(), ui_sensorDiagScreen_refresh() (+11 more)
 
 ### Community 57 - "Changelog"
 Cohesion: 0.25
@@ -351,17 +348,17 @@ Nodes (7): 1.0.0 (2025-09-24), [1.1.0](https://github.com/espressif/esp-eth-driv
 Cohesion: 0.23
 Nodes (8): eTaskState, diag_worker(), mem_diag_report_full(), mem_diag_report_heap_full(), mem_diag_report_tasks(), mem_diag_start_periodic(), task_state_str(), mem_diag
 
-### Community 60 - "apply_authenticated_cb"
-Cohesion: 0.13
-Nodes (18): apply_authenticated_cb(), lv_event_t, lv_event_t, general_loaded_cb(), protected_back_cb(), allow_decimal(), ui_cfg_flow_decimals(), ui_cfg_flow_fmt() (+10 more)
+### Community 60 - "ui_cfg.c"
+Cohesion: 0.11
+Nodes (30): apply_authenticated_cb(), lv_event_t, lv_event_t, next(), lv_event_t, general_loaded_cb(), protected_back_cb(), allow_decimal() (+22 more)
 
-### Community 61 - "get_bleapp"
-Cohesion: 0.67
-Nodes (3): ui_bleAppScreen_screen_destroy(), get_bleapp(), ui_open_bleapp_cb()
+### Community 61 - "ui_nav_replace"
+Cohesion: 0.33
+Nodes (6): ui_bleAppScreen_screen_destroy(), get_bleapp(), ui_nav_replace(), ui_after_login_bleapp(), ui_open_bleapp_cb(), ui_open_general_authenticated_cb()
 
 ### Community 62 - "ui_style_button"
-Cohesion: 0.32
-Nodes (8): base_card(), lv_event_cb_t, lv_obj_t, seg(), lv_obj_t, small_button(), stepper(), ui_style_button()
+Cohesion: 0.29
+Nodes (10): ui_confirmScreen_screen_init(), lv_obj_t, key(), ui_keypadScreen_screen_init(), lv_obj_t, small_button(), stepper(), ui_edit_label() (+2 more)
 
 ### Community 63 - "lv_event_t"
 Cohesion: 0.23
@@ -372,20 +369,20 @@ Cohesion: 0.07
 Nodes (27): 1.5.17 hardware result (log3, 2026-09-24): VALIDATED, 1.5.18 hardware result (log4): VALIDATED, committed a25efbf, 1.5.19 hardware result (log5), 1.5.20 hardware result (log6): OK, 1.5.21 hardware result (log7): VALIDATED, 1.5.22 hardware result (log8, after full erase-flash + SD import): VALIDATED, 1.5.23 boot check + 1.5.24-dev (2026-09-25), Audit and fixes: 1.5.18-dev (Claude, 2026-09-24) (+19 more)
 
 ### Community 66 - "lvgl"
-Cohesion: 0.07
-Nodes (17): alarm_mgr, cert_store, ui_generalScreen_screen_destroy(), lv_event_t, key_cb(), refresh_value(), app_user_role_t, role_color() (+9 more)
+Cohesion: 0.08
+Nodes (5): alarm_mgr, app_user_role_t, role_color(), role_name(), lvgl
 
 ### Community 67 - "vTaskDelay"
 Cohesion: 0.20
 Nodes (18): at24c256_init(), at24c256_read(), at24c256_self_test(), at24c256_write(), esp_err_t, i2c_master_bus_handle_t, write_verified(), driver_delay_ms() (+10 more)
 
 ### Community 68 - "ui_statusbar_request_refresh"
-Cohesion: 0.28
-Nodes (9): mem_diag_report(), esp_event_base_t, on_eth_event(), on_ip_event(), esp_netif_t, wifi_mgr_get_netif(), http_api_stop(), ui_statusbar_request_refresh() (+1 more)
+Cohesion: 0.14
+Nodes (20): mem_diag_report(), esp_event_base_t, eth_mgr_is_up(), on_eth_event(), on_ip_event(), esp_event_base_t, esp_netif_t, wifi_status_t (+12 more)
 
 ### Community 69 - "app_main"
-Cohesion: 0.13
-Nodes (15): ads1115_is_ready(), at24c256_is_ready(), fpm_i2c_init(), ms5803_is_ready(), esp_err_t, net_core_init(), transport_mqtt_runtime_init(), esp_err_t (+7 more)
+Cohesion: 0.15
+Nodes (13): ads1115_is_ready(), at24c256_is_ready(), fpm_i2c_init(), ms5803_is_ready(), transport_mqtt_runtime_init(), esp_err_t, flow_meter_init(), AppConfig (+5 more)
 
 ### Community 70 - "Microchip KSZ8851SNL Ethernet Driver"
 Cohesion: 0.50
@@ -395,21 +392,17 @@ Nodes (3): ESP-IDF Usage, Microchip KSZ8851SNL Ethernet Driver, Overview
 Cohesion: 0.40
 Nodes (4): Answer, Outcome, Q: Implement WiFi password visibility toggle, keep SSID/password above LVGL keyboard, refresh connectivity after WiFi save, suppress auth-screen buzzer, and publish device_status immediately on alarm changes, Source Nodes
 
-### Community 72 - "ui_cfg.c"
-Cohesion: 0.19
-Nodes (22): app_user_role_t, lv_event_t, delete_cb(), flash_error(), save_cb(), selected_role(), app_user_role_t, ui_auth_active() (+14 more)
+### Community 72 - "ui_auth_can"
+Cohesion: 0.18
+Nodes (19): app_user_role_t, lv_event_t, delete_cb(), flash_error(), save_cb(), selected_role(), app_user_role_t, ui_auth_active() (+11 more)
 
-### Community 75 - "esp_app_desc"
+### Community 76 - "ui_auth_user_at"
 Cohesion: 0.40
-Nodes (3): esp_app_desc, mdns, mdns_svc
+Nodes (6): fac_show_err(), fac_try(), app_user_t, ui_auth_factory(), ui_auth_login(), ui_auth_user_at()
 
-### Community 76 - "fac_try"
-Cohesion: 0.50
-Nodes (5): fac_show_err(), fac_try(), app_user_t, ui_auth_factory(), ui_auth_login()
-
-### Community 77 - "save_cb"
-Cohesion: 0.50
-Nodes (4): eth_mgr_is_up(), lv_event_t, save_cb(), set_str()
+### Community 77 - "key_cb"
+Cohesion: 0.67
+Nodes (3): lv_event_t, key_cb(), refresh_value()
 
 ### Community 78 - "Q: Revisa cada cuando el FPM esta enviando los datos a AWS"
 Cohesion: 0.40
@@ -423,21 +416,9 @@ Nodes (4): ui_pinScreen_screen_destroy(), ui_pinScreen_set_config_entry(), fresh
 Cohesion: 0.39
 Nodes (8): ui_userEditScreen_screen_destroy(), ui_userEditScreen_set_index(), add_cb(), lv_event_t, factory_pin_cb(), row_cb(), fresh_useredit(), ui_open_useredit_cb()
 
-### Community 82 - "get_connectivity"
-Cohesion: 0.67
-Nodes (3): ui_connectivityScreen_screen_destroy(), get_connectivity(), ui_open_connectivity_cb()
-
 ### Community 83 - "math"
 Cohesion: 0.28
 Nodes (7): assert, flow_meter_record(), flow_integrator_push(), close_to(), main(), flow_integrator_t, math
-
-### Community 84 - "next"
-Cohesion: 0.29
-Nodes (7): lv_event_t, next(), ui_cfg_apply_timezone(), ui_cfg_set_tz_index(), ui_cfg_tz_count(), ui_cfg_tz_index(), ui_cfg_tz_label()
-
-### Community 85 - "get_users"
-Cohesion: 0.67
-Nodes (3): ui_usersScreen_screen_destroy(), get_users(), ui_open_users_cb()
 
 ### Community 90 - "ota_update.c"
 Cohesion: 0.16
@@ -445,12 +426,12 @@ Nodes (18): dirent, esp_app_desc_t, esp_app_format, esp_ota_ops, esp_partition, 
 
 ### Community 91 - "ui_nav_load"
 Cohesion: 0.18
-Nodes (11): ui_generalSimpleScreen_screen_destroy(), ui_keypadScreen_screen_destroy(), lv_color_t, lv_obj_t, ui_cfg_apply_visual_mode(), visual_color(), fresh_keypad(), get_general_simple() (+3 more)
+Nodes (11): ui_netBleScreen_screen_destroy(), ui_usersScreen_screen_destroy(), lv_color_t, lv_obj_t, ui_cfg_apply_visual_mode(), visual_color(), fresh_net_ble(), get_users() (+3 more)
 
 ## Knowledge Gaps
 - **134 isolated node(s):** `gen_ota_signing_key.sh script`, `graphify`, `Estructura del repositorio (reorganizado 2026-09-15, mirror de MedGuard)`, `graphify`, `1. GATT` (+129 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Work-memory lessons
 
@@ -460,11 +441,11 @@ Nodes (11): ui_generalSimpleScreen_screen_destroy(), ui_keypadScreen_screen_dest
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `appcfg_cache_peek()` connect `appcfg_cache_peek` to `esp_err_to_name`, `ui_card`, `alarm_mgr.c`, `fpm_ble_config.c`, `ui_edit_begin`, `ui_label`, `save_and_refresh`, `storage.c`, `http_api.c`, `eth_mgr.c`, `ui_mainScreen.c`, `screen_init_task`, `ui_statusbar_controller.c`, `gas_label_color`, `ui_connectivityScreen.c`, `transport_mqtt.c`, `ui_cfg_preview_brightness`, `apply_authenticated_cb`, `app_main`, `ui_cfg.c`, `fac_try`, `save_cb`, `next`?**
+- **Why does `appcfg_cache_peek()` connect `appcfg_cache_peek` to `ui_card`, `alarm_mgr.c`, `fpm_ble_config.c`, `ui_edit_begin`, `ui_label`, `save_and_refresh`, `storage.c`, `http_api.c`, `eth_mgr.c`, `ui_mainScreen.c`, `esp_err_to_name`, `ui_statusbar_controller.c`, `gas_label_color`, `rebuild`, `ui_connectivityScreen.c`, `ui_sensorEditScreen.c`, `transport_mqtt.c`, `ui_cfg.c`, `ui_statusbar_request_refresh`, `app_main`, `ui_auth_can`, `ui_auth_user_at`?**
   _High betweenness centrality (0.050) - this node is a cross-community bridge._
-- **Why does `esp_err_to_name()` connect `esp_err_to_name` to `time_mgr.c`, `ms5803.c`, `ads1115.c`, `bmp280_init`, `fpm_ble_config.c`, `storage.c`, `http_api.c`, `sensors_runtime.c`, `bsp_touch_new`, `eth_mgr.c`, `esp_err.h`, `wifi_mgr.c`, `screen_init_task`, `cert_store.c`, `sensors_acq_task`, `main.c`, `fpm_i2c_guard.c`, `vTaskDelay`, `app_main`, `ota_update.c`?**
+- **Why does `esp_err_to_name()` connect `esp_err_to_name` to `wifi_mgr.c`, `time_mgr.c`, `alarm_mgr.c`, `ms5803.c`, `ads1115.c`, `bmp280_init`, `fpm_ble_config.c`, `storage.c`, `http_api.c`, `bsp_touch_new`, `eth_mgr.c`, `sd_monitor_task`, `esp_err.h`, `cert_store.c`, `sensors_acq_task`, `fpm_i2c_guard.c`, `sensor_cfg_persist`, `vTaskDelay`, `ui_statusbar_request_refresh`, `app_main`, `ota_update.c`?**
   _High betweenness centrality (0.034) - this node is a cross-community bridge._
-- **Why does `screen_init_task()` connect `screen_init_task` to `time_mgr.c`, `vTaskDelay`, `main.c`, `appcfg_cache_peek`, `bsp_touch_new`, `ui_wifi_main_icon.c`, `ui_mainScreen.c`?**
+- **Why does `screen_init_task()` connect `alarm_mgr.c` to `time_mgr.c`, `vTaskDelay`, `main.c`, `appcfg_cache_peek`, `bsp_touch_new`, `ui_mainScreen.c`?**
   _High betweenness centrality (0.028) - this node is a cross-community bridge._
 - **Are the 74 inferred relationships involving `appcfg_cache_peek()` (e.g. with `alarm_mgr_press_mute_impl()` and `alarm_mgr_process_impl()`) actually correct?**
   _`appcfg_cache_peek()` has 74 INFERRED edges - model-reasoned connections that need verification._

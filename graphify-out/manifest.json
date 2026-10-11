@@ -610,8 +610,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/ui.c": {
-    "mtime": 1790310287.7960236,
-    "ast_hash": "15a0e9b5c13636adae43297c9669cf48",
+    "mtime": 1791741213.2958894,
+    "ast_hash": "432c81ef2a24054e3932279467675e46",
     "semantic_hash": ""
   },
   "firmware/main/ui/ui.h": {
@@ -720,8 +720,8 @@
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1791738464.7755086,
-    "ast_hash": "1bdd47288fe4bb07c90efbd26ebaae40",
+    "mtime": 1791741236.0015419,
+    "ast_hash": "60c7bce0246782c485c0df4a8fe68b40",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {
