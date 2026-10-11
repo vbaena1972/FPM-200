@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.5.34-dev (2026-10-11), tras probar 1.5.33 en HW: tarjetas (ui_card) y pildoras
+#   NO clickeables por defecto (las informativas reaccionaban al toque); Informacion
+#   con scroll vertical (los botones de restablecer quedaban fuera de los 320 px) y
+#   tarjetas de calibracion/mantenimiento ajustadas al contenido.
 # 1.5.33-dev (2026-10-11), tras probar 1.5.32 en HW: (1) Calentamiento del FS7: el
 #   criterio de 3 s daba por estable una deriva lenta (corte real: 2.41 L/min falsos a
 #   los 16.8 s que sumaron ~1.1 L). Ahora medias de 1 s y termina con flujo ~0 (3 s
@@ -134,7 +138,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.5.33-dev")
+set(PROJECT_VER "1.5.34-dev")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:

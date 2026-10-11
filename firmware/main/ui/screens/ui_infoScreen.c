@@ -169,6 +169,11 @@ void ui_infoScreen_screen_init(void)
     const AppConfig *cfg = appcfg_cache_peek();
     ui_infoScreen = ui_screen_base();
     lv_obj_set_flex_flow(ui_infoScreen, LV_FLEX_FLOW_COLUMN);
+    /* 1.5.33: con sesion de Administrador/Fabricante se agregan los botones de
+     * restablecer y el contenido pasa los 320 px: scroll vertical para llegar. */
+    lv_obj_add_flag(ui_infoScreen, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_scroll_dir(ui_infoScreen, LV_DIR_VER);
+    lv_obj_set_scrollbar_mode(ui_infoScreen, LV_SCROLLBAR_MODE_AUTO);
     lv_obj_set_style_pad_all(ui_infoScreen, 8, 0);
     lv_obj_set_style_pad_row(ui_infoScreen, 8, 0);
 
@@ -250,10 +255,12 @@ void ui_infoScreen_screen_init(void)
     k = kv_card(botg, _t("ÚLTIMA CALIBRACIÓN"),
                 cfg && cfg->sensors.cal.last_cal_date[0] ? cfg->sensors.cal.last_cal_date : "\xE2\x80\x94",
                 UI_C_TEXT);
+    lv_obj_set_height(k, LV_SIZE_CONTENT);   /* antes alto por defecto de lv_obj (muy alta) */
     lv_obj_set_grid_cell(k, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
     k = kv_card(botg, _t("PRÓX. MANTENIM."),
                 cfg && cfg->sensors.cal.next_service_date[0] ? cfg->sensors.cal.next_service_date : "\xE2\x80\x94",
                 UI_C_WARN_SOFT);
+    lv_obj_set_height(k, LV_SIZE_CONTENT);
     lv_obj_set_grid_cell(k, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
     /* espaciador: absorbe el alto sobrante y empuja botón+pie abajo */

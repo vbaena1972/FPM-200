@@ -24,6 +24,18 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
   valor y encender → `Config aplicada desde shadow (get)`. **Verificar que la policy IoT de
   `fpm-0001` permita `$aws/things/fpm-0001/shadow/name/config/*`** (Subscribe/Receive/Publish).
 
+## 2026-10-11 (noche) — 1.5.33 probado; FW 1.5.34-dev (sin compilar)
+
+- 1.5.33: arranques en caliente OK (`FS7 estabilizado tras 8762/3399 ms (flujo cero…)`), acceso de Fabricante
+  OK, RAM interna 80.235 B. Pruebas F bloqueadas: con sesión, Información pasaba de 320 px y no tenía scroll
+  (botones fuera de vista). Ojo: desde el menú ⋮ del dashboard Información se abre SIN sesión (sin botones);
+  con sesión es Configuración → Ajustes generales → Información.
+- **1.5.34:** `ui_card()` y `ui_pill()` ya NO son clickeables por defecto (las informativas reaccionaban al
+  toque; las que son botones ya agregaban `LV_OBJ_FLAG_CLICKABLE`); Información con scroll vertical y tarjetas de
+  calibración/mantenimiento con alto de contenido (antes el alto por defecto de lv_obj). La tecla "ocultar
+  teclado" de la hoja de passphrase cierra la hoja (= cancelar, como en los formularios): se deja así.
+- Pruebas: sección "Ronda corta" de `MedGuard-12IoT/docs/entrega/PRUEBAS_HW_1.7.14_1.5.33.md` (R5–R8, F1–F3).
+
 ## 2026-10-11 — 1.5.32 probado en HW; FW 1.5.33-dev (sin compilar, pendiente de HW)
 
 - **Pruebas de 1.5.32** (log `firmware/logMedFPM_1.5.32_20261011_0713.txt`; detalle en

@@ -98,6 +98,10 @@ lv_obj_t *ui_card(lv_obj_t *parent)
     lv_obj_set_style_pad_all(o, 8, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_scrollbar_mode(o, LV_SCROLLBAR_MODE_OFF);
     lv_obj_clear_flag(o, LV_OBJ_FLAG_SCROLLABLE);
+    /* 1.5.33: NO clickeable por defecto (en LVGL 9 lv_obj_create lo es): las
+       tarjetas informativas reaccionaban al toque con el "push". Las que son
+       botones/tiles agregan LV_OBJ_FLAG_CLICKABLE explicitamente. */
+    lv_obj_clear_flag(o, LV_OBJ_FLAG_CLICKABLE);
     /* Feedback de presion para tarjetas clickeables (tiles de menu/conectividad):
        leve "push" al presionar. Las tarjetas no clickeables no lo disparan. */
     ui_press_push(o, 248);
@@ -124,6 +128,7 @@ lv_obj_t *ui_pill(lv_obj_t *parent, const char *txt, const lv_font_t *font,
 {
     lv_obj_t *p = lv_obj_create(parent);
     ui_kill_scroll(p);
+    lv_obj_clear_flag(p, LV_OBJ_FLAG_CLICKABLE);   /* pildora informativa */
     lv_obj_set_style_bg_color(p, ui_col(bg_hex), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(p, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_radius(p, UI_RADIUS_SM, LV_PART_MAIN | LV_STATE_DEFAULT);
