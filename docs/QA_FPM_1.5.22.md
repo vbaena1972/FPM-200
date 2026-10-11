@@ -152,6 +152,15 @@ de estabilidad K1 cuenta desde el último arranque). No reiniciar hasta capturar
 
 ---
 
+## Soak 2026-10-08/10 — FPM 1.5.31-dev (42 h, ESP-IDF 6.1) — CIERRE de pruebas en HW V1
+
+- **0 reinicios**; RAM interna plana 80.295 B; una sola sesión AWS en 42 h; 5.045 telemetrías (1/30 s).
+  1 pausa de adquisición de 787 ms al arrancar; 1.783 glitches de flujo descartados; 12 lecturas
+  aisladas de flujo (≤ 4,56 L/min, 1 s) pasaron el filtro (aceptado).
+- **DEC-026 (2026-10-10):** campaña de estabilidad en HW V1 cerrada; versión de referencia **1.5.31-dev**.
+  Los casos PEND de este documento NO se ejecutan en V1: los de sensores/HMI pasan a V3; los de
+  nube/app (G5–G7, F5, H1–H3) se cubren durante el trabajo de app/portal.
+
 ## Soak 2026-10-02/05 — FPM 1.5.30-dev (~80 h) → 1.5.31-dev
 
 - **0 reinicios** en ~80 h; sin fugas; sin LOW STACK. Caso **G-x Cambio de router en caliente: PASS**
@@ -211,5 +220,5 @@ de estabilidad K1 cuenta desde el último arranque). No reiniciar hasta capturar
 - **Aceptados:** —
 - **Abiertos:** —
 - **Parte 0 (2026-09-25):** P1, P3, P5, P6 PASS; P2 modelo PASS (falta verificar en HW con 1.5.23); P4 captura PASS (falta leer el volcado); P7 parcial.
-- **Estado:** EN CURSO. Al cerrar con todos los casos PASS/ACEPT, promover como baseline la versión que se valide (hoy **FPM 1.5.28-dev** tras su soak; el documento empezó sobre 1.5.22)
+- **Estado (2026-10-10):** CERRADO para HW V1 por DEC-026 (referencia 1.5.31-dev; PEND trasladados a V3/app). Texto anterior: EN CURSO. Al cerrar con todos los casos PASS/ACEPT, promover como baseline la versión que se valide (hoy **FPM 1.5.28-dev** tras su soak; el documento empezó sobre 1.5.22)
   validado en `MedGuard-12IoT/docs/entrega/ESTADO_ACTUAL.md` y en `CLAUDE.md`.

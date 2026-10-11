@@ -24,6 +24,23 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
   valor y encender → `Config aplicada desde shadow (get)`. **Verificar que la policy IoT de
   `fpm-0001` permita `$aws/things/fpm-0001/shadow/name/config/*`** (Subscribe/Receive/Publish).
 
+## Cierre 2026-10-10 — 1.5.31 VALIDADO; FIN de las pruebas en Hardware V1 (DEC-026)
+
+- **Soak 1.5.31-dev (ESP-IDF 6.1), 42 h** (8-oct 20:17 → 10-oct ~14:20), log
+  `firmware/logMedFPM_1.5.31_20261008_2017.txt`: **0 reinicios**; RAM interna **plana 80.295 B** (h6→h42,
+  min_ever 46.968); PSRAM ~1,93 MB estable; **una sola sesión AWS sin cortes** en 42 h; 5.045 telemetrías
+  (1/30 s); `MQTT ya estaba inicializado` cada hora = resincronización del RTC (inofensivo).
+- 1 pausa de adquisición de 787 ms solo al arrancar (MS5803 724 ms + timeout del mutex de pantalla); el
+  filtro descartó 1.783 glitches de flujo (~40/h, igual que soaks previos); 6 `SALTO ADC`.
+- Observación aceptada: 12 lecturas aisladas de flujo (0,02–4,56 L/min, 1 s, sin cambio de presión)
+  pasaron el filtro en 42 h (≤ 0,02 L c/u al totalizador). El arreglo del totalizador al arrancar (1.5.31)
+  no se ve en este log (no hay línea que lo muestre).
+- **Decisión del usuario (DEC-026 en `MedGuard-12IoT/docs/entrega/REGISTRO_DECISIONES.md`):** se cierra la
+  campaña de estabilidad en HW V1; **versión de referencia de V1 = 1.5.31-dev**. Siguiente fase: V3 (doble
+  MCU), financiero y app/portal AWS por empresas. Los casos PEND del QA formal que dependen de sensores/HW
+  V1 (presión F1–F3, fuga, consumo E3–E5, C4/C5, D3/D4, HMI I1–I5, J3) se trasladan a V3; los de nube/app
+  (G5–G7 shadow `config` + policy IoT, F5 push, H1–H3 LAN/BLE) se cubren durante el trabajo de app/portal.
+
 ## Cierre 2026-10-08 — 1.5.30 VALIDADO; FW 1.5.31-dev en `main`
 
 - **Migración a ESP-IDF 6.1** (decisión del usuario, igual que MedGuard): 1.5.31-dev se compiló y
