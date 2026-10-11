@@ -7,6 +7,7 @@
 #include "eth_mgr.h"
 #include "transport_ble.h"
 #include "ui_wifi_main_icon.h"
+#include "storage.h"          /* appcfg_cache_peek: interfaces habilitadas */
 #include "esp_log.h"
 #include <stdbool.h>
 #include <stdatomic.h>
@@ -93,9 +94,30 @@ static void activity_timer_cb(lv_timer_t *t)
         apply_cloud_visual(s_prev_cloud_conn);
 }
 
+/* 1.5.34: la visibilidad venia SOLO de ui_init (config al arrancar). Tras un
+ * restablecer de fabrica (Wi-Fi/nube deshabilitadas al arrancar) y habilitarlas
+ * sin reiniciar, el dashboard no mostraba los iconos aunque AWS estuviera
+ * conectado (HW 2026-10-11). Ahora se relee la config en cada vuelta. */
+static void sync_visibility_from_config(void)
+{
+    const AppConfig *cfg = appcfg_cache_peek();
+    if (!cfg) return;
+    if (cfg->wifi.enabled != s_vis_wifi || cfg->eth.enabled != s_vis_eth ||
+        cfg->bt.enabled != s_vis_bt || cfg->cloud.enabled != s_vis_cloud)
+    {
+        s_vis_wifi = cfg->wifi.enabled;
+        s_vis_eth = cfg->eth.enabled;
+        s_vis_bt = cfg->bt.enabled;
+        s_vis_cloud = cfg->cloud.enabled;
+        s_force_repaint = true;
+    }
+}
+
 static void statusbar_timer_cb(lv_timer_t *t)
 {
     (void)t;
+
+    sync_visibility_from_config();
 
     wifi_netinfo_t wi = {0};
     (void)wifi_mgr_get_netinfo(&wi);

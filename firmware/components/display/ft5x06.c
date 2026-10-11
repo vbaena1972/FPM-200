@@ -26,6 +26,28 @@ static SemaphoreHandle_t refresh_finish __attribute__((unused)) = NULL;
 // esp_lvgl_port (lvgl_port_touchpad_read), que hacia ESP_ERROR_CHECK sobre
 // esp_lcd_touch_read_data: un solo glitch del bus 1 compartido -> abort() y
 // REBOOT del equipo. Aqui un error I2C se trata como "sin toque".
+// 1.5.34: pero con el dedo apoyado un glitch aislado devolvia RELEASED, LVGL
+// veia soltar/apoyar y generaba DOS clics (el PIN "1" salia "11", HW
+// 2026-10-11). Ahora un glitch repite el ultimo estado; si dura mas de
+// TOUCH_GLITCH_HOLD lecturas seguidas (~90 ms) se declara soltado.
+#define TOUCH_GLITCH_HOLD 3
+static lv_indev_state_t s_last_state = LV_INDEV_STATE_RELEASED;
+static lv_point_t s_last_point;
+static uint8_t s_glitch_count;
+
+static void touch_glitch(lv_indev_data_t *data)
+{
+    if (s_last_state == LV_INDEV_STATE_PRESSED && s_glitch_count < TOUCH_GLITCH_HOLD)
+    {
+        s_glitch_count++;
+        data->point = s_last_point;
+        data->state = LV_INDEV_STATE_PRESSED;
+        return;
+    }
+    s_last_state = LV_INDEV_STATE_RELEASED;
+    data->state = LV_INDEV_STATE_RELEASED;
+}
+
 static void ft5x06_lvgl_read_cb(lv_indev_t *indev, lv_indev_data_t *data)
 {
     (void)indev;
@@ -39,6 +61,9 @@ static void ft5x06_lvgl_read_cb(lv_indev_t *indev, lv_indev_data_t *data)
     // cuelgue) y garantizamos que en reposo nunca bloqueamos el mutex de display.
     if (gpio_get_level(BSP_LCD_TP_INT) != 0)
     {
+        // INT en alto = sin dedo (soltado real).
+        s_last_state = LV_INDEV_STATE_RELEASED;
+        s_glitch_count = 0;
         data->state = LV_INDEV_STATE_RELEASED;
         return;
     }
@@ -47,29 +72,32 @@ static void ft5x06_lvgl_read_cb(lv_indev_t *indev, lv_indev_data_t *data)
     // also have finite deadlines: a fault after this check cannot hang LVGL.
     if (sensors_runtime_bus1_hung())
     {
-        data->state = LV_INDEV_STATE_RELEASED;
+        touch_glitch(data);
         return;
     }
 
     if (esp_lcd_touch_read_data(tp) != ESP_OK)
     {
-        // Glitch I2C: mantenemos el ultimo estado como "soltado" y seguimos.
-        data->state = LV_INDEV_STATE_RELEASED;
+        // Glitch I2C con el INT asertado: no inventar un "soltado".
+        touch_glitch(data);
         return;
     }
 
     // esp_lcd_touch_get_data: replacement for the deprecated get_coordinates
     // (same coordinate processing; returns ESP_OK with cnt=0 when not touched).
+    s_glitch_count = 0;
     if (esp_lcd_touch_get_data(tp, &pt, &cnt, 1) == ESP_OK && cnt > 0)
     {
         data->point.x = pt.x;
         data->point.y = pt.y;
         data->state = LV_INDEV_STATE_PRESSED;
+        s_last_point = data->point;
     }
     else
     {
         data->state = LV_INDEV_STATE_RELEASED;
     }
+    s_last_state = data->state;
 }
 
 lv_indev_t *bsp_display_indev_init(lv_display_t *disp, i2c_master_bus_handle_t bus_handle)

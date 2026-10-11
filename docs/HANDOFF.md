@@ -24,6 +24,18 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
   valor y encender → `Config aplicada desde shadow (get)`. **Verificar que la policy IoT de
   `fpm-0001` permita `$aws/things/fpm-0001/shadow/name/config/*`** (Subscribe/Receive/Publish).
 
+## 2026-10-11 (cierre) — 1.5.34 probado; FW 1.5.35-dev (sin compilar)
+
+- 1.5.34 OK en HW: tarjetas no clicables, Información con scroll, restablecer en dos niveles + reimportación de
+  certificados (log `logMedFPM_1.5.34_20261011_1147.txt`).
+- **1.5.35:** (1) `ui_statusbar_controller.c` relee `wifi/eth/bt/cloud.enabled` de la config en cada vuelta (antes
+  solo en `ui_init`: tras un restablecer + habilitar Wi-Fi/nube no aparecían los íconos). (2) `ft5x06.c`: un glitch
+  de I2C con el INT asertado repite el último estado hasta 3 lecturas (antes devolvía "soltado" → doble clic, "1"
+  salía "11"); el pad de PIN además ignora la misma tecla en < 120 ms. (3) Login: sin usuario elegido no se acepta
+  el PIN ni cuenta intento; ojo mostrar/ocultar en el PIN y en la passphrase de Fabricante. (4) "Reiniciar equipo"
+  con alto de contenido.
+- Pruebas: "Ronda mínima" (M4–M9) de `MedGuard-12IoT/docs/entrega/PRUEBAS_HW_1.7.14_1.5.33.md`.
+
 ## 2026-10-11 (noche) — 1.5.33 probado; FW 1.5.34-dev (sin compilar)
 
 - 1.5.33: arranques en caliente OK (`FS7 estabilizado tras 8762/3399 ms (flujo cero…)`), acceso de Fabricante

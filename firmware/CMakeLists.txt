@@ -1,5 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.5.35-dev (2026-10-11), tras probar 1.5.34 en HW: (1) iconos de Wi-Fi/Ethernet/
+#   BT/nube del dashboard siguen la config en vivo (solo se leian al arrancar: tras
+#   un restablecer + habilitar Wi-Fi/nube no aparecian). (2) Touch: un glitch I2C
+#   con el dedo apoyado ya no se reporta como "soltado" (doble clic: "1" -> "11");
+#   el pad de PIN ademas ignora la misma tecla repetida en < 120 ms. (3) Login: sin
+#   usuario elegido no se acepta el PIN ni cuenta como intento; ojo mostrar/ocultar
+#   en el PIN y en la passphrase de Fabricante. (4) Boton "Reiniciar equipo" con
+#   alto de contenido.
 # 1.5.34-dev (2026-10-11), tras probar 1.5.33 en HW: tarjetas (ui_card) y pildoras
 #   NO clickeables por defecto (las informativas reaccionaban al toque); Informacion
 #   con scroll vertical (los botones de restablecer quedaban fuera de los 320 px) y
@@ -138,7 +146,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.5.34-dev")
+set(PROJECT_VER "1.5.35-dev")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:

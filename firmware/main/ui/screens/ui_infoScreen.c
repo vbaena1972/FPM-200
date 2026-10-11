@@ -271,6 +271,9 @@ void ui_infoScreen_screen_init(void)
     /* botón de REINICIO del equipo (doble toque para confirmar) */
     lv_obj_t *rb = ui_card(ui_infoScreen);
     lv_obj_set_width(rb, LV_PCT(100));
+    /* 1.5.34: alto de contenido; con el scroll de esta pantalla el alto por
+     * defecto de lv_obj lo dejaba enorme. */
+    lv_obj_set_height(rb, LV_SIZE_CONTENT);
     lv_obj_set_style_radius(rb, 10, 0);
     lv_obj_set_style_pad_ver(rb, 11, 0);
     lv_obj_set_flex_flow(rb, LV_FLEX_FLOW_ROW);
