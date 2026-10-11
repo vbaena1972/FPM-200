@@ -1,7 +1,7 @@
 # Graph Report - FPM-200  (2026-10-10)
 
 ## Corpus Check
-- 186 files · ~421,220 words
+- 186 files · ~421,334 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 10 file(s) not represented in the graph (top: (none) 5, .projbuild 1, .lock 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `bc08baa7`
+- Built from commit: `45e74183`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -425,16 +425,16 @@ Nodes (7): ends_with_ci(), erase_stale_tail(), notify(), ota_update_find_file(),
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `appcfg_cache_peek()` connect `appcfg_cache_peek` to `transport_ble.c`, `ui_netEthScreen.c`, `test_alarm.c`, `fpm_ble_config.c`, `ui_edit_begin`, `ui_label`, `ui_sensorEditScreen.c`, `storage.c`, `http_api.c`, `sensors_runtime.c`, `save_cb`, `screen_init_task`, `ui_cfg.c`, `Hecho en la sesión 2026-07-22`, `ui_connectivityScreen.c`, `transport_mqtt.c`, `ui_cfg_flow_unit`, `ui_auth_can`, `save_and_refresh`, `ui_cfg_apply_visual_mode`?**
-  _High betweenness centrality (0.063) - this node is a cross-community bridge._
+  _High betweenness centrality (0.062) - this node is a cross-community bridge._
 - **Are the 73 inferred relationships involving `appcfg_cache_peek()` (e.g. with `alarm_mgr_press_mute_impl()` and `alarm_mgr_process_impl()`) actually correct?**
   _`appcfg_cache_peek()` has 73 INFERRED edges - model-reasoned connections that need verification._
 - **Should `string` be split into smaller, more focused modules?**
   _Cohesion score 0.11594202898550725 - nodes in this community are weakly interconnected._
-- **Why does `screen_init_task()` connect `screen_init_task` to `ui_statusbar_controller.c`, `esp_err_to_name`, `sensors_acq_task`, `main.c`, `appcfg_cache_peek`, `ui_wifi_main_icon_init`, `ui_label`, `fpm_i2c_guard`, `ft5x06.c`?**
+- **Why does `esp_err_to_name()` connect `esp_err_to_name` to `wifi_mgr.c`, `transport_ble.c`, `ms5803.c`, `ads1115.c`, `FreeRTOS.h`, `fpm_ble_config.c`, `storage.c`, `http_api.c`, `sensors_runtime.c`, `eth_mgr.c`, `esp_log.h`, `screen_init_task`, `sensors_acq_task`, `fpm_i2c_guard.c`, `cert_store.c`, `fpm_i2c_guard`, `ft5x06.c`, `sd_monitor_task`, `ui_infoScreen.c`, `wifi_event_handler`, `flow_meter.c`, `ota_update.c`?**
   _High betweenness centrality (0.037) - this node is a cross-community bridge._
 - **Are the 49 inferred relationships involving `ui_label()` (e.g. with `3. Arquitectura de la nueva HMI (`main/ui/`)` and `ui_bleAppScreen_screen_init()`) actually correct?**
   _`ui_label()` has 49 INFERRED edges - model-reasoned connections that need verification._
 - **Should `wifi_mgr.c` be split into smaller, more focused modules?**
   _Cohesion score 0.14666666666666667 - nodes in this community are weakly interconnected._
-- **Why does `esp_err_to_name()` connect `esp_err_to_name` to `wifi_mgr.c`, `transport_ble.c`, `ms5803.c`, `ads1115.c`, `FreeRTOS.h`, `fpm_ble_config.c`, `storage.c`, `http_api.c`, `sensors_runtime.c`, `eth_mgr.c`, `esp_log.h`, `screen_init_task`, `sensors_acq_task`, `fpm_i2c_guard.c`, `cert_store.c`, `fpm_i2c_guard`, `ft5x06.c`, `sd_monitor_task`, `ui_infoScreen.c`, `wifi_event_handler`, `flow_meter.c`, `ota_update.c`?**
-  _High betweenness centrality (0.037) - this node is a cross-community bridge._
+- **Why does `screen_init_task()` connect `screen_init_task` to `ui_statusbar_controller.c`, `esp_err_to_name`, `sensors_acq_task`, `main.c`, `appcfg_cache_peek`, `ui_wifi_main_icon_init`, `ui_label`, `fpm_i2c_guard`, `ft5x06.c`?**
+  _High betweenness centrality (0.036) - this node is a cross-community bridge._

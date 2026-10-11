@@ -10345,7 +10345,7 @@
       "node_kind": "heading",
       "norm_label": "8. sesion 2026-09-16 \u2014 fixes de campo (#1 buzzer/i2c, #2 wifi) \u2014 commit `a353c41`",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L552"
+      "source_location": "L558"
     },
     {
       "id": "firmware_components_diag_include_mem_diag",
@@ -10491,7 +10491,7 @@
       "node_kind": "heading",
       "norm_label": "3. contrato ble fpm \u2194 app sensvax (commit `711b463`) \u2014 a validar en hw",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L446"
+      "source_location": "L452"
     },
     {
       "id": "firmware_main_ui_screens_ui_sensordiagscreen_c_lv_event_t",
@@ -11859,7 +11859,7 @@
       "node_kind": "heading",
       "norm_label": "2. \ud83d\udd34 bug abierto #1 (bloqueante): watchdog en `tasklvgl` \u2014 fix a validar",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L415"
+      "source_location": "L421"
     },
     {
       "id": "docs_handoff_6_pendiente_despu\u00e9s_de_estabilizar_2_y_validar_3",
@@ -11871,7 +11871,7 @@
       "node_kind": "heading",
       "norm_label": "6. pendiente (despues de estabilizar \u00a72 y validar \u00a73)",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L510"
+      "source_location": "L516"
     },
     {
       "id": "docs_handoff_7_gotchas_que_no_re_descubrir",
@@ -11883,7 +11883,7 @@
       "node_kind": "heading",
       "norm_label": "7. gotchas que no re-descubrir",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L540"
+      "source_location": "L546"
     },
     {
       "id": "firmware_components_network_core_mdns_svc",
@@ -12127,7 +12127,7 @@
       "node_kind": "heading",
       "norm_label": "0. contexto",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L391"
+      "source_location": "L397"
     },
     {
       "id": "docs_handoff_1_estado_leer_antes_de_nada",
@@ -12139,7 +12139,7 @@
       "node_kind": "heading",
       "norm_label": "1. \u26a0\ufe0f estado \u2014 leer antes de nada",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L401"
+      "source_location": "L407"
     },
     {
       "id": "docs_handoff_2026_09_29_cont_fw_1_5_29_dev_config_remota_por_shadow_nombrado_config",
@@ -12163,7 +12163,7 @@
       "node_kind": "heading",
       "norm_label": "4. como compilar / gotchas de build",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L479"
+      "source_location": "L485"
     },
     {
       "id": "docs_handoff_actualizaci\u00f3n_2026_08_09_estabilizaci\u00f3n_en_hw_app",
@@ -12175,7 +12175,7 @@
       "node_kind": "heading",
       "norm_label": "actualizacion 2026-08-09 (estabilizacion en hw + app)",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L375"
+      "source_location": "L381"
     },
     {
       "id": "docs_handoff_actualizaci\u00f3n_2026_08_18_sensores_reales_se_elimina_la_simulaci\u00f3n",
@@ -12187,7 +12187,7 @@
       "node_kind": "heading",
       "norm_label": "actualizacion 2026-08-18 (sensores reales \u2014 se elimina la simulacion)",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L353"
+      "source_location": "L359"
     },
     {
       "id": "docs_handoff_actualizaci\u00f3n_2026_08_21_eeprom_persiste_recalibraci\u00f3n_fs7_estable",
@@ -12199,7 +12199,7 @@
       "node_kind": "heading",
       "norm_label": "actualizacion 2026-08-21 \u2014 eeprom persiste + recalibracion fs7 estable",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L248"
+      "source_location": "L254"
     },
     {
       "id": "docs_handoff_actualizaci\u00f3n_2026_09_24_eeprom_consumo_cero_de_presi\u00f3n_fw_1_5_5_1_5_22_dev",
@@ -12211,7 +12211,7 @@
       "node_kind": "heading",
       "norm_label": "actualizacion 2026-09-24 \u2014 eeprom, consumo, cero de presion (fw 1.5.5 \u2192 1.5.22-dev)",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L151"
+      "source_location": "L157"
     },
     {
       "id": "docs_handoff_actualizaci\u00f3n_2026_09_25_soak_18_8_h_calibraci\u00f3n_fs7_fw_1_5_23_dev",
@@ -12223,7 +12223,7 @@
       "node_kind": "heading",
       "norm_label": "actualizacion 2026-09-25 \u2014 soak 18.8 h + calibracion fs7 (fw 1.5.23-dev)",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L137"
+      "source_location": "L143"
     },
     {
       "id": "docs_handoff_cierre_2026_09_25_fw_1_5_24_dev_flasheado_qa_formal_en_curso",
@@ -12235,7 +12235,7 @@
       "node_kind": "heading",
       "norm_label": "cierre 2026-09-25 \u2014 fw 1.5.24-dev flasheado, qa formal en curso",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L123"
+      "source_location": "L129"
     },
     {
       "id": "docs_handoff_cierre_2026_09_29_fw_1_5_28_dev_en_main_auditor\u00eda_y_paridad_con_medguard",
@@ -12247,7 +12247,7 @@
       "node_kind": "heading",
       "norm_label": "cierre 2026-09-29 \u2014 fw 1.5.28-dev en `main` (auditoria y paridad con medguard)",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L102"
+      "source_location": "L108"
     },
     {
       "id": "docs_handoff_cierre_2026_10_01_fw_1_5_30_dev_en_main_validado_2026_10_08",
@@ -12259,7 +12259,7 @@
       "node_kind": "heading",
       "norm_label": "cierre 2026-10-01 \u2014 fw 1.5.30-dev en `main` (validado 2026-10-08)",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L87"
+      "source_location": "L93"
     },
     {
       "id": "docs_handoff_cierre_2026_10_08_1_5_30_validado_fw_1_5_31_dev_en_main",
@@ -12271,7 +12271,7 @@
       "node_kind": "heading",
       "norm_label": "cierre 2026-10-08 \u2014 1.5.30 validado; fw 1.5.31-dev en `main`",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L64"
+      "source_location": "L70"
     },
     {
       "id": "docs_handoff_cierre_2026_10_10_1_5_31_validado_fin_de_las_pruebas_en_hardware_v1_dec_026",
@@ -12283,7 +12283,7 @@
       "node_kind": "heading",
       "norm_label": "cierre 2026-10-10 \u2014 1.5.31 validado; fin de las pruebas en hardware v1 (dec-026)",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L47"
+      "source_location": "L53"
     },
     {
       "id": "docs_handoff_cierre_sesion_2026_09_16_tarde",
@@ -12295,7 +12295,7 @@
       "node_kind": "heading",
       "norm_label": "cierre sesion 2026-09-16 (tarde)",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L601"
+      "source_location": "L607"
     },
     {
       "id": "docs_handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
@@ -12319,7 +12319,7 @@
       "node_kind": "heading",
       "norm_label": "sesion 2026-09-16 (#3) \u2014 codex/claude",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L586"
+      "source_location": "L592"
     },
     {
       "id": "docs_handoff_sesion_2026_09_16_tarde_ui_memoria_notificaciones",
@@ -12331,7 +12331,7 @@
       "node_kind": "heading",
       "norm_label": "sesion 2026-09-16 (tarde) \u2014 ui/memoria/notificaciones",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L593"
+      "source_location": "L599"
     },
     {
       "id": "docs_seguridad_produccion",
@@ -12571,7 +12571,7 @@
       "node_kind": "heading",
       "norm_label": "5. lo demas que ya se hizo (commiteado en `66014fa`, sin validar 100% en hw)",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L496"
+      "source_location": "L502"
     },
     {
       "id": "docs_sesion_hmi_9_estado_de_pendientes_actualizado_2026_07_31",
@@ -13668,7 +13668,7 @@
       "node_kind": "heading",
       "norm_label": "actualizacion 2026-08-18 (tarde) \u2014 sfm leyendo, robustez i2c, calibracion fs7 \u00b7 **v1.4.0**",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L295"
+      "source_location": "L301"
     },
     {
       "id": "docs_handoff_actualizaci\u00f3n_2026_08_20_bmp280_ref_atmosf\u00e9rica_cero_fs7_debug_en_dashboard",
@@ -13680,7 +13680,7 @@
       "node_kind": "heading",
       "norm_label": "actualizacion 2026-08-20 \u2014 bmp280 (ref. atmosferica), cero fs7, debug en dashboard",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L265"
+      "source_location": "L271"
     },
     {
       "id": "alarm_state_change_cb_t",
@@ -14395,7 +14395,7 @@
       "node_kind": "heading",
       "norm_label": "actualizacion 2026-09-21 \u2014 microsd, aws por sd, bt-off y splash (fw 1.5.4-dev)",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L218"
+      "source_location": "L224"
     },
     {
       "id": "tools_gen_ota_signing_key_ps1_tools_gen_ota_signing_key",
@@ -44247,7 +44247,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L102",
+      "source_location": "L108",
       "weight": 1.0
     },
     {
@@ -44258,7 +44258,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L123",
+      "source_location": "L129",
       "weight": 1.0
     },
     {
@@ -44269,7 +44269,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L137",
+      "source_location": "L143",
       "weight": 1.0
     },
     {
@@ -44280,7 +44280,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L151",
+      "source_location": "L157",
       "weight": 1.0
     },
     {
@@ -44291,7 +44291,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L218",
+      "source_location": "L224",
       "weight": 1.0
     },
     {
@@ -44302,18 +44302,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L248",
-      "weight": 1.0
-    },
-    {
-      "source": "docs_handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
-      "target": "docs_handoff_actualizaci\u00f3n_2026_08_20_bmp280_ref_atmosf\u00e9rica_cero_fs7_debug_en_dashboard",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/HANDOFF.md",
-      "source_location": "L265",
+      "source_location": "L254",
       "weight": 1.0
     },
     {
@@ -44329,13 +44318,24 @@
     },
     {
       "source": "docs_handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
+      "target": "docs_handoff_actualizaci\u00f3n_2026_08_20_bmp280_ref_atmosf\u00e9rica_cero_fs7_debug_en_dashboard",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/HANDOFF.md",
+      "source_location": "L271",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
       "target": "docs_handoff_actualizaci\u00f3n_2026_08_18_tarde_sfm_leyendo_robustez_i2c_calibraci\u00f3n_fs7_v1_4_0",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L295",
+      "source_location": "L301",
       "weight": 1.0
     },
     {
@@ -44346,7 +44346,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L353",
+      "source_location": "L359",
       "weight": 1.0
     },
     {
@@ -44357,7 +44357,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L375",
+      "source_location": "L381",
       "weight": 1.0
     },
     {
@@ -44368,7 +44368,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L391",
+      "source_location": "L397",
       "weight": 1.0
     },
     {
@@ -44379,7 +44379,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L401",
+      "source_location": "L407",
       "weight": 1.0
     },
     {
@@ -44390,7 +44390,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L415",
+      "source_location": "L421",
       "weight": 1.0
     },
     {
@@ -44401,18 +44401,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L446",
-      "weight": 1.0
-    },
-    {
-      "source": "docs_handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
-      "target": "docs_handoff_cierre_2026_10_10_1_5_31_validado_fin_de_las_pruebas_en_hardware_v1_dec_026",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/HANDOFF.md",
-      "source_location": "L47",
+      "source_location": "L452",
       "weight": 1.0
     },
     {
@@ -44423,7 +44412,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L479",
+      "source_location": "L485",
       "weight": 1.0
     },
     {
@@ -44434,7 +44423,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L496",
+      "source_location": "L502",
       "weight": 1.0
     },
     {
@@ -44445,7 +44434,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L510",
+      "source_location": "L516",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
+      "target": "docs_handoff_cierre_2026_10_10_1_5_31_validado_fin_de_las_pruebas_en_hardware_v1_dec_026",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/HANDOFF.md",
+      "source_location": "L53",
       "weight": 1.0
     },
     {
@@ -44456,7 +44456,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L540",
+      "source_location": "L546",
       "weight": 1.0
     },
     {
@@ -44467,7 +44467,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L552",
+      "source_location": "L558",
       "weight": 1.0
     },
     {
@@ -44478,7 +44478,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L586",
+      "source_location": "L592",
       "weight": 1.0
     },
     {
@@ -44489,7 +44489,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L593",
+      "source_location": "L599",
       "weight": 1.0
     },
     {
@@ -44500,7 +44500,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L601",
+      "source_location": "L607",
       "weight": 1.0
     },
     {
@@ -44511,18 +44511,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L64",
-      "weight": 1.0
-    },
-    {
-      "source": "docs_handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
-      "target": "docs_handoff_cierre_2026_10_01_fw_1_5_30_dev_en_main_validado_2026_10_08",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "docs/HANDOFF.md",
-      "source_location": "L87",
+      "source_location": "L70",
       "weight": 1.0
     },
     {
@@ -44534,6 +44523,17 @@
       "confidence_score": 1.0,
       "source_file": "docs/HANDOFF.md",
       "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "docs_handoff_handoff_claudehmi_fw_fpm_200_arranque_de_sesi\u00f3n_2026_08_01",
+      "target": "docs_handoff_cierre_2026_10_01_fw_1_5_30_dev_en_main_validado_2026_10_08",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/HANDOFF.md",
+      "source_location": "L93",
       "weight": 1.0
     },
     {
@@ -67301,7 +67301,7 @@
       "confidence_score": 0.95,
       "context": "appcfg_cache_reload()",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L529",
+      "source_location": "L535",
       "weight": 1.0
     },
     {
@@ -67325,7 +67325,7 @@
       "confidence_score": 0.95,
       "context": "appcfg_load",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L426",
+      "source_location": "L432",
       "weight": 1.0
     },
     {
@@ -67349,7 +67349,7 @@
       "confidence_score": 0.95,
       "context": "appcfg_load()",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L544",
+      "source_location": "L550",
       "weight": 1.0
     },
     {
@@ -67385,7 +67385,7 @@
       "confidence_score": 0.95,
       "context": "appcfg_save",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L543",
+      "source_location": "L549",
       "weight": 1.0
     },
     {
@@ -67457,7 +67457,7 @@
       "confidence_score": 0.95,
       "context": "bleapp_off_cb",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L238",
+      "source_location": "L244",
       "weight": 1.0
     },
     {
@@ -67541,7 +67541,7 @@
       "confidence_score": 0.95,
       "context": "cert_store_import_from_sd",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L231",
+      "source_location": "L237",
       "weight": 1.0
     },
     {
@@ -67589,7 +67589,7 @@
       "confidence_score": 0.95,
       "context": "chr_access",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L462",
+      "source_location": "L468",
       "weight": 1.0
     },
     {
@@ -67625,7 +67625,7 @@
       "confidence_score": 0.95,
       "context": "config_mode_exit()",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L467",
+      "source_location": "L473",
       "weight": 1.0
     },
     {
@@ -67685,7 +67685,7 @@
       "confidence_score": 0.95,
       "context": "fpm_ble_config_apply_json",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L456",
+      "source_location": "L462",
       "weight": 1.0
     },
     {
@@ -67697,7 +67697,7 @@
       "confidence_score": 0.95,
       "context": "fpm_ble_config_apply_json",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L532",
+      "source_location": "L538",
       "weight": 1.0
     },
     {
@@ -67709,7 +67709,7 @@
       "confidence_score": 0.95,
       "context": "fpm_ble_config_apply_json",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L365",
+      "source_location": "L371",
       "weight": 1.0
     },
     {
@@ -67733,7 +67733,7 @@
       "confidence_score": 0.95,
       "context": "fpm_ble_info_json",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L456",
+      "source_location": "L462",
       "weight": 1.0
     },
     {
@@ -67757,7 +67757,7 @@
       "confidence_score": 0.95,
       "context": "fpm_ble_user_op_json",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L457",
+      "source_location": "L463",
       "weight": 1.0
     },
     {
@@ -67817,7 +67817,7 @@
       "confidence_score": 0.95,
       "context": "pressure_to_disp",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L279",
+      "source_location": "L285",
       "weight": 1.0
     },
     {
@@ -67829,7 +67829,7 @@
       "confidence_score": 0.95,
       "context": "sd_monitor_task",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L220",
+      "source_location": "L226",
       "weight": 1.0
     },
     {
@@ -67853,7 +67853,7 @@
       "confidence_score": 0.95,
       "context": "sensor_cfg_set_defaults()",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L325",
+      "source_location": "L331",
       "weight": 1.0
     },
     {
@@ -67865,7 +67865,7 @@
       "confidence_score": 0.95,
       "context": "sensor_cfg_set_defaults()",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L268",
+      "source_location": "L274",
       "weight": 1.0
     },
     {
@@ -67877,7 +67877,7 @@
       "confidence_score": 0.95,
       "context": "sensor_flow_from_voltage",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L331",
+      "source_location": "L337",
       "weight": 1.0
     },
     {
@@ -67889,7 +67889,7 @@
       "confidence_score": 0.95,
       "context": "sensors_acq_task",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L313",
+      "source_location": "L319",
       "weight": 1.0
     },
     {
@@ -67901,7 +67901,7 @@
       "confidence_score": 0.95,
       "context": "sensors_acq_task",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L273",
+      "source_location": "L279",
       "weight": 1.0
     },
     {
@@ -67913,7 +67913,7 @@
       "confidence_score": 0.95,
       "context": "sensors_runtime_bus1_hung()",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L562",
+      "source_location": "L568",
       "weight": 1.0
     },
     {
@@ -67925,7 +67925,7 @@
       "confidence_score": 0.95,
       "context": "sensors_runtime_set_bus()",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L321",
+      "source_location": "L327",
       "weight": 1.0
     },
     {
@@ -67937,7 +67937,7 @@
       "confidence_score": 0.95,
       "context": "sensors_runtime_tare_flow()",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L330",
+      "source_location": "L336",
       "weight": 1.0
     },
     {
@@ -67949,7 +67949,7 @@
       "confidence_score": 0.95,
       "context": "sensors_runtime_tare_pressure()",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L365",
+      "source_location": "L371",
       "weight": 1.0
     },
     {
@@ -67961,7 +67961,7 @@
       "confidence_score": 0.95,
       "context": "sfm3300_start_measurement()",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L311",
+      "source_location": "L317",
       "weight": 1.0
     },
     {
@@ -68057,7 +68057,7 @@
       "confidence_score": 0.95,
       "context": "transport_mqtt_stop",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L503",
+      "source_location": "L509",
       "weight": 1.0
     },
     {
@@ -68237,7 +68237,7 @@
       "confidence_score": 0.95,
       "context": "ui_main_update",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L442",
+      "source_location": "L448",
       "weight": 1.0
     },
     {
@@ -68321,7 +68321,7 @@
       "confidence_score": 0.95,
       "context": "ui_nav_swap",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L502",
+      "source_location": "L508",
       "weight": 1.0
     },
     {
@@ -68345,7 +68345,7 @@
       "confidence_score": 0.95,
       "context": "ui_notice",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L500",
+      "source_location": "L506",
       "weight": 1.0
     },
     {
@@ -68417,7 +68417,7 @@
       "confidence_score": 0.95,
       "context": "ui_sd_error",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L222",
+      "source_location": "L228",
       "weight": 1.0
     },
     {
@@ -68429,7 +68429,7 @@
       "confidence_score": 0.95,
       "context": "wifi_mgr_apply_from_cache",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L569",
+      "source_location": "L575",
       "weight": 1.0
     },
     {
@@ -68453,7 +68453,7 @@
       "confidence_score": 0.95,
       "context": "wifi_mgr_start",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L570",
+      "source_location": "L576",
       "weight": 1.0
     },
     {
@@ -68489,10 +68489,10 @@
       "confidence_score": 0.95,
       "context": "wifi_mgr_update_credentials",
       "source_file": "docs/HANDOFF.md",
-      "source_location": "L568",
+      "source_location": "L574",
       "weight": 1.0
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "bc08baa73cdd51449ee10ae4e53ed5cfa1e1943e"
+  "built_at_commit": "45e7418399c1addb8ed208a22afc00a1f96b46b6"
 }
