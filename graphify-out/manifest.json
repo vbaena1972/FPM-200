@@ -5,13 +5,13 @@
     "semantic_hash": ""
   },
   "AGENTS.md": {
-    "mtime": 1791734793.4707434,
-    "ast_hash": "27e6248ef6432843639b63cda08a18e7",
+    "mtime": 1791738546.5901203,
+    "ast_hash": "9b0d1194364147fa22dda079b323746a",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1791734793.4547522,
-    "ast_hash": "583bd1e3633f021fa85761b4df4f2b94",
+    "mtime": 1791738546.5763357,
+    "ast_hash": "3e551d586d0c38c76c9d63deff1341f1",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/cert_store.c": {
@@ -45,8 +45,8 @@
     "semantic_hash": ""
   },
   "firmware/components/display/ft5x06.c": {
-    "mtime": 1790563213.9004319,
-    "ast_hash": "24cb21c3aff0b1cb2e565ab00aca7aa4",
+    "mtime": 1791738196.9506373,
+    "ast_hash": "027ba4d35e98e1cf572271c5f67b8033",
     "semantic_hash": ""
   },
   "firmware/components/display/include/display.h": {
@@ -320,8 +320,8 @@
     "semantic_hash": ""
   },
   "firmware/components/ui_bind/ui_statusbar_controller.c": {
-    "mtime": 1790310287.7801857,
-    "ast_hash": "ddbc4e3e5a3bdfde96bd9c875b41d5a9",
+    "mtime": 1791738151.3941548,
+    "ast_hash": "11e0dd15c1a6b2e9e59426be500fe141",
     "semantic_hash": ""
   },
   "firmware/components/ui_bind/ui_wifi_main_icon.c": {
@@ -470,8 +470,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_infoScreen.c": {
-    "mtime": 1791734651.1787598,
-    "ast_hash": "cc21e136450b3aea5c6ef1b430792613",
+    "mtime": 1791738280.350778,
+    "ast_hash": "9adca50140b4e043fa86a9390100fb26",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_infoScreen.h": {
@@ -490,8 +490,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_loginScreen.c": {
-    "mtime": 1791724818.9363012,
-    "ast_hash": "cdeecdee2541a802a1288afa97488270",
+    "mtime": 1791738247.609168,
+    "ast_hash": "108c9c3f0a8c9a15e523f017f3d5e8f4",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_loginScreen.h": {
@@ -705,8 +705,8 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1791734792.3595932,
-    "ast_hash": "540ec8506441cbcb6c9d759a02a27009",
+    "mtime": 1791738545.5298817,
+    "ast_hash": "11e8d74c2c28c43c6724d9fdc8dc814a",
     "semantic_hash": ""
   },
   "docs/HMI_MIGRATION.md": {
@@ -720,8 +720,8 @@
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1791734687.851507,
-    "ast_hash": "b5625b4527fbc8a0330c57c6b915d1e0",
+    "mtime": 1791738464.7755086,
+    "ast_hash": "1bdd47288fe4bb07c90efbd26ebaae40",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {
