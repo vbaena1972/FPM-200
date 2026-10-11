@@ -83,7 +83,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #   mediana de 5 + confirmacion 500 ms en alarmas de flujo (ruido del TX WiFi),
 #   SFM3300 rechaza 00 00 00, linea "Consumo:" cada 30 s, touch get_data.
 #   1.5.24: telemetria AWS reporta la version real (antes "1.0.0" fijo).
-#   Detalle en firmware/CONSUMPTION_FIXES.md y docs/HANDOFF.md.
+#   Detalle en docs/historial/CONSUMPTION_FIXES.md.
 # 1.5.4-dev: microSD (ui_sd + sd_monitor) + BT-off REAL en "Configurar por app".
 #   microSD (main.c/ui_sd): (1) el overlay ahora tiene botón "Cerrar" SIEMPRE
 #   visible (antes solo aparecía "Aplicar y reiniciar" cuando había cambios y la

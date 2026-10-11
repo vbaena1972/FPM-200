@@ -7,7 +7,7 @@
 - **`Simulator/`** — simulador de Visual Studio (repo git PROPIO `FPM-200-Sim`,
   anidado e ignorado por este repo; se pushea entrando a `Simulator/`). Su `.vcxproj`
   referencia `..\..\firmware\main\ui\...` (rutas relativas).
-- **`docs/`** — `HANDOFF.md`, `HMI_MIGRATION.md`, `SESION_HMI.md`,
+- **`docs/`** — `HANDOFF.md` (estado vivo), `historial/` (HMI_MIGRATION, SESION_HMI, CONSUMPTION_FIXES, sesiones viejas del HANDOFF),
   `CONTRATO_BLE_FPM.md`, `financiero/`, `mockups/`.
 - **`Hardware/`** — `Datasheets/`, `Squematic.png`, datasheet del MS5803.
   **`scripts/`** — utilidades (`sw_probe*.vbs`). Meta en raíz: `CLAUDE.md`, `AGENTS.md`.
