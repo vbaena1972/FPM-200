@@ -1,5 +1,14 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.5.33-dev (2026-10-11), tras probar 1.5.32 en HW: (1) Calentamiento del FS7: el
+#   criterio de 3 s daba por estable una deriva lenta (corte real: 2.41 L/min falsos a
+#   los 16.8 s que sumaron ~1.1 L). Ahora medias de 1 s y termina con flujo ~0 (3 s
+#   < 0.05 L/min) o deriva baja en 20 s (<= max(0.1 L/min; 5 %)), max 180 s; el log
+#   de 1 Hz muestra f= (media) y d20= (deriva). (2) Tarjeta de flujo: si el estado
+#   (ESTABILIZANDO) y el 24H no caben, se oculta el 24H (antes se superponian).
+#   (3) Acceso de Fabricante en el login: candado arriba a la derecha + passphrase
+#   con teclado QWERTY (antes no habia forma de entrar). (4) Restablecer config. =
+#   Administrador o Fabricante; Borrado total = solo Fabricante.
 # 1.5.32-dev (2026-10-10): (1) Calentamiento del FS7: tras un corte de energia el
 #   sensor termico arranca frio y el flujo "converge" a 0 desde valores altos (sumaba
 #   ~1 L al totalizador). El flujo queda invalido (no suma, sin alarma clinica, sin
@@ -123,7 +132,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.5.32-dev")
+set(PROJECT_VER "1.5.33-dev")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:

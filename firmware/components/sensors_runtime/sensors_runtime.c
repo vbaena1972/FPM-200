@@ -127,13 +127,32 @@ static volatile float s_dbg_fs7_lpm = NAN;
  * flujo "converge" a 0 desde valores altos (el totalizador sumaba ~1 L). En un
  * reset por USB el sensor sigue caliente, por eso no aparecia en los soaks.
  * Mientras dura, el flujo es INVALIDO (no suma, no evalua alarmas clinicas) pero
- * NO se reporta como dato viejo (STALE): no es una falla tecnica. Termina cuando
- * el flujo filtrado queda estable FS7_WARM_STABLE_MS, o a los FS7_WARM_MAX_MS. */
-#define FS7_WARM_STABLE_MS 3000
-#define FS7_WARM_MAX_MS    60000
-#define FS7_WARM_TOL_LPM   0.3f   // banda minima de estabilidad (L/min)
-#define FS7_WARM_TOL_FRAC  0.05f  // o 5 % del flujo, si es mayor
+ * NO se reporta como dato viejo (STALE): no es una falla tecnica.
+ * 1.5.33: el criterio de 1.5.32 (banda de +-0.3 L/min durante 3 s) no veia una
+ * deriva LENTA: en HW (2026-10-11, corte real) se dio por estable a los 16.8 s
+ * con 2.41 L/min falsos que bajaron solos a 0 en ~115 s y sumaron ~1.1 L. Ahora
+ * se trabaja con medias de 1 s del flujo filtrado y termina cuando:
+ *  (a) el flujo es ~0: FS7_WARM_ZERO_S medias seguidas < FS7_WARM_ZERO_LPM, o
+ *  (b) la deriva es baja: la media de los ultimos FS7_WARM_AVG_S s difiere menos
+ *      de max(FS7_WARM_DRIFT_LPM, FS7_WARM_DRIFT_FRAC*flujo) de la de hace
+ *      FS7_WARM_SPAN_S s (flujo real estable), o
+ *  (c) pasa FS7_WARM_MAX_MS (flujo real muy inestable).
+ * Simulado con el log de 1.5.32: (b) se cumple a ~112 s (0.06 L/min; quedan
+ * ~0.006 L por sumar en vez de ~1.1 L); con el sensor caliente (a) termina en
+ * ~4 s. Se pierde el consumo real durante el calentamiento (flujo invalido). */
+#define FS7_WARM_MIN_MS     3000
+#define FS7_WARM_MAX_MS     180000
+#define FS7_WARM_ZERO_LPM   0.05f
+#define FS7_WARM_ZERO_S     3
+#define FS7_WARM_AVG_S      3
+#define FS7_WARM_SPAN_S     20
+#define FS7_WARM_DRIFT_LPM  0.10f
+#define FS7_WARM_DRIFT_FRAC 0.05f
+#define FS7_WARM_HIST       (FS7_WARM_SPAN_S + FS7_WARM_AVG_S)
 static volatile bool s_flow_warming = true;
+// Diagnostico del calentamiento para el log de 1 Hz (media de 1 s y deriva).
+static volatile float s_fs7_warm_flow = NAN;
+static volatile float s_fs7_warm_drift = NAN;
 
 //------------------------------------------------------------------
 // Estado interno
@@ -938,11 +957,14 @@ static void sensors_acq_task(void *arg)
     uint32_t overruns = 0;
     int64_t next_timing_log = 0;
     int64_t prev_cycle_ms = 0;
-    // Calentamiento del FS7 (ver FS7_WARM_*): inicio y ventana de estabilidad.
+    // Calentamiento del FS7 (ver FS7_WARM_*): inicio y medias de 1 s.
     bool prev_flow_enabled = false;
     int64_t fs7_warm_start_ms = 0;
-    int64_t fs7_win_start_ms = 0;
-    float fs7_win_min = 0.0f, fs7_win_max = 0.0f;
+    int64_t fs7_sec_start_ms = 0;
+    float fs7_acc = 0.0f;
+    int fs7_acc_n = 0;
+    float fs7_hist[FS7_WARM_HIST];   // medias de 1 s, [0] = la mas reciente
+    int fs7_hist_n = 0;
 
     while (1)
     {
@@ -1056,7 +1078,12 @@ static void sensors_acq_task(void *arg)
         {
             s_flow_warming = true;
             fs7_warm_start_ms = now_ms;
-            fs7_win_start_ms = 0;
+            fs7_sec_start_ms = 0;
+            fs7_acc = 0.0f;
+            fs7_acc_n = 0;
+            fs7_hist_n = 0;
+            s_fs7_warm_flow = NAN;
+            s_fs7_warm_drift = NAN;
             ESP_LOGI(TAG, "FS7: esperando estabilizacion del sensor termico (max %d s)",
                      FS7_WARM_MAX_MS / 1000);
         }
@@ -1124,31 +1151,56 @@ static void sensors_acq_task(void *arg)
                     ESP_LOGW(TAG, "GLITCH flujo descartado: crudo=%.2f -> filtrado=%.2f "
                                   "L/min  v_ain0=%.4f V", raw_flow, flow_lpm, v);
                 }
-                /* 1.5.32: calentamiento del FS7. La ventana se reinicia cada vez
-                 * que el flujo filtrado sale de la banda; estable = la ventana
-                 * dura FS7_WARM_STABLE_MS. Mientras tanto el flujo es invalido. */
+                /* Calentamiento del FS7 (ver FS7_WARM_*): medias de 1 s del flujo
+                 * filtrado; mientras dura, el flujo es invalido. */
                 if (flow_valid && s_flow_warming)
                 {
-                    if (fs7_win_start_ms == 0)
+                    if (fs7_sec_start_ms == 0) fs7_sec_start_ms = now_ms;
+                    fs7_acc += flow_lpm;
+                    fs7_acc_n++;
+                    if (now_ms - fs7_sec_start_ms >= 1000)
                     {
-                        fs7_win_start_ms = now_ms;
-                        fs7_win_min = fs7_win_max = flow_lpm;
+                        memmove(&fs7_hist[1], &fs7_hist[0], (FS7_WARM_HIST - 1) * sizeof(float));
+                        fs7_hist[0] = fs7_acc / (float)fs7_acc_n;
+                        if (fs7_hist_n < FS7_WARM_HIST) fs7_hist_n++;
+                        fs7_acc = 0.0f;
+                        fs7_acc_n = 0;
+                        fs7_sec_start_ms = now_ms;
+                        s_fs7_warm_flow = fs7_hist[0];
+
+                        const char *why = NULL;
+                        if (fs7_hist_n >= FS7_WARM_ZERO_S &&
+                            now_ms - fs7_warm_start_ms >= FS7_WARM_MIN_MS)
+                        {
+                            bool zero = true;
+                            for (int i = 0; i < FS7_WARM_ZERO_S; i++)
+                                if (fabsf(fs7_hist[i]) >= FS7_WARM_ZERO_LPM) zero = false;
+                            if (zero) why = "flujo cero";
+                        }
+                        if (fs7_hist_n >= FS7_WARM_HIST)
+                        {
+                            float recent = 0.0f, old = 0.0f;
+                            for (int i = 0; i < FS7_WARM_AVG_S; i++)
+                            {
+                                recent += fs7_hist[i];
+                                old += fs7_hist[FS7_WARM_SPAN_S + i];
+                            }
+                            recent /= FS7_WARM_AVG_S;
+                            old /= FS7_WARM_AVG_S;
+                            s_fs7_warm_drift = recent - old;
+                            float tol = fmaxf(FS7_WARM_DRIFT_LPM, FS7_WARM_DRIFT_FRAC * fabsf(recent));
+                            if (!why && fabsf(recent - old) <= tol) why = "deriva baja";
+                        }
+                        if (why)
+                        {
+                            s_flow_warming = false;
+                            ESP_LOGI(TAG, "FS7 estabilizado tras %lld ms (%s; flujo %.2f L/min, "
+                                          "deriva %ds=%.2f L/min, Ucta=%.3f V)",
+                                     (long long)(now_ms - fs7_warm_start_ms), why, flow_lpm,
+                                     FS7_WARM_SPAN_S, (double)s_fs7_warm_drift, u_cta);
+                        }
                     }
-                    if (flow_lpm < fs7_win_min) fs7_win_min = flow_lpm;
-                    if (flow_lpm > fs7_win_max) fs7_win_max = flow_lpm;
-                    float tol = fmaxf(FS7_WARM_TOL_LPM, FS7_WARM_TOL_FRAC * fabsf(flow_lpm));
-                    if (fs7_win_max - fs7_win_min > tol)
-                    {
-                        fs7_win_start_ms = now_ms;
-                        fs7_win_min = fs7_win_max = flow_lpm;
-                    }
-                    if (now_ms - fs7_win_start_ms >= FS7_WARM_STABLE_MS)
-                    {
-                        s_flow_warming = false;
-                        ESP_LOGI(TAG, "FS7 estabilizado tras %lld ms (flujo %.2f L/min, Ucta=%.3f V)",
-                                 (long long)(now_ms - fs7_warm_start_ms), flow_lpm, u_cta);
-                    }
-                    else
+                    if (s_flow_warming)
                     {
                         flow_valid = false;
                         flow_lpm = 0.0f;
@@ -1291,10 +1343,15 @@ static void sensors_acq_task(void *arg)
             }
             else
             {
+                // Calentando: media de 1 s del FS7 (sin publicar) y deriva en FS7_WARM_SPAN_S.
+                char warm_str[56] = "";
+                if (s_flow_warming)
+                    snprintf(warm_str, sizeof(warm_str), " [FS7 calentando f=%.2f d%d=%.2f]",
+                             (double)s_fs7_warm_flow, FS7_WARM_SPAN_S, (double)s_fs7_warm_drift);
                 ESP_LOGI(TAG,
                          "P=%.2f kPa (%s) | T=%.2f C | Flujo=%.2f L/min%s | Vain0=%.4f V (Ucta=%.3f V)%s%s",
                          s.pressure_kpa, pmode, isfinite(temp_c) ? temp_c : 0.0f,
-                         s.flow_lpm, s_flow_warming ? " [FS7 calentando]" : "",
+                         s.flow_lpm, warm_str,
                          isfinite(v_ain0) ? v_ain0 : 0.0f,
                          isfinite(u_cta) ? u_cta : 0.0f,
                          sfm_str, diag);

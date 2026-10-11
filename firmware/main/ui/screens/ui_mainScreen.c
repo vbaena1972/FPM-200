@@ -379,6 +379,21 @@ static void update_metric_card(metric_card_t *m, float value_disp, float frac,
     set_txt_color(m->pill_state, accent);
     snprintf(buf, sizeof(buf), "24H %.*f / %.*f", dec, mn_disp, dec, mx_disp);
     set_label_if_changed(m->pill_mm, buf);
+
+    /* 1.5.33: con un estado largo ("ESTABILIZANDO", "SIN DATO NUEVO") los dos
+     * textos no caben y el flex los SUPERPONIA. Si no caben, se oculta el 24H:
+     * el estado manda. Antes del primer layout (ancho 0) no se decide. */
+    lv_coord_t avail = lv_obj_get_content_width(m->pill);
+    if (avail > 0) {
+        lv_point_t st_sz, mm_sz;
+        lv_text_get_size(&st_sz, state_txt, lv_obj_get_style_text_font(m->pill_state, LV_PART_MAIN),
+                         lv_obj_get_style_text_letter_space(m->pill_state, LV_PART_MAIN), 0,
+                         LV_COORD_MAX, LV_TEXT_FLAG_NONE);
+        lv_text_get_size(&mm_sz, buf, lv_obj_get_style_text_font(m->pill_mm, LV_PART_MAIN),
+                         lv_obj_get_style_text_letter_space(m->pill_mm, LV_PART_MAIN), 0,
+                         LV_COORD_MAX, LV_TEXT_FLAG_NONE);
+        set_hidden(m->pill_mm, st_sz.x + mm_sz.x + 8 > avail);
+    }
 }
 
 /* ---------- conversiones de unidades ----------

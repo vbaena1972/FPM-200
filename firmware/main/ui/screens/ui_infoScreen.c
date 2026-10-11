@@ -63,7 +63,11 @@ static void reboot_cb(lv_event_t *e)
 
 /* Restablecer de fabrica en dos niveles (1.5.32, paridad con MedGuard 1.7.13).
  * Ambos conservan la identidad de hardware (modelo/serie/version HW) y la
- * calibracion de sensores (la del FS7 vive en la EEPROM y no se toca).
+ * calibracion de sensores: en el FPM toda la calibracion es de FABRICA (ajuste
+ * del FS7, cero de presion/flujo: EEPROM, se hace en laboratorio) y ningun
+ * nivel la toca; sensors.cal del AppConfig solo guarda fechas de servicio.
+ * 1.5.33 (decision 2026-10-11): nivel 1 = Administrador o Fabricante; nivel 2
+ * = solo Fabricante.
  * Nivel 1 "Restablecer config.": ademas conserva la nube (broker/topico) y la
  * cuenta Fabricante; certificados, token LAN y vinculos BLE intactos.
  * Nivel 2 "Borrado total": borra ademas certificados AWS, token LAN y vinculos
@@ -125,7 +129,7 @@ static void factory_btn_cb(lv_event_t *e)
     lv_obj_t *lbl = (lv_obj_t *)lv_event_get_user_data(e);
     bool wipe = lv_obj_get_user_data(lv_event_get_current_target(e)) != NULL;
     uint32_t *arm = wipe ? &s_wipe_arm_tick : &s_reset_arm_tick;
-    if (!ui_auth_can(APP_ROLE_FACTORY)) return;
+    if (!ui_auth_can(wipe ? APP_ROLE_FACTORY : APP_ROLE_ADMIN)) return;
     if (*arm != 0 && lv_tick_elaps(*arm) < 4000) {
         if (lbl) lv_label_set_text(lbl, _t("Aplicando…"));
         factory_reset_apply(wipe);
@@ -270,15 +274,17 @@ void ui_infoScreen_screen_init(void)
     lv_obj_t *rl = ui_label(rb, _t("Reiniciar equipo"), UI_FONT_SM, UI_C_WARN_SOFT);
     lv_obj_add_event_cb(rb, reboot_cb, LV_EVENT_CLICKED, rl);
 
-    /* Restablecer de fabrica (solo Fabricante): dos niveles, doble toque. */
-    if (ui_auth_can(APP_ROLE_FACTORY)) {
+    /* Restablecer de fabrica: dos niveles, doble toque. "Restablecer config."
+     * desde Administrador; "Borrado total" solo Fabricante. */
+    if (ui_auth_can(APP_ROLE_ADMIN)) {
         s_reset_arm_tick = s_wipe_arm_tick = 0;
         lv_obj_t *fr = ui_box(ui_infoScreen);
         lv_obj_set_size(fr, LV_PCT(100), LV_SIZE_CONTENT);
         lv_obj_set_flex_flow(fr, LV_FLEX_FLOW_ROW);
         lv_obj_set_style_pad_column(fr, 8, 0);
         factory_btn(fr, _t("Restablecer config."), false);
-        factory_btn(fr, _t("Borrado total"), true);
+        if (ui_auth_can(APP_ROLE_FACTORY))
+            factory_btn(fr, _t("Borrado total"), true);
     }
 
     /* pie con QR */

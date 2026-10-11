@@ -24,6 +24,26 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
   valor y encender → `Config aplicada desde shadow (get)`. **Verificar que la policy IoT de
   `fpm-0001` permita `$aws/things/fpm-0001/shadow/name/config/*`** (Subscribe/Receive/Publish).
 
+## 2026-10-11 — 1.5.32 probado en HW; FW 1.5.33-dev (sin compilar, pendiente de HW)
+
+- **Pruebas de 1.5.32** (log `firmware/logMedFPM_1.5.32_20261011_0713.txt`; detalle en
+  `MedGuard-12IoT/docs/entrega/PRUEBAS_HW_1.7.13_1.5.32.md`, sección Resultados): OK arranque/AWS/telemetría,
+  total con decimal, hora inválida + SNTP, reinicio en caliente (FS7 estable en 3400 ms). **Falla tras un corte
+  real:** `FS7 estabilizado tras 16799 ms (flujo 2.41 L/min…)` sin flujo; el valor decayó solo a 0 en ~115 s y
+  sumó ≈ 1,1 L (la banda de ±0,3 L/min en 3 s no ve una deriva lenta de ~0,09 L/min por s). ESTABILIZANDO se
+  superponía con "24H". **Pruebas F imposibles:** no había forma de entrar como Fabricante (§6.2).
+- **1.5.33:** (1) calentamiento por medias de 1 s: termina con flujo ~0 (3 medias < 0,05 L/min, tras ≥ 3 s) o
+  con deriva baja (media de 3 s vs. la de hace 20 s ≤ max(0,1 L/min; 5 %)); tope 180 s (`FS7_WARM_*`);
+  simulado con el log: ~112 s y ~0,006 L residuales. El log de 1 Hz muestra `[FS7 calentando f=… d20=…]`.
+  (2) Tarjeta: si estado + "24H" no caben, se oculta el 24H (`ui_mainScreen.c`, `lv_text_get_size`).
+  (3) **Acceso de Fabricante** en el login: candado arriba a la derecha → hoja con passphrase y teclado QWERTY
+  (`ui_auth_login(ui_auth_factory(), …)`, mismo bloqueo de 5 intentos/30 s) — cierra §6.2. (4) DEC-028:
+  "Restablecer config." = Administrador o Fabricante; "Borrado total" = solo Fabricante. Toda la calibración
+  del FPM (ajuste del FS7, ceros; EEPROM) es de fábrica: ningún nivel la toca.
+- Sintaxis verificada con la toolchain del proyecto (`-fsyntax-only` con `build/compile_commands.json`).
+  **Probar:** `MedGuard-12IoT/docs/entrega/PRUEBAS_HW_1.7.14_1.5.33.md` (B, F, G). Pendiente menor:
+  `general.factory.must_change_pin` se guarda pero ninguna pantalla obliga a cambiar la passphrase demo.
+
 ## 2026-10-10 (tarde) — FW 1.5.32-dev (compilado, pendiente de HW): corte de energía + DEC-027
 
 - **Prueba de corte de energía (usuario):** arranca solo, conserva la config y reconecta a AWS; la hora
@@ -516,7 +536,7 @@ idf.py -p COM3 flash monitor
 ## 6. Pendiente (después de estabilizar §2 y validar §3)
 
 1. **Completar GATT:** `set_clock`, cifrado/passkey.
-2. **Login de FABRICANTE:** el pad del login es numérico; la passphrase del fabricante es
+2. ~~**Login de FABRICANTE**~~ HECHO en 1.5.33 (candado + passphrase QWERTY en `ui_loginScreen.c`). Texto original: el pad del login es numérico; la passphrase del fabricante es
    alfanumérica → falta acceso oculto (candado) con teclado QWERTY que valide `general.factory.pin`.
    Hasta entonces las acciones FACTORY están en el código pero **inertes**.
 3. **"Config mínima" (opcional):** con el BLE funcionando, la app configura TODO; en la HMI se puede
