@@ -43,6 +43,12 @@ bug abierto (watchdog LVGL) y qué sigue. Complementa a `SESION_HMI.md` (histori
 - **DEC-027:** OTA HTTPS, patrones IEC 60601-1-8 del buzzer y el ensayo de Secure Boot (en DevKit) se
   hacen ya en V1. **Probar en HW:** corte de energía (≥ 1 min) → log `FS7 estabilizado tras …` y el total
   no debe subir; los dos niveles de restablecer.
+- **Ojo:** la config de fábrica deja Wi-Fi, Ethernet y BT deshabilitados: tras "Restablecer config." hay que
+  configurar la Wi-Fi (AWS conecta sin reaprovisionar); tras "Borrado total", además certificados por
+  microSD (`/sdcard/aws`) y la passphrase de Fabricante vuelve a la de demostración (pide cambiarla).
+- **Procedimiento completo de pruebas:** `MedGuard-12IoT/docs/entrega/PRUEBAS_HW_1.7.13_1.5.32.md` (secciones
+  A, B, C, F, G). Prompt de la próxima sesión: `MedGuard-12IoT/docs/entrega/PROMPT_PROXIMA_SESION.md`.
+- **El usuario compila y flashea** (Claude no corre `idf.py build`). 1.5.32 compiló sin warnings (31 % libre).
 
 ## Cierre 2026-10-10 — 1.5.31 VALIDADO; FIN de las pruebas en Hardware V1 (DEC-026)
 
