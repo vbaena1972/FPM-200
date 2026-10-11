@@ -106,6 +106,7 @@ static void splash_done_cb(lv_timer_t *t)
 }
 
 static bool s_display_dimmed=false;
+#define UI_IDLE_HOME_MS (2U * 60U * 1000U)   /* 2 min, como session_timeout de MedGuard */
 static void display_idle_cb(lv_timer_t *t)
 {
     (void)t;
@@ -118,6 +119,17 @@ static void display_idle_cb(lv_timer_t *t)
 #endif
     bool dim=mins>0 && idle>=(uint32_t)mins*60000U && !alarm;
     if(dim!=s_display_dimmed){s_display_dimmed=dim;ui_cfg_preview_brightness(dim?30:ui_cfg_brightness());}
+
+    /* 1.5.36: igual que MedGuard (ui.c inactivity_cb): tras UI_IDLE_HOME_MS sin
+     * tocar la pantalla, desde cualquier pantalla se vuelve al dashboard y se
+     * cierra la sesion (no se queda abierta una configuracion ni una alarma
+     * a pantalla completa olvidada). No durante el splash de arranque. */
+    if (idle >= UI_IDLE_HOME_MS && !ui_splashScreen && ui_mainScreen &&
+        lv_screen_active() != ui_mainScreen)
+    {
+        ui_auth_logout();
+        ui_nav_pop_to(ui_mainScreen);
+    }
 }
 void ui_init(void)
 {

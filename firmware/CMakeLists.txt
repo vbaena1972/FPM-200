@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.5.36-dev (2026-10-11), tras probar 1.5.35 en HW: tras 2 min sin tocar la
+#   pantalla, desde cualquier pantalla se vuelve al dashboard y se cierra la sesion
+#   (igual que MedGuard).
 # 1.5.35-dev (2026-10-11), tras probar 1.5.34 en HW: (1) iconos de Wi-Fi/Ethernet/
 #   BT/nube del dashboard siguen la config en vivo (solo se leian al arrancar: tras
 #   un restablecer + habilitar Wi-Fi/nube no aparecian). (2) Touch: un glitch I2C
@@ -146,7 +149,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.5.35-dev")
+set(PROJECT_VER "1.5.36-dev")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:
