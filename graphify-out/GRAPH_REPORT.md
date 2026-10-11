@@ -1,28 +1,27 @@
-# Graph Report - FPM-200  (2026-10-10)
+# Graph Report - FPM-200  (2026-10-11)
 
 ## Corpus Check
-- 186 files · ~421,334 words
+- 187 files · ~422,697 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 10 file(s) not represented in the graph (top: (none) 5, .projbuild 1, .lock 1)
 
 ## Summary
-- 1541 nodes · 4292 edges · 85 communities (73 shown, 12 thin omitted)
-- Extraction: 74% EXTRACTED · 26% INFERRED · 0% AMBIGUOUS · INFERRED: 1120 edges (avg confidence: 0.86)
+- 1553 nodes · 4216 edges · 89 communities (82 shown, 7 thin omitted)
+- Extraction: 76% EXTRACTED · 24% INFERRED · 0% AMBIGUOUS · INFERRED: 1026 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `45e74183`
+- Built from commit: `b316c2dc`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - string
-- wifi_mgr.c
+- esp_err_to_name
 - transport_ble.c
 - lv_port_mem.c
 - alarm_mgr.c
-- ui_netEthScreen.c
-- test_alarm.c
+- lv_obj_t
+- ui_loginScreen.c
 - ms5803.c
 - esp_eth_mac_ksz8851snl.c
 - ads1115.c
@@ -31,10 +30,10 @@
 - ui_edit_begin
 - Sesión — Migración HMI Axira (SquareLine → Claude Design)
 - 3. Correspondencia de campos (firmware `AppConfig` ↔ JSON ↔ Flutter)
-- net_core.c
+- time_mgr.c
 - ui_label
 - QA FORMAL — FPM-200 firmware **1.5.24-dev** (iniciado sobre 1.5.22)
-- storage_extras.c
+- config_mode.c
 - ui_sensorEditScreen.c
 - storage.c
 - http_api.c
@@ -44,299 +43,305 @@
 - Seguridad del firmware — MedGuard 12-IoT y FPM-200 (2026-09-26)
 - touch_io_bounded.c
 - eth_mgr.c
-- Sesión 2026-07-31 (parte 2 — RAM/estabilidad + modo config BLE) — SIN COMPILAR NI HW
-- save_cb
+- ble_init_task
+- state_pub.c
 - esp_eth_phy_ksz8851snl.c
-- ui_pin_hash.c
+- mdns_svc.c
 - esp_log.h
 - ethernet_init.c
 - screen_init_task
 - ui_statusbar_controller.c
-- ui_cfg.c
-- Hecho en la sesión 2026-07-22
+- gas_label_color
 - ui_generalSimpleScreen.c
+- sensor_cfg_persist
 - sensors_acq_task
 - ui_connectivityScreen.c
 - main.c
-- appcfg_cache_peek
+- ui_cfg.c
 - fpm_i2c_guard.c
-- ui_i18n
-- cert_store.c
+- ui_keypadScreen.c
+- esp_lcd_st7796.h
 - README.md
 - transport_mqtt.c
 - fpm_i2c_guard
 - gen_ota_signing_key.sh script
 - ft5x06.c
 - sd_monitor_task
-- time_mgr.c
+- save_cb
 - Migración HMI: SquareLine → Claude Design
-- ui_pinScreen.c
+- ui_nav.c
 - Changelog
 - mem_diag.c
-- ui_cfg_flow_unit
+- esp_eth_driver
+- apply_authenticated_cb
 - ui_bleAppScreen.c
 - ui.c
-- ui_infoScreen.c
+- ui_nav_load
 - Consumo y endurecimiento 1.5.5-dev
 - lvgl
-- esp_err_to_name
-- wifi_event_handler
+- at24c256.c
+- ui_statusbar_request_refresh
 - flow_meter.c
-- esp_eth_mac_new_ksz8851snl
-- metrics_store.c
+- Microchip KSZ8851SNL Ethernet Driver
+- Q: Implement WiFi password visibility toggle, keep SSID/password above LVGL keyboard, refresh connectivity after WiFi save, suppress auth-screen buzzer, and publish device_status immediately on alarm changes
 - ui_auth_can
 - AGENTS.md
 - CLAUDE.md
 - mqtt_event
+- esp_eth_com
 - ui_wifi_main_icon_init
-- save_and_refresh
+- Q: Revisa cada cuando el FPM esta enviando los datos a AWS
 - on_alarm_state_change
-- ui_userEditScreen.c
-- ui_cfg_apply_visual_mode
-- Q: Analisis de longFPM.log: bloqueo de interfaz, alarma persistente, pila, heap y tareas
-- ui_usersScreen.c
+- ui_open_useredit_cb
+- get_bleapp
+- get_connectivity
+- fresh_net_cloud
+- get_sensor_edit
+- get_users
+- README_PARCHE.md
+- ui_widgets
 - ota_update.c
 
 ## God Nodes (most connected - your core abstractions)
 1. `appcfg_cache_peek()` - 76 edges
 2. `ui_label()` - 58 edges
 3. `esp_err_to_name()` - 47 edges
-4. `ui_col()` - 44 edges
+4. `ui_col()` - 45 edges
 5. `ui_box()` - 42 edges
-6. `_t()` - 38 edges
-7. `appcfg_save()` - 36 edges
-8. `ui_card()` - 35 edges
-9. `ui_icon()` - 32 edges
-10. `Handoff — ClaudeHMI-FW (FPM-200) · arranque de sesión (2026-08-01)` - 28 edges
+6. `_t()` - 37 edges
+7. `ui_card()` - 35 edges
+8. `appcfg_save()` - 33 edges
+9. `ui_icon()` - 33 edges
+10. `Handoff — ClaudeHMI-FW (FPM-200) · arranque de sesión (2026-08-01)` - 29 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Fase 2 — Pantalla principal + integración` --references--> `ui_refresh_task()`  [INFERRED]
-  docs/HMI_MIGRATION.md → firmware/main/main.c
-- `Fase 1 — Esqueleto + limpieza` --references--> `ui_init()`  [INFERRED]
-  docs/HMI_MIGRATION.md → firmware/main/ui/ui.c
-- `Hecho en la sesión 2026-07-22` --references--> `cert_store_info()`  [INFERRED]
-  docs/SESION_HMI.md → firmware/components/cert_store/cert_store.c
-- `2026-10-10 (tarde) — FW 1.5.32-dev (compilado, pendiente de HW): corte de energía + DEC-027` --references--> `cert_store_erase_all()`  [INFERRED]
-  docs/HANDOFF.md → firmware/components/cert_store/cert_store.c
-- `Hecho en la sesión 2026-07-22` --references--> `cert_store_erase_all()`  [INFERRED]
-  docs/SESION_HMI.md → firmware/components/cert_store/cert_store.c
+- `app_main()` --calls--> `mem_diag_start_periodic()`  [INFERRED]
+  firmware/main/main.c → firmware/components/diag/mem_diag.c
+- `app_main()` --calls--> `fpm_i2c_init()`  [INFERRED]
+  firmware/main/main.c → firmware/components/drivers/fpm_i2c_guard.c
+- `ui_refresh_task()` --calls--> `time_mgr_is_time_valid()`  [INFERRED]
+  firmware/main/main.c → firmware/components/network_core/time_mgr.c
+- `app_main()` --calls--> `transport_mqtt_runtime_init()`  [INFERRED]
+  firmware/main/main.c → firmware/components/network_core/transport_mqtt.c
+- `state_update_sensors()` --calls--> `esp_timer_get_time()`  [INFERRED]
+  firmware/components/state_pub/state_pub.c → firmware/tests/host/test_alarm.c
 
 ## Import Cycles
 - None detected.
 
-## Communities (85 total, 12 thin omitted)
+## Communities (89 total, 7 thin omitted)
 
 ### Community 0 - "string"
-Cohesion: 0.12
-Nodes (6): set_str(), ui_netBleScreen_screen_destroy(), set_str(), ui_netCloudScreen_screen_destroy(), close_to(), main()
+Cohesion: 0.13
+Nodes (13): cert_store, esp_app_desc, eth_mgr, lv_event_t, factory_btn_cb(), reboot_cb(), stdio, stdlib (+5 more)
 
-### Community 1 - "wifi_mgr.c"
-Cohesion: 0.15
-Nodes (14): 8. Sesión 2026-09-16 — fixes de campo (#1 buzzer/I2C, #2 WiFi) — commit `a353c41`, apply_ip_mode(), net_cfg_equals(), wifi_apply_cb(), wifi_apply_pending(), wifi_apply_worker(), wifi_mgr_apply_from_cache(), wifi_mgr_init() (+6 more)
+### Community 1 - "esp_err_to_name"
+Cohesion: 0.12
+Nodes (29): esp_wifi_types, apply_ip_mode(), AppConfig, esp_err_t, esp_event_base_t, wifi_status_t, log_dns_info(), net_cfg_equals() (+21 more)
 
 ### Community 2 - "transport_ble.c"
-Cohesion: 0.06
-Nodes (30): Cierre final (misma sesión 2026-07-22), Sesión 2026-08-01 — contrato BLE con la app + saga del watchdog (rama `feature/ble-app-contract`), net_core_init(), appmetrics_service_min(), fpm_ble_config_set_clock_cb(), append_json(), ble_on_sync(), ble_start_adv() (+22 more)
+Cohesion: 0.11
+Nodes (17): ble_cmd_handler_t, ble_gap, ble_gatt, ble_hs, ble_svc_gap, ble_svc_gatt, esp_bt, append_json() (+9 more)
 
 ### Community 3 - "lv_port_mem.c"
-Cohesion: 0.15
-Nodes (4): lv_mem_add_pool(), lv_mem_monitor_core(), lv_mem_remove_pool(), lv_mem_test_core()
+Cohesion: 0.14
+Nodes (9): esp_heap_caps, lv_mem_add_pool(), lv_mem_monitor_core(), lv_mem_remove_pool(), lv_mem_test_core(), lv_mem_monitor_t, lv_mem_pool_t, lv_result_t (+1 more)
 
 ### Community 4 - "alarm_mgr.c"
-Cohesion: 0.21
-Nodes (17): alarm_mgr_get_current_state(), alarm_mgr_get_current_state_impl(), alarm_mgr_get_sensor_faults(), alarm_mgr_get_sensor_faults_impl(), alarm_mgr_is_muted(), alarm_mgr_is_muted_impl(), alarm_mgr_press_mute(), alarm_mgr_process() (+9 more)
+Cohesion: 0.09
+Nodes (42): alarm_state_change_cb_t, eth_ksz8851snl_config_t, eth_mac_config_t, alarm_mgr_get_current_state(), alarm_mgr_get_current_state_impl(), alarm_mgr_get_sensor_faults(), alarm_mgr_get_sensor_faults_impl(), alarm_mgr_init() (+34 more)
 
-### Community 5 - "ui_netEthScreen.c"
+### Community 5 - "lv_obj_t"
 Cohesion: 0.18
-Nodes (7): apply_icon(), timer_cb(), ui_wifi_rssi_to_bars(), wifi_status_cb(), save_cb(), set_str(), ui_netEthScreen_screen_destroy()
+Nodes (11): ui_confirmScreen_screen_destroy(), ui_generalSimpleScreen_screen_destroy(), ui_netEthScreen_screen_destroy(), ui_pinScreen_screen_destroy(), lv_obj_t, fresh_confirm(), fresh_net_eth(), fresh_pin() (+3 more)
 
-### Community 6 - "test_alarm.c"
-Cohesion: 0.12
-Nodes (12): alarm_mgr_init(), alarm_mgr_press_mute_impl(), alarm_mgr_process_impl(), alarm_mgr_set_audio_inhibit_noncritical_impl(), set_buzzer_acoustic(), appcfg_cache_get(), appcfg_cache_peek(), changed() (+4 more)
+### Community 6 - "ui_loginScreen.c"
+Cohesion: 0.19
+Nodes (17): app_user_role_t, app_user_t, lv_event_t, fac_close_cb(), fac_hide(), fac_kb_cb(), fac_show_err(), fac_try() (+9 more)
 
 ### Community 7 - "ms5803.c"
 Cohesion: 0.37
-Nodes (9): driver_delay_ms(), ms5803_crc4(), ms5803_init(), ms5803_read(), ms5803_read_adc(), ms5803_read_prom_word(), ms5803_reset_retry(), ms5803_send_cmd() (+1 more)
+Nodes (12): driver_delay_ms(), esp_err_t, i2c_master_bus_handle_t, ms5803_crc4(), ms5803_init(), ms5803_read(), ms5803_read_adc(), ms5803_read_prom_word() (+4 more)
 
 ### Community 8 - "esp_eth_mac_ksz8851snl.c"
-Cohesion: 0.12
-Nodes (41): ksz8851snl 1.2.0 — copia local PARCHEADA (MedGuard / FPM-200), emac_ksz8851_add_mac_filter(), emac_ksz8851_alloc_recv_buf(), emac_ksz8851_deinit(), emac_ksz8851_del(), emac_ksz8851_enable_flow_ctrl(), emac_ksz8851_flush_recv_queue(), emac_ksz8851_get_addr() (+33 more)
+Cohesion: 0.13
+Nodes (50): emac_ksz8851snl_t, esp_cpu, esp_rom_crc, esp_err_t, esp_eth_mac_t, esp_eth_mediator_t, eth_duplex_t, eth_link_t (+42 more)
 
 ### Community 9 - "ads1115.c"
 Cohesion: 0.38
-Nodes (7): ads1115_init(), ads1115_read_raw(), ads1115_read_raw_once(), ads1115_read_reg(), ads1115_read_voltage(), ads1115_recover(), ads1115_write_reg()
+Nodes (11): ads1115, ads1115_channel_t, ads1115_init(), ads1115_read_raw(), ads1115_read_raw_once(), ads1115_read_reg(), ads1115_read_voltage(), ads1115_recover() (+3 more)
 
 ### Community 10 - "FreeRTOS.h"
-Cohesion: 0.25
-Nodes (7): bmp280_compensate_press(), bmp280_compensate_temp(), bmp280_init(), bmp280_is_ready(), bmp280_read(), bmp280_read_regs(), bmp280_write_reg()
+Cohesion: 0.27
+Nodes (9): bmp280, bmp280_compensate_press(), bmp280_compensate_temp(), bmp280_init(), bmp280_read(), bmp280_read_regs(), bmp280_write_reg(), esp_err_t (+1 more)
 
 ### Community 11 - "fpm_ble_config.c"
-Cohesion: 0.16
-Nodes (37): 2. Dos esquemas de canal (importante), 6. Cambios aplicados en el firmware (esta tanda), 3. Contrato BLE FPM ↔ app Sensvax (commit `711b463`) — A VALIDAR EN HW, apply_channel_obj(), apply_netif(), build_channel_flat(), build_channel_obj(), cfg_dup() (+29 more)
+Cohesion: 0.17
+Nodes (36): apply_channel_obj(), apply_netif(), build_channel_flat(), build_channel_obj(), AppConfig, cJSON, cfg_dup(), color_to_gas() (+28 more)
 
 ### Community 12 - "ui_edit_begin"
 Cohesion: 0.22
-Nodes (11): edit_cb(), step_cb(), test_cb(), volume_cb(), ui_cfg_alarm_volume(), ui_cfg_max_silence_minutes(), ui_cfg_pressure_max(), ui_cfg_pressure_min() (+3 more)
+Nodes (13): lv_event_t, edit_cb(), rebuild(), step_cb(), volume_cb(), ui_edit_target_t, ui_cfg_alarm_volume(), ui_cfg_max_silence_minutes() (+5 more)
 
 ### Community 13 - "Sesión — Migración HMI Axira (SquareLine → Claude Design)"
-Cohesion: 0.18
-Nodes (10): 10. Backup, 1. Objetivo y estado, 2. Repositorios (GitHub, cuenta vbaena1972), 4. Design system (alineado a ClaudeHMI/MedGuard, dark), 5. Pantallas (16) y navegación, 6. Lógica / persistencia (hecho), 7. Simulador de PC (`ClaudeHMI-Sim`), 8. Cómo compilar (+2 more)
+Cohesion: 0.10
+Nodes (20): 10. Backup, 1. Objetivo y estado, 2. Repositorios (GitHub, cuenta vbaena1972), 3. Arquitectura de la nueva HMI (`main/ui/`), 4. Design system (alineado a ClaudeHMI/MedGuard, dark), 5. Pantallas (16) y navegación, 6. Lógica / persistencia (hecho), 7. Simulador de PC (`ClaudeHMI-Sim`) (+12 more)
 
 ### Community 14 - "3. Correspondencia de campos (firmware `AppConfig` ↔ JSON ↔ Flutter)"
-Cohesion: 0.12
-Nodes (15): 1. GATT, 3. Correspondencia de campos (firmware `AppConfig` ↔ JSON ↔ Flutter), 4. Límites de longitud (deben coincidir), 5. Secretos y versión, 7. Pendiente, alarms ↔ `general.alarm` / `AlarmsConfig`, bluetooth ↔ `bt` / `BluetoothConfig`, channels ↔ `sensors` / `ChannelConfig`/`BleChannelConfig` (+7 more)
+Cohesion: 0.11
+Nodes (17): 1. GATT, 2. Dos esquemas de canal (importante), 3. Correspondencia de campos (firmware `AppConfig` ↔ JSON ↔ Flutter), 4. Límites de longitud (deben coincidir), 5. Secretos y versión, 6. Cambios aplicados en el firmware (esta tanda), 7. Pendiente, alarms ↔ `general.alarm` / `AlarmsConfig` (+9 more)
 
-### Community 15 - "net_core.c"
-Cohesion: 0.13
-Nodes (10): on_eth_event(), on_ip_event(), on_wifi_event(), rearm_net_services(), time_mgr_start_sntp(), transport_mqtt_on_net_down(), state_build_json(), state_get() (+2 more)
+### Community 15 - "time_mgr.c"
+Cohesion: 0.11
+Nodes (19): esp_eth, esp_event, esp_netif_sntp, esp_sntp, esp_wifi, esp_err_t, esp_event_base_t, net_core_init() (+11 more)
 
 ### Community 16 - "ui_label"
-Cohesion: 0.06
-Nodes (102): 3. Arquitectura de la nueva HMI (`main/ui/`), bleapp_set_connected(), ui_bleAppScreen_screen_init(), ui_confirmScreen_screen_init(), conn_card(), ui_connectivityScreen_screen_init(), row(), ui_datetimeScreen_screen_init() (+94 more)
+Cohesion: 0.05
+Nodes (130): card_state_t, sensors_runtime_flow_warming(), sensors_runtime_get_debug(), bleapp_set_connected(), ui_bleAppScreen_screen_init(), ui_confirmScreen_screen_init(), lv_event_cb_t, lv_obj_t (+122 more)
 
 ### Community 17 - "QA FORMAL — FPM-200 firmware **1.5.24-dev** (iniciado sobre 1.5.22)"
 Cohesion: 0.07
 Nodes (27): A. Arranque / versión / estabilidad, Alcance: qué cambia 1.5.22 respecto de 1.5.4 (último commit previo al ciclo), B. Calibración EEPROM, C. Medición presión / flujo, Cierre, D. Adquisición / temporización, E. Consumo, F. Alarmas (+19 more)
 
-### Community 18 - "storage_extras.c"
-Cohesion: 0.29
-Nodes (13): appcfg_calc_etag(), appcfg_patch(), appcfg_set(), appcfg_to_minified_json(), appcfg_validate(), fnv1a32(), json_merge_patch_obj(), other_slot() (+5 more)
+### Community 18 - "config_mode.c"
+Cohesion: 0.24
+Nodes (8): esp_err_t, config_mode_enter(), config_mode_exit(), log_heap(), bleapp_loaded_cb(), bleapp_unloaded_cb(), lv_event_t, transport_mqtt
 
 ### Community 19 - "ui_sensorEditScreen.c"
-Cohesion: 0.21
-Nodes (13): accept_cb(), card(), dec_cb(), flow_card(), limit_step(), mini(), pressure_card(), rebuild() (+5 more)
+Cohesion: 0.18
+Nodes (25): lv_event_t, lv_obj_t, ui_edit_target_t, card(), dec_cb(), dec_seg(), flow_card(), gas_cb() (+17 more)
 
 ### Community 20 - "storage.c"
-Cohesion: 0.24
-Nodes (17): 2. 🔴 BUG ABIERTO #1 (bloqueante): watchdog en `taskLVGL` — FIX A VALIDAR, 6. Pendiente (después de estabilizar §2 y validar §3), 7. Gotchas que no re-descubrir, appcfg_cache_get(), appcfg_cache_reload(), appcfg_defaults(), appcfg_load(), appcfg_migrate() (+9 more)
+Cohesion: 0.08
+Nodes (60): app_metrics_t, cert_info_t, cert_kind_t, cfg_result_t, crypto, fcntl, esp_err_t, cert_store_erase() (+52 more)
 
 ### Community 21 - "http_api.c"
-Cohesion: 0.14
-Nodes (17): mdns_svc_start(), add_channel(), alarms_get_handler(), cfg_get_handler(), cfg_put_handler(), http_api_init(), http_api_start(), http_api__start_locked() (+9 more)
+Cohesion: 0.23
+Nodes (21): esp_chip_info, add_channel(), alarms_get_handler(), cJSON, esp_err_t, httpd_handle_t, httpd_req_t, cfg_get_handler() (+13 more)
 
 ### Community 22 - "sensors_runtime.c"
-Cohesion: 0.13
-Nodes (24): ads1115_is_ready(), ms5803_is_ready(), flow_meter_init(), lock(), sensors_runtime_flow_warming(), sensors_runtime_get_ages(), sensors_runtime_get_aws_telemetry(), sensors_runtime_get_debug() (+16 more)
+Cohesion: 0.14
+Nodes (30): ads1115_is_ready(), ms5803_is_ready(), aws_telemetry_task(), flow_meter_get(), AppConfig, i2c_master_bus_handle_t, sensor_sample_t, sensor_signal_stats_t (+22 more)
 
 ### Community 23 - "test_eeprom.c"
 Cohesion: 0.33
-Nodes (4): fpm_i2c_bus_add_device(), fpm_i2c_bus_rm_device(), fpm_i2c_stop_read(), fpm_i2c_transmit()
+Nodes (9): at24c256, esp_err_t, i2c_device_config_t, i2c_master_bus_handle_t, i2c_master_dev_handle_t, fpm_i2c_bus_add_device(), fpm_i2c_bus_rm_device(), fpm_i2c_stop_read() (+1 more)
 
 ### Community 24 - "Handoff — ClaudeHMI-FW (FPM-200) · arranque de sesión (2026-08-01)"
-Cohesion: 0.11
-Nodes (18): 0. Contexto, 1. ⚠️ ESTADO — leer antes de nada, 2026-09-29 (cont.) — FW 1.5.29-dev: config remota por shadow NOMBRADO `config`, 4. Cómo compilar / gotchas de build, Actualización 2026-08-09 (estabilización en HW + app), Actualización 2026-08-18 (sensores reales — se elimina la simulación), Actualización 2026-08-21 — EEPROM persiste + recalibración FS7 estable, Actualización 2026-09-24 — EEPROM, consumo, cero de presión (FW 1.5.5 → 1.5.22-dev) (+10 more)
+Cohesion: 0.07
+Nodes (29): 0. Contexto, 1. ⚠️ ESTADO — leer antes de nada, 2026-09-29 (cont.) — FW 1.5.29-dev: config remota por shadow NOMBRADO `config`, 2026-10-10 (tarde) — FW 1.5.32-dev (compilado, pendiente de HW): corte de energía + DEC-027, 2026-10-11 — 1.5.32 probado en HW; FW 1.5.33-dev (sin compilar, pendiente de HW), 2. 🔴 BUG ABIERTO #1 (bloqueante): watchdog en `taskLVGL` — FIX A VALIDAR, 3. Contrato BLE FPM ↔ app Sensvax (commit `711b463`) — A VALIDAR EN HW, 4. Cómo compilar / gotchas de build (+21 more)
 
 ### Community 25 - "Seguridad del firmware — MedGuard 12-IoT y FPM-200 (2026-09-26)"
 Cohesion: 0.25
 Nodes (7): 1. Estado actual: lo activado es 100 % reversible (NINGÚN eFuse), 2.1 Fix 2026-09-28: bloque de firma residual, 2. OTA firmada — cómo funciona y cómo operarla, 3. PIN con hash — cómo funciona, 4. Producción — Secure Boot V2 + cifrado de flash (IRREVERSIBLE), 5. Mientras tanto: mitigación en la nube (sin tocar el chip), Seguridad del firmware — MedGuard 12-IoT y FPM-200 (2026-09-26)
 
 ### Community 26 - "touch_io_bounded.c"
-Cohesion: 0.20
-Nodes (8): fpm_new_panel_io_i2c(), panel_io_i2c_del(), panel_io_i2c_register_event_callbacks(), panel_io_i2c_rx_buffer(), panel_io_i2c_rx_param(), panel_io_i2c_tx_buffer(), panel_io_i2c_tx_color(), panel_io_i2c_tx_param()
+Cohesion: 0.22
+Nodes (17): cdefs, esp_compiler, esp_lcd_panel_io_callbacks_t, esp_lcd_panel_io_handle_t, esp_lcd_panel_io_i2c_config_t, esp_lcd_panel_io_interface, esp_lcd_panel_io_t, esp_err_t (+9 more)
 
 ### Community 27 - "eth_mgr.c"
-Cohesion: 0.16
-Nodes (8): appcfg_to_eth_view(), apply_ip_config(), eth_mgr_init(), eth_mgr_init_from_storage(), eth_mgr_start(), eth_mgr_stop(), eth_view_from_appcfg(), eth_init_task()
+Cohesion: 0.18
+Nodes (16): esp_eth_netif_glue, esp_netif, eth_view_t, appcfg_to_eth_view(), apply_ip_config(), AppConfig, esp_err_t, esp_netif_t (+8 more)
 
-### Community 28 - "Sesión 2026-07-31 (parte 2 — RAM/estabilidad + modo config BLE) — SIN COMPILAR NI HW"
+### Community 28 - "ble_init_task"
 Cohesion: 0.29
-Nodes (7): 5. Lo demás que ya se hizo (commiteado en `66014fa`, sin validar 100% en HW), 9. Estado de pendientes (actualizado 2026-07-31), Aún pendiente, Sesión 2026-07-30 (previa, ya commiteada en `c03ba34`), Sesión 2026-07-31 (parte 2 — RAM/estabilidad + modo config BLE) — SIN COMPILAR NI HW, mqtt_stop_locked(), transport_mqtt_stop()
+Nodes (10): fpm_ble_config_set_clock_cb(), esp_err_t, transport_ble_init(), transport_ble_set_enabled(), transport_ble_set_finish_cb(), transport_ble_set_mesh_enabled(), transport_ble_set_passkey_mode(), transport_ble_set_tx_power() (+2 more)
 
-### Community 29 - "save_cb"
-Cohesion: 0.50
-Nodes (3): ui_connectivityScreen_refresh(), save_cb(), set_str()
+### Community 29 - "state_pub.c"
+Cohesion: 0.29
+Nodes (5): device_state_t, state_build_json(), state_get(), state_update_sensors(), state_pub
 
 ### Community 30 - "esp_eth_phy_ksz8851snl.c"
 Cohesion: 0.16
-Nodes (17): ksz8851_update_link_duplex_speed(), phy_ksz8851_advertise_pause_ability(), phy_ksz8851_autonego_ctrl(), phy_ksz8851_deinit(), phy_ksz8851_del(), phy_ksz8851_get_addr(), phy_ksz8851_get_link(), phy_ksz8851_init() (+9 more)
+Nodes (26): eth_phy_autoneg_cmd_t, esp_err_t, esp_eth_mediator_t, esp_eth_phy_t, eth_duplex_t, eth_link_t, eth_speed_t, ksz8851_update_link_duplex_speed() (+18 more)
 
-### Community 31 - "ui_pin_hash.c"
-Cohesion: 0.24
-Nodes (15): derive(), from_hex(), hmac(), hmac_key_init(), random_salt(), sha256_block(), sha256_final(), sha256_init() (+7 more)
+### Community 31 - "mdns_svc.c"
+Cohesion: 0.29
+Nodes (5): esp_err_t, mdns_svc_start(), on_network_ready(), mdns, mdns_svc
 
 ### Community 32 - "esp_log.h"
-Cohesion: 0.06
-Nodes (4): ws_emit_cfg_changed(), ws_handler(), ws_stream_broadcast(), ws_stream_start()
+Cohesion: 0.05
+Nodes (36): cjson, esp_http_server, esp_lcd_panel_ops, esp_lcd_touch, esp_lcd_types, esp_lvgl_port, esp_random, derive() (+28 more)
 
 ### Community 33 - "ethernet_init.c"
-Cohesion: 0.19
-Nodes (5): eth_init_internal(), eth_init_spi(), example_eth_deinit(), example_eth_init(), spi_bus_init()
+Cohesion: 0.16
+Nodes (18): esp_check, esp_eth_handle_t, esp_eth_mac_ksz8851snl, esp_eth_phy_ksz8851snl, esp_mac, eth_phy_config_t, ethernet_init, esp_eth_phy_new_ksz8851snl() (+10 more)
 
 ### Community 34 - "screen_init_task"
 Cohesion: 0.21
-Nodes (14): Contrato de integración con el firmware (preservado), bsp_display_backlight_off(), bsp_display_backlight_on(), bsp_display_brightness_init(), bsp_display_brightness_set(), bsp_display_lock(), bsp_display_off(), bsp_display_on() (+6 more)
+Nodes (18): bsp_display_backlight_off(), bsp_display_backlight_on(), bsp_display_brightness_init(), bsp_display_brightness_set(), bsp_display_lock(), bsp_display_off(), bsp_display_on(), bsp_display_rotate() (+10 more)
 
 ### Community 35 - "ui_statusbar_controller.c"
 Cohesion: 0.17
-Nodes (14): Sesión 2026-07-31 (ESTA sesión — NO commiteada aún; sin compilar en este entorno, sin HW), eth_mgr_is_up(), cloud_mgr_connected(), wifi_mgr_get_netinfo(), transport_ble_is_advertising(), transport_ble_is_connected(), activity_timer_cb(), apply_cloud_visual() (+6 more)
+Nodes (18): transport_ble_is_advertising(), activity_timer_cb(), apply_cloud_visual(), lv_obj_t, lv_timer_t, set_glyph(), set_visible(), statusbar_timer_cb() (+10 more)
 
-### Community 36 - "ui_cfg.c"
-Cohesion: 0.14
-Nodes (21): next(), gas_label_color(), ui_auth_factory(), ui_auth_login(), ui_auth_user_at(), ui_cfg_apply_timezone(), ui_cfg_color_code(), ui_cfg_color_is_iso() (+13 more)
+### Community 36 - "gas_label_color"
+Cohesion: 0.31
+Nodes (9): gas_label_color(), ui_cfg_color_code(), ui_cfg_color_is_iso(), ui_cfg_gas(), ui_cfg_gas_color_at(), ui_cfg_gas_count(), ui_cfg_gas_index(), ui_cfg_gas_key() (+1 more)
 
-### Community 37 - "Hecho en la sesión 2026-07-22"
-Cohesion: 0.36
-Nodes (8): Hecho en la sesión 2026-07-22, bright_cb(), clamp_brightness(), ui_cfg_brightness(), ui_cfg_dim_minutes(), ui_cfg_preview_brightness(), ui_cfg_set_brightness(), display_idle_cb()
+### Community 37 - "ui_generalSimpleScreen.c"
+Cohesion: 0.13
+Nodes (25): general_loaded_cb(), base_card(), bright_cb(), lv_event_cb_t, lv_event_t, lv_obj_t, dim_cb(), lang_cb() (+17 more)
 
-### Community 38 - "ui_generalSimpleScreen.c"
-Cohesion: 0.18
-Nodes (9): ui_generalScreen_screen_destroy(), dim_cb(), lang_cb(), rebuild(), retranslate_parent_general(), theme_cb(), ui_generalSimpleScreen_screen_destroy(), rebuild() (+1 more)
+### Community 38 - "sensor_cfg_persist"
+Cohesion: 0.48
+Nodes (7): esp_err_t, crc16_ccitt(), sensor_cfg_persist(), sensors_runtime_cal_flow_point(), sensors_runtime_set_pressure_gauge(), sensors_runtime_tare_flow(), sensors_runtime_tare_pressure()
 
 ### Community 39 - "sensors_acq_task"
-Cohesion: 0.16
-Nodes (15): Actualización 2026-08-18 (tarde) — SFM leyendo, robustez I²C, calibración FS7 · **v1.4.0**, Actualización 2026-08-20 — BMP280 (ref. atmosférica), cero FS7, debug en dashboard, sfm3300_crc8(), sfm3300_get_last_rx(), sfm3300_init(), sfm3300_is_ready(), sfm3300_read(), sfm3300_send_cmd() (+7 more)
+Cohesion: 0.18
+Nodes (17): bmp280_is_ready(), esp_err_t, i2c_master_bus_handle_t, sfm3300_crc8(), sfm3300_get_last_rx(), sfm3300_init(), sfm3300_is_ready(), sfm3300_read() (+9 more)
 
 ### Community 40 - "ui_connectivityScreen.c"
-Cohesion: 0.19
-Nodes (8): conn_signature(), cpy(), gather(), live_tick(), rssi_pct(), str_hash(), ui_connectivityScreen_screen_destroy(), ui_netWifiScreen_screen_destroy()
+Cohesion: 0.26
+Nodes (11): conn_status_t, cloud_mgr_connected(), lv_timer_t, conn_signature(), cpy(), gather(), live_tick(), rssi_pct() (+3 more)
 
 ### Community 41 - "main.c"
-Cohesion: 0.10
-Nodes (3): bsp_i2c_init(), esp_trace_get_user_params(), mount_sdcard_hotplug()
+Cohesion: 0.09
+Nodes (19): errno, esp_app_trace, esp_core_dump, esp_heap_trace, esp_task_wdt, esp_trace, esp_trace_open_params_t, esp_vfs_fat (+11 more)
 
-### Community 42 - "appcfg_cache_peek"
-Cohesion: 0.16
-Nodes (17): appcfg_cache_peek(), appcfg_save(), f_switch(), ui_auth_set_factory_pin(), ui_auth_user_count(), ui_auth_user_remove(), ui_cfg_alarm_tone(), ui_cfg_check_pin() (+9 more)
+### Community 42 - "ui_cfg.c"
+Cohesion: 0.12
+Nodes (36): appcfg_cache_peek(), appcfg_save(), lv_event_t, next(), f_switch(), is_press_unit(), unit_cb(), AppConfig (+28 more)
 
 ### Community 43 - "fpm_i2c_guard.c"
 Cohesion: 0.16
-Nodes (15): fpm_i2c_bus_add_device(), fpm_i2c_bus_reset(), fpm_i2c_bus_rm_device(), fpm_i2c_init(), fpm_i2c_multi_buffer_transmit(), fpm_i2c_receive(), fpm_i2c_stop_read(), fpm_i2c_transmit() (+7 more)
+Nodes (23): esp_err_t, i2c_device_config_t, i2c_master_bus_handle_t, i2c_master_dev_handle_t, fpm_i2c_bus_add_device(), fpm_i2c_bus_reset(), fpm_i2c_bus_rm_device(), fpm_i2c_init() (+15 more)
 
-### Community 44 - "ui_i18n"
-Cohesion: 0.24
-Nodes (4): ui_datetimeScreen_screen_destroy(), key_cb(), refresh_value(), ui_keypadScreen_screen_destroy()
+### Community 44 - "ui_keypadScreen.c"
+Cohesion: 0.38
+Nodes (5): accept_cb(), lv_event_t, key_cb(), refresh_value(), ui_edit_set_new()
 
-### Community 45 - "cert_store.c"
-Cohesion: 0.26
-Nodes (10): cert_store_erase(), cert_store_erase_all(), cert_store_import_from_sd(), cert_store_info(), cert_store_load(), cert_store_write(), key_for_kind(), read_file_to_buf() (+2 more)
+### Community 45 - "esp_lcd_st7796.h"
+Cohesion: 0.40
+Nodes (4): esp_idf_version, esp_lcd_mipi_dsi, esp_lcd_panel_vendor, lcd_types
 
 ### Community 47 - "transport_mqtt.c"
-Cohesion: 0.19
-Nodes (9): add_channel(), aws_telemetry_task(), mqtt_start_locked(), prepare_pem(), publish_alarm_transition(), shadow_apply_pending(), shadow_topics_init(), transport_mqtt_on_time_ready() (+1 more)
+Cohesion: 0.14
+Nodes (17): time_mgr_set_datetime(), add_channel(), cJSON, sensor_signal_stats_t, mqtt_start_locked(), mqtt_stop_locked(), prepare_pem(), publish_alarm_transition() (+9 more)
 
 ### Community 49 - "fpm_i2c_guard"
-Cohesion: 0.25
-Nodes (6): bcd2dec(), dec2bcd(), rtc_rv3028_get_time(), rtc_rv3028_init(), rtc_rv3028_set_time(), time_mgr_init()
+Cohesion: 0.21
+Nodes (12): bcd2dec(), esp_err_t, i2c_master_bus_handle_t, dec2bcd(), rtc_rv3028_get_time(), rtc_rv3028_init(), rtc_rv3028_set_time(), time_mgr_init() (+4 more)
 
 ### Community 51 - "ft5x06.c"
-Cohesion: 0.15
-Nodes (5): bsp_display_get_input_dev(), bsp_display_indev_init(), bsp_touch_new(), ft5x06_lvgl_read_cb(), sensors_runtime_bus1_hung()
+Cohesion: 0.16
+Nodes (15): bsp_touch_config_t, esp_lcd_panel_io, esp_lcd_touch_handle_t, bsp_display_get_input_dev(), bsp_display_indev_init(), bsp_touch_new(), esp_err_t, i2c_master_bus_handle_t (+7 more)
 
 ### Community 52 - "sd_monitor_task"
-Cohesion: 0.15
-Nodes (12): Actualización 2026-09-21 — microSD, AWS por SD, BT-off y splash (FW 1.5.4-dev), ui_statusbar_controller_deinit(), ui_wifi_main_icon_deinit(), restart_btn_event_cb(), sd_flow_clear(), sd_monitor_task(), sd_ui_close_cb(), ui_main_deinit_cb() (+4 more)
+Cohesion: 0.20
+Nodes (13): lv_event_t, restart_btn_event_cb(), sd_flow_clear(), sd_monitor_task(), sd_ui_close_cb(), unmount_sdcard_hotplug(), lv_event_cb_t, lv_event_t (+5 more)
 
-### Community 54 - "time_mgr.c"
-Cohesion: 0.17
-Nodes (4): 2026-10-10 (tarde) — FW 1.5.32-dev (compilado, pendiente de HW): corte de energía + DEC-027, time_mgr_is_time_valid(), time_mgr_set_datetime(), on_ble_set_clock()
+### Community 54 - "save_cb"
+Cohesion: 0.40
+Nodes (5): transport_ble_stop_adv(), bleapp_off_cb(), lv_event_t, save_cb(), set_str()
 
 ### Community 55 - "Migración HMI: SquareLine → Claude Design"
 Cohesion: 0.17
 Nodes (11): 🩹 Arreglos preexistentes (NO relacionados con la HMI), 💾 Backup, ✅ Completado (Fases 0–2), 🔨 Cómo compilar (en tu terminal ESP-IDF), Fase 0 — Tooling y sistema de diseño, Fase 1 — Esqueleto + limpieza, Fase 2 — Pantalla principal + integración, Migración HMI: SquareLine → Claude Design (+3 more)
 
-### Community 56 - "ui_pinScreen.c"
-Cohesion: 0.32
-Nodes (5): pin_key_cb(), pin_wrong_flash(), refresh_dots(), ui_pinScreen_screen_destroy(), ui_pinScreen_set_config_entry()
+### Community 56 - "ui_nav.c"
+Cohesion: 0.14
+Nodes (17): bleapp_goroot_async(), ui_generalScreen_screen_destroy(), lv_event_t, pin_key_cb(), pin_wrong_flash(), get_general(), lv_event_t, lv_obj_t (+9 more)
 
 ### Community 57 - "Changelog"
 Cohesion: 0.25
@@ -344,97 +349,128 @@ Nodes (7): 1.0.0 (2025-09-24), [1.1.0](https://github.com/espressif/esp-eth-driv
 
 ### Community 58 - "mem_diag.c"
 Cohesion: 0.23
-Nodes (6): diag_worker(), mem_diag_report_full(), mem_diag_report_heap_full(), mem_diag_report_tasks(), mem_diag_start_periodic(), task_state_str()
+Nodes (8): eTaskState, diag_worker(), mem_diag_report_full(), mem_diag_report_heap_full(), mem_diag_report_tasks(), mem_diag_start_periodic(), task_state_str(), mem_diag
 
-### Community 60 - "ui_cfg_flow_unit"
-Cohesion: 0.20
-Nodes (11): general_loaded_cb(), protected_back_cb(), ui_cfg_flow_to_disp(), ui_cfg_flow_unit(), ui_cfg_press_decimals(), ui_cfg_press_fmt(), ui_cfg_press_from_disp(), ui_cfg_press_to_disp() (+3 more)
+### Community 60 - "apply_authenticated_cb"
+Cohesion: 0.18
+Nodes (12): apply_authenticated_cb(), lv_event_t, allow_decimal(), ui_sensorDiagScreen_refresh(), ui_cfg_press_decimals(), ui_cfg_press_fmt(), ui_cfg_press_from_disp(), ui_cfg_press_to_disp() (+4 more)
 
 ### Community 61 - "ui_bleAppScreen.c"
-Cohesion: 0.24
-Nodes (5): bleapp_is_connected(), bleapp_leave_to_dashboard(), bleapp_pair_pin(), bleapp_tick_cb(), ui_bleAppScreen_screen_destroy()
+Cohesion: 0.20
+Nodes (10): config_mode, esp_system, transport_ble_is_connected(), bleapp_is_connected(), bleapp_leave_to_dashboard(), bleapp_pair_pin(), bleapp_tick_cb(), AppConfig (+2 more)
 
 ### Community 62 - "ui.c"
-Cohesion: 0.05
-Nodes (72): apply_authenticated_cb(), allow_decimal(), add_user(), key(), key_cb(), refresh(), role_color(), role_name() (+64 more)
+Cohesion: 0.13
+Nodes (19): ui_datetimeScreen_screen_destroy(), ui_keypadScreen_screen_destroy(), ui_mainScreen_screen_destroy(), ui_netBleScreen_screen_destroy(), ui_netWifiScreen_screen_destroy(), ui_sensorDiagScreen_screen_destroy(), lv_timer_t, fresh_keypad() (+11 more)
 
-### Community 63 - "ui_infoScreen.c"
-Cohesion: 0.36
-Nodes (5): erase_nvs_namespace(), factory_btn_cb(), factory_reset_apply(), reboot_cb(), ui_infoScreen_screen_destroy()
+### Community 63 - "ui_nav_load"
+Cohesion: 0.22
+Nodes (15): ui_infoScreen_screen_destroy(), ui_login_set_destination(), ui_loginScreen_screen_destroy(), menu_item_cb(), ui_pinScreen_set_config_entry(), lv_event_t, fresh_login(), get_info() (+7 more)
 
 ### Community 64 - "Consumo y endurecimiento 1.5.5-dev"
 Cohesion: 0.07
 Nodes (27): 1.5.17 hardware result (log3, 2026-09-24): VALIDATED, 1.5.18 hardware result (log4): VALIDATED, committed a25efbf, 1.5.19 hardware result (log5), 1.5.20 hardware result (log6): OK, 1.5.21 hardware result (log7): VALIDATED, 1.5.22 hardware result (log8, after full erase-flash + SD import): VALIDATED, 1.5.23 boot check + 1.5.24-dev (2026-09-25), Audit and fixes: 1.5.18-dev (Claude, 2026-09-24) (+19 more)
 
-### Community 66 - "lvgl"
-Cohesion: 0.10
-Nodes (4): ui_confirmScreen_screen_destroy(), kb_event_cb(), password_toggle_cb(), ta_event_cb()
+### Community 67 - "at24c256.c"
+Cohesion: 0.30
+Nodes (13): at24c256_init(), at24c256_is_ready(), at24c256_read(), at24c256_self_test(), at24c256_write(), esp_err_t, i2c_master_bus_handle_t, write_verified() (+5 more)
 
-### Community 67 - "esp_err_to_name"
-Cohesion: 0.25
-Nodes (16): at24c256_init(), at24c256_is_ready(), at24c256_read(), at24c256_self_test(), at24c256_write(), write_verified(), crc16_ccitt(), sensor_cfg_persist() (+8 more)
-
-### Community 68 - "wifi_event_handler"
-Cohesion: 0.16
-Nodes (10): mem_diag_report(), on_eth_event(), on_ip_event(), log_dns_info(), notify(), wifi_event_handler(), wifi_mgr_get_netif(), wifi_mgr_stop() (+2 more)
+### Community 68 - "ui_statusbar_request_refresh"
+Cohesion: 0.15
+Nodes (18): mem_diag_report(), esp_event_base_t, eth_mgr_is_up(), on_eth_event(), on_ip_event(), esp_netif_t, wifi_mgr_get_netif(), wifi_mgr_stop() (+10 more)
 
 ### Community 69 - "flow_meter.c"
-Cohesion: 0.22
-Nodes (5): time_sync_worker(), flow_meter_get(), flow_meter_record(), flow_meter_service(), flow_integrator_push()
+Cohesion: 0.21
+Nodes (9): assert, esp_err_t, flow_meter_init(), flow_meter_record(), flow_integrator_push(), close_to(), main(), flow_integrator_t (+1 more)
 
-### Community 70 - "esp_eth_mac_new_ksz8851snl"
-Cohesion: 0.22
-Nodes (5): ESP-IDF Usage, Microchip KSZ8851SNL Ethernet Driver, Overview, esp_eth_mac_new_ksz8851snl(), esp_eth_phy_new_ksz8851snl()
+### Community 70 - "Microchip KSZ8851SNL Ethernet Driver"
+Cohesion: 0.50
+Nodes (3): ESP-IDF Usage, Microchip KSZ8851SNL Ethernet Driver, Overview
+
+### Community 71 - "Q: Implement WiFi password visibility toggle, keep SSID/password above LVGL keyboard, refresh connectivity after WiFi save, suppress auth-screen buzzer, and publish device_status immediately on alarm changes"
+Cohesion: 0.40
+Nodes (4): Answer, Outcome, Q: Implement WiFi password visibility toggle, keep SSID/password above LVGL keyboard, refresh connectivity after WiFi save, suppress auth-screen buzzer, and publish device_status immediately on alarm changes, Source Nodes
 
 ### Community 72 - "ui_auth_can"
-Cohesion: 0.23
-Nodes (13): cert_erase_cb(), save_cb(), ui_auth_active(), ui_auth_can(), ui_auth_can_edit_user(), ui_auth_can_manage(), ui_auth_current_user(), ui_auth_logout() (+5 more)
+Cohesion: 0.13
+Nodes (26): lv_event_t, protected_back_cb(), lv_event_t, cert_erase_cb(), save_cb(), set_str(), lv_event_t, delete_cb() (+18 more)
 
 ### Community 75 - "mqtt_event"
 Cohesion: 0.38
-Nodes (5): mqtt_event(), shadow_rx_chunk(), shadow_rx_reset(), topic_is(), ui_statusbar_signal_cloud_activity()
+Nodes (7): esp_mqtt_event_handle_t, esp_event_base_t, mqtt_event(), shadow_rx_chunk(), shadow_rx_reset(), topic_is(), ui_statusbar_signal_cloud_activity()
 
-### Community 78 - "save_and_refresh"
-Cohesion: 0.19
-Nodes (14): gas_cb(), is_press_unit(), limit_edit(), p_switch(), std_cb(), unit_cb(), save_and_refresh(), set_str() (+6 more)
-
-### Community 80 - "ui_userEditScreen.c"
-Cohesion: 0.39
-Nodes (5): delete_cb(), flash_error(), save_cb(), selected_role(), ui_userEditScreen_screen_destroy()
-
-### Community 81 - "ui_cfg_apply_visual_mode"
-Cohesion: 0.33
-Nodes (4): ui_cfg_apply_visual_mode(), ui_cfg_set_theme(), ui_cfg_theme(), visual_color()
-
-### Community 84 - "Q: Analisis de longFPM.log: bloqueo de interfaz, alarma persistente, pila, heap y tareas"
+### Community 76 - "esp_eth_com"
 Cohesion: 0.40
-Nodes (4): Answer, Outcome, Q: Analisis de longFPM.log: bloqueo de interfaz, alarma persistente, pila, heap y tareas, Source Nodes
+Nodes (3): esp_eth_com, esp_eth_mac_spi, esp_eth_phy
 
-### Community 89 - "ui_usersScreen.c"
-Cohesion: 0.33
-Nodes (3): role_color(), role_name(), ui_usersScreen_screen_destroy()
+### Community 77 - "ui_wifi_main_icon_init"
+Cohesion: 0.50
+Nodes (4): wifi_mgr_set_status_cb(), lv_obj_t, ui_wifi_main_icon_init(), wifi_status_cb_t
+
+### Community 78 - "Q: Revisa cada cuando el FPM esta enviando los datos a AWS"
+Cohesion: 0.40
+Nodes (4): Answer, Outcome, Q: Revisa cada cuando el FPM esta enviando los datos a AWS, Source Nodes
+
+### Community 79 - "on_alarm_state_change"
+Cohesion: 0.67
+Nodes (3): transport_mqtt_publish_now(), alarm_clinical_state_t, on_alarm_state_change()
+
+### Community 80 - "ui_open_useredit_cb"
+Cohesion: 0.39
+Nodes (8): ui_userEditScreen_screen_destroy(), ui_userEditScreen_set_index(), add_cb(), lv_event_t, factory_pin_cb(), row_cb(), fresh_useredit(), ui_open_useredit_cb()
+
+### Community 81 - "get_bleapp"
+Cohesion: 0.67
+Nodes (3): ui_bleAppScreen_screen_destroy(), get_bleapp(), ui_open_bleapp_cb()
+
+### Community 82 - "get_connectivity"
+Cohesion: 0.67
+Nodes (3): ui_connectivityScreen_screen_destroy(), get_connectivity(), ui_open_connectivity_cb()
+
+### Community 83 - "fresh_net_cloud"
+Cohesion: 0.67
+Nodes (3): ui_netCloudScreen_screen_destroy(), fresh_net_cloud(), ui_open_net_cloud_cb()
+
+### Community 84 - "get_sensor_edit"
+Cohesion: 0.67
+Nodes (3): ui_sensorEditScreen_screen_destroy(), get_sensor_edit(), ui_open_sensor_cb()
+
+### Community 85 - "get_users"
+Cohesion: 0.67
+Nodes (3): ui_usersScreen_screen_destroy(), get_users(), ui_open_users_cb()
+
+### Community 89 - "ui_widgets"
+Cohesion: 0.16
+Nodes (11): alarm_mgr, app_user_role_t, selected_role(), app_user_role_t, role_color(), role_name(), ui, ui_cfg (+3 more)
 
 ### Community 90 - "ota_update.c"
 Cohesion: 0.15
-Nodes (7): ends_with_ci(), erase_stale_tail(), notify(), ota_update_find_file(), ota_update_from_file(), read_description(), version_cmp()
+Nodes (19): dirent, esp_app_desc_t, esp_app_format, esp_ota_ops, esp_partition, esp_partition_t, FILE, esp_err_t (+11 more)
 
 ## Knowledge Gaps
-- **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **132 isolated node(s):** `gen_ota_signing_key.sh script`, `graphify`, `Estructura del repositorio (reorganizado 2026-09-15, mirror de MedGuard)`, `graphify`, `1. GATT` (+127 more)
+  These have ≤1 connection - possible missing edges or undocumented components.
+- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+
+## Work-memory lessons
+
+**Preferred sources** — corroborated by past sessions; start here.
+- `transport_mqtt_publish_now()` (2× useful, score=1.99980777) _(code changed — re-verify)_
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `appcfg_cache_peek()` connect `appcfg_cache_peek` to `transport_ble.c`, `ui_netEthScreen.c`, `test_alarm.c`, `fpm_ble_config.c`, `ui_edit_begin`, `ui_label`, `ui_sensorEditScreen.c`, `storage.c`, `http_api.c`, `sensors_runtime.c`, `save_cb`, `screen_init_task`, `ui_cfg.c`, `Hecho en la sesión 2026-07-22`, `ui_connectivityScreen.c`, `transport_mqtt.c`, `ui_cfg_flow_unit`, `ui_auth_can`, `save_and_refresh`, `ui_cfg_apply_visual_mode`?**
-  _High betweenness centrality (0.062) - this node is a cross-community bridge._
+- **Why does `appcfg_cache_peek()` connect `ui_cfg.c` to `screen_init_task`, `alarm_mgr.c`, `ui_statusbar_request_refresh`, `ui_loginScreen.c`, `ui_generalSimpleScreen.c`, `ui_connectivityScreen.c`, `ui_auth_can`, `gas_label_color`, `fpm_ble_config.c`, `ui_edit_begin`, `ui_label`, `ui_sensorEditScreen.c`, `storage.c`, `http_api.c`, `sensors_runtime.c`, `save_cb`, `apply_authenticated_cb`, `mdns_svc.c`?**
+  _High betweenness centrality (0.054) - this node is a cross-community bridge._
+- **Why does `screen_init_task()` connect `screen_init_task` to `at24c256.c`, `sensors_acq_task`, `main.c`, `ui_cfg.c`, `ui_wifi_main_icon_init`, `ui_label`, `fpm_i2c_guard`, `ft5x06.c`?**
+  _High betweenness centrality (0.034) - this node is a cross-community bridge._
+- **Why does `esp_err_to_name()` connect `esp_err_to_name` to `ms5803.c`, `ads1115.c`, `FreeRTOS.h`, `fpm_ble_config.c`, `storage.c`, `http_api.c`, `sensors_runtime.c`, `eth_mgr.c`, `ble_init_task`, `mdns_svc.c`, `esp_log.h`, `screen_init_task`, `sensor_cfg_persist`, `sensors_acq_task`, `fpm_i2c_guard.c`, `fpm_i2c_guard`, `ft5x06.c`, `sd_monitor_task`, `at24c256.c`, `ota_update.c`?**
+  _High betweenness centrality (0.030) - this node is a cross-community bridge._
 - **Are the 73 inferred relationships involving `appcfg_cache_peek()` (e.g. with `alarm_mgr_press_mute_impl()` and `alarm_mgr_process_impl()`) actually correct?**
   _`appcfg_cache_peek()` has 73 INFERRED edges - model-reasoned connections that need verification._
-- **Should `string` be split into smaller, more focused modules?**
-  _Cohesion score 0.11594202898550725 - nodes in this community are weakly interconnected._
-- **Why does `esp_err_to_name()` connect `esp_err_to_name` to `wifi_mgr.c`, `transport_ble.c`, `ms5803.c`, `ads1115.c`, `FreeRTOS.h`, `fpm_ble_config.c`, `storage.c`, `http_api.c`, `sensors_runtime.c`, `eth_mgr.c`, `esp_log.h`, `screen_init_task`, `sensors_acq_task`, `fpm_i2c_guard.c`, `cert_store.c`, `fpm_i2c_guard`, `ft5x06.c`, `sd_monitor_task`, `ui_infoScreen.c`, `wifi_event_handler`, `flow_meter.c`, `ota_update.c`?**
-  _High betweenness centrality (0.037) - this node is a cross-community bridge._
-- **Are the 49 inferred relationships involving `ui_label()` (e.g. with `3. Arquitectura de la nueva HMI (`main/ui/`)` and `ui_bleAppScreen_screen_init()`) actually correct?**
+- **Are the 49 inferred relationships involving `ui_label()` (e.g. with `ui_bleAppScreen_screen_init()` and `ui_confirmScreen_screen_init()`) actually correct?**
   _`ui_label()` has 49 INFERRED edges - model-reasoned connections that need verification._
-- **Should `wifi_mgr.c` be split into smaller, more focused modules?**
-  _Cohesion score 0.14666666666666667 - nodes in this community are weakly interconnected._
-- **Why does `screen_init_task()` connect `screen_init_task` to `ui_statusbar_controller.c`, `esp_err_to_name`, `sensors_acq_task`, `main.c`, `appcfg_cache_peek`, `ui_wifi_main_icon_init`, `ui_label`, `fpm_i2c_guard`, `ft5x06.c`?**
-  _High betweenness centrality (0.036) - this node is a cross-community bridge._
+- **Are the 46 inferred relationships involving `esp_err_to_name()` (e.g. with `cert_store_erase()` and `cert_store_import_from_sd()`) actually correct?**
+  _`esp_err_to_name()` has 46 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 43 inferred relationships involving `ui_col()` (e.g. with `bleapp_set_connected()` and `ui_bleAppScreen_screen_init()`) actually correct?**
+  _`ui_col()` has 43 INFERRED edges - model-reasoned connections that need verification._
