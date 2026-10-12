@@ -154,6 +154,8 @@ void appcfg_defaults(AppConfig *c)
     set_str(c->cloud.broker_url, sizeof(c->cloud.broker_url), "mqtts://a13o0atpzl606i-ats.iot.us-east-1.amazonaws.com:8883");
     // RaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­z del tÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³pico MQTT (El cÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³digo en transport_mqtt.c le agregarÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ automÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ticamente "/telemetry" al final)
     set_str(c->cloud.topic_base, sizeof(c->cloud.topic_base), "vexel");
+    /* Servidor de firmware OTA (DEC-029, salida FirmwareBaseUrl del stack medguard-mvp). */
+    set_str(c->cloud.ota_url, sizeof(c->cloud.ota_url), "https://d2ylj1vxo50l8q.cloudfront.net");
     c->cloud.qos = 1;        // QOS 1 es ideal para asegurar que AWS reciba la telemetrÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­a
     c->cloud.keepalive = 60; // 60 segundos es el estÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ndar mÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡s estable para AWS IoT (30s es un poco agresivo y puede causar reconexiones)
 }

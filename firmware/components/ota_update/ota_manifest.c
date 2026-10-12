@@ -72,7 +72,9 @@ esp_err_t ota_manifest_fetch(const char *base, const char *product, int channel,
         int status = esp_http_client_get_status_code(client);
         if (status != 200) {
             ESP_LOGE(TAG, "Manifest %s: HTTP %d", url, status);
-            err = status == 404 ? ESP_ERR_NOT_FOUND : ESP_FAIL;
+            /* S3 detras de CloudFront (OAC, sin ListBucket) responde 403 -no 404-
+             * cuando el archivo no existe: ambos = "no hay firmware publicado". */
+            err = (status == 404 || status == 403) ? ESP_ERR_NOT_FOUND : ESP_FAIL;
         } else {
             int r;
             while (len < MANIFEST_MAX_BYTES &&
