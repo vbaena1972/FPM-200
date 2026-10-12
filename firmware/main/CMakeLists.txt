@@ -37,3 +37,8 @@ idf_component_register(SRCS "main.c" "config_mode.c" "lv_port_mem.c" ${SRC_UI}
 # depende de main), así que el linker no jala ese objeto del archivo por sí solo.
 # Forzamos su inclusión pidiendo un símbolo como indefinido en el enlace final.
 target_link_libraries(${COMPONENT_LIB} INTERFACE "-Wl,-u,lv_malloc_core")
+# Prueba de vuelta atras de OTA (1.5.37): `idf.py -DFPM_OTA_TEST_NO_CONFIRM=1 build`
+# genera una imagen que nunca se confirma. Volver con =0 (queda en la cache).
+if(DEFINED FPM_OTA_TEST_NO_CONFIRM)
+    target_compile_definitions(${COMPONENT_LIB} PRIVATE FPM_OTA_TEST_NO_CONFIRM=${FPM_OTA_TEST_NO_CONFIRM})
+endif()

@@ -1250,6 +1250,14 @@ void app_main(void)
      * "pendiente de verificar"; si se reinicia (panic/WDT) antes de llegar aqui,
      * el bootloader vuelve sola a la version anterior. Se confirma SOLO tras
      * completar pantalla, almacenamiento, red y sensores. No toca eFuses. */
+#if defined(FPM_OTA_TEST_NO_CONFIRM) && FPM_OTA_TEST_NO_CONFIRM
+    /* SOLO PRUEBAS (1.5.37): imagen que nunca se confirma, para probar la vuelta
+     * atras. Reinicia a los 30 s y el bootloader arranca la version anterior.
+     * Compilar con -DFPM_OTA_TEST_NO_CONFIRM=1. */
+    ESP_LOGW("ota", "PRUEBA OTA: imagen SIN confirmar; reinicio en 30 s -> vuelta atras");
+    vTaskDelay(pdMS_TO_TICKS(30000));
+    esp_restart();
+#endif
     {
         const esp_partition_t *running = esp_ota_get_running_partition();
         esp_ota_img_states_t ota_state;

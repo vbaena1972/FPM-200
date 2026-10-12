@@ -15,6 +15,7 @@
  */
 #pragma once
 
+#include <stdbool.h>
 #include <stddef.h>
 #include "esp_err.h"
 
@@ -39,6 +40,16 @@ esp_err_t ota_update_from_file(const char *path, ota_update_progress_cb_t cb,
  * hay ninguna. Los ya procesados (.instalado/.rechazado) no terminan en .bin. */
 esp_err_t ota_update_find_file(const char *dir, char *path, size_t path_size,
                                char *version, size_t version_size);
+
+/* OTA por red (1.5.37): base = servidor de firmware ("https://…"), canal 0 =
+ * stable / 1 = beta (ota_manifest.h). check: version publicada y si es MAS
+ * NUEVA que la actual. from_url: descarga, valida proyecto + FIRMA e instala
+ * (se aplica al reiniciar); ESP_ERR_NOT_SUPPORTED si no hay version mas nueva.
+ * Bloqueantes; pausar MQTT antes (RAM interna para TLS). */
+esp_err_t ota_update_check_url(const char *base, int channel,
+                               char *version_out, size_t version_size, bool *newer);
+esp_err_t ota_update_from_url(const char *base, int channel, ota_update_progress_cb_t cb,
+                              void *user, char *version_out, size_t version_size);
 
 #ifdef __cplusplus
 }

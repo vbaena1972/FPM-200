@@ -8,6 +8,16 @@ migración de HMI y sesiones viejas: `docs/historial/`.
 
 > Sesiones anteriores al 2026-10-10 y el estado de agosto/septiembre (§0–§5, §8): `docs/historial/HANDOFF_sesiones_2026-08_a_2026-10-08.md`. Aquí quedan las sesiones vigentes, el pendiente (§6) y los gotchas (§7).
 
+## 2026-10-12 — FW 1.5.37-dev: OTA por RED (sin compilar)
+
+- Información (Administrador+): Estable/Beta, Buscar, Instalar con barra; la tarea `ota_net` (stack interno 8 KB)
+  pausa MQTT (`transport_mqtt_stop`), lee `<cloud.ota_url>/fpm200/<canal>/manifest.json` (`ota_manifest.c`, idéntico
+  al de MedGuard), solo instala una versión más nueva (`ota_update_from_url`: proyecto + firma + borrado de la cola de
+  la partición) y reinicia; si falla, reanuda MQTT. La pantalla solo lee el estado con un lv_timer.
+- Prueba de vuelta atrás: `idf.py -DFPM_OTA_TEST_NO_CONFIRM=1 build` (imagen que no se confirma y reinicia a los 30 s).
+- Servidor y publicación: DEC-029 y `MedGuard-12IoT/scripts/publish_firmware.sh`. Pruebas:
+  `MedGuard-12IoT/docs/entrega/PRUEBAS_HW_OTA_1.7.18_1.5.37.md`.
+
 ## 2026-10-12 — Soak final de 1.5.36-dev APROBADO (~28 h): baseline de V1
 
 - Log `firmware/logMedFPM_1.5.36_20261011_1301.txt`: 1 arranque, 0 panics; RAM interna plana 80.203 B (h1→h28, min_ever

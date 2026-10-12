@@ -17,6 +17,9 @@
 #include "esp_log.h"
 #include "esp_ota_ops.h"
 #include "esp_partition.h"
+#include "esp_crt_bundle.h"
+#include "esp_https_ota.h"
+#include "ota_manifest.h"
 
 #define OTA_IO_BUFFER_SIZE 4096
 
@@ -230,5 +233,102 @@ esp_err_t ota_update_find_file(const char *dir, char *path, size_t path_size,
     if (!path[0]) return ESP_ERR_NOT_FOUND;
     if (version && version_size) strlcpy(version, best_version, version_size);
     ESP_LOGI(TAG, "Firmware en microSD: %s (version %s)", path, best_version);
+    return ESP_OK;
+}
+/* ---- OTA por red (HTTPS), 1.5.37 — mismo esquema que MedGuard 1.7.18 ----
+ * <base>/fpm200/<stable|beta>/manifest.json (ota_manifest.h). Solo se instala
+ * una version MAS NUEVA que la que corre (si no: ESP_ERR_NOT_SUPPORTED). El
+ * llamador debe pausar antes la sesion MQTT (transport_mqtt_stop): la RAM
+ * interna no alcanza para dos sesiones TLS. */
+#define OTA_PRODUCT "fpm200"
+
+static esp_err_t fetch_manifest(const char *base, int channel, ota_manifest_t *manifest)
+{
+    esp_err_t err = ota_manifest_fetch(base, OTA_PRODUCT, channel, manifest);
+    if (err != ESP_OK) return err;
+    const esp_app_desc_t *running = esp_app_get_description();
+    if (manifest->project[0] &&
+        strncmp(manifest->project, running->project_name, sizeof running->project_name) != 0) {
+        ESP_LOGE(TAG, "Manifest de %s, no de %s", manifest->project, running->project_name);
+        return ESP_ERR_INVALID_VERSION;
+    }
+    return ESP_OK;
+}
+
+esp_err_t ota_update_check_url(const char *base, int channel,
+                               char *version_out, size_t version_size, bool *newer)
+{
+    ota_manifest_t manifest;
+    esp_err_t err = fetch_manifest(base, channel, &manifest);
+    if (err != ESP_OK) return err;
+    if (version_out && version_size) snprintf(version_out, version_size, "%s", manifest.version);
+    if (newer) *newer = ota_version_compare(manifest.version, esp_app_get_description()->version) > 0;
+    return ESP_OK;
+}
+
+esp_err_t ota_update_from_url(const char *base, int channel, ota_update_progress_cb_t cb,
+                              void *user, char *version_out, size_t version_size)
+{
+    ota_manifest_t manifest;
+    esp_err_t err = fetch_manifest(base, channel, &manifest);
+    if (err != ESP_OK) return err;
+    if (ota_version_compare(manifest.version, esp_app_get_description()->version) <= 0)
+        return ESP_ERR_NOT_SUPPORTED;
+
+    esp_http_client_config_t http = {
+        .url = manifest.url,
+        .crt_bundle_attach = esp_crt_bundle_attach,
+        .timeout_ms = 20000,
+        .keep_alive_enable = true,
+    };
+    esp_https_ota_config_t ota = { .http_config = &http };
+    esp_https_ota_handle_t handle = NULL;
+    notify(cb, user, 1, "Conectando al servidor");
+    err = esp_https_ota_begin(&ota, &handle);
+    if (err != ESP_OK) return err;
+
+    esp_app_desc_t desc;
+    err = esp_https_ota_get_img_desc(handle, &desc);
+    if (err == ESP_OK) {
+        const esp_app_desc_t *running = esp_app_get_description();
+        if (strncmp(desc.project_name, running->project_name, sizeof desc.project_name) != 0) {
+            ESP_LOGE(TAG, "Imagen de otro proyecto (%s)", desc.project_name);
+            err = ESP_ERR_INVALID_VERSION;
+        }
+    }
+    if (err != ESP_OK) {
+        esp_https_ota_abort(handle);
+        return err;
+    }
+
+    int total = esp_https_ota_get_image_size(handle);
+    do {
+        err = esp_https_ota_perform(handle);
+        int read = esp_https_ota_get_image_len_read(handle);
+        notify(cb, user, total > 0 && read > 0 ? (int)((long long)read * 95 / total) : 1,
+               "Descargando firmware");
+    } while (err == ESP_ERR_HTTPS_OTA_IN_PROGRESS);
+    if (err != ESP_OK || !esp_https_ota_is_complete_data_received(handle)) {
+        ESP_LOGE(TAG, "Descarga OTA incompleta: %s", esp_err_to_name(err));
+        esp_https_ota_abort(handle);
+        return err == ESP_OK ? ESP_ERR_INVALID_SIZE : err;
+    }
+    /* Misma proteccion que la microSD: sin restos de una firma vieja. */
+    const esp_partition_t *partition = esp_ota_get_next_update_partition(NULL);
+    int read = esp_https_ota_get_image_len_read(handle);
+    err = partition && read > 0 ? erase_stale_tail(partition, (size_t)read) : ESP_FAIL;
+    if (err != ESP_OK) {
+        esp_https_ota_abort(handle);
+        return err;
+    }
+    notify(cb, user, 97, "Verificando firma");
+    err = esp_https_ota_finish(handle);   /* esp_ota_end (firma) + particion de arranque */
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Imagen rechazada (%s): sin firma valida o corrupta", esp_err_to_name(err));
+        return err;
+    }
+    if (version_out && version_size) snprintf(version_out, version_size, "%s", desc.version);
+    notify(cb, user, 100, "Firmware listo");
+    ESP_LOGW(TAG, "Firmware %s descargado e instalado; se aplica al reiniciar", desc.version);
     return ESP_OK;
 }

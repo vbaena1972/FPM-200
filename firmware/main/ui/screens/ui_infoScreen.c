@@ -13,6 +13,9 @@
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "ota_update.h"     // OTA por red (1.5.37)
+#include "esp_ota_ops.h"    // ESP_ERR_OTA_VALIDATE_FAILED
+#include "transport_mqtt.h" // pausar/reanudar AWS durante la OTA
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -164,6 +167,157 @@ static const char *gas_label(const char *g)
     return _t("Oxígeno (O₂)");
 }
 
+/* ---- OTA por red (1.5.37) ----
+ * La descarga corre en una tarea propia (stack INTERNO: hace escrituras de
+ * flash) y solo escribe el estado en estas variables; la pantalla lo lee con un
+ * lv_timer que muere con ella (sin punteros a widgets desde otra tarea). MQTT se
+ * pausa mientras hay TLS de OTA (RAM interna) y se reanuda si no se reinicia. */
+typedef enum { OTA_IDLE, OTA_BUSY, OTA_AVAILABLE, OTA_DONE, OTA_FAIL } ota_ui_state_t;
+static volatile ota_ui_state_t s_ota_state = OTA_IDLE;
+static volatile int s_ota_pct;
+static char s_ota_msg[112] = "";
+static int s_ota_channel;            /* 0 = estable, 1 = beta (no se guarda) */
+static bool s_ota_install;           /* accion de la tarea: buscar o instalar */
+static lv_obj_t *s_ota_lbl, *s_ota_bar, *s_ota_install_btn, *s_ota_ch_btn[2];
+static lv_timer_t *s_ota_timer;
+
+static void ota_progress_cb(int pct, const char *stage, void *user)
+{
+    (void)user;
+    s_ota_pct = pct;
+    snprintf(s_ota_msg, sizeof s_ota_msg, "%s... %d %%", stage ? stage : "", pct);
+}
+
+static void ota_task(void *arg)
+{
+    (void)arg;
+    const AppConfig *cfg = appcfg_cache_peek();
+    char base[sizeof cfg->cloud.ota_url];
+    snprintf(base, sizeof base, "%s", cfg ? cfg->cloud.ota_url : "");
+    char version[32] = "";
+    esp_err_t err;
+    transport_mqtt_stop();
+    if (!s_ota_install) {
+        bool newer = false;
+        err = ota_update_check_url(base, s_ota_channel, version, sizeof version, &newer);
+        if (err == ESP_OK && newer) {
+            snprintf(s_ota_msg, sizeof s_ota_msg, "Disponible v%s (instalada v%s)", version,
+                     esp_app_get_description()->version);
+            s_ota_state = OTA_AVAILABLE;
+        } else if (err == ESP_OK) {
+            snprintf(s_ota_msg, sizeof s_ota_msg, "Sin actualizacion: servidor v%s, ya instalada",
+                     version);
+            s_ota_state = OTA_IDLE;
+        }
+    } else {
+        err = ota_update_from_url(base, s_ota_channel, ota_progress_cb, NULL, version, sizeof version);
+        if (err == ESP_OK) {
+            snprintf(s_ota_msg, sizeof s_ota_msg, "v%s instalada. Reiniciando...", version);
+            s_ota_state = OTA_DONE;
+            vTaskDelay(pdMS_TO_TICKS(2500));
+            esp_restart();
+        }
+    }
+    if (err != ESP_OK) {
+        const char *why = err == ESP_ERR_INVALID_ARG ? "configure la URL OTA (https://) en Nube"
+                        : err == ESP_ERR_NOT_FOUND ? "no hay firmware publicado en ese canal"
+                        : err == ESP_ERR_NOT_SUPPORTED ? "no hay una version mas nueva"
+                        : err == ESP_ERR_INVALID_VERSION ? "el firmware no es de FPM-200"
+                        : err == ESP_ERR_OTA_VALIDATE_FAILED ? "firma invalida o archivo danado"
+                        : esp_err_to_name(err);
+        snprintf(s_ota_msg, sizeof s_ota_msg, "Error: %s. Sigue la version actual.", why);
+        s_ota_state = OTA_FAIL;
+    }
+    transport_mqtt_on_time_ready();   /* reanuda AWS (si no se reinicio) */
+    vTaskDelete(NULL);
+}
+
+static void ota_start(bool install)
+{
+    if (s_ota_state == OTA_BUSY || s_ota_state == OTA_DONE) return;
+    s_ota_install = install;
+    s_ota_pct = 0;
+    snprintf(s_ota_msg, sizeof s_ota_msg, "%s", install ? "Preparando descarga..." : "Consultando servidor...");
+    s_ota_state = OTA_BUSY;
+    if (xTaskCreatePinnedToCore(ota_task, "ota_net", 8192, NULL, 4, NULL, 0) != pdPASS) {
+        snprintf(s_ota_msg, sizeof s_ota_msg, "Error: sin memoria para la tarea OTA");
+        s_ota_state = OTA_FAIL;
+    }
+}
+
+static void ota_check_cb(lv_event_t *e) { (void)e; if (ui_auth_can(APP_ROLE_ADMIN)) ota_start(false); }
+static void ota_install_cb(lv_event_t *e) { (void)e; if (ui_auth_can(APP_ROLE_ADMIN) && s_ota_state == OTA_AVAILABLE) ota_start(true); }
+static void ota_channel_cb(lv_event_t *e)
+{
+    if (s_ota_state == OTA_BUSY || s_ota_state == OTA_DONE) return;
+    s_ota_channel = (int)(intptr_t)lv_event_get_user_data(e);
+    s_ota_state = OTA_IDLE;
+    s_ota_msg[0] = '\0';
+}
+
+static void ota_timer_cb(lv_timer_t *t)
+{
+    (void)t;
+    if (!s_ota_lbl) return;
+    const char *txt = s_ota_msg[0] ? s_ota_msg : _t("Buscar una version nueva en el servidor");
+    if (strcmp(lv_label_get_text(s_ota_lbl), txt) != 0) lv_label_set_text(s_ota_lbl, txt);
+    lv_obj_set_style_text_color(s_ota_lbl, ui_col(s_ota_state == OTA_FAIL ? UI_C_ALARM_SOFT :
+                                s_ota_state == OTA_AVAILABLE || s_ota_state == OTA_DONE ? UI_C_OK : UI_C_TEXT_2), 0);
+    lv_bar_set_value(s_ota_bar, s_ota_pct, LV_ANIM_OFF);
+    if (s_ota_state == OTA_BUSY || s_ota_state == OTA_DONE) lv_obj_clear_flag(s_ota_bar, LV_OBJ_FLAG_HIDDEN);
+    else lv_obj_add_flag(s_ota_bar, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_style_opa(s_ota_install_btn, s_ota_state == OTA_AVAILABLE ? LV_OPA_COVER : LV_OPA_40, 0);
+    for (int i = 0; i < 2; i++)
+        lv_obj_set_style_border_color(s_ota_ch_btn[i], ui_col(i == s_ota_channel ? UI_C_TEAL : UI_C_BORDER), 0);
+}
+
+static void ota_screen_del_cb(lv_event_t *e)
+{
+    (void)e;
+    if (s_ota_timer) { lv_timer_delete(s_ota_timer); s_ota_timer = NULL; }
+    s_ota_lbl = s_ota_bar = s_ota_install_btn = s_ota_ch_btn[0] = s_ota_ch_btn[1] = NULL;
+}
+
+static lv_obj_t *ota_button(lv_obj_t *parent, const char *text, lv_event_cb_t cb, void *user)
+{
+    lv_obj_t *b = ui_card(parent);
+    lv_obj_set_height(b, LV_SIZE_CONTENT);
+    lv_obj_set_flex_grow(b, 1);
+    lv_obj_set_style_radius(b, 10, 0);
+    lv_obj_set_style_pad_ver(b, 9, 0);
+    lv_obj_add_flag(b, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(b, cb, LV_EVENT_CLICKED, user);
+    lv_obj_center(ui_label(b, text, UI_FONT_SM, UI_C_TEXT));
+    return b;
+}
+
+static void ota_card(lv_obj_t *parent)
+{
+    lv_obj_t *c = ui_card(parent);
+    lv_obj_set_size(c, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_obj_set_style_radius(c, 10, 0);
+    lv_obj_set_flex_flow(c, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_style_pad_row(c, 6, 0);
+    ui_label(c, _t("ACTUALIZAR FIRMWARE (RED)"), UI_FONT_XS, UI_C_TEXT_MUTED);
+    lv_obj_t *row = ui_box(c);
+    lv_obj_set_size(row, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
+    lv_obj_set_style_pad_column(row, 6, 0);
+    s_ota_ch_btn[0] = ota_button(row, _t("Estable"), ota_channel_cb, (void *)0);
+    s_ota_ch_btn[1] = ota_button(row, _t("Beta"), ota_channel_cb, (void *)1);
+    ota_button(row, _t("Buscar"), ota_check_cb, NULL);
+    s_ota_install_btn = ota_button(row, _t("Instalar"), ota_install_cb, NULL);
+    s_ota_lbl = ui_label(c, "", UI_FONT_XS, UI_C_TEXT_2);
+    lv_label_set_long_mode(s_ota_lbl, LV_LABEL_LONG_WRAP);
+    lv_obj_set_width(s_ota_lbl, LV_PCT(100));
+    s_ota_bar = lv_bar_create(c);
+    lv_obj_set_size(s_ota_bar, LV_PCT(100), 8);
+    lv_bar_set_range(s_ota_bar, 0, 100);
+    s_ota_timer = lv_timer_create(ota_timer_cb, 300, NULL);
+    lv_obj_add_event_cb(ui_infoScreen, ota_screen_del_cb, LV_EVENT_DELETE, NULL);
+    ota_timer_cb(NULL);
+}
+
 void ui_infoScreen_screen_init(void)
 {
     const AppConfig *cfg = appcfg_cache_peek();
@@ -295,6 +449,7 @@ void ui_infoScreen_screen_init(void)
         factory_btn(fr, _t("Restablecer config."), false);
         if (ui_auth_can(APP_ROLE_FACTORY))
             factory_btn(fr, _t("Borrado total"), true);
+        ota_card(ui_infoScreen);
     }
 
     /* pie con QR */
