@@ -8,6 +8,14 @@ migración de HMI y sesiones viejas: `docs/historial/`.
 
 > Sesiones anteriores al 2026-10-10 y el estado de agosto/septiembre (§0–§5, §8): `docs/historial/HANDOFF_sesiones_2026-08_a_2026-10-08.md`. Aquí quedan las sesiones vigentes, el pendiente (§6) y los gotchas (§7).
 
+## 2026-10-12 — Soak final de 1.5.36-dev APROBADO (~28 h): baseline de V1
+
+- Log `firmware/logMedFPM_1.5.36_20261011_1301.txt`: 1 arranque, 0 panics; RAM interna plana 80.203 B (h1→h28, min_ever
+  46.876); 3.359 telemetrías (1/30 s); 2 cortes de AWS (22,97 h y 23,91 h; el segundo a la vez que MedGuard → red) con
+  reconexión inmediata; FS7 estable a 3,4 s; 1.557 glitches de flujo descartados (~55/h) y 13 `SALTO ADC` (conocidos).
+- **Fase 1 cerrada.** Siguiente: fase 2 (OTA HTTPS, buzzer IEC 60601-1-8, Secure Boot en DevKit) según
+  `MedGuard-12IoT/docs/entrega/PROMPT_PROXIMA_SESION.md`.
+
 ## 2026-10-11 (cierre) — 1.5.34 probado; FW 1.5.35-dev (sin compilar)
 
 - 1.5.34 OK en HW: tarjetas no clicables, Información con scroll, restablecer en dos niveles + reimportación de
@@ -18,7 +26,7 @@ migración de HMI y sesiones viejas: `docs/historial/`.
   salía "11"); el pad de PIN además ignora la misma tecla en < 120 ms. (3) Login: sin usuario elegido no se acepta
   el PIN ni cuenta intento; ojo mostrar/ocultar en el PIN y en la passphrase de Fabricante. (4) "Reiniciar equipo"
   con alto de contenido.
-- Pruebas: "Ronda mínima" (M4–M9) de `MedGuard-12IoT/docs/entrega/PRUEBAS_HW_1.7.14_1.5.33.md`.
+- Pruebas: "Ronda mínima" (M4–M9) de `MedGuard-12IoT/docs/entrega/historial/PRUEBAS_HW_1.7.14_1.5.33.md`.
 
 ## 2026-10-11 (noche) — 1.5.33 probado; FW 1.5.34-dev (sin compilar)
 
@@ -30,7 +38,7 @@ migración de HMI y sesiones viejas: `docs/historial/`.
   toque; las que son botones ya agregaban `LV_OBJ_FLAG_CLICKABLE`); Información con scroll vertical y tarjetas de
   calibración/mantenimiento con alto de contenido (antes el alto por defecto de lv_obj). La tecla "ocultar
   teclado" de la hoja de passphrase cierra la hoja (= cancelar, como en los formularios): se deja así.
-- Pruebas: sección "Ronda corta" de `MedGuard-12IoT/docs/entrega/PRUEBAS_HW_1.7.14_1.5.33.md` (R5–R8, F1–F3).
+- Pruebas: sección "Ronda corta" de `MedGuard-12IoT/docs/entrega/historial/PRUEBAS_HW_1.7.14_1.5.33.md` (R5–R8, F1–F3).
 
 ## 2026-10-11 — 1.5.32 probado en HW; FW 1.5.33-dev (sin compilar, pendiente de HW)
 
@@ -54,7 +62,7 @@ migración de HMI y sesiones viejas: `docs/historial/`.
   FreeRTOS, y `ui_mainScreen.c` incluye `flow_meter.h` y usa `sensors_runtime_get_debug/flow_warming*`; los stubs
   de `Simulator/sim_app` no tienen nada de eso → el sim no compila. Pendiente: completar los stubs.
 - Sintaxis verificada con la toolchain del proyecto (`-fsyntax-only` con `build/compile_commands.json`).
-  **Probar:** `MedGuard-12IoT/docs/entrega/PRUEBAS_HW_1.7.14_1.5.33.md` (B, F, G). Pendiente menor:
+  **Probar:** `MedGuard-12IoT/docs/entrega/historial/PRUEBAS_HW_1.7.14_1.5.33.md` (B, F, G). Pendiente menor:
   `general.factory.must_change_pin` se guarda pero ninguna pantalla obliga a cambiar la passphrase demo.
 
 ## 2026-10-10 (tarde) — FW 1.5.32-dev (compilado, pendiente de HW): corte de energía + DEC-027
