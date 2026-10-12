@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.5.39-dev (2026-10-12): el temporizador de inactividad no saca de Informacion
+#   durante una OTA por red; buffer HTTP de 8 KB (como MedGuard 1.7.20).
+#   (1.5.38-dev fue el mismo 1.5.37-dev, solo para probar la OTA.)
 # 1.5.37-dev (2026-10-12), fase 2 (DEC-027): OTA por RED (antes solo microSD).
 #   Informacion (Administrador+): Estable/Beta, Buscar, Instalar con progreso. Lee
 #   <cloud.ota_url>/fpm200/<canal>/manifest.json (ota_manifest.c, identico al de
@@ -154,7 +157,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.5.37-dev")
+set(PROJECT_VER "1.5.39-dev")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:

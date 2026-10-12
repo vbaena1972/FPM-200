@@ -125,7 +125,7 @@ static void display_idle_cb(lv_timer_t *t)
      * cierra la sesion (no se queda abierta una configuracion ni una alarma
      * a pantalla completa olvidada). No durante el splash de arranque. */
     if (idle >= UI_IDLE_HOME_MS && !ui_splashScreen && ui_mainScreen &&
-        lv_screen_active() != ui_mainScreen)
+        lv_screen_active() != ui_mainScreen && !ui_infoScreen_ota_busy())
     {
         ui_auth_logout();
         ui_nav_pop_to(ui_mainScreen);

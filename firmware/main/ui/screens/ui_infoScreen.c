@@ -181,6 +181,11 @@ static bool s_ota_install;           /* accion de la tarea: buscar o instalar */
 static lv_obj_t *s_ota_lbl, *s_ota_bar, *s_ota_install_btn, *s_ota_ch_btn[2];
 static lv_timer_t *s_ota_timer;
 
+bool ui_infoScreen_ota_busy(void)
+{
+    return s_ota_state == OTA_BUSY || s_ota_state == OTA_DONE;
+}
+
 static void ota_progress_cb(int pct, const char *stage, void *user)
 {
     (void)user;

@@ -280,6 +280,9 @@ esp_err_t ota_update_from_url(const char *base, int channel, ota_update_progress
         .crt_bundle_attach = esp_crt_bundle_attach,
         .timeout_ms = 20000,
         .keep_alive_enable = true,
+        /* 1.7.20: el buffer por defecto (512 B) hacia la descarga muy lenta
+         * (~10 KB/s, 2,5 MB en ~4 min en HW 2026-10-12). */
+        .buffer_size = 8192,
     };
     esp_https_ota_config_t ota = { .http_config = &http };
     esp_https_ota_handle_t handle = NULL;
