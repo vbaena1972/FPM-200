@@ -11,7 +11,7 @@
       "_origin": "ast",
       "id": "firmware_components_cert_store_cert_store",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "norm_label": "cert_store.c"
     },
     {
@@ -23,7 +23,7 @@
       "_origin": "ast",
       "id": "firmware_components_cert_store_cert_store_key_for_kind",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "norm_label": "key_for_kind()"
     },
     {
@@ -34,7 +34,7 @@
       "_origin": "ast",
       "id": "cert_kind_t",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "norm_label": "cert_kind_t"
     },
     {
@@ -46,7 +46,7 @@
       "_origin": "ast",
       "id": "firmware_components_cert_store_cert_store_sha256_hex",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "norm_label": "sha256_hex()"
     },
     {
@@ -58,7 +58,7 @@
       "_origin": "ast",
       "id": "firmware_components_cert_store_cert_store_cert_store_write",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "norm_label": "cert_store_write()"
     },
     {
@@ -69,7 +69,7 @@
       "_origin": "ast",
       "id": "firmware_components_cert_store_cert_store_c_esp_err_t",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "norm_label": "esp_err_t"
     },
     {
@@ -81,7 +81,7 @@
       "_origin": "ast",
       "id": "firmware_components_cert_store_cert_store_cert_store_load",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "norm_label": "cert_store_load()"
     },
     {
@@ -93,7 +93,7 @@
       "_origin": "ast",
       "id": "firmware_components_cert_store_cert_store_cert_store_erase",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "norm_label": "cert_store_erase()"
     },
     {
@@ -105,7 +105,7 @@
       "_origin": "ast",
       "id": "firmware_components_cert_store_cert_store_cert_store_info",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "norm_label": "cert_store_info()"
     },
     {
@@ -116,7 +116,7 @@
       "_origin": "ast",
       "id": "cert_info_t",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "norm_label": "cert_info_t"
     },
     {
@@ -128,7 +128,7 @@
       "_origin": "ast",
       "id": "firmware_components_cert_store_cert_store_cert_store_erase_all",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "norm_label": "cert_store_erase_all()"
     },
     {
@@ -140,7 +140,7 @@
       "_origin": "ast",
       "id": "firmware_components_cert_store_cert_store_read_file_to_buf",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "norm_label": "read_file_to_buf()"
     },
     {
@@ -152,7 +152,7 @@
       "_origin": "ast",
       "id": "firmware_components_cert_store_cert_store_cert_store_import_from_sd",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "norm_label": "cert_store_import_from_sd()"
     },
     {
@@ -163,7 +163,7 @@
       "_origin": "ast",
       "id": "firmware_components_cert_store_include_cert_store",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "cert_store.h"
     },
     {
@@ -184,8 +184,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_components_clock_mgr_tz_map",
-      "community": 28,
-      "community_name": "string",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "tz_map.c"
     },
     {
@@ -348,8 +348,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_components_display_ft5x06",
-      "community": 26,
-      "community_name": "touch_io_bounded.c",
+      "community": 28,
+      "community_name": "ft5x06.c",
       "norm_label": "ft5x06.c"
     },
     {
@@ -360,8 +360,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_display_ft5x06_touch_glitch",
-      "community": 26,
-      "community_name": "touch_io_bounded.c",
+      "community": 28,
+      "community_name": "ft5x06.c",
       "norm_label": "touch_glitch()"
     },
     {
@@ -371,8 +371,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "lv_indev_data_t",
-      "community": 26,
-      "community_name": "touch_io_bounded.c",
+      "community": 28,
+      "community_name": "ft5x06.c",
       "norm_label": "lv_indev_data_t"
     },
     {
@@ -383,8 +383,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_display_ft5x06_ft5x06_lvgl_read_cb",
-      "community": 26,
-      "community_name": "touch_io_bounded.c",
+      "community": 28,
+      "community_name": "ft5x06.c",
       "norm_label": "ft5x06_lvgl_read_cb()"
     },
     {
@@ -394,8 +394,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "lv_indev_t",
-      "community": 26,
-      "community_name": "touch_io_bounded.c",
+      "community": 28,
+      "community_name": "ft5x06.c",
       "norm_label": "lv_indev_t"
     },
     {
@@ -406,8 +406,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_display_ft5x06_bsp_display_indev_init",
-      "community": 26,
-      "community_name": "touch_io_bounded.c",
+      "community": 28,
+      "community_name": "ft5x06.c",
       "norm_label": "bsp_display_indev_init()"
     },
     {
@@ -417,8 +417,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_display_ft5x06_c_lv_display_t",
-      "community": 26,
-      "community_name": "touch_io_bounded.c",
+      "community": 28,
+      "community_name": "ft5x06.c",
       "norm_label": "lv_display_t"
     },
     {
@@ -428,8 +428,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_display_ft5x06_c_i2c_master_bus_handle_t",
-      "community": 26,
-      "community_name": "touch_io_bounded.c",
+      "community": 28,
+      "community_name": "ft5x06.c",
       "norm_label": "i2c_master_bus_handle_t"
     },
     {
@@ -440,8 +440,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_display_ft5x06_bsp_display_get_input_dev",
-      "community": 26,
-      "community_name": "touch_io_bounded.c",
+      "community": 28,
+      "community_name": "ft5x06.c",
       "norm_label": "bsp_display_get_input_dev()"
     },
     {
@@ -452,8 +452,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_display_ft5x06_bsp_touch_new",
-      "community": 26,
-      "community_name": "touch_io_bounded.c",
+      "community": 28,
+      "community_name": "ft5x06.c",
       "norm_label": "bsp_touch_new()"
     },
     {
@@ -463,8 +463,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_display_ft5x06_c_esp_err_t",
-      "community": 26,
-      "community_name": "touch_io_bounded.c",
+      "community": 28,
+      "community_name": "ft5x06.c",
       "norm_label": "esp_err_t"
     },
     {
@@ -474,8 +474,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "bsp_touch_config_t",
-      "community": 26,
-      "community_name": "touch_io_bounded.c",
+      "community": 28,
+      "community_name": "ft5x06.c",
       "norm_label": "bsp_touch_config_t"
     },
     {
@@ -485,8 +485,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "esp_lcd_touch_handle_t",
-      "community": 26,
-      "community_name": "touch_io_bounded.c",
+      "community": 28,
+      "community_name": "ft5x06.c",
       "norm_label": "esp_lcd_touch_handle_t"
     },
     {
@@ -497,7 +497,7 @@
       "_origin": "ast",
       "id": "firmware_components_display_include_display",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "display.h"
     },
     {
@@ -507,8 +507,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_components_display_include_esp_lcd_st7796",
-      "community": 4,
-      "community_name": "alarm_mgr.c",
+      "community": 32,
+      "community_name": "esp_err.h",
       "norm_label": "esp_lcd_st7796.h"
     },
     {
@@ -519,7 +519,7 @@
       "_origin": "ast",
       "id": "firmware_components_display_include_esp_lcd_touch_ft5x06",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "esp_lcd_touch_ft5x06.h"
     },
     {
@@ -530,7 +530,7 @@
       "_origin": "ast",
       "id": "firmware_components_display_include_ft5x06",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "ft5x06.h"
     },
     {
@@ -541,7 +541,7 @@
       "_origin": "ast",
       "id": "firmware_components_display_include_st7796",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "st7796.h"
     },
     {
@@ -552,7 +552,7 @@
       "_origin": "ast",
       "id": "firmware_components_display_include_touch",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "touch.h"
     },
     {
@@ -981,7 +981,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_ads1115_ads1115_is_ready",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "ads1115_is_ready()"
     },
     {
@@ -1311,7 +1311,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_at24c256",
       "community": 67,
-      "community_name": "at24c256.c",
+      "community_name": "driver_delay_ms",
       "norm_label": "at24c256.c"
     },
     {
@@ -1323,7 +1323,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_at24c256_at24c256_init",
       "community": 67,
-      "community_name": "at24c256.c",
+      "community_name": "driver_delay_ms",
       "norm_label": "at24c256_init()"
     },
     {
@@ -1334,7 +1334,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_at24c256_c_esp_err_t",
       "community": 67,
-      "community_name": "at24c256.c",
+      "community_name": "driver_delay_ms",
       "norm_label": "esp_err_t"
     },
     {
@@ -1345,7 +1345,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_at24c256_c_i2c_master_bus_handle_t",
       "community": 67,
-      "community_name": "at24c256.c",
+      "community_name": "driver_delay_ms",
       "norm_label": "i2c_master_bus_handle_t"
     },
     {
@@ -1357,7 +1357,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_at24c256_at24c256_is_ready",
       "community": 67,
-      "community_name": "at24c256.c",
+      "community_name": "driver_delay_ms",
       "norm_label": "at24c256_is_ready()"
     },
     {
@@ -1369,7 +1369,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_at24c256_at24c256_read",
       "community": 67,
-      "community_name": "at24c256.c",
+      "community_name": "driver_delay_ms",
       "norm_label": "at24c256_read()"
     },
     {
@@ -1381,7 +1381,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_at24c256_write_verified",
       "community": 67,
-      "community_name": "at24c256.c",
+      "community_name": "driver_delay_ms",
       "norm_label": "write_verified()"
     },
     {
@@ -1393,7 +1393,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_at24c256_at24c256_write",
       "community": 67,
-      "community_name": "at24c256.c",
+      "community_name": "driver_delay_ms",
       "norm_label": "at24c256_write()"
     },
     {
@@ -1405,7 +1405,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_at24c256_at24c256_self_test",
       "community": 67,
-      "community_name": "at24c256.c",
+      "community_name": "driver_delay_ms",
       "norm_label": "at24c256_self_test()"
     },
     {
@@ -1544,8 +1544,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_drivers_fpm_i2c_guard_fpm_i2c_init",
-      "community": 0,
-      "community_name": "app_main",
+      "community": 22,
+      "community_name": "esp_timer_get_time",
       "norm_label": "fpm_i2c_init()"
     },
     {
@@ -1731,7 +1731,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_include_ads1115",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "ads1115.h"
     },
     {
@@ -1742,7 +1742,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_include_alarm_mgr",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "alarm_mgr.h"
     },
     {
@@ -1753,7 +1753,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_include_at24c256",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "at24c256.h"
     },
     {
@@ -1764,7 +1764,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_include_bmp280",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "bmp280.h"
     },
     {
@@ -1786,8 +1786,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_drivers_include_driver_delay_driver_delay_ms",
-      "community": 7,
-      "community_name": "ms5803.c",
+      "community": 67,
+      "community_name": "driver_delay_ms",
       "norm_label": "driver_delay_ms()"
     },
     {
@@ -1798,7 +1798,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_include_fpm_i2c_guard",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "fpm_i2c_guard.h"
     },
     {
@@ -1809,7 +1809,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_include_ms5803",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "ms5803.h"
     },
     {
@@ -1819,8 +1819,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_components_drivers_include_rtc_rv3028",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 15,
+      "community_name": "time_mgr.c",
       "norm_label": "rtc_rv3028.h"
     },
     {
@@ -1831,7 +1831,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_include_sfm3300",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "sfm3300.h"
     },
     {
@@ -1960,7 +1960,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_ms5803_ms5803_is_ready",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "ms5803_is_ready()"
     },
     {
@@ -1983,7 +1983,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_rtc_rv3028",
       "community": 2,
-      "community_name": "time_mgr.c",
+      "community_name": "fpm_i2c_guard",
       "norm_label": "rtc_rv3028.c"
     },
     {
@@ -1995,7 +1995,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_rtc_rv3028_bcd2dec",
       "community": 2,
-      "community_name": "time_mgr.c",
+      "community_name": "fpm_i2c_guard",
       "norm_label": "bcd2dec()"
     },
     {
@@ -2007,7 +2007,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_rtc_rv3028_dec2bcd",
       "community": 2,
-      "community_name": "time_mgr.c",
+      "community_name": "fpm_i2c_guard",
       "norm_label": "dec2bcd()"
     },
     {
@@ -2019,7 +2019,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_rtc_rv3028_rtc_rv3028_init",
       "community": 2,
-      "community_name": "time_mgr.c",
+      "community_name": "fpm_i2c_guard",
       "norm_label": "rtc_rv3028_init()"
     },
     {
@@ -2030,7 +2030,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_rtc_rv3028_c_esp_err_t",
       "community": 2,
-      "community_name": "time_mgr.c",
+      "community_name": "fpm_i2c_guard",
       "norm_label": "esp_err_t"
     },
     {
@@ -2041,7 +2041,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_rtc_rv3028_c_i2c_master_bus_handle_t",
       "community": 2,
-      "community_name": "time_mgr.c",
+      "community_name": "fpm_i2c_guard",
       "norm_label": "i2c_master_bus_handle_t"
     },
     {
@@ -2053,7 +2053,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_rtc_rv3028_rtc_rv3028_get_time",
       "community": 2,
-      "community_name": "time_mgr.c",
+      "community_name": "fpm_i2c_guard",
       "norm_label": "rtc_rv3028_get_time()"
     },
     {
@@ -2065,7 +2065,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_rtc_rv3028_rtc_rv3028_set_time",
       "community": 2,
-      "community_name": "time_mgr.c",
+      "community_name": "fpm_i2c_guard",
       "norm_label": "rtc_rv3028_set_time()"
     },
     {
@@ -2076,7 +2076,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_sfm3300",
       "community": 39,
-      "community_name": "vTaskDelay",
+      "community_name": "sensors_acq_task",
       "norm_label": "sfm3300.c"
     },
     {
@@ -2088,7 +2088,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_sfm3300_sfm3300_crc8",
       "community": 39,
-      "community_name": "vTaskDelay",
+      "community_name": "sensors_acq_task",
       "norm_label": "sfm3300_crc8()"
     },
     {
@@ -2100,7 +2100,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_sfm3300_sfm3300_send_cmd",
       "community": 39,
-      "community_name": "vTaskDelay",
+      "community_name": "sensors_acq_task",
       "norm_label": "sfm3300_send_cmd()"
     },
     {
@@ -2111,7 +2111,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_sfm3300_c_esp_err_t",
       "community": 39,
-      "community_name": "vTaskDelay",
+      "community_name": "sensors_acq_task",
       "norm_label": "esp_err_t"
     },
     {
@@ -2123,7 +2123,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_sfm3300_sfm3300_init",
       "community": 39,
-      "community_name": "vTaskDelay",
+      "community_name": "sensors_acq_task",
       "norm_label": "sfm3300_init()"
     },
     {
@@ -2134,7 +2134,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_sfm3300_c_i2c_master_bus_handle_t",
       "community": 39,
-      "community_name": "vTaskDelay",
+      "community_name": "sensors_acq_task",
       "norm_label": "i2c_master_bus_handle_t"
     },
     {
@@ -2146,7 +2146,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_sfm3300_sfm3300_is_ready",
       "community": 39,
-      "community_name": "vTaskDelay",
+      "community_name": "sensors_acq_task",
       "norm_label": "sfm3300_is_ready()"
     },
     {
@@ -2158,7 +2158,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_sfm3300_sfm3300_get_last_rx",
       "community": 39,
-      "community_name": "vTaskDelay",
+      "community_name": "sensors_acq_task",
       "norm_label": "sfm3300_get_last_rx()"
     },
     {
@@ -2170,7 +2170,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_sfm3300_sfm3300_start_measurement",
       "community": 39,
-      "community_name": "vTaskDelay",
+      "community_name": "sensors_acq_task",
       "norm_label": "sfm3300_start_measurement()"
     },
     {
@@ -2182,7 +2182,7 @@
       "_origin": "ast",
       "id": "firmware_components_drivers_sfm3300_sfm3300_read",
       "community": 39,
-      "community_name": "vTaskDelay",
+      "community_name": "sensors_acq_task",
       "norm_label": "sfm3300_read()"
     },
     {
@@ -3363,8 +3363,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_eth_mgr_eth_mgr_is_up",
-      "community": 83,
-      "community_name": "ui_statusbar_request_refresh",
+      "community": 40,
+      "community_name": "ui_connectivityScreen.c",
       "norm_label": "eth_mgr_is_up()"
     },
     {
@@ -3513,7 +3513,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_include_eth_mgr",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "eth_mgr.h"
     },
     {
@@ -3535,7 +3535,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_include_mdns_svc",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "mdns_svc.h"
     },
     {
@@ -3546,7 +3546,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_include_net_core",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "net_core.h"
     },
     {
@@ -3557,7 +3557,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_include_time_mgr",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "time_mgr.h"
     },
     {
@@ -3568,7 +3568,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_include_transport_mqtt",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "transport_mqtt.h"
     },
     {
@@ -3579,7 +3579,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_include_wifi_mgr",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "wifi_mgr.h"
     },
     {
@@ -3589,8 +3589,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_components_network_core_mdns_svc",
-      "community": 64,
-      "community_name": "esp_app_desc",
+      "community": 20,
+      "community_name": "ui_infoScreen.c",
       "norm_label": "mdns_svc.c"
     },
     {
@@ -3624,8 +3624,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_mdns_svc_mdns_svc_stop",
-      "community": 64,
-      "community_name": "esp_app_desc",
+      "community": 20,
+      "community_name": "ui_infoScreen.c",
       "norm_label": "mdns_svc_stop()"
     },
     {
@@ -3636,7 +3636,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_net_core",
       "community": 15,
-      "community_name": "net_core.c",
+      "community_name": "time_mgr.c",
       "norm_label": "net_core.c"
     },
     {
@@ -3648,7 +3648,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_net_core_rearm_net_services",
       "community": 15,
-      "community_name": "net_core.c",
+      "community_name": "time_mgr.c",
       "norm_label": "rearm_net_services()"
     },
     {
@@ -3660,7 +3660,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_net_core_on_ip_event",
       "community": 15,
-      "community_name": "net_core.c",
+      "community_name": "time_mgr.c",
       "norm_label": "on_ip_event()"
     },
     {
@@ -3671,7 +3671,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_net_core_c_esp_event_base_t",
       "community": 15,
-      "community_name": "net_core.c",
+      "community_name": "time_mgr.c",
       "norm_label": "esp_event_base_t"
     },
     {
@@ -3683,7 +3683,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_net_core_on_eth_event",
       "community": 15,
-      "community_name": "net_core.c",
+      "community_name": "time_mgr.c",
       "norm_label": "on_eth_event()"
     },
     {
@@ -3695,7 +3695,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_net_core_on_wifi_event",
       "community": 15,
-      "community_name": "net_core.c",
+      "community_name": "time_mgr.c",
       "norm_label": "on_wifi_event()"
     },
     {
@@ -3707,7 +3707,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_net_core_net_core_init",
       "community": 15,
-      "community_name": "net_core.c",
+      "community_name": "time_mgr.c",
       "norm_label": "net_core_init()"
     },
     {
@@ -3718,7 +3718,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_net_core_c_esp_err_t",
       "community": 15,
-      "community_name": "net_core.c",
+      "community_name": "time_mgr.c",
       "norm_label": "esp_err_t"
     },
     {
@@ -3728,7 +3728,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_components_network_core_time_mgr",
-      "community": 2,
+      "community": 15,
       "community_name": "time_mgr.c",
       "norm_label": "time_mgr.c"
     },
@@ -3740,8 +3740,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_time_mgr_time_sync_worker",
-      "community": 2,
-      "community_name": "time_mgr.c",
+      "community": 1,
+      "community_name": "esp_err_to_name",
       "norm_label": "time_sync_worker()"
     },
     {
@@ -3752,7 +3752,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_time_mgr_time_sync_notification_cb",
-      "community": 2,
+      "community": 15,
       "community_name": "time_mgr.c",
       "norm_label": "time_sync_notification_cb()"
     },
@@ -3765,7 +3765,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_time_mgr_time_mgr_init",
       "community": 2,
-      "community_name": "time_mgr.c",
+      "community_name": "fpm_i2c_guard",
       "norm_label": "time_mgr_init()"
     },
     {
@@ -3777,7 +3777,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_time_mgr_time_mgr_start_sntp",
       "community": 15,
-      "community_name": "net_core.c",
+      "community_name": "time_mgr.c",
       "norm_label": "time_mgr_start_sntp()"
     },
     {
@@ -3788,7 +3788,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_time_mgr_time_mgr_is_time_valid",
-      "community": 2,
+      "community": 15,
       "community_name": "time_mgr.c",
       "norm_label": "time_mgr_is_time_valid()"
     },
@@ -3801,7 +3801,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_time_mgr_time_mgr_set_datetime",
       "community": 2,
-      "community_name": "time_mgr.c",
+      "community_name": "fpm_i2c_guard",
       "norm_label": "time_mgr_set_datetime()"
     },
     {
@@ -3811,7 +3811,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "transport_mqtt.c"
     },
@@ -3823,8 +3823,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_transport_mqtt_runtime_init",
-      "community": 0,
-      "community_name": "app_main",
+      "community": 22,
+      "community_name": "esp_timer_get_time",
       "norm_label": "transport_mqtt_runtime_init()"
     },
     {
@@ -3835,7 +3835,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_prepare_pem",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "prepare_pem()"
     },
@@ -3847,7 +3847,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_shadow_topics_init",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "shadow_topics_init()"
     },
@@ -3859,7 +3859,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_topic_is",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "topic_is()"
     },
@@ -3870,7 +3870,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "esp_mqtt_event_handle_t",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "esp_mqtt_event_handle_t"
     },
@@ -3882,7 +3882,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_shadow_rx_reset",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "shadow_rx_reset()"
     },
@@ -3894,7 +3894,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_shadow_rx_chunk",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "shadow_rx_chunk()"
     },
@@ -3906,7 +3906,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_shadow_apply_pending",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "shadow_apply_pending()"
     },
@@ -3918,7 +3918,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_mqtt_event",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "mqtt_event()"
     },
@@ -3929,7 +3929,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_c_esp_event_base_t",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "esp_event_base_t"
     },
@@ -3941,7 +3941,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_add_channel",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "add_channel()"
     },
@@ -3952,7 +3952,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_c_cjson",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "cjson"
     },
@@ -3963,7 +3963,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_c_sensor_signal_stats_t",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "sensor_signal_stats_t"
     },
@@ -3975,7 +3975,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_publish_alarm_transition",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "publish_alarm_transition()"
     },
@@ -3988,7 +3988,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_aws_telemetry_task",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "aws_telemetry_task()"
     },
     {
@@ -3999,7 +3999,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_mqtt_start_locked",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "mqtt_start_locked()"
     },
@@ -4011,8 +4011,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_transport_mqtt_publish_now",
-      "community": 41,
-      "community_name": "main.c",
+      "community": 3,
+      "community_name": "transport_mqtt.c",
       "norm_label": "transport_mqtt_publish_now()"
     },
     {
@@ -4024,7 +4024,7 @@
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_transport_mqtt_on_net_down",
       "community": 15,
-      "community_name": "net_core.c",
+      "community_name": "time_mgr.c",
       "norm_label": "transport_mqtt_on_net_down()"
     },
     {
@@ -4035,7 +4035,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_mqtt_stop_locked",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "mqtt_stop_locked()"
     },
@@ -4047,8 +4047,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_cloud_mgr_connected",
-      "community": 35,
-      "community_name": "ui_statusbar_controller.c",
+      "community": 40,
+      "community_name": "ui_connectivityScreen.c",
       "norm_label": "cloud_mgr_connected()"
     },
     {
@@ -4059,7 +4059,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_transport_mqtt_on_time_ready",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "transport_mqtt_on_time_ready()"
     },
@@ -4071,7 +4071,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_transport_mqtt_transport_mqtt_stop",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "transport_mqtt_stop()"
     },
@@ -4094,8 +4094,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_wifi_mgr_notify",
-      "community": 1,
-      "community_name": "esp_err_to_name",
+      "community": 83,
+      "community_name": "ui_statusbar_request_refresh",
       "norm_label": "notify()"
     },
     {
@@ -4105,8 +4105,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_network_core_wifi_mgr_c_wifi_status_t",
-      "community": 1,
-      "community_name": "esp_err_to_name",
+      "community": 83,
+      "community_name": "ui_statusbar_request_refresh",
       "norm_label": "wifi_status_t"
     },
     {
@@ -4363,8 +4363,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_wifi_mgr_wifi_mgr_start",
-      "community": 1,
-      "community_name": "esp_err_to_name",
+      "community": 83,
+      "community_name": "ui_statusbar_request_refresh",
       "norm_label": "wifi_mgr_start()"
     },
     {
@@ -4399,8 +4399,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_network_core_wifi_mgr_wifi_mgr_set_status_cb",
-      "community": 58,
-      "community_name": "ui_wifi_main_icon.c",
+      "community": 38,
+      "community_name": "ui_wifi_main_icon_init",
       "norm_label": "wifi_mgr_set_status_cb()"
     },
     {
@@ -4410,8 +4410,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "wifi_status_cb_t",
-      "community": 58,
-      "community_name": "ui_wifi_main_icon.c",
+      "community": 38,
+      "community_name": "ui_wifi_main_icon_init",
       "norm_label": "wifi_status_cb_t"
     },
     {
@@ -4469,7 +4469,7 @@
       "_origin": "ast",
       "id": "firmware_components_ota_update_include_ota_manifest",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "ota_manifest.h"
     },
     {
@@ -4480,7 +4480,7 @@
       "_origin": "ast",
       "id": "firmware_components_ota_update_include_ota_update",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "ota_update.h"
     },
     {
@@ -4490,8 +4490,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_components_ota_update_ota_manifest",
-      "community": 38,
-      "community_name": "stdlib",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "ota_manifest.c"
     },
     {
@@ -4502,8 +4502,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_ota_update_ota_manifest_ota_url_is_image",
-      "community": 38,
-      "community_name": "stdlib",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "ota_url_is_image()"
     },
     {
@@ -4514,8 +4514,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_ota_update_ota_manifest_copy_str",
-      "community": 38,
-      "community_name": "stdlib",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "copy_str()"
     },
     {
@@ -4525,8 +4525,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_ota_update_ota_manifest_c_cjson",
-      "community": 38,
-      "community_name": "stdlib",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "cjson"
     },
     {
@@ -4537,8 +4537,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_ota_update_ota_manifest_ota_manifest_fetch",
-      "community": 38,
-      "community_name": "stdlib",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "ota_manifest_fetch()"
     },
     {
@@ -4548,8 +4548,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_ota_update_ota_manifest_c_esp_err_t",
-      "community": 38,
-      "community_name": "stdlib",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "esp_err_t"
     },
     {
@@ -4559,8 +4559,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_ota_update_ota_manifest_c_ota_manifest_t",
-      "community": 38,
-      "community_name": "stdlib",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "ota_manifest_t"
     },
     {
@@ -4571,8 +4571,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_ota_update_ota_manifest_parse_version",
-      "community": 38,
-      "community_name": "stdlib",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "parse_version()"
     },
     {
@@ -4583,8 +4583,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_ota_update_ota_manifest_ota_version_compare",
-      "community": 38,
-      "community_name": "stdlib",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "ota_version_compare()"
     },
     {
@@ -4791,8 +4791,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_flow_meter",
-      "community": 47,
-      "community_name": "transport_mqtt.c",
+      "community": 23,
+      "community_name": "string",
       "norm_label": "flow_meter.c"
     },
     {
@@ -4803,8 +4803,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_flow_meter_flow_meter_init",
-      "community": 0,
-      "community_name": "app_main",
+      "community": 23,
+      "community_name": "string",
       "norm_label": "flow_meter_init()"
     },
     {
@@ -4814,8 +4814,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_flow_meter_c_esp_err_t",
-      "community": 0,
-      "community_name": "app_main",
+      "community": 23,
+      "community_name": "string",
       "norm_label": "esp_err_t"
     },
     {
@@ -4826,8 +4826,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_flow_meter_flow_meter_record",
-      "community": 47,
-      "community_name": "transport_mqtt.c",
+      "community": 23,
+      "community_name": "string",
       "norm_label": "flow_meter_record()"
     },
     {
@@ -4839,7 +4839,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_flow_meter_flow_meter_get",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "flow_meter_get()"
     },
     {
@@ -4850,7 +4850,7 @@
       "_origin": "ast",
       "id": "flow_meter_snapshot_t",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "flow_meter_snapshot_t"
     },
     {
@@ -4861,8 +4861,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_flow_meter_flow_meter_service",
-      "community": 2,
-      "community_name": "time_mgr.c",
+      "community": 1,
+      "community_name": "esp_err_to_name",
       "norm_label": "flow_meter_service()"
     },
     {
@@ -4872,8 +4872,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_include_flow_integrator",
-      "community": 47,
-      "community_name": "transport_mqtt.c",
+      "community": 23,
+      "community_name": "string",
       "norm_label": "flow_integrator.h"
     },
     {
@@ -4884,8 +4884,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_include_flow_integrator_flow_integrator_push",
-      "community": 47,
-      "community_name": "transport_mqtt.c",
+      "community": 23,
+      "community_name": "string",
       "norm_label": "flow_integrator_push()"
     },
     {
@@ -4895,8 +4895,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "flow_integrator_t",
-      "community": 47,
-      "community_name": "transport_mqtt.c",
+      "community": 23,
+      "community_name": "string",
       "norm_label": "flow_integrator_t"
     },
     {
@@ -4907,7 +4907,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_include_flow_meter",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "flow_meter.h"
     },
     {
@@ -4918,7 +4918,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_include_sensors_runtime",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "sensors_runtime.h"
     },
     {
@@ -4928,7 +4928,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime",
-      "community": 22,
+      "community": 19,
       "community_name": "sensors_runtime.c",
       "norm_label": "sensors_runtime.c"
     },
@@ -4941,7 +4941,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_lock",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "lock()"
     },
     {
@@ -4953,7 +4953,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_unlock",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "unlock()"
     },
     {
@@ -4964,8 +4964,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_crc16_ccitt",
-      "community": 67,
-      "community_name": "at24c256.c",
+      "community": 19,
+      "community_name": "sensors_runtime.c",
       "norm_label": "crc16_ccitt()"
     },
     {
@@ -4977,7 +4977,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensor_cfg_set_defaults",
       "community": 67,
-      "community_name": "at24c256.c",
+      "community_name": "driver_delay_ms",
       "norm_label": "sensor_cfg_set_defaults()"
     },
     {
@@ -4988,7 +4988,7 @@
       "_origin": "ast",
       "id": "sensor_eeprom_cfg_t",
       "community": 67,
-      "community_name": "at24c256.c",
+      "community_name": "driver_delay_ms",
       "norm_label": "sensor_eeprom_cfg_t"
     },
     {
@@ -5000,7 +5000,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_preload_calibration",
       "community": 67,
-      "community_name": "at24c256.c",
+      "community_name": "driver_delay_ms",
       "norm_label": "sensors_runtime_preload_calibration()"
     },
     {
@@ -5011,8 +5011,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_median3f",
-      "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community": 39,
+      "community_name": "sensors_acq_task",
       "norm_label": "median3f()"
     },
     {
@@ -5023,8 +5023,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_median5f",
-      "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community": 39,
+      "community_name": "sensors_acq_task",
       "norm_label": "median5f()"
     },
     {
@@ -5035,8 +5035,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensor_flow_from_voltage",
-      "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community": 39,
+      "community_name": "sensors_acq_task",
       "norm_label": "sensor_flow_from_voltage()"
     },
     {
@@ -5047,8 +5047,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensor_cfg_persist",
-      "community": 67,
-      "community_name": "at24c256.c",
+      "community": 19,
+      "community_name": "sensors_runtime.c",
       "norm_label": "sensor_cfg_persist()"
     },
     {
@@ -5058,8 +5058,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_c_esp_err_t",
-      "community": 67,
-      "community_name": "at24c256.c",
+      "community": 19,
+      "community_name": "sensors_runtime.c",
       "norm_label": "esp_err_t"
     },
     {
@@ -5070,8 +5070,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_tare_pressure",
-      "community": 67,
-      "community_name": "at24c256.c",
+      "community": 19,
+      "community_name": "sensors_runtime.c",
       "norm_label": "sensors_runtime_tare_pressure()"
     },
     {
@@ -5082,8 +5082,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_tare_flow",
-      "community": 67,
-      "community_name": "at24c256.c",
+      "community": 19,
+      "community_name": "sensors_runtime.c",
       "norm_label": "sensors_runtime_tare_flow()"
     },
     {
@@ -5094,8 +5094,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_cal_flow_point",
-      "community": 67,
-      "community_name": "at24c256.c",
+      "community": 19,
+      "community_name": "sensors_runtime.c",
       "norm_label": "sensors_runtime_cal_flow_point()"
     },
     {
@@ -5106,8 +5106,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_set_pressure_gauge",
-      "community": 67,
-      "community_name": "at24c256.c",
+      "community": 19,
+      "community_name": "sensors_runtime.c",
       "norm_label": "sensors_runtime_set_pressure_gauge()"
     },
     {
@@ -5118,7 +5118,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_is_pressure_gauge",
-      "community": 22,
+      "community": 19,
       "community_name": "sensors_runtime.c",
       "norm_label": "sensors_runtime_is_pressure_gauge()"
     },
@@ -5131,7 +5131,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_init",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "sensors_runtime_init()"
     },
     {
@@ -5142,7 +5142,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_c_appconfig",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "appconfig"
     },
     {
@@ -5153,8 +5153,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_set_bus",
-      "community": 0,
-      "community_name": "app_main",
+      "community": 19,
+      "community_name": "sensors_runtime.c",
       "norm_label": "sensors_runtime_set_bus()"
     },
     {
@@ -5164,8 +5164,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_c_i2c_master_bus_handle_t",
-      "community": 0,
-      "community_name": "app_main",
+      "community": 19,
+      "community_name": "sensors_runtime.c",
       "norm_label": "i2c_master_bus_handle_t"
     },
     {
@@ -5176,8 +5176,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_bus1_hung",
-      "community": 26,
-      "community_name": "touch_io_bounded.c",
+      "community": 28,
+      "community_name": "ft5x06.c",
       "norm_label": "sensors_runtime_bus1_hung()"
     },
     {
@@ -5188,7 +5188,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_get_debug",
-      "community": 22,
+      "community": 19,
       "community_name": "sensors_runtime.c",
       "norm_label": "sensors_runtime_get_debug()"
     },
@@ -5201,7 +5201,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_update_config",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "sensors_runtime_update_config()"
     },
     {
@@ -5213,7 +5213,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_push_sample",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "sensors_runtime_push_sample()"
     },
     {
@@ -5224,7 +5224,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_c_sensor_sample_t",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "sensor_sample_t"
     },
     {
@@ -5235,8 +5235,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_report_faults",
-      "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community": 39,
+      "community_name": "sensors_acq_task",
       "norm_label": "sensors_runtime_report_faults()"
     },
     {
@@ -5248,7 +5248,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_get_faults",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "sensors_runtime_get_faults()"
     },
     {
@@ -5259,7 +5259,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_flow_warming",
-      "community": 22,
+      "community": 19,
       "community_name": "sensors_runtime.c",
       "norm_label": "sensors_runtime_flow_warming()"
     },
@@ -5271,7 +5271,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_flow_warming_elapsed_ms",
-      "community": 22,
+      "community": 19,
       "community_name": "sensors_runtime.c",
       "norm_label": "sensors_runtime_flow_warming_elapsed_ms()"
     },
@@ -5284,7 +5284,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_get_ages",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "sensors_runtime_get_ages()"
     },
     {
@@ -5296,7 +5296,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_get_last",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "sensors_runtime_get_last()"
     },
     {
@@ -5308,7 +5308,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_get_min_max",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "sensors_runtime_get_min_max()"
     },
     {
@@ -5319,7 +5319,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sig_acc_add",
-      "community": 22,
+      "community": 19,
       "community_name": "sensors_runtime.c",
       "norm_label": "sig_acc_add()"
     },
@@ -5330,7 +5330,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "sig_acc_t",
-      "community": 22,
+      "community": 19,
       "community_name": "sensors_runtime.c",
       "norm_label": "sig_acc_t"
     },
@@ -5342,7 +5342,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sig_acc_finish",
-      "community": 22,
+      "community": 19,
       "community_name": "sensors_runtime.c",
       "norm_label": "sig_acc_finish()"
     },
@@ -5353,7 +5353,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_c_sensor_signal_stats_t",
-      "community": 22,
+      "community": 19,
       "community_name": "sensors_runtime.c",
       "norm_label": "sensor_signal_stats_t"
     },
@@ -5366,7 +5366,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_get_window_stats",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "sensors_runtime_get_window_stats()"
     },
     {
@@ -5377,7 +5377,7 @@
       "_origin": "ast",
       "id": "sensor_window_stats_t",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "sensor_window_stats_t"
     },
     {
@@ -5389,7 +5389,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_get_series",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "sensors_runtime_get_series()"
     },
     {
@@ -5400,8 +5400,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_acq_task",
-      "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community": 39,
+      "community_name": "sensors_acq_task",
       "norm_label": "sensors_acq_task()"
     },
     {
@@ -5413,7 +5413,7 @@
       "_origin": "ast",
       "id": "firmware_components_sensors_runtime_sensors_runtime_sensors_runtime_get_aws_telemetry",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "sensors_runtime_get_aws_telemetry()"
     },
     {
@@ -5424,7 +5424,7 @@
       "_origin": "ast",
       "id": "firmware_components_state_pub_include_state_pub",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "state_pub.h"
     },
     {
@@ -5434,8 +5434,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_components_state_pub_state_pub",
-      "community": 47,
-      "community_name": "transport_mqtt.c",
+      "community": 22,
+      "community_name": "esp_timer_get_time",
       "norm_label": "state_pub.c"
     },
     {
@@ -5446,8 +5446,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_state_pub_state_pub_state_init",
-      "community": 47,
-      "community_name": "transport_mqtt.c",
+      "community": 22,
+      "community_name": "esp_timer_get_time",
       "norm_label": "state_init()"
     },
     {
@@ -5458,8 +5458,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_state_pub_state_pub_state_update_sensors",
-      "community": 47,
-      "community_name": "transport_mqtt.c",
+      "community": 22,
+      "community_name": "esp_timer_get_time",
       "norm_label": "state_update_sensors()"
     },
     {
@@ -5482,8 +5482,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_state_pub_state_pub_state_build_json",
-      "community": 47,
-      "community_name": "transport_mqtt.c",
+      "community": 22,
+      "community_name": "esp_timer_get_time",
       "norm_label": "state_build_json()"
     },
     {
@@ -5494,8 +5494,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_state_pub_state_pub_state_get",
-      "community": 47,
-      "community_name": "transport_mqtt.c",
+      "community": 22,
+      "community_name": "esp_timer_get_time",
       "norm_label": "state_get()"
     },
     {
@@ -5505,8 +5505,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "device_state_t",
-      "community": 47,
-      "community_name": "transport_mqtt.c",
+      "community": 22,
+      "community_name": "esp_timer_get_time",
       "norm_label": "device_state_t"
     },
     {
@@ -5517,7 +5517,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_include_metrics_store",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "metrics_store.h"
     },
     {
@@ -5528,7 +5528,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_include_storage",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "include/storage.h"
     },
     {
@@ -5538,8 +5538,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_components_storage_metrics_store",
-      "community": 68,
-      "community_name": "metrics_store.c",
+      "community": 20,
+      "community_name": "ui_infoScreen.c",
       "norm_label": "metrics_store.c"
     },
     {
@@ -5550,8 +5550,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_metrics_store_appmetrics_load",
-      "community": 68,
-      "community_name": "metrics_store.c",
+      "community": 20,
+      "community_name": "ui_infoScreen.c",
       "norm_label": "appmetrics_load()"
     },
     {
@@ -5561,8 +5561,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_storage_metrics_store_c_esp_err_t",
-      "community": 68,
-      "community_name": "metrics_store.c",
+      "community": 20,
+      "community_name": "ui_infoScreen.c",
       "norm_label": "esp_err_t"
     },
     {
@@ -5572,8 +5572,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "app_metrics_t",
-      "community": 68,
-      "community_name": "metrics_store.c",
+      "community": 20,
+      "community_name": "ui_infoScreen.c",
       "norm_label": "app_metrics_t"
     },
     {
@@ -5584,8 +5584,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_metrics_store_appmetrics_store",
-      "community": 68,
-      "community_name": "metrics_store.c",
+      "community": 20,
+      "community_name": "ui_infoScreen.c",
       "norm_label": "appmetrics_store()"
     },
     {
@@ -5596,8 +5596,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_metrics_store_appmetrics_service_min",
-      "community": 68,
-      "community_name": "metrics_store.c",
+      "community": 20,
+      "community_name": "ui_infoScreen.c",
       "norm_label": "appmetrics_service_min()"
     },
     {
@@ -5608,7 +5608,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "storage.c"
     },
     {
@@ -5620,7 +5620,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_set_str",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "set_str()"
     },
     {
@@ -5632,7 +5632,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_getstr",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "getstr()"
     },
     {
@@ -5643,7 +5643,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_c_cjson",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "cjson"
     },
     {
@@ -5655,7 +5655,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_appcfg_defaults",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "appcfg_defaults()"
     },
     {
@@ -5666,7 +5666,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_c_appconfig",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "appconfig"
     },
     {
@@ -5678,7 +5678,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_user_to_json",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "user_to_json()"
     },
     {
@@ -5689,7 +5689,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_c_app_user_t",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "app_user_t"
     },
     {
@@ -5701,7 +5701,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_json_to_user",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "json_to_user()"
     },
     {
@@ -5713,7 +5713,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_json_from_cfg",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "json_from_cfg()"
     },
     {
@@ -5725,7 +5725,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_appcfg_take_pin_migration",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "appcfg_take_pin_migration()"
     },
     {
@@ -5737,7 +5737,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_cfg_from_json",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "cfg_from_json()"
     },
     {
@@ -5749,7 +5749,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_appcfg_load",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "appcfg_load()"
     },
     {
@@ -5760,7 +5760,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_c_esp_err_t",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "esp_err_t"
     },
     {
@@ -5771,8 +5771,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_storage_appcfg_save",
-      "community": 42,
-      "community_name": "appcfg_cache_peek",
+      "community": 72,
+      "community_name": "ui_cfg.c",
       "norm_label": "appcfg_save()"
     },
     {
@@ -5784,7 +5784,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_appcfg_migrate",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "appcfg_migrate()"
     },
     {
@@ -5796,7 +5796,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_cfg_snapshot_lock",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "cfg_snapshot_lock()"
     },
     {
@@ -5808,7 +5808,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_cfg_snapshot_unlock",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "cfg_snapshot_unlock()"
     },
     {
@@ -5820,7 +5820,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_appcfg_cache_reload",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "appcfg_cache_reload()"
     },
     {
@@ -5832,7 +5832,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_appcfg_cache_get",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "appcfg_cache_get()"
     },
     {
@@ -5855,7 +5855,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "storage_extras.c"
     },
     {
@@ -5867,7 +5867,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras_slot_key",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "slot_key()"
     },
     {
@@ -5879,7 +5879,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras_other_slot",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "other_slot()"
     },
     {
@@ -5891,7 +5891,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras_set_str",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "set_str()"
     },
     {
@@ -5903,7 +5903,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras_fnv1a32",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "fnv1a32()"
     },
     {
@@ -5915,7 +5915,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras_appcfg_to_minified_json",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "appcfg_to_minified_json()"
     },
     {
@@ -5926,7 +5926,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras_c_appconfig",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "appconfig"
     },
     {
@@ -5938,7 +5938,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras_json_merge_patch_obj",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "json_merge_patch_obj()"
     },
     {
@@ -5949,7 +5949,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras_c_cjson",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "cjson"
     },
     {
@@ -5961,7 +5961,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras_appcfg_validate",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "appcfg_validate()"
     },
     {
@@ -5973,7 +5973,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras_appcfg_calc_etag",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "appcfg_calc_etag()"
     },
     {
@@ -5985,7 +5985,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras_read_active",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "read_active()"
     },
     {
@@ -5996,7 +5996,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras_c_esp_err_t",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "esp_err_t"
     },
     {
@@ -6008,7 +6008,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras_write_active",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "write_active()"
     },
     {
@@ -6020,7 +6020,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras_write_slot_json",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "write_slot_json()"
     },
     {
@@ -6032,7 +6032,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras_appcfg_set",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "appcfg_set()"
     },
     {
@@ -6043,7 +6043,7 @@
       "_origin": "ast",
       "id": "cfg_result_t",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "cfg_result_t"
     },
     {
@@ -6055,7 +6055,7 @@
       "_origin": "ast",
       "id": "firmware_components_storage_storage_extras_appcfg_patch",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "appcfg_patch()"
     },
     {
@@ -6065,8 +6065,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_c_firmware_components_storage_ui_pin_hash",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "ui_pin_hash.c"
     },
     {
@@ -6077,8 +6077,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_sha256_block",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "sha256_block()"
     },
     {
@@ -6088,8 +6088,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "sha256_ctx_t",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "sha256_ctx_t"
     },
     {
@@ -6100,8 +6100,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_sha256_init",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "sha256_init()"
     },
     {
@@ -6112,8 +6112,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_sha256_update",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "sha256_update()"
     },
     {
@@ -6124,8 +6124,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_sha256_final",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "sha256_final()"
     },
     {
@@ -6136,8 +6136,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_hmac_key_init",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "hmac_key_init()"
     },
     {
@@ -6147,8 +6147,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "hmac_key_t",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "hmac_key_t"
     },
     {
@@ -6159,8 +6159,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_hmac",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "hmac()"
     },
     {
@@ -6171,8 +6171,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_ui_pbkdf2_sha256",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "ui_pbkdf2_sha256()"
     },
     {
@@ -6183,8 +6183,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_to_hex",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "to_hex()"
     },
     {
@@ -6195,8 +6195,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_from_hex",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "from_hex()"
     },
     {
@@ -6207,8 +6207,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_random_salt",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "random_salt()"
     },
     {
@@ -6219,8 +6219,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_derive",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "derive()"
     },
     {
@@ -6231,8 +6231,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_ui_pin_hash",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "ui_pin_hash()"
     },
     {
@@ -6243,8 +6243,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_ui_pin_verify",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "ui_pin_verify()"
     },
     {
@@ -6255,8 +6255,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_ui_pin_normalize",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "ui_pin_normalize()"
     },
     {
@@ -6266,8 +6266,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_h_firmware_components_storage_ui_pin_hash",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "ui_pin_hash.h"
     },
     {
@@ -6278,8 +6278,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_storage_ui_pin_hash_ui_pin_is_hashed",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "norm_label": "ui_pin_is_hashed()"
     },
     {
@@ -6290,7 +6290,7 @@
       "_origin": "ast",
       "id": "firmware_components_task_tracer_include_task_tracer",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "task_tracer.h"
     },
     {
@@ -6301,7 +6301,7 @@
       "_origin": "ast",
       "id": "firmware_components_task_tracer_task_tracer",
       "community": 0,
-      "community_name": "app_main",
+      "community_name": "task_tracer.c",
       "norm_label": "task_tracer.c"
     },
     {
@@ -6313,7 +6313,7 @@
       "_origin": "ast",
       "id": "firmware_components_task_tracer_task_tracer_state_str",
       "community": 0,
-      "community_name": "app_main",
+      "community_name": "task_tracer.c",
       "norm_label": "state_str()"
     },
     {
@@ -6324,7 +6324,7 @@
       "_origin": "ast",
       "id": "firmware_components_task_tracer_task_tracer_c_etaskstate",
       "community": 0,
-      "community_name": "app_main",
+      "community_name": "task_tracer.c",
       "norm_label": "etaskstate"
     },
     {
@@ -6336,7 +6336,7 @@
       "_origin": "ast",
       "id": "firmware_components_task_tracer_task_tracer_track_get_and_update",
       "community": 0,
-      "community_name": "app_main",
+      "community_name": "task_tracer.c",
       "norm_label": "track_get_and_update()"
     },
     {
@@ -6347,7 +6347,7 @@
       "_origin": "ast",
       "id": "taskhandle_t",
       "community": 0,
-      "community_name": "app_main",
+      "community_name": "task_tracer.c",
       "norm_label": "taskhandle_t"
     },
     {
@@ -6359,7 +6359,7 @@
       "_origin": "ast",
       "id": "firmware_components_task_tracer_task_tracer_task_tracer_dump_now",
       "community": 0,
-      "community_name": "app_main",
+      "community_name": "task_tracer.c",
       "norm_label": "task_tracer_dump_now()"
     },
     {
@@ -6371,7 +6371,7 @@
       "_origin": "ast",
       "id": "firmware_components_task_tracer_task_tracer_trace_worker",
       "community": 0,
-      "community_name": "app_main",
+      "community_name": "task_tracer.c",
       "norm_label": "trace_worker()"
     },
     {
@@ -6383,7 +6383,7 @@
       "_origin": "ast",
       "id": "firmware_components_task_tracer_task_tracer_timer_cb",
       "community": 0,
-      "community_name": "app_main",
+      "community_name": "task_tracer.c",
       "norm_label": "timer_cb()"
     },
     {
@@ -6394,8 +6394,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_task_tracer_task_tracer_task_tracer_start",
-      "community": 0,
-      "community_name": "app_main",
+      "community": 22,
+      "community_name": "esp_timer_get_time",
       "norm_label": "task_tracer_start()"
     },
     {
@@ -6407,7 +6407,7 @@
       "_origin": "ast",
       "id": "firmware_components_task_tracer_task_tracer_task_tracer_stop",
       "community": 0,
-      "community_name": "app_main",
+      "community_name": "task_tracer.c",
       "norm_label": "task_tracer_stop()"
     },
     {
@@ -6835,8 +6835,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_transport_ble_fpm_ble_config_fpm_ble_config_set_clock_cb",
-      "community": 45,
-      "community_name": "ble_init_task",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "fpm_ble_config_set_clock_cb()"
     },
     {
@@ -6846,8 +6846,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "fpm_ble_clock_cb_t",
-      "community": 45,
-      "community_name": "ble_init_task",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "fpm_ble_clock_cb_t"
     },
     {
@@ -6870,7 +6870,7 @@
       "_origin": "ast",
       "id": "firmware_components_transport_ble_include_fpm_ble_config",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "fpm_ble_config.h"
     },
     {
@@ -6881,7 +6881,7 @@
       "_origin": "ast",
       "id": "firmware_components_transport_ble_include_transport_ble",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "transport_ble.h"
     },
     {
@@ -6999,8 +6999,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_transport_ble_transport_ble_transport_ble_init",
-      "community": 45,
-      "community_name": "ble_init_task",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "transport_ble_init()"
     },
     {
@@ -7010,8 +7010,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_transport_ble_transport_ble_c_esp_err_t",
-      "community": 45,
-      "community_name": "ble_init_task",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "esp_err_t"
     },
     {
@@ -7045,8 +7045,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_transport_ble_transport_ble_transport_ble_set_finish_cb",
-      "community": 45,
-      "community_name": "ble_init_task",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "transport_ble_set_finish_cb()"
     },
     {
@@ -7057,8 +7057,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_transport_ble_transport_ble_transport_ble_set_enabled",
-      "community": 45,
-      "community_name": "ble_init_task",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "transport_ble_set_enabled()"
     },
     {
@@ -7081,8 +7081,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_transport_ble_transport_ble_transport_ble_set_passkey_mode",
-      "community": 45,
-      "community_name": "ble_init_task",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "transport_ble_set_passkey_mode()"
     },
     {
@@ -7093,8 +7093,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_transport_ble_transport_ble_transport_ble_set_tx_power",
-      "community": 45,
-      "community_name": "ble_init_task",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "transport_ble_set_tx_power()"
     },
     {
@@ -7105,8 +7105,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_transport_ble_transport_ble_transport_ble_start_adv",
-      "community": 36,
-      "community_name": "config_mode.c",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "transport_ble_start_adv()"
     },
     {
@@ -7117,8 +7117,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_transport_ble_transport_ble_transport_ble_stop_adv",
-      "community": 36,
-      "community_name": "config_mode.c",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "transport_ble_stop_adv()"
     },
     {
@@ -7153,8 +7153,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_transport_ble_transport_ble_transport_ble_set_mesh_enabled",
-      "community": 45,
-      "community_name": "ble_init_task",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "transport_ble_set_mesh_enabled()"
     },
     {
@@ -7436,7 +7436,7 @@
       "_origin": "ast",
       "id": "firmware_components_transport_http_include_http_api",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "http_api.h"
     },
     {
@@ -7447,7 +7447,7 @@
       "_origin": "ast",
       "id": "firmware_components_transport_http_include_ws_stream",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "ws_stream.h"
     },
     {
@@ -7458,7 +7458,7 @@
       "_origin": "ast",
       "id": "firmware_components_transport_http_ws_stream",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "ws_stream.c"
     },
     {
@@ -7470,7 +7470,7 @@
       "_origin": "ast",
       "id": "firmware_components_transport_http_ws_stream_ws_handler",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "ws_handler()"
     },
     {
@@ -7481,7 +7481,7 @@
       "_origin": "ast",
       "id": "firmware_components_transport_http_ws_stream_c_esp_err_t",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "esp_err_t"
     },
     {
@@ -7492,7 +7492,7 @@
       "_origin": "ast",
       "id": "firmware_components_transport_http_ws_stream_c_httpd_req_t",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "httpd_req_t"
     },
     {
@@ -7504,7 +7504,7 @@
       "_origin": "ast",
       "id": "firmware_components_transport_http_ws_stream_ws_stream_start",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "ws_stream_start()"
     },
     {
@@ -7515,7 +7515,7 @@
       "_origin": "ast",
       "id": "firmware_components_transport_http_ws_stream_c_httpd_handle_t",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "httpd_handle_t"
     },
     {
@@ -7527,7 +7527,7 @@
       "_origin": "ast",
       "id": "firmware_components_transport_http_ws_stream_ws_stream_broadcast",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "ws_stream_broadcast()"
     },
     {
@@ -7539,7 +7539,7 @@
       "_origin": "ast",
       "id": "firmware_components_transport_http_ws_stream_ws_emit_cfg_changed",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "ws_emit_cfg_changed()"
     },
     {
@@ -7689,7 +7689,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_ui_bind_ui_statusbar_controller_ui_statusbar_signal_cloud_activity",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "norm_label": "ui_statusbar_signal_cloud_activity()"
     },
@@ -7713,8 +7713,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_ui_bind_ui_statusbar_controller_ui_statusbar_controller_deinit",
-      "community": 41,
-      "community_name": "main.c",
+      "community": 36,
+      "community_name": "sd_ui_close_cb",
       "norm_label": "ui_statusbar_controller_deinit()"
     },
     {
@@ -7737,7 +7737,7 @@
       "_origin": "ast",
       "id": "firmware_components_ui_bind_ui_wifi_main_icon",
       "community": 58,
-      "community_name": "ui_wifi_main_icon.c",
+      "community_name": "ui_netWifiScreen.c",
       "norm_label": "ui_wifi_main_icon.c"
     },
     {
@@ -7749,7 +7749,7 @@
       "_origin": "ast",
       "id": "firmware_components_ui_bind_ui_wifi_main_icon_ui_wifi_rssi_to_bars",
       "community": 58,
-      "community_name": "ui_wifi_main_icon.c",
+      "community_name": "ui_netWifiScreen.c",
       "norm_label": "ui_wifi_rssi_to_bars()"
     },
     {
@@ -7761,7 +7761,7 @@
       "_origin": "ast",
       "id": "firmware_components_ui_bind_ui_wifi_main_icon_apply_icon",
       "community": 58,
-      "community_name": "ui_wifi_main_icon.c",
+      "community_name": "ui_netWifiScreen.c",
       "norm_label": "apply_icon()"
     },
     {
@@ -7772,7 +7772,7 @@
       "_origin": "ast",
       "id": "firmware_components_ui_bind_ui_wifi_main_icon_c_wifi_status_t",
       "community": 58,
-      "community_name": "ui_wifi_main_icon.c",
+      "community_name": "ui_netWifiScreen.c",
       "norm_label": "wifi_status_t"
     },
     {
@@ -7784,7 +7784,7 @@
       "_origin": "ast",
       "id": "firmware_components_ui_bind_ui_wifi_main_icon_timer_cb",
       "community": 58,
-      "community_name": "ui_wifi_main_icon.c",
+      "community_name": "ui_netWifiScreen.c",
       "norm_label": "timer_cb()"
     },
     {
@@ -7795,7 +7795,7 @@
       "_origin": "ast",
       "id": "firmware_components_ui_bind_ui_wifi_main_icon_c_lv_timer_t",
       "community": 58,
-      "community_name": "ui_wifi_main_icon.c",
+      "community_name": "ui_netWifiScreen.c",
       "norm_label": "lv_timer_t"
     },
     {
@@ -7807,7 +7807,7 @@
       "_origin": "ast",
       "id": "firmware_components_ui_bind_ui_wifi_main_icon_wifi_status_cb",
       "community": 58,
-      "community_name": "ui_wifi_main_icon.c",
+      "community_name": "ui_netWifiScreen.c",
       "norm_label": "wifi_status_cb()"
     },
     {
@@ -7818,8 +7818,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_ui_bind_ui_wifi_main_icon_ui_wifi_main_icon_init",
-      "community": 58,
-      "community_name": "ui_wifi_main_icon.c",
+      "community": 38,
+      "community_name": "ui_wifi_main_icon_init",
       "norm_label": "ui_wifi_main_icon_init()"
     },
     {
@@ -7829,8 +7829,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_components_ui_bind_ui_wifi_main_icon_c_lv_obj_t",
-      "community": 58,
-      "community_name": "ui_wifi_main_icon.c",
+      "community": 38,
+      "community_name": "ui_wifi_main_icon_init",
       "norm_label": "lv_obj_t"
     },
     {
@@ -7841,8 +7841,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_components_ui_bind_ui_wifi_main_icon_ui_wifi_main_icon_deinit",
-      "community": 41,
-      "community_name": "main.c",
+      "community": 36,
+      "community_name": "sd_ui_close_cb",
       "norm_label": "ui_wifi_main_icon_deinit()"
     },
     {
@@ -7852,8 +7852,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_config_mode_c_firmware_main_config_mode",
-      "community": 36,
-      "community_name": "config_mode.c",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "config_mode.c"
     },
     {
@@ -7864,8 +7864,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_config_mode_config_mode_active",
-      "community": 36,
-      "community_name": "config_mode.c",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "config_mode_active()"
     },
     {
@@ -7876,8 +7876,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_config_mode_log_heap",
-      "community": 36,
-      "community_name": "config_mode.c",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "log_heap()"
     },
     {
@@ -7888,8 +7888,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_config_mode_config_mode_enter",
-      "community": 36,
-      "community_name": "config_mode.c",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "config_mode_enter()"
     },
     {
@@ -7899,8 +7899,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_main_config_mode_c_esp_err_t",
-      "community": 36,
-      "community_name": "config_mode.c",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "esp_err_t"
     },
     {
@@ -7911,8 +7911,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_config_mode_config_mode_exit",
-      "community": 36,
-      "community_name": "config_mode.c",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "config_mode_exit()"
     },
     {
@@ -7922,8 +7922,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_config_mode_h_firmware_main_config_mode",
-      "community": 36,
-      "community_name": "config_mode.c",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "config_mode.h"
     },
     {
@@ -8097,8 +8097,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_main_on_alarm_state_change",
-      "community": 41,
-      "community_name": "main.c",
+      "community": 3,
+      "community_name": "transport_mqtt.c",
       "norm_label": "on_alarm_state_change()"
     },
     {
@@ -8108,8 +8108,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_main_main_c_alarm_clinical_state_t",
-      "community": 41,
-      "community_name": "main.c",
+      "community": 3,
+      "community_name": "transport_mqtt.c",
       "norm_label": "alarm_clinical_state_t"
     },
     {
@@ -8132,8 +8132,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_main_restart_btn_event_cb",
-      "community": 41,
-      "community_name": "main.c",
+      "community": 36,
+      "community_name": "sd_ui_close_cb",
       "norm_label": "restart_btn_event_cb()"
     },
     {
@@ -8143,8 +8143,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_main_main_c_lv_event_t",
-      "community": 41,
-      "community_name": "main.c",
+      "community": 36,
+      "community_name": "sd_ui_close_cb",
       "norm_label": "lv_event_t"
     },
     {
@@ -8249,8 +8249,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_main_sd_ui_close_cb",
-      "community": 41,
-      "community_name": "main.c",
+      "community": 36,
+      "community_name": "sd_ui_close_cb",
       "norm_label": "sd_ui_close_cb()"
     },
     {
@@ -8285,8 +8285,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_main_ui_main_deinit_cb",
-      "community": 41,
-      "community_name": "main.c",
+      "community": 36,
+      "community_name": "sd_ui_close_cb",
       "norm_label": "ui_main_deinit_cb()"
     },
     {
@@ -8298,7 +8298,7 @@
       "_origin": "ast",
       "id": "firmware_main_main_init_bus1_sensors",
       "community": 67,
-      "community_name": "at24c256.c",
+      "community_name": "driver_delay_ms",
       "norm_label": "init_bus1_sensors()"
     },
     {
@@ -8334,7 +8334,7 @@
       "_origin": "ast",
       "id": "firmware_main_main_on_ble_set_clock",
       "community": 2,
-      "community_name": "time_mgr.c",
+      "community_name": "fpm_i2c_guard",
       "norm_label": "on_ble_set_clock()"
     },
     {
@@ -8345,8 +8345,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_main_ble_init_task",
-      "community": 45,
-      "community_name": "ble_init_task",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "ble_init_task()"
     },
     {
@@ -8405,8 +8405,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_main_app_main",
-      "community": 0,
-      "community_name": "app_main",
+      "community": 22,
+      "community_name": "esp_timer_get_time",
       "norm_label": "app_main()"
     },
     {
@@ -8584,8 +8584,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_bleappscreen_bleapp_goroot_async",
-      "community": 56,
-      "community_name": "ui_nav_load",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "bleapp_goroot_async()"
     },
     {
@@ -8608,8 +8608,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_bleappscreen_bleapp_off_cb",
-      "community": 42,
-      "community_name": "appcfg_cache_peek",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "bleapp_off_cb()"
     },
     {
@@ -8619,8 +8619,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_bleappscreen_c_lv_event_t",
-      "community": 36,
-      "community_name": "config_mode.c",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "lv_event_t"
     },
     {
@@ -8666,8 +8666,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_bleappscreen_bleapp_loaded_cb",
-      "community": 36,
-      "community_name": "config_mode.c",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "bleapp_loaded_cb()"
     },
     {
@@ -8678,8 +8678,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_bleappscreen_bleapp_unloaded_cb",
-      "community": 36,
-      "community_name": "config_mode.c",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "bleapp_unloaded_cb()"
     },
     {
@@ -8771,8 +8771,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_confirmscreen_ui_confirmscreen_screen_destroy",
-      "community": 77,
-      "community_name": "fresh_confirm",
+      "community": 66,
+      "community_name": "lvgl",
       "norm_label": "ui_confirmscreen_screen_destroy()"
     },
     {
@@ -8945,8 +8945,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_connectivityscreen_ui_connectivityscreen_screen_destroy",
-      "community": 5,
-      "community_name": "ui.c",
+      "community": 40,
+      "community_name": "ui_connectivityScreen.c",
       "norm_label": "ui_connectivityscreen_screen_destroy()"
     },
     {
@@ -8957,8 +8957,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_connectivityscreen_ui_connectivityscreen_refresh",
-      "community": 40,
-      "community_name": "ui_connectivityScreen.c",
+      "community": 83,
+      "community_name": "ui_statusbar_request_refresh",
       "norm_label": "ui_connectivityscreen_refresh()"
     },
     {
@@ -8968,8 +8968,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_connectivityscreen_h_firmware_main_ui_screens_ui_connectivityscreen",
-      "community": 79,
-      "community_name": "ui_netCloudScreen.c",
+      "community": 40,
+      "community_name": "ui_connectivityScreen.c",
       "norm_label": "ui_connectivityscreen.h"
     },
     {
@@ -8980,7 +8980,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_datetimescreen_c_firmware_main_ui_screens_ui_datetimescreen",
       "community": 52,
-      "community_name": "ui_widgets",
+      "community_name": "ui_i18n",
       "norm_label": "ui_datetimescreen.c"
     },
     {
@@ -9049,8 +9049,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_datetimescreen_ui_datetimescreen_screen_destroy",
-      "community": 5,
-      "community_name": "ui.c",
+      "community": 52,
+      "community_name": "ui_i18n",
       "norm_label": "ui_datetimescreen_screen_destroy()"
     },
     {
@@ -9061,7 +9061,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_datetimescreen_h_firmware_main_ui_screens_ui_datetimescreen",
       "community": 52,
-      "community_name": "ui_widgets",
+      "community_name": "ui_i18n",
       "norm_label": "ui_datetimescreen.h"
     },
     {
@@ -9071,7 +9071,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_generalscreen_c_firmware_main_ui_screens_ui_generalscreen",
-      "community": 52,
+      "community": 79,
       "community_name": "ui_widgets",
       "norm_label": "ui_generalscreen.c"
     },
@@ -9083,8 +9083,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_generalscreen_general_loaded_cb",
-      "community": 49,
-      "community_name": "display_idle_cb",
+      "community": 79,
+      "community_name": "ui_widgets",
       "norm_label": "general_loaded_cb()"
     },
     {
@@ -9094,7 +9094,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_generalscreen_c_lv_event_t",
-      "community": 52,
+      "community": 79,
       "community_name": "ui_widgets",
       "norm_label": "lv_event_t"
     },
@@ -9106,7 +9106,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_generalscreen_protected_back_cb",
-      "community": 52,
+      "community": 79,
       "community_name": "ui_widgets",
       "norm_label": "protected_back_cb()"
     },
@@ -9164,8 +9164,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_generalscreen_ui_generalscreen_screen_destroy",
-      "community": 51,
-      "community_name": "lv_event_t",
+      "community": 79,
+      "community_name": "ui_widgets",
       "norm_label": "ui_generalscreen_screen_destroy()"
     },
     {
@@ -9175,7 +9175,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_generalscreen_h_firmware_main_ui_screens_ui_generalscreen",
-      "community": 52,
+      "community": 79,
       "community_name": "ui_widgets",
       "norm_label": "ui_generalscreen.h"
     },
@@ -9339,8 +9339,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_generalsimplescreen_ui_generalsimplescreen_screen_destroy",
-      "community": 5,
-      "community_name": "ui.c",
+      "community": 37,
+      "community_name": "ui_generalSimpleScreen.c",
       "norm_label": "ui_generalsimplescreen_screen_destroy()"
     },
     {
@@ -9361,7 +9361,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_c_firmware_main_ui_screens_ui_infoscreen",
-      "community": 19,
+      "community": 20,
       "community_name": "ui_infoScreen.c",
       "norm_label": "ui_infoscreen.c"
     },
@@ -9396,7 +9396,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_reboot_cb",
-      "community": 19,
+      "community": 20,
       "community_name": "ui_infoScreen.c",
       "norm_label": "reboot_cb()"
     },
@@ -9407,7 +9407,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_c_lv_event_t",
-      "community": 19,
+      "community": 20,
       "community_name": "ui_infoScreen.c",
       "norm_label": "lv_event_t"
     },
@@ -9419,7 +9419,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_erase_nvs_namespace",
-      "community": 19,
+      "community": 20,
       "community_name": "ui_infoScreen.c",
       "norm_label": "erase_nvs_namespace()"
     },
@@ -9432,7 +9432,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_factory_reset_apply",
       "community": 20,
-      "community_name": "storage.c",
+      "community_name": "ui_infoScreen.c",
       "norm_label": "factory_reset_apply()"
     },
     {
@@ -9443,7 +9443,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_factory_btn_cb",
-      "community": 19,
+      "community": 20,
       "community_name": "ui_infoScreen.c",
       "norm_label": "factory_btn_cb()"
     },
@@ -9472,14 +9472,26 @@
       "norm_label": "gas_label()"
     },
     {
-      "label": "ota_progress_cb()",
+      "label": "ui_infoScreen_ota_busy()",
       "file_type": "code",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
       "source_location": "L184",
       "_callable": true,
       "_origin": "ast",
+      "id": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_ota_busy",
+      "community": 20,
+      "community_name": "ui_infoScreen.c",
+      "norm_label": "ui_infoscreen_ota_busy()"
+    },
+    {
+      "label": "ota_progress_cb()",
+      "file_type": "code",
+      "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
+      "source_location": "L189",
+      "_callable": true,
+      "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_ota_progress_cb",
-      "community": 19,
+      "community": 20,
       "community_name": "ui_infoScreen.c",
       "norm_label": "ota_progress_cb()"
     },
@@ -9487,23 +9499,23 @@
       "label": "ota_task()",
       "file_type": "code",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L191",
+      "source_location": "L196",
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_ota_task",
-      "community": 90,
-      "community_name": "ota_update.c",
+      "community": 3,
+      "community_name": "transport_mqtt.c",
       "norm_label": "ota_task()"
     },
     {
       "label": "ota_start()",
       "file_type": "code",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L235",
+      "source_location": "L240",
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_ota_start",
-      "community": 19,
+      "community": 20,
       "community_name": "ui_infoScreen.c",
       "norm_label": "ota_start()"
     },
@@ -9511,11 +9523,11 @@
       "label": "ota_check_cb()",
       "file_type": "code",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L248",
+      "source_location": "L253",
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_ota_check_cb",
-      "community": 19,
+      "community": 20,
       "community_name": "ui_infoScreen.c",
       "norm_label": "ota_check_cb()"
     },
@@ -9523,11 +9535,11 @@
       "label": "ota_install_cb()",
       "file_type": "code",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L249",
+      "source_location": "L254",
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_ota_install_cb",
-      "community": 19,
+      "community": 20,
       "community_name": "ui_infoScreen.c",
       "norm_label": "ota_install_cb()"
     },
@@ -9535,11 +9547,11 @@
       "label": "ota_channel_cb()",
       "file_type": "code",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L250",
+      "source_location": "L255",
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_ota_channel_cb",
-      "community": 19,
+      "community": 20,
       "community_name": "ui_infoScreen.c",
       "norm_label": "ota_channel_cb()"
     },
@@ -9547,7 +9559,7 @@
       "label": "ota_timer_cb()",
       "file_type": "code",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L258",
+      "source_location": "L263",
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_ota_timer_cb",
@@ -9570,11 +9582,11 @@
       "label": "ota_screen_del_cb()",
       "file_type": "code",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L274",
+      "source_location": "L279",
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_ota_screen_del_cb",
-      "community": 19,
+      "community": 20,
       "community_name": "ui_infoScreen.c",
       "norm_label": "ota_screen_del_cb()"
     },
@@ -9582,7 +9594,7 @@
       "label": "ota_button()",
       "file_type": "code",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L281",
+      "source_location": "L286",
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_ota_button",
@@ -9605,7 +9617,7 @@
       "label": "ota_card()",
       "file_type": "code",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L294",
+      "source_location": "L299",
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_ota_card",
@@ -9617,7 +9629,7 @@
       "label": "ui_infoScreen_screen_init()",
       "file_type": "code",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L321",
+      "source_location": "L326",
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_screen_init",
@@ -9629,12 +9641,12 @@
       "label": "ui_infoScreen_screen_destroy()",
       "file_type": "code",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L465",
+      "source_location": "L470",
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_screen_destroy",
-      "community": 62,
-      "community_name": "fresh_login",
+      "community": 20,
+      "community_name": "ui_infoScreen.c",
       "norm_label": "ui_infoscreen_screen_destroy()"
     },
     {
@@ -9656,7 +9668,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_keypadscreen_c_firmware_main_ui_screens_ui_keypadscreen",
       "community": 52,
-      "community_name": "ui_widgets",
+      "community_name": "ui_i18n",
       "norm_label": "ui_keypadscreen.c"
     },
     {
@@ -9679,8 +9691,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_keypadscreen_accept_cb",
-      "community": 77,
-      "community_name": "fresh_confirm",
+      "community": 52,
+      "community_name": "ui_i18n",
       "norm_label": "accept_cb()"
     },
     {
@@ -9690,8 +9702,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_keypadscreen_c_lv_event_t",
-      "community": 77,
-      "community_name": "fresh_confirm",
+      "community": 52,
+      "community_name": "ui_i18n",
       "norm_label": "lv_event_t"
     },
     {
@@ -9703,7 +9715,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_keypadscreen_refresh_value",
       "community": 52,
-      "community_name": "ui_widgets",
+      "community_name": "ui_i18n",
       "norm_label": "refresh_value()"
     },
     {
@@ -9715,7 +9727,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_keypadscreen_key_cb",
       "community": 52,
-      "community_name": "ui_widgets",
+      "community_name": "ui_i18n",
       "norm_label": "key_cb()"
     },
     {
@@ -9761,8 +9773,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_keypadscreen_ui_keypadscreen_screen_destroy",
-      "community": 5,
-      "community_name": "ui.c",
+      "community": 52,
+      "community_name": "ui_i18n",
       "norm_label": "ui_keypadscreen_screen_destroy()"
     },
     {
@@ -9773,7 +9785,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_keypadscreen_h_firmware_main_ui_screens_ui_keypadscreen",
       "community": 52,
-      "community_name": "ui_widgets",
+      "community_name": "ui_i18n",
       "norm_label": "ui_keypadscreen.h"
     },
     {
@@ -9795,8 +9807,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_loginscreen_ui_login_set_destination",
-      "community": 62,
-      "community_name": "fresh_login",
+      "community": 6,
+      "community_name": "ui_loginScreen.c",
       "norm_label": "ui_login_set_destination()"
     },
     {
@@ -10102,8 +10114,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_loginscreen_ui_loginscreen_screen_destroy",
-      "community": 62,
-      "community_name": "fresh_login",
+      "community": 6,
+      "community_name": "ui_loginScreen.c",
       "norm_label": "ui_loginscreen_screen_destroy()"
     },
     {
@@ -10453,8 +10465,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_mainscreen_menu_item_cb",
-      "community": 62,
-      "community_name": "fresh_login",
+      "community": 31,
+      "community_name": "ui_mainScreen.c",
       "norm_label": "menu_item_cb()"
     },
     {
@@ -10465,8 +10477,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_mainscreen_menu_add_item",
-      "community": 16,
-      "community_name": "ui_label",
+      "community": 31,
+      "community_name": "ui_mainScreen.c",
       "norm_label": "menu_add_item()"
     },
     {
@@ -10477,8 +10489,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_mainscreen_menu_open_cb",
-      "community": 16,
-      "community_name": "ui_label",
+      "community": 31,
+      "community_name": "ui_mainScreen.c",
       "norm_label": "menu_open_cb()"
     },
     {
@@ -10700,7 +10712,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netblescreen_c_firmware_main_ui_screens_ui_netblescreen",
-      "community": 28,
+      "community": 23,
       "community_name": "string",
       "norm_label": "ui_netblescreen.c"
     },
@@ -10712,8 +10724,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netblescreen_set_str",
-      "community": 28,
-      "community_name": "string",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "set_str()"
     },
     {
@@ -10724,8 +10736,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netblescreen_save_cb",
-      "community": 28,
-      "community_name": "string",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "save_cb()"
     },
     {
@@ -10735,8 +10747,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netblescreen_c_lv_event_t",
-      "community": 28,
-      "community_name": "string",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "lv_event_t"
     },
     {
@@ -10759,8 +10771,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netblescreen_ui_netblescreen_screen_destroy",
-      "community": 5,
-      "community_name": "ui.c",
+      "community": 23,
+      "community_name": "string",
       "norm_label": "ui_netblescreen_screen_destroy()"
     },
     {
@@ -10770,8 +10782,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netblescreen_h_firmware_main_ui_screens_ui_netblescreen",
-      "community": 28,
-      "community_name": "string",
+      "community": 66,
+      "community_name": "lvgl",
       "norm_label": "ui_netblescreen.h"
     },
     {
@@ -10782,7 +10794,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netcloudscreen_c_firmware_main_ui_screens_ui_netcloudscreen",
       "community": 79,
-      "community_name": "ui_netCloudScreen.c",
+      "community_name": "ui_widgets",
       "norm_label": "ui_netcloudscreen.c"
     },
     {
@@ -10794,7 +10806,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netcloudscreen_set_str",
       "community": 79,
-      "community_name": "ui_netCloudScreen.c",
+      "community_name": "ui_widgets",
       "norm_label": "set_str()"
     },
     {
@@ -10805,8 +10817,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netcloudscreen_cert_presence",
-      "community": 79,
-      "community_name": "ui_netCloudScreen.c",
+      "community": 3,
+      "community_name": "transport_mqtt.c",
       "norm_label": "cert_presence()"
     },
     {
@@ -10817,8 +10829,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netcloudscreen_cert_pills_refresh",
-      "community": 79,
-      "community_name": "ui_netCloudScreen.c",
+      "community": 16,
+      "community_name": "ui_label",
       "norm_label": "cert_pills_refresh()"
     },
     {
@@ -10830,7 +10842,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netcloudscreen_cert_erase_cb",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "norm_label": "cert_erase_cb()"
     },
     {
@@ -10841,7 +10853,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netcloudscreen_c_lv_event_t",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "norm_label": "lv_event_t"
     },
     {
@@ -10876,8 +10888,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netcloudscreen_ui_netcloudscreen_screen_destroy",
-      "community": 5,
-      "community_name": "ui.c",
+      "community": 79,
+      "community_name": "ui_widgets",
       "norm_label": "ui_netcloudscreen_screen_destroy()"
     },
     {
@@ -10888,7 +10900,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netcloudscreen_h_firmware_main_ui_screens_ui_netcloudscreen",
       "community": 79,
-      "community_name": "ui_netCloudScreen.c",
+      "community_name": "ui_widgets",
       "norm_label": "ui_netcloudscreen.h"
     },
     {
@@ -10898,8 +10910,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netethscreen_c_firmware_main_ui_screens_ui_netethscreen",
-      "community": 79,
-      "community_name": "ui_netCloudScreen.c",
+      "community": 58,
+      "community_name": "ui_netWifiScreen.c",
       "norm_label": "ui_netethscreen.c"
     },
     {
@@ -10957,8 +10969,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netethscreen_ui_netethscreen_screen_destroy",
-      "community": 75,
-      "community_name": "fresh_net_eth",
+      "community": 58,
+      "community_name": "ui_netWifiScreen.c",
       "norm_label": "ui_netethscreen_screen_destroy()"
     },
     {
@@ -10968,8 +10980,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netethscreen_h_firmware_main_ui_screens_ui_netethscreen",
-      "community": 79,
-      "community_name": "ui_netCloudScreen.c",
+      "community": 58,
+      "community_name": "ui_netWifiScreen.c",
       "norm_label": "ui_netethscreen.h"
     },
     {
@@ -10979,8 +10991,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netwifiscreen_c_firmware_main_ui_screens_ui_netwifiscreen",
-      "community": 79,
-      "community_name": "ui_netCloudScreen.c",
+      "community": 58,
+      "community_name": "ui_netWifiScreen.c",
       "norm_label": "ui_netwifiscreen.c"
     },
     {
@@ -10991,8 +11003,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netwifiscreen_set_str",
-      "community": 79,
-      "community_name": "ui_netCloudScreen.c",
+      "community": 83,
+      "community_name": "ui_statusbar_request_refresh",
       "norm_label": "set_str()"
     },
     {
@@ -11038,8 +11050,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netwifiscreen_ui_netwifiscreen_screen_destroy",
-      "community": 5,
-      "community_name": "ui.c",
+      "community": 58,
+      "community_name": "ui_netWifiScreen.c",
       "norm_label": "ui_netwifiscreen_screen_destroy()"
     },
     {
@@ -11049,8 +11061,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_netwifiscreen_h_firmware_main_ui_screens_ui_netwifiscreen",
-      "community": 79,
-      "community_name": "ui_netCloudScreen.c",
+      "community": 58,
+      "community_name": "ui_netWifiScreen.c",
       "norm_label": "ui_netwifiscreen.h"
     },
     {
@@ -11060,8 +11072,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_pinscreen_c_firmware_main_ui_screens_ui_pinscreen",
-      "community": 52,
-      "community_name": "ui_widgets",
+      "community": 51,
+      "community_name": "ui_pinScreen.c",
       "norm_label": "ui_pinscreen.c"
     },
     {
@@ -11073,7 +11085,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_pinscreen_ui_pinscreen_set_config_entry",
       "community": 51,
-      "community_name": "lv_event_t",
+      "community_name": "ui_pinScreen.c",
       "norm_label": "ui_pinscreen_set_config_entry()"
     },
     {
@@ -11084,8 +11096,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_pinscreen_refresh_dots",
-      "community": 52,
-      "community_name": "ui_widgets",
+      "community": 51,
+      "community_name": "ui_pinScreen.c",
       "norm_label": "refresh_dots()"
     },
     {
@@ -11096,8 +11108,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_pinscreen_pin_wrong_flash",
-      "community": 52,
-      "community_name": "ui_widgets",
+      "community": 51,
+      "community_name": "ui_pinScreen.c",
       "norm_label": "pin_wrong_flash()"
     },
     {
@@ -11108,8 +11120,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_pinscreen_pin_key_cb",
-      "community": 52,
-      "community_name": "ui_widgets",
+      "community": 51,
+      "community_name": "ui_pinScreen.c",
       "norm_label": "pin_key_cb()"
     },
     {
@@ -11119,8 +11131,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_pinscreen_c_lv_event_t",
-      "community": 52,
-      "community_name": "ui_widgets",
+      "community": 51,
+      "community_name": "ui_pinScreen.c",
       "norm_label": "lv_event_t"
     },
     {
@@ -11166,8 +11178,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_pinscreen_ui_pinscreen_screen_destroy",
-      "community": 5,
-      "community_name": "ui.c",
+      "community": 51,
+      "community_name": "ui_pinScreen.c",
       "norm_label": "ui_pinscreen_screen_destroy()"
     },
     {
@@ -11177,8 +11189,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_pinscreen_h_firmware_main_ui_screens_ui_pinscreen",
-      "community": 52,
-      "community_name": "ui_widgets",
+      "community": 51,
+      "community_name": "ui_pinScreen.c",
       "norm_label": "ui_pinscreen.h"
     },
     {
@@ -11247,8 +11259,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_sensordiagscreen_ui_sensordiagscreen_refresh",
-      "community": 60,
-      "community_name": "apply_authenticated_cb",
+      "community": 12,
+      "community_name": "ui_sensorDiagScreen.c",
       "norm_label": "ui_sensordiagscreen_refresh()"
     },
     {
@@ -11330,8 +11342,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_sensordiagscreen_ui_sensordiagscreen_screen_destroy",
-      "community": 5,
-      "community_name": "ui.c",
+      "community": 12,
+      "community_name": "ui_sensorDiagScreen.c",
       "norm_label": "ui_sensordiagscreen_screen_destroy()"
     },
     {
@@ -11376,8 +11388,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_sensoreditscreen_ui_sensoreditscreen_refresh",
-      "community": 44,
-      "community_name": "ui_sensorEditScreen.c",
+      "community": 60,
+      "community_name": "apply_authenticated_cb",
       "norm_label": "ui_sensoreditscreen_refresh()"
     },
     {
@@ -11530,8 +11542,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_sensoreditscreen_f_switch",
-      "community": 42,
-      "community_name": "appcfg_cache_peek",
+      "community": 45,
+      "community_name": "ui_cfg_flow_limit",
       "norm_label": "f_switch()"
     },
     {
@@ -11649,8 +11661,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_sensoreditscreen_ui_sensoreditscreen_screen_destroy",
-      "community": 76,
-      "community_name": "get_sensor_edit",
+      "community": 44,
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "ui_sensoreditscreen_screen_destroy()"
     },
     {
@@ -11671,8 +11683,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_splashscreen_c_firmware_main_ui_screens_ui_splashscreen",
-      "community": 28,
-      "community_name": "string",
+      "community": 79,
+      "community_name": "ui_widgets",
       "norm_label": "ui_splashscreen.c"
     },
     {
@@ -11718,8 +11730,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_splashscreen_ui_splashscreen_screen_destroy",
-      "community": 28,
-      "community_name": "string",
+      "community": 79,
+      "community_name": "ui_widgets",
       "norm_label": "ui_splashscreen_screen_destroy()"
     },
     {
@@ -11729,8 +11741,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_splashscreen_h_firmware_main_ui_screens_ui_splashscreen",
-      "community": 28,
-      "community_name": "string",
+      "community": 79,
+      "community_name": "ui_widgets",
       "norm_label": "ui_splashscreen.h"
     },
     {
@@ -11846,8 +11858,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_usereditscreen_ui_usereditscreen_screen_destroy",
-      "community": 5,
-      "community_name": "ui.c",
+      "community": 18,
+      "community_name": "ui_userEditScreen.c",
       "norm_label": "ui_usereditscreen_screen_destroy()"
     },
     {
@@ -11857,8 +11869,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_usereditscreen_h_firmware_main_ui_screens_ui_usereditscreen",
-      "community": 55,
-      "community_name": "ui_usersScreen.c",
+      "community": 18,
+      "community_name": "ui_userEditScreen.c",
       "norm_label": "ui_usereditscreen.h"
     },
     {
@@ -11997,8 +12009,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_screens_ui_usersscreen_ui_usersscreen_screen_destroy",
-      "community": 51,
-      "community_name": "lv_event_t",
+      "community": 55,
+      "community_name": "ui_usersScreen.c",
       "norm_label": "ui_usersscreen_screen_destroy()"
     },
     {
@@ -12031,8 +12043,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_get_general",
-      "community": 51,
-      "community_name": "lv_event_t",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "get_general()"
     },
     {
@@ -12054,8 +12066,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_get_info",
-      "community": 62,
-      "community_name": "fresh_login",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "get_info()"
     },
     {
@@ -12090,8 +12102,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_get_users",
-      "community": 51,
-      "community_name": "lv_event_t",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "get_users()"
     },
     {
@@ -12126,8 +12138,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_get_sensor_edit",
-      "community": 76,
-      "community_name": "get_sensor_edit",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "get_sensor_edit()"
     },
     {
@@ -12174,8 +12186,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_fresh_confirm",
-      "community": 77,
-      "community_name": "fresh_confirm",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "fresh_confirm()"
     },
     {
@@ -12198,8 +12210,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_fresh_login",
-      "community": 62,
-      "community_name": "fresh_login",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "fresh_login()"
     },
     {
@@ -12222,8 +12234,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_fresh_net_eth",
-      "community": 75,
-      "community_name": "fresh_net_eth",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "fresh_net_eth()"
     },
     {
@@ -12317,8 +12329,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_ui_open_general_cb",
-      "community": 51,
-      "community_name": "lv_event_t",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "ui_open_general_cb()"
     },
     {
@@ -12328,8 +12340,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_main_ui_ui_c_lv_event_t",
-      "community": 51,
-      "community_name": "lv_event_t",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "lv_event_t"
     },
     {
@@ -12340,8 +12352,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_ui_open_general_authenticated_cb",
-      "community": 51,
-      "community_name": "lv_event_t",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "ui_open_general_authenticated_cb()"
     },
     {
@@ -12364,8 +12376,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_ui_open_config_ble_cb",
-      "community": 62,
-      "community_name": "fresh_login",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "ui_open_config_ble_cb()"
     },
     {
@@ -12400,8 +12412,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_ui_open_info_cb",
-      "community": 62,
-      "community_name": "fresh_login",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "ui_open_info_cb()"
     },
     {
@@ -12412,8 +12424,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_ui_open_sensor_cb",
-      "community": 76,
-      "community_name": "get_sensor_edit",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "ui_open_sensor_cb()"
     },
     {
@@ -12472,8 +12484,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_ui_open_confirm_cb",
-      "community": 77,
-      "community_name": "fresh_confirm",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "ui_open_confirm_cb()"
     },
     {
@@ -12484,8 +12496,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_ui_open_pin_cb",
-      "community": 51,
-      "community_name": "lv_event_t",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "ui_open_pin_cb()"
     },
     {
@@ -12496,8 +12508,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_ui_open_config_pin_cb",
-      "community": 62,
-      "community_name": "fresh_login",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "ui_open_config_pin_cb()"
     },
     {
@@ -12508,8 +12520,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_ui_open_login_cb",
-      "community": 62,
-      "community_name": "fresh_login",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "ui_open_login_cb()"
     },
     {
@@ -12520,8 +12532,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_ui_open_users_cb",
-      "community": 51,
-      "community_name": "lv_event_t",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "ui_open_users_cb()"
     },
     {
@@ -12532,8 +12544,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_ui_open_useredit_cb",
-      "community": 55,
-      "community_name": "ui_usersScreen.c",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "ui_open_useredit_cb()"
     },
     {
@@ -12556,8 +12568,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_ui_open_net_eth_cb",
-      "community": 75,
-      "community_name": "fresh_net_eth",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "ui_open_net_eth_cb()"
     },
     {
@@ -12614,8 +12626,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_set_str",
-      "community": 69,
-      "community_name": "save_and_refresh",
+      "community": 42,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "set_str()"
     },
     {
@@ -12626,8 +12638,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_save_and_refresh",
-      "community": 69,
-      "community_name": "save_and_refresh",
+      "community": 42,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "save_and_refresh()"
     },
     {
@@ -12637,8 +12649,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_c_appconfig",
-      "community": 69,
-      "community_name": "save_and_refresh",
+      "community": 42,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "appconfig"
     },
     {
@@ -12649,8 +12661,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_set_pressure_unit",
-      "community": 69,
-      "community_name": "save_and_refresh",
+      "community": 42,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "ui_cfg_set_pressure_unit()"
     },
     {
@@ -12661,8 +12673,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_set_flow_unit",
-      "community": 69,
-      "community_name": "save_and_refresh",
+      "community": 42,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "ui_cfg_set_flow_unit()"
     },
     {
@@ -12673,8 +12685,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_set_gas",
-      "community": 69,
-      "community_name": "save_and_refresh",
+      "community": 42,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "ui_cfg_set_gas()"
     },
     {
@@ -12769,8 +12781,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_set_color_code",
-      "community": 69,
-      "community_name": "save_and_refresh",
+      "community": 42,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "ui_cfg_set_color_code()"
     },
     {
@@ -12781,8 +12793,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_set_lang",
-      "community": 69,
-      "community_name": "save_and_refresh",
+      "community": 42,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "ui_cfg_set_lang()"
     },
     {
@@ -12960,8 +12972,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_auth_logout",
-      "community": 49,
-      "community_name": "display_idle_cb",
+      "community": 72,
+      "community_name": "ui_cfg.c",
       "norm_label": "ui_auth_logout()"
     },
     {
@@ -13127,8 +13139,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_pressure_unit",
-      "community": 60,
-      "community_name": "apply_authenticated_cb",
+      "community": 44,
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "ui_cfg_pressure_unit()"
     },
     {
@@ -13139,8 +13151,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_flow_unit",
-      "community": 44,
-      "community_name": "ui_sensorEditScreen.c",
+      "community": 60,
+      "community_name": "apply_authenticated_cb",
       "norm_label": "ui_cfg_flow_unit()"
     },
     {
@@ -13211,8 +13223,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_set_decimals",
-      "community": 42,
-      "community_name": "appcfg_cache_peek",
+      "community": 72,
+      "community_name": "ui_cfg.c",
       "norm_label": "ui_cfg_set_decimals()"
     },
     {
@@ -13235,8 +13247,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_set_dim_minutes",
-      "community": 42,
-      "community_name": "appcfg_cache_peek",
+      "community": 72,
+      "community_name": "ui_cfg.c",
       "norm_label": "ui_cfg_set_dim_minutes()"
     },
     {
@@ -13341,8 +13353,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_set_pressure_limit_enabled",
-      "community": 69,
-      "community_name": "save_and_refresh",
+      "community": 42,
+      "community_name": "appcfg_cache_peek",
       "norm_label": "ui_cfg_set_pressure_limit_enabled()"
     },
     {
@@ -13365,8 +13377,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_set_alarm_tone",
-      "community": 42,
-      "community_name": "appcfg_cache_peek",
+      "community": 72,
+      "community_name": "ui_cfg.c",
       "norm_label": "ui_cfg_set_alarm_tone()"
     },
     {
@@ -13437,8 +13449,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_flow_limit",
-      "community": 42,
-      "community_name": "appcfg_cache_peek",
+      "community": 45,
+      "community_name": "ui_cfg_flow_limit",
       "norm_label": "ui_cfg_flow_limit()"
     },
     {
@@ -13461,8 +13473,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_set_flow_alarm",
-      "community": 42,
-      "community_name": "appcfg_cache_peek",
+      "community": 45,
+      "community_name": "ui_cfg_flow_limit",
       "norm_label": "ui_cfg_set_flow_alarm()"
     },
     {
@@ -13473,8 +13485,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_set_flow_window_ms",
-      "community": 42,
-      "community_name": "appcfg_cache_peek",
+      "community": 72,
+      "community_name": "ui_cfg.c",
       "norm_label": "ui_cfg_set_flow_window_ms()"
     },
     {
@@ -13485,8 +13497,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_press_to_disp",
-      "community": 60,
-      "community_name": "apply_authenticated_cb",
+      "community": 44,
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "ui_cfg_press_to_disp()"
     },
     {
@@ -13509,8 +13521,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_flow_to_disp",
-      "community": 44,
-      "community_name": "ui_sensorEditScreen.c",
+      "community": 60,
+      "community_name": "apply_authenticated_cb",
       "norm_label": "ui_cfg_flow_to_disp()"
     },
     {
@@ -13521,8 +13533,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_press_decimals",
-      "community": 60,
-      "community_name": "apply_authenticated_cb",
+      "community": 44,
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "ui_cfg_press_decimals()"
     },
     {
@@ -13533,8 +13545,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_flow_decimals",
-      "community": 72,
-      "community_name": "ui_cfg.c",
+      "community": 60,
+      "community_name": "apply_authenticated_cb",
       "norm_label": "ui_cfg_flow_decimals()"
     },
     {
@@ -13545,8 +13557,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_press_fmt",
-      "community": 60,
-      "community_name": "apply_authenticated_cb",
+      "community": 44,
+      "community_name": "ui_sensorEditScreen.c",
       "norm_label": "ui_cfg_press_fmt()"
     },
     {
@@ -13557,8 +13569,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_cfg_flow_fmt",
-      "community": 72,
-      "community_name": "ui_cfg.c",
+      "community": 60,
+      "community_name": "apply_authenticated_cb",
       "norm_label": "ui_cfg_flow_fmt()"
     },
     {
@@ -13640,8 +13652,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_ui_edit_set_new",
-      "community": 77,
-      "community_name": "fresh_confirm",
+      "community": 52,
+      "community_name": "ui_i18n",
       "norm_label": "ui_edit_set_new()"
     },
     {
@@ -13676,7 +13688,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_ui_cfg_h_firmware_main_ui_ui_cfg",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "ui_cfg.h"
     },
     {
@@ -13708,8 +13720,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_ui_form_c_firmware_main_ui_ui_form",
-      "community": 16,
-      "community_name": "ui_label",
+      "community": 56,
+      "community_name": "ui_form.c",
       "norm_label": "ui_form.c"
     },
     {
@@ -13720,8 +13732,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_form_password_toggle_cb",
-      "community": 16,
-      "community_name": "ui_label",
+      "community": 56,
+      "community_name": "ui_form.c",
       "norm_label": "password_toggle_cb()"
     },
     {
@@ -13731,8 +13743,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_main_ui_ui_form_c_lv_event_t",
-      "community": 16,
-      "community_name": "ui_label",
+      "community": 56,
+      "community_name": "ui_form.c",
       "norm_label": "lv_event_t"
     },
     {
@@ -13743,8 +13755,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_form_ta_event_cb",
-      "community": 16,
-      "community_name": "ui_label",
+      "community": 56,
+      "community_name": "ui_form.c",
       "norm_label": "ta_event_cb()"
     },
     {
@@ -13755,8 +13767,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_form_kb_event_cb",
-      "community": 16,
-      "community_name": "ui_label",
+      "community": 56,
+      "community_name": "ui_form.c",
       "norm_label": "kb_event_cb()"
     },
     {
@@ -13848,8 +13860,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_ui_form_h_firmware_main_ui_ui_form",
-      "community": 16,
-      "community_name": "ui_label",
+      "community": 56,
+      "community_name": "ui_form.c",
       "norm_label": "ui_form.h"
     },
     {
@@ -13905,7 +13917,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_ui_nav_c_firmware_main_ui_ui_nav",
       "community": 56,
-      "community_name": "ui_nav_load",
+      "community_name": "ui_form.c",
       "norm_label": "ui_nav.c"
     },
     {
@@ -13917,7 +13929,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_ui_nav_ui_nav_init",
       "community": 56,
-      "community_name": "ui_nav_load",
+      "community_name": "ui_form.c",
       "norm_label": "ui_nav_init()"
     },
     {
@@ -13928,7 +13940,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_ui_nav_c_lv_obj_t",
       "community": 56,
-      "community_name": "ui_nav_load",
+      "community_name": "ui_form.c",
       "norm_label": "lv_obj_t"
     },
     {
@@ -13939,8 +13951,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_nav_ui_nav_show_root",
-      "community": 56,
-      "community_name": "ui_nav_load",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "norm_label": "ui_nav_show_root()"
     },
     {
@@ -13952,7 +13964,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_ui_nav_ui_nav_current",
       "community": 56,
-      "community_name": "ui_nav_load",
+      "community_name": "ui_form.c",
       "norm_label": "ui_nav_current()"
     },
     {
@@ -13963,8 +13975,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_nav_ui_nav_load",
-      "community": 56,
-      "community_name": "ui_nav_load",
+      "community": 5,
+      "community_name": "ui.c",
       "norm_label": "ui_nav_load()"
     },
     {
@@ -13976,7 +13988,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_ui_nav_ui_nav_replace",
       "community": 56,
-      "community_name": "ui_nav_load",
+      "community_name": "ui_form.c",
       "norm_label": "ui_nav_replace()"
     },
     {
@@ -13987,8 +13999,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_nav_ui_nav_back",
-      "community": 18,
-      "community_name": "ui_userEditScreen.c",
+      "community": 56,
+      "community_name": "ui_form.c",
       "norm_label": "ui_nav_back()"
     },
     {
@@ -13999,8 +14011,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_nav_ui_nav_swap",
-      "community": 40,
-      "community_name": "ui_connectivityScreen.c",
+      "community": 56,
+      "community_name": "ui_form.c",
       "norm_label": "ui_nav_swap()"
     },
     {
@@ -14012,7 +14024,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_ui_nav_ui_nav_pop_to",
       "community": 56,
-      "community_name": "ui_nav_load",
+      "community_name": "ui_form.c",
       "norm_label": "ui_nav_pop_to()"
     },
     {
@@ -14024,7 +14036,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_ui_nav_ui_nav_back_event_cb",
       "community": 56,
-      "community_name": "ui_nav_load",
+      "community_name": "ui_form.c",
       "norm_label": "ui_nav_back_event_cb()"
     },
     {
@@ -14035,7 +14047,7 @@
       "_origin": "ast",
       "id": "firmware_main_ui_ui_nav_c_lv_event_t",
       "community": 56,
-      "community_name": "ui_nav_load",
+      "community_name": "ui_form.c",
       "norm_label": "lv_event_t"
     },
     {
@@ -14045,8 +14057,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_ui_nav_h_firmware_main_ui_ui_nav",
-      "community": 16,
-      "community_name": "ui_label",
+      "community": 56,
+      "community_name": "ui_form.c",
       "norm_label": "ui_nav.h"
     },
     {
@@ -14091,8 +14103,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_sd_close_click_cb",
-      "community": 41,
-      "community_name": "main.c",
+      "community": 36,
+      "community_name": "sd_ui_close_cb",
       "norm_label": "close_click_cb()"
     },
     {
@@ -14102,8 +14114,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "firmware_main_ui_ui_sd_c_lv_event_t",
-      "community": 41,
-      "community_name": "main.c",
+      "community": 36,
+      "community_name": "sd_ui_close_cb",
       "norm_label": "lv_event_t"
     },
     {
@@ -14162,8 +14174,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_main_ui_ui_sd_ui_sd_close",
-      "community": 41,
-      "community_name": "main.c",
+      "community": 36,
+      "community_name": "sd_ui_close_cb",
       "norm_label": "ui_sd_close()"
     },
     {
@@ -14442,8 +14454,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_main_ui_ui_widgets_h_firmware_main_ui_ui_widgets",
-      "community": 16,
-      "community_name": "ui_label",
+      "community": 66,
+      "community_name": "lvgl",
       "norm_label": "ui_widgets.h"
     },
     {
@@ -14465,7 +14477,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_stubs_driver_i2c_master",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "i2c_master.h"
     },
     {
@@ -14476,7 +14488,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_stubs_driver_ledc",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "ledc.h"
     },
     {
@@ -14487,7 +14499,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_stubs_esp_err",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "esp_err.h"
     },
     {
@@ -14509,8 +14521,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_tests_host_stubs_esp_log",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 23,
+      "community_name": "string",
       "norm_label": "esp_log.h"
     },
     {
@@ -14520,8 +14532,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_tests_host_stubs_esp_timer",
-      "community": 47,
-      "community_name": "transport_mqtt.c",
+      "community": 0,
+      "community_name": "task_tracer.c",
       "norm_label": "esp_timer.h"
     },
     {
@@ -14623,7 +14635,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_stubs_storage",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "norm_label": "stubs/storage.h"
     },
     {
@@ -14646,7 +14658,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_test_alarm_esp_timer_get_time",
       "community": 22,
-      "community_name": "sensors_runtime.c",
+      "community_name": "esp_timer_get_time",
       "norm_label": "esp_timer_get_time()"
     },
     {
@@ -14797,7 +14809,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_test_eeprom",
       "community": 23,
-      "community_name": "test_eeprom.c",
+      "community_name": "string",
       "norm_label": "test_eeprom.c"
     },
     {
@@ -14809,7 +14821,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_test_eeprom_vtaskdelay",
       "community": 39,
-      "community_name": "vTaskDelay",
+      "community_name": "sensors_acq_task",
       "norm_label": "vtaskdelay()"
     },
     {
@@ -14820,7 +14832,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_test_eeprom_c_ticktype_t",
       "community": 39,
-      "community_name": "vTaskDelay",
+      "community_name": "sensors_acq_task",
       "norm_label": "ticktype_t"
     },
     {
@@ -14832,7 +14844,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_test_eeprom_fpm_i2c_bus_add_device",
       "community": 23,
-      "community_name": "test_eeprom.c",
+      "community_name": "string",
       "norm_label": "fpm_i2c_bus_add_device()"
     },
     {
@@ -14843,7 +14855,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_test_eeprom_c_esp_err_t",
       "community": 23,
-      "community_name": "test_eeprom.c",
+      "community_name": "string",
       "norm_label": "esp_err_t"
     },
     {
@@ -14854,7 +14866,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_test_eeprom_c_i2c_master_bus_handle_t",
       "community": 23,
-      "community_name": "test_eeprom.c",
+      "community_name": "string",
       "norm_label": "i2c_master_bus_handle_t"
     },
     {
@@ -14865,7 +14877,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_test_eeprom_c_i2c_device_config_t",
       "community": 23,
-      "community_name": "test_eeprom.c",
+      "community_name": "string",
       "norm_label": "i2c_device_config_t"
     },
     {
@@ -14876,7 +14888,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_test_eeprom_c_i2c_master_dev_handle_t",
       "community": 23,
-      "community_name": "test_eeprom.c",
+      "community_name": "string",
       "norm_label": "i2c_master_dev_handle_t"
     },
     {
@@ -14888,7 +14900,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_test_eeprom_fpm_i2c_bus_rm_device",
       "community": 23,
-      "community_name": "test_eeprom.c",
+      "community_name": "string",
       "norm_label": "fpm_i2c_bus_rm_device()"
     },
     {
@@ -14900,7 +14912,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_test_eeprom_fpm_i2c_transmit",
       "community": 23,
-      "community_name": "test_eeprom.c",
+      "community_name": "string",
       "norm_label": "fpm_i2c_transmit()"
     },
     {
@@ -14912,7 +14924,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_test_eeprom_fpm_i2c_stop_read",
       "community": 23,
-      "community_name": "test_eeprom.c",
+      "community_name": "string",
       "norm_label": "fpm_i2c_stop_read()"
     },
     {
@@ -14924,7 +14936,7 @@
       "_origin": "ast",
       "id": "firmware_tests_host_test_eeprom_main",
       "community": 67,
-      "community_name": "at24c256.c",
+      "community_name": "driver_delay_ms",
       "norm_label": "main()"
     },
     {
@@ -14934,7 +14946,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "firmware_tests_host_test_flow_integrator",
-      "community": 28,
+      "community": 23,
       "community_name": "string",
       "norm_label": "test_flow_integrator.c"
     },
@@ -14946,7 +14958,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_tests_host_test_flow_integrator_close_to",
-      "community": 28,
+      "community": 23,
       "community_name": "string",
       "norm_label": "close_to()"
     },
@@ -14958,7 +14970,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "firmware_tests_host_test_flow_integrator_main",
-      "community": 28,
+      "community": 23,
       "community_name": "string",
       "norm_label": "main()"
     },
@@ -17019,7 +17031,7 @@
     },
     {
       "label": "stdio",
-      "community": 28,
+      "community": 23,
       "community_name": "string",
       "external": true,
       "file_type": "concept",
@@ -17031,8 +17043,8 @@
     },
     {
       "label": "stdlib",
-      "community": 38,
-      "community_name": "stdlib",
+      "community": 90,
+      "community_name": "ota_update.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "stdlib",
@@ -17043,7 +17055,7 @@
     },
     {
       "label": "string",
-      "community": 28,
+      "community": 23,
       "community_name": "string",
       "external": true,
       "file_type": "concept",
@@ -17055,8 +17067,8 @@
     },
     {
       "label": "tz_map",
-      "community": 28,
-      "community_name": "string",
+      "community": 90,
+      "community_name": "ota_update.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "tz_map",
@@ -17067,8 +17079,8 @@
     },
     {
       "label": "ui_form",
-      "community": 79,
-      "community_name": "ui_netCloudScreen.c",
+      "community": 58,
+      "community_name": "ui_netWifiScreen.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "ui_form",
@@ -17079,7 +17091,7 @@
     },
     {
       "label": "ui_widgets",
-      "community": 52,
+      "community": 79,
       "community_name": "ui_widgets",
       "external": true,
       "file_type": "concept",
@@ -17140,7 +17152,7 @@
     {
       "label": "esp_eth",
       "community": 15,
-      "community_name": "net_core.c",
+      "community_name": "time_mgr.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "esp_eth",
@@ -17152,7 +17164,7 @@
     {
       "label": "esp_event",
       "community": 15,
-      "community_name": "net_core.c",
+      "community_name": "time_mgr.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "esp_event",
@@ -17164,7 +17176,7 @@
     {
       "label": "esp_wifi",
       "community": 15,
-      "community_name": "net_core.c",
+      "community_name": "time_mgr.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "esp_wifi",
@@ -17176,7 +17188,7 @@
     {
       "label": "net_core",
       "community": 15,
-      "community_name": "net_core.c",
+      "community_name": "time_mgr.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "net_core",
@@ -17187,8 +17199,8 @@
     },
     {
       "label": "state_pub",
-      "community": 47,
-      "community_name": "transport_mqtt.c",
+      "community": 22,
+      "community_name": "esp_timer_get_time",
       "external": true,
       "file_type": "concept",
       "norm_label": "state_pub",
@@ -17199,7 +17211,7 @@
     },
     {
       "label": "transport_mqtt",
-      "community": 2,
+      "community": 15,
       "community_name": "time_mgr.c",
       "external": true,
       "file_type": "concept",
@@ -17283,8 +17295,8 @@
     },
     {
       "label": "fpm_ble_config",
-      "community": 11,
-      "community_name": "transport_ble.c",
+      "community": 3,
+      "community_name": "transport_mqtt.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "fpm_ble_config",
@@ -17319,8 +17331,8 @@
     },
     {
       "label": "transport_ble",
-      "community": 36,
-      "community_name": "config_mode.c",
+      "community": 11,
+      "community_name": "transport_ble.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "transport_ble",
@@ -17331,8 +17343,8 @@
     },
     {
       "label": "esp_app_desc",
-      "community": 64,
-      "community_name": "esp_app_desc",
+      "community": 20,
+      "community_name": "ui_infoScreen.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "esp_app_desc",
@@ -17367,8 +17379,8 @@
     },
     {
       "label": "mdns",
-      "community": 64,
-      "community_name": "esp_app_desc",
+      "community": 20,
+      "community_name": "ui_infoScreen.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "mdns",
@@ -17379,8 +17391,8 @@
     },
     {
       "label": "mdns_svc",
-      "community": 64,
-      "community_name": "esp_app_desc",
+      "community": 20,
+      "community_name": "ui_infoScreen.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "mdns_svc",
@@ -17392,7 +17404,7 @@
     {
       "label": "at24c256",
       "community": 23,
-      "community_name": "test_eeprom.c",
+      "community_name": "string",
       "external": true,
       "file_type": "concept",
       "norm_label": "at24c256",
@@ -17535,8 +17547,8 @@
     },
     {
       "label": "esp_random",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 90,
+      "community_name": "ota_update.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "esp_random",
@@ -17548,7 +17560,7 @@
     {
       "label": "cjson",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "external": true,
       "file_type": "concept",
       "norm_label": "cjson",
@@ -17560,7 +17572,7 @@
     {
       "label": "esp_http_server",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "external": true,
       "file_type": "concept",
       "norm_label": "esp_http_server",
@@ -17571,8 +17583,8 @@
     },
     {
       "label": "esp_idf_version",
-      "community": 4,
-      "community_name": "alarm_mgr.c",
+      "community": 32,
+      "community_name": "esp_err.h",
       "external": true,
       "file_type": "concept",
       "norm_label": "esp_idf_version",
@@ -17583,8 +17595,8 @@
     },
     {
       "label": "esp_lcd_mipi_dsi",
-      "community": 4,
-      "community_name": "alarm_mgr.c",
+      "community": 32,
+      "community_name": "esp_err.h",
       "external": true,
       "file_type": "concept",
       "norm_label": "esp_lcd_mipi_dsi",
@@ -17596,7 +17608,7 @@
     {
       "label": "esp_lcd_panel_ops",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "external": true,
       "file_type": "concept",
       "norm_label": "esp_lcd_panel_ops",
@@ -17607,8 +17619,8 @@
     },
     {
       "label": "esp_lcd_panel_vendor",
-      "community": 4,
-      "community_name": "alarm_mgr.c",
+      "community": 32,
+      "community_name": "esp_err.h",
       "external": true,
       "file_type": "concept",
       "norm_label": "esp_lcd_panel_vendor",
@@ -17620,7 +17632,7 @@
     {
       "label": "esp_lcd_touch",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "external": true,
       "file_type": "concept",
       "norm_label": "esp_lcd_touch",
@@ -17632,7 +17644,7 @@
     {
       "label": "esp_lcd_types",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "external": true,
       "file_type": "concept",
       "norm_label": "esp_lcd_types",
@@ -17644,7 +17656,7 @@
     {
       "label": "esp_lvgl_port",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "external": true,
       "file_type": "concept",
       "norm_label": "esp_lvgl_port",
@@ -17655,8 +17667,8 @@
     },
     {
       "label": "lcd_types",
-      "community": 4,
-      "community_name": "alarm_mgr.c",
+      "community": 32,
+      "community_name": "esp_err.h",
       "external": true,
       "file_type": "concept",
       "norm_label": "lcd_types",
@@ -17668,7 +17680,7 @@
     {
       "label": "stdbool",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "external": true,
       "file_type": "concept",
       "norm_label": "stdbool",
@@ -17680,7 +17692,7 @@
     {
       "label": "stddef",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "external": true,
       "file_type": "concept",
       "norm_label": "stddef",
@@ -17692,7 +17704,7 @@
     {
       "label": "stdint",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "external": true,
       "file_type": "concept",
       "norm_label": "stdint",
@@ -17704,7 +17716,7 @@
     {
       "label": "storage",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "external": true,
       "file_type": "concept",
       "norm_label": "storage",
@@ -17716,7 +17728,7 @@
     {
       "label": "ui_pin_hash",
       "community": 32,
-      "community_name": "esp_log.h",
+      "community_name": "esp_err.h",
       "external": true,
       "file_type": "concept",
       "norm_label": "ui_pin_hash",
@@ -17823,8 +17835,8 @@
     },
     {
       "label": "ui",
-      "community": 52,
-      "community_name": "ui_widgets",
+      "community": 18,
+      "community_name": "ui_userEditScreen.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "ui",
@@ -17836,7 +17848,7 @@
     {
       "label": "ui_nav",
       "community": 79,
-      "community_name": "ui_netCloudScreen.c",
+      "community_name": "ui_widgets",
       "external": true,
       "file_type": "concept",
       "norm_label": "ui_nav",
@@ -17848,7 +17860,7 @@
     {
       "label": "sfm3300",
       "community": 39,
-      "community_name": "vTaskDelay",
+      "community_name": "sensors_acq_task",
       "external": true,
       "file_type": "concept",
       "norm_label": "sfm3300",
@@ -17859,8 +17871,8 @@
     },
     {
       "label": "eth_mgr",
-      "community": 79,
-      "community_name": "ui_netCloudScreen.c",
+      "community": 58,
+      "community_name": "ui_netWifiScreen.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "eth_mgr",
@@ -17872,7 +17884,7 @@
     {
       "label": "cert_store",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "cert_store",
@@ -18016,7 +18028,7 @@
     {
       "label": "task_tracer",
       "community": 0,
-      "community_name": "app_main",
+      "community_name": "task_tracer.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "task_tracer",
@@ -18028,7 +18040,7 @@
     {
       "label": "ui_cfg",
       "community": 52,
-      "community_name": "ui_widgets",
+      "community_name": "ui_i18n",
       "external": true,
       "file_type": "concept",
       "norm_label": "ui_cfg",
@@ -18039,8 +18051,8 @@
     },
     {
       "label": "ui_i18n",
-      "community": 79,
-      "community_name": "ui_netCloudScreen.c",
+      "community": 52,
+      "community_name": "ui_i18n",
       "external": true,
       "file_type": "concept",
       "norm_label": "ui_i18n",
@@ -18052,7 +18064,7 @@
     {
       "label": "crypto",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "crypto",
@@ -18064,7 +18076,7 @@
     {
       "label": "fcntl",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "fcntl",
@@ -18076,7 +18088,7 @@
     {
       "label": "unistd",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "unistd",
@@ -18099,7 +18111,7 @@
     },
     {
       "label": "mqtt_client",
-      "community": 47,
+      "community": 3,
       "community_name": "transport_mqtt.c",
       "external": true,
       "file_type": "concept",
@@ -18124,7 +18136,7 @@
     {
       "label": "fpm_i2c_guard",
       "community": 2,
-      "community_name": "time_mgr.c",
+      "community_name": "fpm_i2c_guard",
       "external": true,
       "file_type": "concept",
       "norm_label": "fpm_i2c_guard",
@@ -18136,7 +18148,7 @@
     {
       "label": "rtc_rv3028",
       "community": 2,
-      "community_name": "time_mgr.c",
+      "community_name": "fpm_i2c_guard",
       "external": true,
       "file_type": "concept",
       "norm_label": "rtc_rv3028",
@@ -18148,7 +18160,7 @@
     {
       "label": "ui_statusbar_controller",
       "community": 58,
-      "community_name": "ui_wifi_main_icon.c",
+      "community_name": "ui_netWifiScreen.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "ui_statusbar_controller",
@@ -18160,7 +18172,7 @@
     {
       "label": "wifi_mgr",
       "community": 58,
-      "community_name": "ui_wifi_main_icon.c",
+      "community_name": "ui_netWifiScreen.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "wifi_mgr",
@@ -18183,8 +18195,8 @@
     },
     {
       "label": "ft5x06",
-      "community": 26,
-      "community_name": "touch_io_bounded.c",
+      "community": 41,
+      "community_name": "main.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "ft5x06",
@@ -18207,7 +18219,7 @@
     },
     {
       "label": "esp_netif_sntp",
-      "community": 2,
+      "community": 15,
       "community_name": "time_mgr.c",
       "external": true,
       "file_type": "concept",
@@ -18219,7 +18231,7 @@
     },
     {
       "label": "esp_sntp",
-      "community": 2,
+      "community": 15,
       "community_name": "time_mgr.c",
       "external": true,
       "file_type": "concept",
@@ -18231,8 +18243,8 @@
     },
     {
       "label": "flow_meter",
-      "community": 47,
-      "community_name": "transport_mqtt.c",
+      "community": 15,
+      "community_name": "time_mgr.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "flow_meter",
@@ -18243,7 +18255,7 @@
     },
     {
       "label": "queue",
-      "community": 2,
+      "community": 15,
       "community_name": "time_mgr.c",
       "external": true,
       "file_type": "concept",
@@ -18255,8 +18267,8 @@
     },
     {
       "label": "time",
-      "community": 32,
-      "community_name": "esp_log.h",
+      "community": 15,
+      "community_name": "time_mgr.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "time",
@@ -18268,7 +18280,7 @@
     {
       "label": "time_mgr",
       "community": 15,
-      "community_name": "net_core.c",
+      "community_name": "time_mgr.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "time_mgr",
@@ -18339,8 +18351,8 @@
     },
     {
       "label": "math",
-      "community": 47,
-      "community_name": "transport_mqtt.c",
+      "community": 23,
+      "community_name": "string",
       "external": true,
       "file_type": "concept",
       "norm_label": "math",
@@ -18363,8 +18375,8 @@
     },
     {
       "label": "metrics_store",
-      "community": 68,
-      "community_name": "metrics_store.c",
+      "community": 20,
+      "community_name": "ui_infoScreen.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "metrics_store",
@@ -18375,8 +18387,8 @@
     },
     {
       "label": "nvs",
-      "community": 68,
-      "community_name": "metrics_store.c",
+      "community": 20,
+      "community_name": "ui_infoScreen.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "nvs",
@@ -18387,8 +18399,8 @@
     },
     {
       "label": "nvs_flash",
-      "community": 68,
-      "community_name": "metrics_store.c",
+      "community": 20,
+      "community_name": "ui_infoScreen.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "nvs_flash",
@@ -18459,8 +18471,8 @@
     },
     {
       "label": "ads1115",
-      "community": 9,
-      "community_name": "ads1115.c",
+      "community": 19,
+      "community_name": "sensors_runtime.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "ads1115",
@@ -18495,8 +18507,8 @@
     },
     {
       "label": "esp_ota_ops",
-      "community": 19,
-      "community_name": "ui_infoScreen.c",
+      "community": 90,
+      "community_name": "ota_update.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "esp_ota_ops",
@@ -18519,8 +18531,8 @@
     },
     {
       "label": "ota_update",
-      "community": 19,
-      "community_name": "ui_infoScreen.c",
+      "community": 90,
+      "community_name": "ota_update.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "ota_update",
@@ -18532,7 +18544,7 @@
     {
       "label": "stat",
       "community": 3,
-      "community_name": "cert_store.c",
+      "community_name": "transport_mqtt.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "stat",
@@ -18543,8 +18555,8 @@
     },
     {
       "label": "strings",
-      "community": 38,
-      "community_name": "stdlib",
+      "community": 90,
+      "community_name": "ota_update.c",
       "external": true,
       "file_type": "concept",
       "norm_label": "strings",
@@ -31947,7 +31959,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L231",
+      "source_location": "L236",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_task",
@@ -31971,7 +31983,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L199",
+      "source_location": "L204",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_task",
@@ -33768,7 +33780,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "firmware/components/ota_update/ota_update.c",
-      "source_location": "L319",
+      "source_location": "L322",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_components_ota_update_ota_update_ota_update_from_url",
@@ -33876,7 +33888,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "firmware/components/ota_update/ota_update.c",
-      "source_location": "L286",
+      "source_location": "L289",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_components_ota_update_ota_update_ota_update_from_url",
@@ -34057,7 +34069,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L202",
+      "source_location": "L207",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_task",
@@ -34069,7 +34081,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/components/ota_update/ota_update.c",
-      "source_location": "L312",
+      "source_location": "L315",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_components_ota_update_ota_update_ota_update_from_url",
@@ -34081,7 +34093,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L213",
+      "source_location": "L218",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_task",
@@ -38159,7 +38171,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L194",
+      "source_location": "L199",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_task",
@@ -38171,7 +38183,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L323",
+      "source_location": "L328",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_screen_init",
@@ -50268,7 +50280,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L281",
+      "source_location": "L286",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_c_firmware_main_ui_screens_ui_infoscreen",
@@ -50279,7 +50291,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L294",
+      "source_location": "L299",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_c_firmware_main_ui_screens_ui_infoscreen",
@@ -50290,7 +50302,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L250",
+      "source_location": "L255",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_c_firmware_main_ui_screens_ui_infoscreen",
@@ -50301,7 +50313,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L248",
+      "source_location": "L253",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_c_firmware_main_ui_screens_ui_infoscreen",
@@ -50312,7 +50324,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L249",
+      "source_location": "L254",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_c_firmware_main_ui_screens_ui_infoscreen",
@@ -50323,7 +50335,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L184",
+      "source_location": "L189",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_c_firmware_main_ui_screens_ui_infoscreen",
@@ -50334,7 +50346,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L274",
+      "source_location": "L279",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_c_firmware_main_ui_screens_ui_infoscreen",
@@ -50345,7 +50357,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L235",
+      "source_location": "L240",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_c_firmware_main_ui_screens_ui_infoscreen",
@@ -50356,7 +50368,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L191",
+      "source_location": "L196",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_c_firmware_main_ui_screens_ui_infoscreen",
@@ -50367,7 +50379,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L258",
+      "source_location": "L263",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_c_firmware_main_ui_screens_ui_infoscreen",
@@ -50389,7 +50401,18 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L465",
+      "source_location": "L184",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "firmware_main_ui_screens_ui_infoscreen_c_firmware_main_ui_screens_ui_infoscreen",
+      "target": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_ota_busy",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
+      "source_location": "L470",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_c_firmware_main_ui_screens_ui_infoscreen",
@@ -50400,7 +50423,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L321",
+      "source_location": "L326",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_c_firmware_main_ui_screens_ui_infoscreen",
@@ -50628,7 +50651,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L385",
+      "source_location": "L390",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_screen_init",
@@ -50651,7 +50674,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L281",
+      "source_location": "L286",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -50663,7 +50686,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L294",
+      "source_location": "L299",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -50723,7 +50746,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L250",
+      "source_location": "L255",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -50735,7 +50758,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L248",
+      "source_location": "L253",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -50747,7 +50770,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L249",
+      "source_location": "L254",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -50759,7 +50782,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L274",
+      "source_location": "L279",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -50892,7 +50915,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L449",
+      "source_location": "L454",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_screen_init",
@@ -50916,7 +50939,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L387",
+      "source_location": "L392",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_screen_init",
@@ -50928,8 +50951,20 @@
       "context": "call",
       "confidence": "INFERRED",
       "confidence_score": 0.8,
+      "source_file": "firmware/main/ui/ui.c",
+      "source_location": "L128",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "firmware_main_ui_ui_display_idle_cb",
+      "target": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_ota_busy"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L227",
+      "source_location": "L232",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_task",
@@ -50941,7 +50976,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L217",
+      "source_location": "L222",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_task",
@@ -50952,7 +50987,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L248",
+      "source_location": "L253",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_check_cb",
@@ -50964,7 +50999,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L249",
+      "source_location": "L254",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_install_cb",
@@ -50977,7 +51012,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L248",
+      "source_location": "L253",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_check_cb",
@@ -50989,7 +51024,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L249",
+      "source_location": "L254",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_install_cb",
@@ -51000,7 +51035,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L318",
+      "source_location": "L323",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_card",
@@ -51011,7 +51046,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L258",
+      "source_location": "L263",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -51025,7 +51060,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L262",
+      "source_location": "L267",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_timer_cb",
@@ -51037,7 +51072,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L264",
+      "source_location": "L269",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_timer_cb",
@@ -51047,7 +51082,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L281",
+      "source_location": "L286",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -51061,7 +51096,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L283",
+      "source_location": "L288",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_button",
@@ -51073,7 +51108,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L290",
+      "source_location": "L295",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_button",
@@ -51084,7 +51119,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L306",
+      "source_location": "L311",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_card",
@@ -51097,7 +51132,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L301",
+      "source_location": "L306",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_card",
@@ -51109,7 +51144,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L302",
+      "source_location": "L307",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_card",
@@ -51121,7 +51156,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L296",
+      "source_location": "L301",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_card",
@@ -51133,7 +51168,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L301",
+      "source_location": "L306",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ota_card",
@@ -51144,7 +51179,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L452",
+      "source_location": "L457",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_screen_init",
@@ -51157,7 +51192,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L443",
+      "source_location": "L448",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_screen_init",
@@ -51169,7 +51204,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L347",
+      "source_location": "L352",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_screen_init",
@@ -51181,7 +51216,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L335",
+      "source_location": "L340",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_screen_init",
@@ -51193,7 +51228,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L364",
+      "source_location": "L369",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_screen_init",
@@ -51205,7 +51240,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L355",
+      "source_location": "L360",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_screen_init",
@@ -51217,7 +51252,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L344",
+      "source_location": "L349",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_screen_init",
@@ -51229,7 +51264,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L347",
+      "source_location": "L352",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_screen_init",
@@ -51241,7 +51276,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L349",
+      "source_location": "L354",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_screen_init",
@@ -51253,7 +51288,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "firmware/main/ui/screens/ui_infoScreen.c",
-      "source_location": "L324",
+      "source_location": "L329",
       "weight": 1.0,
       "_origin": "ast",
       "source": "firmware_main_ui_screens_ui_infoscreen_ui_infoscreen_screen_init",
@@ -69531,5 +69566,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "fc2be89bcd372a6575917c5b0913325139fcde93"
+  "built_at_commit": "ff0fe3a14294d943d1607f06e7ad6b7be9aa0be1"
 }

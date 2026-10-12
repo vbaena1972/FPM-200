@@ -470,13 +470,13 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_infoScreen.c": {
-    "mtime": 1791844198.6069126,
-    "ast_hash": "70b5e571eb7b432179a2a816c867256f",
+    "mtime": 1791846904.795527,
+    "ast_hash": "8b12c96a39154a47a268ca1eecf76359",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_infoScreen.h": {
-    "mtime": 1789516270.452314,
-    "ast_hash": "5906083ffcacdadee87600cae7c35bfc",
+    "mtime": 1791846904.7945247,
+    "ast_hash": "3d223a9588c285920423447c1559bf8b",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_keypadScreen.c": {
@@ -610,8 +610,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/ui.c": {
-    "mtime": 1791741213.2958894,
-    "ast_hash": "432c81ef2a24054e3932279467675e46",
+    "mtime": 1791846904.795527,
+    "ast_hash": "d76be5cf68fd70d1db703991608ef3f6",
     "semantic_hash": ""
   },
   "firmware/main/ui/ui.h": {
@@ -710,8 +710,8 @@
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1791844347.989029,
-    "ast_hash": "d4407f58fbf3efc14ab92390c63fec61",
+    "mtime": 1791846939.9641368,
+    "ast_hash": "74746079d8970e96b48edea395ec0bc1",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {
@@ -950,8 +950,8 @@
     "semantic_hash": ""
   },
   "firmware/components/ota_update/ota_update.c": {
-    "mtime": 1791844079.9986026,
-    "ast_hash": "91fc958ece2dac4e718dfc1ed198b017",
+    "mtime": 1791846885.959801,
+    "ast_hash": "c24d35a77e3c7a96161f51c46a5bf86b",
     "semantic_hash": ""
   },
   "firmware/components/storage/ui_pin_hash.c": {
