@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "firmware/components/storage/storage.c": {
-    "mtime": 1790563213.9162183,
-    "ast_hash": "ec503a68f0041bbaa2685b0a7db80cae",
+    "mtime": 1791845077.6540816,
+    "ast_hash": "bde28be79710fc7c81ec40975c067639",
     "semantic_hash": ""
   },
   "firmware/components/storage/storage_extras.c": {
@@ -1075,8 +1075,8 @@
     "semantic_hash": ""
   },
   "firmware/components/ota_update/ota_manifest.c": {
-    "mtime": 1791844054.7380476,
-    "ast_hash": "2c1bdc11058bb91da32c304d9d9d6435",
+    "mtime": 1791845077.6530707,
+    "ast_hash": "38b89a3c82a54b2987ae43d06d3d0d86",
     "semantic_hash": ""
   }
 }

@@ -1,16 +1,16 @@
 # Graph Report - FPM-200  (2026-10-12)
 
 ## Corpus Check
-- 190 files · ~426,489 words
+- 190 files · ~426,533 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1594 nodes · 4335 edges · 82 communities (75 shown, 7 thin omitted)
+- 1594 nodes · 4335 edges · 83 communities (76 shown, 7 thin omitted)
 - Extraction: 76% EXTRACTED · 24% INFERRED · 0% AMBIGUOUS · INFERRED: 1055 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `be52050a`
+- Built from commit: `fc2be89b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -33,7 +33,7 @@
 - net_core.c
 - ui_label
 - QA FORMAL — FPM-200 firmware **1.5.24-dev** (iniciado sobre 1.5.22)
-- ui_netCloudScreen.c
+- ui_userEditScreen.c
 - ui_infoScreen.c
 - storage.c
 - http_api.c
@@ -91,6 +91,7 @@
 - get_sensor_edit
 - fresh_confirm
 - Q: Revisa cada cuando el FPM esta enviando los datos a AWS
+- ui_netCloudScreen.c
 - ui_statusbar_request_refresh
 - README_PARCHE.md
 - ota_update.c
@@ -122,7 +123,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (82 total, 7 thin omitted)
+## Communities (83 total, 7 thin omitted)
 
 ### Community 0 - "app_main"
 Cohesion: 0.13
@@ -196,9 +197,9 @@ Nodes (104): bleapp_set_connected(), ui_bleAppScreen_screen_init(), ui_confirmSc
 Cohesion: 0.07
 Nodes (27): A. Arranque / versión / estabilidad, Alcance: qué cambia 1.5.22 respecto de 1.5.4 (último commit previo al ciclo), B. Calibración EEPROM, C. Medición presión / flujo, Cierre, D. Adquisición / temporización, E. Consumo, F. Alarmas (+19 more)
 
-### Community 18 - "ui_netCloudScreen.c"
-Cohesion: 0.21
-Nodes (11): cert_pills_refresh(), cert_presence(), set_str(), app_user_role_t, lv_event_t, delete_cb(), flash_error(), save_cb() (+3 more)
+### Community 18 - "ui_userEditScreen.c"
+Cohesion: 0.43
+Nodes (7): app_user_role_t, lv_event_t, delete_cb(), flash_error(), save_cb(), selected_role(), ui_nav_back()
 
 ### Community 19 - "ui_infoScreen.c"
 Cohesion: 0.24
@@ -213,8 +214,8 @@ Cohesion: 0.11
 Nodes (32): esp_chip_info, esp_system, eTaskState, diag_worker(), mem_diag_report(), mem_diag_report_full(), mem_diag_report_heap_full(), mem_diag_report_tasks() (+24 more)
 
 ### Community 22 - "sensors_runtime.c"
-Cohesion: 0.11
-Nodes (40): ads1115_is_ready(), at24c256_is_ready(), ms5803_is_ready(), aws_telemetry_task(), flow_meter_get(), AppConfig, esp_err_t, sensor_sample_t (+32 more)
+Cohesion: 0.14
+Nodes (33): ads1115_is_ready(), ms5803_is_ready(), aws_telemetry_task(), flow_meter_get(), AppConfig, sensor_sample_t, sensor_signal_stats_t, lock() (+25 more)
 
 ### Community 23 - "test_eeprom.c"
 Cohesion: 0.33
@@ -285,8 +286,8 @@ Cohesion: 0.24
 Nodes (12): esp_err_t, i2c_master_bus_handle_t, sfm3300_crc8(), sfm3300_get_last_rx(), sfm3300_init(), sfm3300_is_ready(), sfm3300_read(), sfm3300_send_cmd() (+4 more)
 
 ### Community 40 - "ui_connectivityScreen.c"
-Cohesion: 0.16
-Nodes (14): conn_status_t, eth_mgr, lv_timer_t, conn_signature(), cpy(), gather(), live_tick(), rssi_pct() (+6 more)
+Cohesion: 0.29
+Nodes (10): conn_status_t, lv_timer_t, conn_signature(), cpy(), gather(), live_tick(), rssi_pct(), str_hash() (+2 more)
 
 ### Community 41 - "main.c"
 Cohesion: 0.07
@@ -365,8 +366,8 @@ Cohesion: 0.40
 Nodes (3): esp_app_desc, mdns, mdns_svc
 
 ### Community 67 - "at24c256.c"
-Cohesion: 0.29
-Nodes (13): at24c256_init(), at24c256_read(), at24c256_self_test(), at24c256_write(), esp_err_t, i2c_master_bus_handle_t, write_verified(), crc16_ccitt() (+5 more)
+Cohesion: 0.19
+Nodes (20): at24c256_init(), at24c256_is_ready(), at24c256_read(), at24c256_self_test(), at24c256_write(), esp_err_t, i2c_master_bus_handle_t, write_verified() (+12 more)
 
 ### Community 68 - "metrics_store.c"
 Cohesion: 0.28
@@ -403,6 +404,10 @@ Nodes (6): ui_confirmScreen_screen_destroy(), accept_cb(), lv_event_t, ui_edit_s
 ### Community 78 - "Q: Revisa cada cuando el FPM esta enviando los datos a AWS"
 Cohesion: 0.40
 Nodes (4): Answer, Outcome, Q: Revisa cada cuando el FPM esta enviando los datos a AWS, Source Nodes
+
+### Community 79 - "ui_netCloudScreen.c"
+Cohesion: 0.19
+Nodes (8): eth_mgr, cert_pills_refresh(), cert_presence(), set_str(), set_str(), ui_form, ui_i18n, ui_nav
 
 ### Community 83 - "ui_statusbar_request_refresh"
 Cohesion: 0.25
