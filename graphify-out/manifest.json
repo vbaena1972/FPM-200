@@ -355,8 +355,8 @@
     "semantic_hash": ""
   },
   "firmware/main/main.c": {
-    "mtime": 1791717870.891119,
-    "ast_hash": "074e94bc3546a4461b01895ebef4ef46",
+    "mtime": 1791844394.2517319,
+    "ast_hash": "de6bd57bca6433881034cb27325716ae",
     "semantic_hash": ""
   },
   "firmware/main/pinmap.h": {
@@ -470,8 +470,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_infoScreen.c": {
-    "mtime": 1791738280.350778,
-    "ast_hash": "9adca50140b4e043fa86a9390100fb26",
+    "mtime": 1791844198.6069126,
+    "ast_hash": "70b5e571eb7b432179a2a816c867256f",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_infoScreen.h": {
@@ -705,13 +705,13 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1791842853.791432,
-    "ast_hash": "1bb0d866a6cf60f1f8479db9035d9226",
+    "mtime": 1791844459.29106,
+    "ast_hash": "d40ead32b2857093aed52b0d4494e93d",
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1791741957.3683946,
-    "ast_hash": "5f436e13c7fac1100c43a558fed39497",
+    "mtime": 1791844347.989029,
+    "ast_hash": "d4407f58fbf3efc14ab92390c63fec61",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {
@@ -790,8 +790,8 @@
     "semantic_hash": ""
   },
   "firmware/main/CMakeLists.txt": {
-    "mtime": 1790563213.9162183,
-    "ast_hash": "5d2e7cbc100de15c7505d974a10266c4",
+    "mtime": 1791844394.2517319,
+    "ast_hash": "96d964159c5f97dbbabc90b9cc745663",
     "semantic_hash": ""
   },
   "firmware/main/idf_component.yml": {
@@ -945,13 +945,13 @@
     "semantic_hash": ""
   },
   "firmware/components/ota_update/include/ota_update.h": {
-    "mtime": 1790563213.9004319,
-    "ast_hash": "9b46f73bd510e3d1d3b6ed1909c61edc",
+    "mtime": 1791844079.9986026,
+    "ast_hash": "d53088cc4b3d02252d3d74f5a38dbdae",
     "semantic_hash": ""
   },
   "firmware/components/ota_update/ota_update.c": {
-    "mtime": 1790563213.9004319,
-    "ast_hash": "59e45283abd27b95977fcd733100686d",
+    "mtime": 1791844079.9986026,
+    "ast_hash": "91fc958ece2dac4e718dfc1ed198b017",
     "semantic_hash": ""
   },
   "firmware/components/storage/ui_pin_hash.c": {
@@ -980,8 +980,8 @@
     "semantic_hash": ""
   },
   "firmware/components/ota_update/CMakeLists.txt": {
-    "mtime": 1790563213.9004319,
-    "ast_hash": "fd53a790db2e8627562d6b95f604e935",
+    "mtime": 1791844079.999606,
+    "ast_hash": "f539440873351bb7cf4733c19c1b1a0f",
     "semantic_hash": ""
   },
   "firmware/components/espressif__ksz8851snl/include/esp_eth_mac_ksz8851snl.h": {
@@ -1067,6 +1067,16 @@
   "docs/historial/SESION_HMI.md": {
     "mtime": 1789516270.389158,
     "ast_hash": "8b4d6a231acc7681f3f6a4facbf98f81",
+    "semantic_hash": ""
+  },
+  "firmware/components/ota_update/include/ota_manifest.h": {
+    "mtime": 1791844054.7511413,
+    "ast_hash": "211a54c3d9e7beed649cdbd76dd5cc17",
+    "semantic_hash": ""
+  },
+  "firmware/components/ota_update/ota_manifest.c": {
+    "mtime": 1791844054.7380476,
+    "ast_hash": "2c1bdc11058bb91da32c304d9d9d6435",
     "semantic_hash": ""
   }
 }
