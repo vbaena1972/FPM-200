@@ -8,6 +8,14 @@ migración de HMI y sesiones viejas: `docs/historial/`.
 
 > Sesiones anteriores al 2026-10-10 y el estado de agosto/septiembre (§0–§5, §8): `docs/historial/HANDOFF_sesiones_2026-08_a_2026-10-08.md`. Aquí quedan las sesiones vigentes, el pendiente (§6) y los gotchas (§7).
 
+## 2026-10-12 noche — FW 1.6.3-dev en HW, soak de ~12 h en curso
+
+- Buzzer IEC aprobado en HW (B6 ALTA, B7 MEDIA, B9 silenciar/prueba). Soak O8 con MedGuard 1.8.3 desde ~21:06.
+- **Core dump:** al arrancar 1.6.2 apareció `abort() was called at PC 0x403868b3` (en `esp_rom_vprintf`), de origen
+  desconocido: el dump nunca se borraba y se repetía en cada arranque. 1.6.3 lo resume en el log (tarea, PC, backtrace,
+  SHA del ELF) y lo borra (`main.c`). El resumen del dump viejo no quedó grabado. En el soak, buscar `Core dump:`.
+- Gotcha: `idf.py coredump-info > archivo` en PowerShell solo guarda la primera línea; usar `*>`.
+
 ## 2026-10-12 — FW 1.6.2-dev: corrección del buzzer continuo (sin compilar)
 
 - En HW 1.6.0/1.6.1 el buzzer sonaba continuo: en ESP-IDF 6.1 `esp_timer_is_active()` es true dentro del propio
