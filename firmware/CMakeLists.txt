@@ -1,8 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-# 1.5.41-dev (2026-10-12): Reiniciar / Restablecer no actuan durante una OTA por
-#   red ("Espere: actualizacion en curso"). 1.5.40-dev NO se reutiliza: fue la
-#   imagen de prueba sin confirmar (O6) y CloudFront puede tener ese .bin en cache.
+# 1.6.0-dev (2026-10-12), salto de version menor (OTA por red + alarmas IEC):
+#   - Buzzer con patrones IEC 60601-1-8 (components/drivers/alarm_tone.c, el mismo
+#     modulo que MedGuard 1.8.0): ALERT = ALTA (10 pulsos cada 3 s), WARNING de
+#     presion/flujo = MEDIA (3 cada 5 s), solo fallo de sensor = BAJA (2 cada
+#     16 s); antes 150/150 ms y 500/500 ms. Prueba del buzzer: 2 s -> 3 s.
+#   - Reiniciar / Restablecer no actuan durante una OTA por red ("Espere:
+#     actualizacion en curso").
+#   (1.5.40-dev fue la imagen de prueba sin confirmar de O6: no reutilizar.)
 # 1.5.39-dev (2026-10-12): el temporizador de inactividad no saca de Informacion
 #   durante una OTA por red; buffer HTTP de 8 KB (como MedGuard 1.7.20).
 #   (1.5.38-dev fue el mismo 1.5.37-dev, solo para probar la OTA.)
@@ -160,7 +165,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.5.41-dev")
+set(PROJECT_VER "1.6.0-dev")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:

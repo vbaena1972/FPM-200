@@ -52,7 +52,7 @@ static uint32_t s_reboot_arm_tick = 0;
 static void reboot_cb(lv_event_t *e)
 {
     lv_obj_t *lbl = (lv_obj_t *)lv_event_get_user_data(e);
-    /* 1.5.41: no reiniciar a mitad de una OTA (no rompe nada, pero se pierde la
+    /* 1.6.0: no reiniciar a mitad de una OTA (no rompe nada, pero se pierde la
      * descarga). MedGuard ya lo impide: una accion de Sistema a la vez. */
     if (ui_infoScreen_ota_busy()) {
         s_reboot_arm_tick = 0;

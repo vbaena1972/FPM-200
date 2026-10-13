@@ -3,6 +3,7 @@ idf_component_register(
         "fpm_i2c_guard.c"
         "rtc_rv3028.c"
         "alarm_mgr.c"
+        "alarm_tone.c"
         "ms5803.c"
         "ads1115.c"
         "at24c256.c"

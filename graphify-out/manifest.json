@@ -90,8 +90,8 @@
     "semantic_hash": ""
   },
   "firmware/components/drivers/alarm_mgr.c": {
-    "mtime": 1790563213.9004319,
-    "ast_hash": "91f1478ba55fa9774edfd101cf903715",
+    "mtime": 1791852953.8232045,
+    "ast_hash": "f7a5bab8d262daf7d8d597808f486b23",
     "semantic_hash": ""
   },
   "firmware/components/drivers/at24c256.c": {
@@ -470,8 +470,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_infoScreen.c": {
-    "mtime": 1791852304.0386455,
-    "ast_hash": "6637f8dbd54fd414dae049f7a456d8e9",
+    "mtime": 1791853026.011849,
+    "ast_hash": "38972e3f5d7a110f19280c4dde7f215d",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_infoScreen.h": {
@@ -705,13 +705,13 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1791844459.29106,
-    "ast_hash": "d40ead32b2857093aed52b0d4494e93d",
+    "mtime": 1791853126.9834166,
+    "ast_hash": "4d6cd72456c04f6583d20b4d2b67bbae",
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1791852318.9330678,
-    "ast_hash": "3de8f8784dbd049c1cb04341dbe5d807",
+    "mtime": 1791853026.0273046,
+    "ast_hash": "051e4003cc3ca6826d1e0d5155d08bb8",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {
@@ -740,8 +740,8 @@
     "semantic_hash": ""
   },
   "firmware/components/drivers/CMakeLists.txt": {
-    "mtime": 1790310287.7490854,
-    "ast_hash": "713ad4a33c7813aaa843ec8ef198e990",
+    "mtime": 1791852944.655,
+    "ast_hash": "115713319db92dc8215444536e89552d",
     "semantic_hash": ""
   },
   "firmware/components/network_core/CMakeLists.txt": {
@@ -1077,6 +1077,16 @@
   "firmware/components/ota_update/ota_manifest.c": {
     "mtime": 1791845077.6530707,
     "ast_hash": "38b89a3c82a54b2987ae43d06d3d0d86",
+    "semantic_hash": ""
+  },
+  "firmware/components/drivers/alarm_tone.c": {
+    "mtime": 1791852862.6130083,
+    "ast_hash": "3ea9e5e4330871bbd5476359fca99d95",
+    "semantic_hash": ""
+  },
+  "firmware/components/drivers/include/alarm_tone.h": {
+    "mtime": 1791852862.6463962,
+    "ast_hash": "378a183f32f66c37058f4e68423a5166",
     "semantic_hash": ""
   }
 }

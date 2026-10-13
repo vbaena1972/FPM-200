@@ -1,6 +1,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "alarm_mgr.h"
+#include "alarm_tone.h"
 #include "driver/ledc.h"
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -23,8 +24,10 @@ static const char *TAG = "alarm_mgr";
 static alarm_clinical_state_t s_current_state = ALARM_STATE_NORMAL;
 static bool s_is_muted = false;
 static int64_t s_mute_end_time_us = 0;
-static int64_t s_last_toggle_time_us = 0;
-static bool s_beep_active = false;
+/* 1.6.0: la cadencia del pitido la lleva alarm_tone (patrones IEC 60601-1-8 por
+ * esp_timer); aqui solo se decide la prioridad: ALERT = ALTA, WARNING clinico
+ * (limite de presion o flujo) = MEDIA, solo fallo de sensor (tecnica) = BAJA. */
+static bool s_technical_only = false;
 static int64_t s_test_end_time_us = 0;
 static int s_volume = 80;
 static uint32_t s_sensor_faults = 0;
@@ -35,14 +38,13 @@ static alarm_state_change_cb_t s_state_cb = NULL;
 static bool s_audio_inhibit_noncritical = false;
 
 static void set_buzzer_acoustic(bool turn_on);
+static void tone_out(bool on, void *user) { (void)user; set_buzzer_acoustic(on); }
 
 static void alarm_mgr_set_audio_inhibit_noncritical_impl(bool inhibit)
 {
     s_audio_inhibit_noncritical = inhibit;
-    if (inhibit && s_current_state != ALARM_STATE_ALERT) {
-        s_beep_active = false;
-        set_buzzer_acoustic(false);
-    }
+    if (inhibit && s_current_state != ALARM_STATE_ALERT)
+        alarm_tone_set(ALARM_TONE_OFF);
 }
 
 static void alarm_mgr_set_state_change_cb_impl(alarm_state_change_cb_t cb)
@@ -82,10 +84,12 @@ esp_err_t alarm_mgr_init(int buzzer_gpio)
         .timer_sel      = LEDC_TIMER,
         .intr_type      = LEDC_INTR_DISABLE,
         .gpio_num       = buzzer_gpio,
-        .duty           = 0, 
+        .duty           = 0,
         .hpoint         = 0
     };
-    return ledc_channel_config(&ledc_channel);
+    esp_err_t err = ledc_channel_config(&ledc_channel);
+    if (err != ESP_OK) return err;
+    return alarm_tone_init(tone_out, NULL);
 }
 
 static void set_buzzer_acoustic(bool turn_on)
@@ -111,7 +115,7 @@ static void alarm_mgr_process_impl(float current_pressure, float current_flow, u
     s_volume = cfg->general.alarm.volume;
     if (s_volume < 30) s_volume = 30;
     if (s_volume > 100) s_volume = 100;
-    if (now < s_test_end_time_us) { set_buzzer_acoustic(true); return; }
+    if (now < s_test_end_time_us) { alarm_tone_set(ALARM_TONE_HIGH); return; }
 
     // --- EVALUACIÃƒÆ’Ã¢â‚¬Å“N DE PRESIÃƒÆ’Ã¢â‚¬Å“N ---
     bool p_min_enabled = cfg->sensors.alarm_limits.pressure_min_enabled;
@@ -185,6 +189,9 @@ static void alarm_mgr_process_impl(float current_pressure, float current_flow, u
         // Fallo de comunicaciones de sensor = alarma tecnica SILENCIABLE (no ALERT permanente)
         target_state = ALARM_STATE_WARNING;
     }
+    s_technical_only = target_state == ALARM_STATE_WARNING &&
+                       !((p_min_enabled && current_pressure < p_min) ||
+                         (p_max_enabled && current_pressure > p_max) || flow_warning || flow_high);
 
     // 3. ClÃƒÆ’Ã‚Â¡usula de Seguridad NFPA 99: Si pasa de Warning a Alert, se anula el Mute
     if (target_state == ALARM_STATE_ALERT && s_current_state == ALARM_STATE_WARNING) {
@@ -209,10 +216,6 @@ static void alarm_mgr_process_impl(float current_pressure, float current_flow, u
                  (int)flow_high, (int)flow_warning, (unsigned long)sensor_faults);
     }
     s_current_state = target_state;
-    if (state_changed) {
-        s_beep_active = false;
-        s_last_toggle_time_us = now - (target_state == ALARM_STATE_ALERT ? 150000 : 500000);
-    }
     if (state_changed && s_state_cb != NULL)
         s_state_cb(s_current_state);
 
@@ -222,35 +225,27 @@ static void alarm_mgr_process_impl(float current_pressure, float current_flow, u
         s_is_muted = false;
     }
 
-    // Si todo estÃƒÆ’Ã‚Â¡ normal o el sistema estÃƒÆ’Ã‚Â¡ silenciado, apagamos el PWM de inmediato
+    // Normal o silenciado: sin sonido.
     if (s_current_state == ALARM_STATE_NORMAL || s_is_muted) {
-        s_beep_active = false;
-        set_buzzer_acoustic(false);
+        alarm_tone_set(ALARM_TONE_OFF);
         return;
     }
 
     // Inhibicion de audio no-critico (p.ej. pantalla de login/config): un WARNING
     // o fallo tecnico NO debe pitar, pero un ALERT critico SI sigue sonando.
     if (s_audio_inhibit_noncritical && s_current_state != ALARM_STATE_ALERT) {
-        s_beep_active = false;
-        set_buzzer_acoustic(false);
+        alarm_tone_set(ALARM_TONE_OFF);
         return;
     }
 
-    // 5. Cadencia del Beep segÃƒÆ’Ã‚Âºn Severidad
-    // Alert: RÃƒÆ’Ã‚Â¡fagas muy rÃƒÆ’Ã‚Â¡pidas (150ms encendido / 150ms apagado)
-    // Warning: RÃƒÆ’Ã‚Â¡fagas lentas y espaciadas (500ms encendido / 500ms apagado)
-    int64_t toggle_interval_us = (s_current_state == ALARM_STATE_ALERT) ? 150000 : 500000;
-
-    if (now - s_last_toggle_time_us >= toggle_interval_us) {
-        s_beep_active = !s_beep_active;
-        s_last_toggle_time_us = now;
-        
-        // Verificamos si las banderas en NVS tienen el sonido activo para este nivel
-        bool tone_allowed = (s_current_state == ALARM_STATE_ALERT) ? cfg->general.alarm.tone_alert : cfg->general.alarm.tone_warn;
-        
-        set_buzzer_acoustic(s_beep_active && tone_allowed);
-    }
+    // 5. Senal acustica IEC 60601-1-8 segun prioridad (1.6.0; antes 150/150 ms y
+    //    500/500 ms). Las banderas de NVS siguen pudiendo callar cada nivel.
+    bool alert = s_current_state == ALARM_STATE_ALERT;
+    bool tone_allowed = alert ? cfg->general.alarm.tone_alert : cfg->general.alarm.tone_warn;
+    alarm_tone_set(!tone_allowed ? ALARM_TONE_OFF
+                   : alert ? ALARM_TONE_HIGH
+                   : s_technical_only ? ALARM_TONE_LOW
+                   : ALARM_TONE_MEDIUM);
 }
 
 static void alarm_mgr_press_mute_impl(void)
@@ -263,14 +258,15 @@ static void alarm_mgr_press_mute_impl(void)
     int timeout_seconds = 60 * ((s_current_state == ALARM_STATE_ALERT) ? cfg->general.alarm.max_silence_minutes : cfg->general.alarm.reannounce_minutes);
 
     s_is_muted = true;
-    s_beep_active = false;
+    alarm_tone_set(ALARM_TONE_OFF);
     s_mute_end_time_us = esp_timer_get_time() + ((int64_t)timeout_seconds * 1000000ULL);
 
     ESP_LOGW(TAG, "Buzzer silenciado vÃƒÆ’Ã‚Â­a software por %d segundos.", timeout_seconds);
     set_buzzer_acoustic(false); // Apagado instantÃƒÆ’Ã‚Â¡neo
 }
 
-static void alarm_mgr_test_buzzer_impl(void) { s_test_end_time_us = esp_timer_get_time() + 2000000LL; }
+/* 3 s: alcanza para una rafaga ALTA completa (2,6 s), como la prueba de MedGuard. */
+static void alarm_mgr_test_buzzer_impl(void) { s_test_end_time_us = esp_timer_get_time() + 3000000LL; }
 
 static alarm_clinical_state_t alarm_mgr_get_current_state_impl(void) { return s_current_state; }
 static bool alarm_mgr_is_muted_impl(void) { return s_is_muted; }

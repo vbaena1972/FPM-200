@@ -8,6 +8,15 @@ migración de HMI y sesiones viejas: `docs/historial/`.
 
 > Sesiones anteriores al 2026-10-10 y el estado de agosto/septiembre (§0–§5, §8): `docs/historial/HANDOFF_sesiones_2026-08_a_2026-10-08.md`. Aquí quedan las sesiones vigentes, el pendiente (§6) y los gotchas (§7).
 
+## 2026-10-12 — FW 1.6.0-dev: buzzer IEC 60601-1-8 (sin compilar)
+
+- OTA por red **aprobada en HW** (O1–O7, 1.5.37 → 1.5.39). Salto de versión menor: 1.6.0-dev (DEC-030).
+- Buzzer: `components/drivers/alarm_tone.c` (IDÉNTICO al de MedGuard `firmware/system/alarm_tone.c`; copiar si se
+  cambia) temporiza los patrones por `esp_timer`. `alarm_mgr.c` solo elige la prioridad: ALERT = ALTA (10 pulsos cada
+  3 s), WARNING de presión/flujo = MEDIA (3 cada 5 s), solo fallo de sensor = BAJA (2 cada 16 s). Prueba del buzzer 3 s.
+- Reiniciar / Restablecer no actúan durante una OTA por red. **1.5.40-dev no se reutiliza** (imagen de prueba de O6).
+- Pruebas: `MedGuard-12IoT/docs/entrega/PRUEBAS_HW_1.8.0_1.6.0.md` (B6–B9, O9, O8).
+
 ## 2026-10-12 — FW 1.5.37-dev: OTA por RED (sin compilar)
 
 - Información (Administrador+): Estable/Beta, Buscar, Instalar con barra; la tarea `ota_net` (stack interno 8 KB)
