@@ -6,7 +6,9 @@
 #include <sys/stat.h>
 #include "cJSON.h"
 #include "esp_core_dump.h"
+#include "esp_app_desc.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
@@ -989,6 +991,31 @@ void app_main(void)
             esp_core_dump_get_panic_reason(reason, sizeof(reason));
             ESP_LOGW(TAG, "Core dump from previous crash: %u bytes @0x%x, reason: %s",
                      (unsigned)cd_size, (unsigned)cd_addr, reason[0] ? reason : "?");
+            /* 1.6.3: el dump NO se borraba y aparecia en todos los arranques, sin
+             * saber de que version ni de cuando era (HW 2026-10-12). Se deja en el
+             * log el resumen (tarea, PC, backtrace para addr2line y SHA del ELF de
+             * la app que cayo, comparable con el de esta) y se borra: cada arranque
+             * solo reporta caidas NUEVAS. Para el dump completo, `idf.py
+             * coredump-info` ANTES de reiniciar. */
+            esp_core_dump_summary_t *sum = malloc(sizeof *sum);
+            if (sum && esp_core_dump_get_summary(sum) == ESP_OK) {
+                char bt[16 * 11 + 1];
+                int n = 0;
+                for (uint32_t i = 0; i < sum->exc_bt_info.depth && i < 16; i++)
+                    n += snprintf(bt + n, sizeof bt - (size_t)n, " 0x%08lx",
+                                  (unsigned long)sum->exc_bt_info.bt[i]);
+                if (n == 0) snprintf(bt, sizeof bt, " -");
+                char self_sha[17] = "";
+                esp_app_get_elf_sha256(self_sha, sizeof self_sha);
+                ESP_LOGW(TAG, "Core dump: tarea '%.16s' PC=0x%08lx ELF=%.16s (esta app %s)%s",
+                         sum->exc_task, (unsigned long)sum->exc_pc,
+                         (const char *)sum->app_elf_sha256, self_sha,
+                         sum->exc_bt_info.corrupted ? " backtrace corrupto" : "");
+                ESP_LOGW(TAG, "Core dump backtrace:%s", bt);
+            }
+            free(sum);
+            esp_err_t erase = esp_core_dump_image_erase();
+            ESP_LOGW(TAG, "Core dump borrado de la flash: %s", esp_err_to_name(erase));
         }
     }
     ESP_ERROR_CHECK(flow_meter_init());

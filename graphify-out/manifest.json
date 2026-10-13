@@ -355,8 +355,8 @@
     "semantic_hash": ""
   },
   "firmware/main/main.c": {
-    "mtime": 1791844394.2517319,
-    "ast_hash": "de6bd57bca6433881034cb27325716ae",
+    "mtime": 1791856672.2053387,
+    "ast_hash": "6730487f104abe902aa9a129e309de7d",
     "semantic_hash": ""
   },
   "firmware/main/pinmap.h": {
@@ -710,8 +710,8 @@
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1791855095.3447473,
-    "ast_hash": "00cd305208fa69a152d3d81ec1cc7e46",
+    "mtime": 1791856713.461338,
+    "ast_hash": "9cbbfe599e8d0d6c463849953ad31070",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {

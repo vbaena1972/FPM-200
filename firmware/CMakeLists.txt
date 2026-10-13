@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.6.3-dev (2026-10-12): el core dump de una caida se dejaba en la flash y se
+#   reportaba en TODOS los arranques (sin saber de cuando era). Ahora se deja en
+#   el log el resumen (tarea, PC, backtrace, SHA del ELF) y se borra.
 # 1.6.2-dev (2026-10-12): alarm_tone: el buzzer sonaba CONTINUO en 1.6.0/1.6.1
 #   (B6 en HW): esp_timer_is_active() en ESP-IDF 6.1 da true dentro del propio
 #   callback; ahora se compara con la hora de vencimiento (igual que MedGuard 1.8.2).
@@ -169,7 +172,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.6.2-dev")
+set(PROJECT_VER "1.6.3-dev")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:
