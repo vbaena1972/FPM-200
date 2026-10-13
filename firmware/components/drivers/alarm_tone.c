@@ -51,13 +51,16 @@ static alarm_tone_out_t s_out;
 static void *s_user;
 static alarm_tone_prio_t s_prio = ALARM_TONE_OFF;
 static size_t s_step;
+static int64_t s_due_us;   /* cuando vence el paso programado */
 
 /* Con s_lock tomado: aplica el paso actual y programa el siguiente. */
 static void apply_step_locked(void)
 {
     const pattern_t *p = &PATTERNS[s_prio];
+    const uint64_t us = (uint64_t)p->steps[s_step] * 1000ULL;
     s_out((s_step % 2U) == 0U, s_user);
-    esp_timer_start_once(s_timer, (uint64_t)p->steps[s_step] * 1000ULL);
+    s_due_us = esp_timer_get_time() + (int64_t)us;
+    esp_timer_start_once(s_timer, us);
 }
 
 static void timer_cb(void *arg)
@@ -65,8 +68,11 @@ static void timer_cb(void *arg)
     (void)arg;
     xSemaphoreTake(s_lock, portMAX_DELAY);
     /* Si alarm_tone_set cambio la prioridad mientras este disparo esperaba el
-     * lock, el temporizador ya esta corriendo para el patron nuevo. */
-    if (s_prio != ALARM_TONE_OFF && !esp_timer_is_active(s_timer)) {
+     * lock, ya programo un paso nuevo que vence mas tarde (>= 100 ms): este
+     * disparo es viejo y se ignora. NO usar esp_timer_is_active(): en ESP-IDF
+     * 6.1 da true mientras corre el propio callback (1.8.0/1.6.0 se quedaban
+     * en el primer pulso = tono continuo, HW 2026-10-12). */
+    if (s_prio != ALARM_TONE_OFF && esp_timer_get_time() + 1000 >= s_due_us) {
         s_step = (s_step + 1U) % PATTERNS[s_prio].count;
         apply_step_locked();
     }

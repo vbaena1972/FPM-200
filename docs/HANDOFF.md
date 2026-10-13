@@ -8,6 +8,12 @@ migración de HMI y sesiones viejas: `docs/historial/`.
 
 > Sesiones anteriores al 2026-10-10 y el estado de agosto/septiembre (§0–§5, §8): `docs/historial/HANDOFF_sesiones_2026-08_a_2026-10-08.md`. Aquí quedan las sesiones vigentes, el pendiente (§6) y los gotchas (§7).
 
+## 2026-10-12 — FW 1.6.2-dev: corrección del buzzer continuo (sin compilar)
+
+- En HW 1.6.0/1.6.1 el buzzer sonaba continuo: en ESP-IDF 6.1 `esp_timer_is_active()` es true dentro del propio
+  callback y `alarm_tone` no pasaba del 1er pulso. Corregido (vencimiento por hora), mismo archivo que MedGuard 1.8.2;
+  prueba de host en `MedGuard-12IoT/test/alarm_tone/host`. O9 (OTA con ALERT sonando) aprobada en 1.6.0 → 1.6.1.
+
 ## 2026-10-12 — FW 1.6.0-dev: buzzer IEC 60601-1-8 (sin compilar)
 
 - OTA por red **aprobada en HW** (O1–O7, 1.5.37 → 1.5.39). Salto de versión menor: 1.6.0-dev (DEC-030).

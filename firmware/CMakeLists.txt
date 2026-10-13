@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.6.2-dev (2026-10-12): alarm_tone: el buzzer sonaba CONTINUO en 1.6.0/1.6.1
+#   (B6 en HW): esp_timer_is_active() en ESP-IDF 6.1 da true dentro del propio
+#   callback; ahora se compara con la hora de vencimiento (igual que MedGuard 1.8.2).
+#   (1.6.1-dev fue el mismo 1.6.0-dev, solo para la prueba O9 de OTA.)
 # 1.6.0-dev (2026-10-12), salto de version menor (OTA por red + alarmas IEC):
 #   - Buzzer con patrones IEC 60601-1-8 (components/drivers/alarm_tone.c, el mismo
 #     modulo que MedGuard 1.8.0): ALERT = ALTA (10 pulsos cada 3 s), WARNING de
@@ -165,7 +169,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.6.0-dev")
+set(PROJECT_VER "1.6.2-dev")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:

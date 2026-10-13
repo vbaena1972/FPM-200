@@ -705,13 +705,13 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1791853126.9834166,
-    "ast_hash": "4d6cd72456c04f6583d20b4d2b67bbae",
+    "mtime": 1791855132.5323565,
+    "ast_hash": "b6975a6ff6834f0e88e860f6b432481b",
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1791853026.0273046,
-    "ast_hash": "051e4003cc3ca6826d1e0d5155d08bb8",
+    "mtime": 1791855095.3447473,
+    "ast_hash": "00cd305208fa69a152d3d81ec1cc7e46",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {
@@ -1080,8 +1080,8 @@
     "semantic_hash": ""
   },
   "firmware/components/drivers/alarm_tone.c": {
-    "mtime": 1791852862.6130083,
-    "ast_hash": "3ea9e5e4330871bbd5476359fca99d95",
+    "mtime": 1791855077.0702355,
+    "ast_hash": "ef1e31fa96605e330ee34632ecf5cfa5",
     "semantic_hash": ""
   },
   "firmware/components/drivers/include/alarm_tone.h": {
