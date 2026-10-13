@@ -52,6 +52,13 @@ static uint32_t s_reboot_arm_tick = 0;
 static void reboot_cb(lv_event_t *e)
 {
     lv_obj_t *lbl = (lv_obj_t *)lv_event_get_user_data(e);
+    /* 1.5.41: no reiniciar a mitad de una OTA (no rompe nada, pero se pierde la
+     * descarga). MedGuard ya lo impide: una accion de Sistema a la vez. */
+    if (ui_infoScreen_ota_busy()) {
+        s_reboot_arm_tick = 0;
+        if (lbl) lv_label_set_text(lbl, _t("Espere: actualizacion en curso"));
+        return;
+    }
     if (s_reboot_arm_tick != 0 && lv_tick_elaps(s_reboot_arm_tick) < 4000)
     {
         ESP_LOGW("info", "Reinicio del equipo solicitado por el usuario");
@@ -133,6 +140,11 @@ static void factory_btn_cb(lv_event_t *e)
     bool wipe = lv_obj_get_user_data(lv_event_get_current_target(e)) != NULL;
     uint32_t *arm = wipe ? &s_wipe_arm_tick : &s_reset_arm_tick;
     if (!ui_auth_can(wipe ? APP_ROLE_FACTORY : APP_ROLE_ADMIN)) return;
+    if (ui_infoScreen_ota_busy()) {
+        *arm = 0;
+        if (lbl) lv_label_set_text(lbl, _t("Espere: actualizacion en curso"));
+        return;
+    }
     if (*arm != 0 && lv_tick_elaps(*arm) < 4000) {
         if (lbl) lv_label_set_text(lbl, _t("Aplicando…"));
         factory_reset_apply(wipe);

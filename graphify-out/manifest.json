@@ -470,8 +470,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_infoScreen.c": {
-    "mtime": 1791846904.795527,
-    "ast_hash": "8b12c96a39154a47a268ca1eecf76359",
+    "mtime": 1791852304.0386455,
+    "ast_hash": "6637f8dbd54fd414dae049f7a456d8e9",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_infoScreen.h": {
@@ -710,8 +710,8 @@
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1791846939.9641368,
-    "ast_hash": "74746079d8970e96b48edea395ec0bc1",
+    "mtime": 1791852318.9330678,
+    "ast_hash": "3de8f8784dbd049c1cb04341dbe5d807",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {
