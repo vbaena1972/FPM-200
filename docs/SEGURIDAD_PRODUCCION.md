@@ -111,6 +111,37 @@ Protege lo que el software no puede: la **clave privada de AWS** y la config en 
 5. **Riesgo principal**: perder la clave de Secure Boot = no se puede actualizar nunca
    más esos equipos (ni por USB). Custodia doble obligatoria.
 
+### 4.1 Lecciones del ensayo en placa de desarrollo (2026-10-14)
+
+Ensayo completo en una ESP32-S3 N16R2 ("placa A", modo desarrollo): 12/12 pruebas aprobadas. Detalle y
+comandos en `MedGuard-12IoT/docs/entrega/ENSAYO_SECURE_BOOT_N16R2.md` (app en
+`MedGuard-12IoT/tools/secure_boot_rehearsal/`). Lo que cambia el plan de arriba:
+
+1. **Orden de las claves (CRÍTICO).** Al activar el cifrado, el bootloader quema `WR_DIS_RD_DIS`: desde ese
+   momento ningún eFuse nuevo puede quedar protegido contra lectura. Si la app genera después la clave HMAC
+   de la NVS, queda **legible**. Por eso, en producción: (a) quemar desde el PC con `espefuse burn-key` la
+   clave HMAC de la NVS (KEY2, propósito `HMAC_UP`) y la del periférico DS si se usa (KEY3) —`espefuse` las
+   protege contra lectura—; (b) recién después grabar el bootloader seguro y dejar que el primer arranque
+   active Secure Boot y el cifrado.
+2. **Reparto de eFuses:** KEY0 = huella de Secure Boot, KEY1 = cifrado de flash (XTS-AES-128, la genera el
+   chip), KEY2 = HMAC de la NVS, KEY3 = DS (identidad AWS, opcional), KEY4–5 libres.
+3. **NVS cifrada con el esquema HMAC** (`CONFIG_NVS_SEC_KEY_PROTECT_USING_HMAC`): no necesita la partición
+   `nvs_keys` (puede quedar reservada, no estorba). Funciona también para particiones NVS propias
+   (`nvs_flash_secure_init_partition`).
+4. **Tabla de particiones:** el bootloader con Secure Boot + cifrado mide 44 KB (sin seguridad, 21 KB). Con la
+   tabla en 0x8000 solo caben 32 KB → **en V3 la tabla va en 0xC000 o más (ensayado en 0x10000) desde la
+   primera grabación**: la tabla no viaja por OTA.
+5. **Ranuras de huella:** por defecto el primer arranque **revoca** las 2 ranuras no usadas. Decidir antes de
+   producción si se enrolan 1–2 claves de respaldo (firmando el bootloader con varias claves) para poder
+   rotar la clave sin perder los equipos.
+6. **Rendimiento:** con cifrado, la PSRAM también se cifra (memcpy −10 %); sin otro impacto apreciable.
+7. **Herramientas:** con Secure Boot, esptool corre sin stub (`--no-stub`): leer 1 MB de flash tarda ~6 min;
+   `idf.py flash` ya no graba el bootloader (se graba aparte); en modo desarrollo se regraba con
+   `idf.py encrypted-flash`. GCC 15.2 se cae compilando `esp_lcd_panel_rgb.c` con la configuración segura
+   (MedGuard V1 usa ese driver; V3 no, la pantalla va por EVE).
+8. **Verificado:** la OTA (app) y el bootloader rechazan imágenes sin firma o firmadas con otra clave; la
+   vuelta atrás automática/manual y la NVS cifrada sobreviven a reinicios, cortes y regrabaciones.
+
 ## 5. Mientras tanto: mitigación en la nube (sin tocar el chip)
 
 - **Un certificado AWS por equipo** con política IoT mínima (solo sus propios tópicos
