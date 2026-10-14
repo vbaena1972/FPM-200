@@ -7,6 +7,8 @@ NORMAL → ADVERTENCIA → ALARMA → ALARMA SILENCIADA. Usa LVGL 9.5.0 (la de
 
 Desde 2026-10-14 es parte de este repo (antes era el repo aparte `FPM-200-Sim`).
 
+> **Instrucciones rápidas (compilar, correr y opciones): [INSTRUCCIONES.md](INSTRUCCIONES.md).**
+
 ## Compilar y correr
 
 Requisitos: Visual Studio con C/C++ y CMake 3.20 o más. Desde la raíz del repo:
