@@ -42,8 +42,8 @@ sw_probe*.vbs
 # Nunca versionar certificados ni claves privadas de dispositivos.
 /aws/
 
-# Simulador VS anidado (repo git propio: FPM-200-Sim)
-/Simulator/
+# Simulador de PC (Simulator/, parte del repo desde 2026-10-14): solo se ignora su build
+/Simulator/build/
 
 # Local validation builds
 /firmware/build-fixes/

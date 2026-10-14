@@ -4,9 +4,13 @@
 - **`firmware/`** — TODO el proyecto ESP-IDF: `CMakeLists.txt`, `sdkconfig*`,
   `partitions.csv`, `main/` (con `main/ui/` + `main/ui/screens/`) y `components/`.
   `idf.py` se corre **desde `firmware/`** (`cd firmware && idf.py build`).
-- **`Simulator/`** — simulador de Visual Studio (repo git PROPIO `FPM-200-Sim`,
-  anidado e ignorado por este repo; se pushea entrando a `Simulator/`). Su `.vcxproj`
-  referencia `..\..\firmware\main\ui\...` (rutas relativas).
+- **`Simulator/`** — simulador de PC de la HMI (Windows), **parte de este repo** desde 2026-10-14
+  (antes repo propio `FPM-200-Sim`, respaldado en `../_respaldo_simuladores_2026-10-14/`). Proyecto
+  CMake: compila por glob `firmware/main/ui/**.c` con LVGL 9.5.0 (FetchContent) usando los encabezados
+  REALES de `firmware/components/*/include`; solo ESP-IDF está simulado (`Simulator/stubs/`) y las
+  funciones del firmware que llama la HMI, en `Simulator/sim_backend.c` (si al enlazar falta un símbolo
+  nuevo, agregarlo ahí). `cmake -S Simulator -B Simulator/build && cmake --build Simulator/build
+  --config Debug` → `Simulator\build\Debug\fpm200_sim.exe`. Ver `Simulator/README.md`.
 - **`docs/`** — `HANDOFF.md` (estado vivo), `historial/` (HMI_MIGRATION, SESION_HMI, CONSUMPTION_FIXES, sesiones viejas del HANDOFF),
   `CONTRATO_BLE_FPM.md`, `financiero/`, `mockups/`.
 - **`Hardware/`** — `Datasheets/`, `Squematic.png`, datasheet del MS5803.

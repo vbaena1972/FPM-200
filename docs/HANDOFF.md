@@ -91,9 +91,9 @@ migración de HMI y sesiones viejas: `docs/historial/`.
   del FPM (ajuste del FS7, ceros; EEPROM) es de fábrica: ningún nivel la toca. (5) Progreso en la tarjeta de
   flujo: valor "--" y "calentando N s" (`sensors_runtime_flow_warming_elapsed_ms`); no se alarga el splash a
   propósito: la presión y sus alarmas deben volver en segundos tras un corte (decisión 2026-10-11).
-- **Simulador VS del FPM desactualizado:** `ui_infoScreen.c` incluye `nvs.h`, `cert_store.h`, `esp_system.h` y
-  FreeRTOS, y `ui_mainScreen.c` incluye `flow_meter.h` y usa `sensors_runtime_get_debug/flow_warming*`; los stubs
-  de `Simulator/sim_app` no tienen nada de eso → el sim no compila. Pendiente: completar los stubs.
+- **Simulador rehecho (2026-10-14):** `Simulator/` es ahora parte de este repo (proyecto CMake con los
+  encabezados reales de los componentes; ESP-IDF simulado en `Simulator/stubs/`, backend en
+  `Simulator/sim_backend.c`). Compila y corre; el repo `FPM-200-Sim` queda obsoleto.
 - Sintaxis verificada con la toolchain del proyecto (`-fsyntax-only` con `build/compile_commands.json`).
   **Probar:** `MedGuard-12IoT/docs/entrega/historial/PRUEBAS_HW_1.7.14_1.5.33.md` (B, F, G). Pendiente menor:
   `general.factory.must_change_pin` se guarda pero ninguna pantalla obliga a cambiar la passphrase demo.
