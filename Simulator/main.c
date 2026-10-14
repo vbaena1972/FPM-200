@@ -6,6 +6,7 @@
  */
 #include <windows.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "lvgl.h"
 #include "ui.h"
@@ -66,7 +67,14 @@ static void data_activity_cb(lv_timer_t *t)
     ui_main_signal_data_activity();
 }
 
-int main(void)
+/* Opcional: fpm200_sim.exe login -> abre el login a los 4 s (tras el splash), para revisarlo. */
+static void open_login_cb(lv_timer_t *t)
+{
+    lv_timer_delete(t);
+    ui_open_login_cb(NULL);
+}
+
+int main(int argc, char **argv)
 {
     lv_init();
     SetConsoleCP(CP_UTF8);
@@ -82,6 +90,9 @@ int main(void)
     apply_scenario(0);
     lv_timer_create(scenario_timer_cb, 2500, NULL);   /* NORMAL -> ADVERTENCIA -> ALARMA -> SILENCIADA */
     lv_timer_create(data_activity_cb, 1000, NULL);
+    if (argc > 1 && strcmp(argv[1], "login") == 0) {
+        lv_timer_create(open_login_cb, 4000, NULL);
+    }
 
     /* El driver de Windows asigna el buffer de dibujo DIFERIDO: bombear timers hasta que exista y
      * forzar un refresco sincrono (si no, una pantalla estatica puede quedar en blanco). */
