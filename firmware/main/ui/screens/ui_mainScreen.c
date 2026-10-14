@@ -428,7 +428,29 @@ static void menu_open_cb(lv_event_t *e)
 {
     (void)e; if(s_menu_pop){menu_close();return;} s_menu_pop=lv_obj_create(lv_layer_top()); lv_obj_remove_style_all(s_menu_pop); lv_obj_set_size(s_menu_pop,LV_PCT(100),LV_PCT(100)); lv_obj_add_flag(s_menu_pop,LV_OBJ_FLAG_CLICKABLE); lv_obj_clear_flag(s_menu_pop,LV_OBJ_FLAG_SCROLLABLE); lv_obj_add_event_cb(s_menu_pop,menu_scrim_cb,LV_EVENT_CLICKED,NULL); lv_obj_t *p=ui_card(s_menu_pop); lv_obj_set_size(p,190,LV_SIZE_CONTENT); lv_obj_set_pos(p,278,46); lv_obj_set_style_pad_all(p,6,0); lv_obj_set_style_pad_row(p,2,0); lv_obj_set_style_shadow_width(p,24,0); lv_obj_set_style_shadow_opa(p,LV_OPA_40,0); lv_obj_set_flex_flow(p,LV_FLEX_FLOW_COLUMN); menu_add_item(p,LV_SYMBOL_EYE_OPEN,"Información",0,true); menu_add_item(p,LV_SYMBOL_FILE,"Logs",1,true); menu_add_item(p,LV_SYMBOL_SETTINGS,"Configuración",2,true); menu_add_item(p,LV_SYMBOL_BLUETOOTH,"Bluetooth",3,true);
 }
-static const char *alarm_condition(const AppConfig *c){if(s_alarm_faults)return "FALLA MODULO SENSORES";if(!s_alarm_have_last||!c)return "FALLA DE MEDICION";if(s_alarm_last.pressure_kpa<c->sensors.alarm_limits.pressure_min)return "PRESION BAJA";if(s_alarm_last.pressure_kpa>c->sensors.alarm_limits.pressure_max)return "PRESION ALTA";return "ALARMA DE FLUJO";}
+/* Causa de la alarma (misma regla que alarm_mgr: solo cuentan los limites habilitados). */
+typedef enum { CAUSE_FAULT, CAUSE_NO_DATA, CAUSE_P_LOW, CAUSE_P_HIGH, CAUSE_FLOW } alarm_cause_t;
+static alarm_cause_t alarm_cause(const AppConfig *c)
+{
+    if (s_alarm_faults) return CAUSE_FAULT;
+    if (!s_alarm_have_last || !c) return CAUSE_NO_DATA;
+    const float p = s_alarm_last.pressure_kpa;
+    if (c->sensors.alarm_limits.pressure_min_enabled && p < c->sensors.alarm_limits.pressure_min) return CAUSE_P_LOW;
+    if (c->sensors.alarm_limits.pressure_max_enabled && p > c->sensors.alarm_limits.pressure_max) return CAUSE_P_HIGH;
+    return CAUSE_FLOW;
+}
+static const char *alarm_condition(const AppConfig *c){static const char *const T[]={"FALLA MODULO SENSORES","FALLA DE MEDICION","PRESION BAJA","PRESION ALTA","ALARMA DE FLUJO"};return T[alarm_cause(c)];}
+/* Subtitulo corto del banner superior: la causa, no un generico "vigilar". */
+static const char *banner_cause(const AppConfig *c)
+{
+    switch (alarm_cause(c)) {
+    case CAUSE_FAULT:   return _t("· falla de sensores");
+    case CAUSE_NO_DATA: return _t("· sin medición");
+    case CAUSE_P_LOW:   return _t("· presión baja");
+    case CAUSE_P_HIGH:  return _t("· presión alta");
+    default:            return _t("· flujo anormal");
+    }
+}
 static void alarm_overlay_close(void){if(s_alarm_overlay){lv_obj_delete_async(s_alarm_overlay);s_alarm_overlay=NULL;}}
 static void alarm_overlay_close_cb(lv_event_t *e){(void)e;alarm_overlay_close();}
 static void alarm_overlay_silence_cb(lv_event_t *e){(void)e;if(!s_alarm_muted)alarm_mgr_press_mute();alarm_overlay_close();}
@@ -694,7 +716,7 @@ void ui_main_apply_config(const AppConfig *cfg)
 }
 
 /* Banner por estado */
-static void set_banner(alarm_clinical_state_t st, bool muted)
+static void set_banner(alarm_clinical_state_t st, bool muted, const AppConfig *cfg)
 {
     if (st == ALARM_STATE_NORMAL) {
         set_bg(s_banner, UI_C_OK_BG); set_border(s_banner, UI_C_OK_BORDER);
@@ -708,14 +730,14 @@ static void set_banner(alarm_clinical_state_t st, bool muted)
         set_bg_opa_if(s_banner, LV_OPA_COVER);
         set_label_if_changed(s_banner_icon, UI_SYM_ALERT_TRIANGLE); set_txt_color(s_banner_icon, UI_C_WARN);
         set_label_if_changed(s_banner_txt, _t("ADVERTENCIA")); set_txt_color(s_banner_txt, UI_C_WARN_SOFT);
-        set_label_if_changed(s_banner_sub, _t("· vigilar")); set_txt_color(s_banner_sub, UI_C_WARN_DIM);
+        set_label_if_changed(s_banner_sub, banner_cause(cfg)); set_txt_color(s_banner_sub, UI_C_WARN_DIM);
         set_hidden(s_banner_right, true);
     } else { /* ALERT */
         set_bg(s_banner, UI_C_ALARM_BG); set_border(s_banner, UI_C_ALARM_BORDER);
         set_bg_opa_if(s_banner, LV_OPA_COVER);
         set_label_if_changed(s_banner_icon, UI_SYM_ALERT_TRIANGLE_FILLED); set_txt_color(s_banner_icon, UI_C_ALARM_SOFT);
         set_label_if_changed(s_banner_txt, _t("ALARMA")); set_txt_color(s_banner_txt, 0xffd3d3);
-        set_label_if_changed(s_banner_sub, _t("· revisar línea")); set_txt_color(s_banner_sub, UI_C_ALARM_SOFT);
+        set_label_if_changed(s_banner_sub, banner_cause(cfg)); set_txt_color(s_banner_sub, UI_C_ALARM_SOFT);
         if (muted) {
             set_hidden(s_banner_right, false);
             set_label_if_changed(s_banner_right_ic, UI_SYM_BELL_OFF);
@@ -750,7 +772,7 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         ui_main_signal_data_activity();
     }
 
-    set_banner(state, muted);
+    set_banner(state, muted, cfg);
 
     if (have_last) {
         /* --- Presión --- */

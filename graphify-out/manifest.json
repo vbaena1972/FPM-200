@@ -10,8 +10,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1791741957.3683946,
-    "ast_hash": "19e9b641301aaa5362e40cdcf62f1bbe",
+    "mtime": 1792008790.7523954,
+    "ast_hash": "7fc445d19c3f895ecf9a6cdf53a37128",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/cert_store.c": {
@@ -490,8 +490,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_loginScreen.c": {
-    "mtime": 1791738247.609168,
-    "ast_hash": "108c9c3f0a8c9a15e523f017f3d5e8f4",
+    "mtime": 1792012161.8312683,
+    "ast_hash": "efd527aaf5d8d6ade1f7289572ee5f77",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_loginScreen.h": {
@@ -500,8 +500,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_mainScreen.c": {
-    "mtime": 1791730713.6281302,
-    "ast_hash": "ec95456fe7fdd6371132250fcfab607f",
+    "mtime": 1792021216.8763394,
+    "ast_hash": "970444266e6e3c3c33bb28c1ae6d79a0",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_mainScreen.h": {
@@ -650,8 +650,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/ui_i18n.c": {
-    "mtime": 1791730689.1268253,
-    "ast_hash": "a63a8dea8d25ea509c653ddd26805eb8",
+    "mtime": 1792021216.87934,
+    "ast_hash": "bc3681838c0d8bd64a719b10968926a2",
     "semantic_hash": ""
   },
   "firmware/main/ui/ui_i18n.h": {
@@ -705,13 +705,13 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1791857367.7675214,
-    "ast_hash": "29e18955f8871eeaeba70ec705ea2b9e",
+    "mtime": 1792021412.723317,
+    "ast_hash": "f901500d0aecf89035083dc2526380f0",
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1791856713.461338,
-    "ast_hash": "9cbbfe599e8d0d6c463849953ad31070",
+    "mtime": 1792021362.4045806,
+    "ast_hash": "499c8068de19de36b12af36dd4e94c72",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {
@@ -940,8 +940,8 @@
     "semantic_hash": ""
   },
   "docs/QA_FPM_1.5.22.md": {
-    "mtime": 1791717870.891119,
-    "ast_hash": "74c7a8f41ee08f6ab1f2c3d593cadb3c",
+    "mtime": 1792009379.052249,
+    "ast_hash": "7ed2057fb66945ad5c6caf32f16520b8",
     "semantic_hash": ""
   },
   "firmware/components/ota_update/include/ota_update.h": {
@@ -975,8 +975,8 @@
     "semantic_hash": ""
   },
   "docs/SEGURIDAD_PRODUCCION.md": {
-    "mtime": 1790563213.9004319,
-    "ast_hash": "5837264b1a7fd153dd325a62e5afa7c7",
+    "mtime": 1792009136.048456,
+    "ast_hash": "8747e4c982075233134467627d113eed",
     "semantic_hash": ""
   },
   "firmware/components/ota_update/CMakeLists.txt": {
@@ -1089,9 +1089,99 @@
     "ast_hash": "378a183f32f66c37058f4e68423a5166",
     "semantic_hash": ""
   },
-  "firmware/coredump_fpm.txt": {
-    "mtime": 1791856827.2386343,
-    "ast_hash": "1c1ac150aa9d5bb91da2ca16ce07461d",
+  "Simulator/lv_conf.h": {
+    "mtime": 1792008446.2735112,
+    "ast_hash": "cb5884d4eec21529b65d818055ff8525",
+    "semantic_hash": ""
+  },
+  "Simulator/main.c": {
+    "mtime": 1792021315.3170958,
+    "ast_hash": "c52f311849e198a10dfe54d6903a218e",
+    "semantic_hash": ""
+  },
+  "Simulator/sim_backend.c": {
+    "mtime": 1792008543.6842709,
+    "ast_hash": "4e6e536b2bc71112a6da9f6ff78bce24",
+    "semantic_hash": ""
+  },
+  "Simulator/stubs/cJSON.h": {
+    "mtime": 1792008247.1751063,
+    "ast_hash": "4a7269c6b07f81cf945108cbc2ba2eef",
+    "semantic_hash": ""
+  },
+  "Simulator/stubs/driver/i2c_master.h": {
+    "mtime": 1792008247.203643,
+    "ast_hash": "ad81d08cad48eadc652f3dca1b213d8c",
+    "semantic_hash": ""
+  },
+  "Simulator/stubs/esp_app_desc.h": {
+    "mtime": 1792008247.020708,
+    "ast_hash": "ab714925817d26a4c60d8c610ff02b4b",
+    "semantic_hash": ""
+  },
+  "Simulator/stubs/esp_err.h": {
+    "mtime": 1792008246.9256823,
+    "ast_hash": "846c5491cbd35de2497ba3ae672ababa",
+    "semantic_hash": ""
+  },
+  "Simulator/stubs/esp_lcd_types.h": {
+    "mtime": 1792008247.112897,
+    "ast_hash": "1b99949fb620ff97cf060e57255c2b40",
+    "semantic_hash": ""
+  },
+  "Simulator/stubs/esp_log.h": {
+    "mtime": 1792008246.956699,
+    "ast_hash": "d7bdb90d1354138566f60bcff21ac45f",
+    "semantic_hash": ""
+  },
+  "Simulator/stubs/esp_netif.h": {
+    "mtime": 1792008247.08227,
+    "ast_hash": "26e51bf843abbf7d9e4610002ae4d6c0",
+    "semantic_hash": ""
+  },
+  "Simulator/stubs/esp_ota_ops.h": {
+    "mtime": 1792008247.0505564,
+    "ast_hash": "a0f98788dc34c0500ba960a552584f03",
+    "semantic_hash": ""
+  },
+  "Simulator/stubs/esp_system.h": {
+    "mtime": 1792008246.9897425,
+    "ast_hash": "cfcf50d28590b45bba759a38458e8ef6",
+    "semantic_hash": ""
+  },
+  "Simulator/stubs/freertos/FreeRTOS.h": {
+    "mtime": 1792008247.2346306,
+    "ast_hash": "c397f48b154594425a6f71b45e624500",
+    "semantic_hash": ""
+  },
+  "Simulator/stubs/freertos/task.h": {
+    "mtime": 1792008247.2672749,
+    "ast_hash": "aed2f3c96c9c7fce63cf0f1471e8a343",
+    "semantic_hash": ""
+  },
+  "Simulator/stubs/nvs.h": {
+    "mtime": 1792008247.1442592,
+    "ast_hash": "6ac0e1f1648ff0cfefc74199d36135fa",
+    "semantic_hash": ""
+  },
+  "Simulator/CMakeLists.txt": {
+    "mtime": 1792008289.8018036,
+    "ast_hash": "11efb1d1f80165ce8581256a121797f1",
+    "semantic_hash": ""
+  },
+  "Simulator/README.md": {
+    "mtime": 1792021412.723317,
+    "ast_hash": "80c9aa7dd0e806813e66c9ba4281d5d1",
+    "semantic_hash": ""
+  },
+  "Simulator/INSTRUCCIONES.md": {
+    "mtime": 1792021412.723317,
+    "ast_hash": "dde3c9b1fbf76ce92ea582d4d0358ad0",
+    "semantic_hash": ""
+  },
+  "docs/PUBLICAR_FIRMWARE.md": {
+    "mtime": 1792015095.5751495,
+    "ast_hash": "c81468c0c8d75737b1545de4a397ede6",
     "semantic_hash": ""
   }
 }

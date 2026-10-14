@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.6.5-dev (2026-10-14): el banner superior decia siempre "ADVERTENCIA · vigilar" / "ALARMA ·
+#   revisar linea"; ahora dice la causa (presion baja/alta, flujo anormal, falla de sensores), con
+#   la misma regla que alarm_mgr (solo limites habilitados). QA formal V1, P2.
 # 1.6.4-dev (2026-10-14): login: la tarjeta de cada usuario cortaba el rol bajo el nombre
 #   (alto fijo 44/32 px); ahora crece con el contenido (QA formal V1, P3).
 # 1.6.3-dev (2026-10-12): el core dump de una caida se dejaba en la flash y se
@@ -174,7 +177,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.6.4-dev")
+set(PROJECT_VER "1.6.5-dev")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:

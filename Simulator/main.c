@@ -29,6 +29,7 @@ typedef struct {
 static const scenario_t s_scen[] = {
     { "NORMAL", 965.3f, 59.0f, ALARM_STATE_NORMAL, false },
     { "ADVERTENCIA (flujo)", 951.5f, 86.0f, ALARM_STATE_WARNING, false },
+    { "ADVERTENCIA (presion baja)", 330.0f, 59.0f, ALARM_STATE_WARNING, false },
     { "ALARMA (presion baja)", 289.6f, 44.0f, ALARM_STATE_ALERT, false },
     { "ALARMA SILENCIADA", 289.6f, 44.0f, ALARM_STATE_ALERT, true },
 };
@@ -88,7 +89,7 @@ int main(int argc, char **argv)
 
     ui_init();
     apply_scenario(0);
-    lv_timer_create(scenario_timer_cb, 2500, NULL);   /* NORMAL -> ADVERTENCIA -> ALARMA -> SILENCIADA */
+    lv_timer_create(scenario_timer_cb, 2500, NULL);   /* NORMAL -> ADVERTENCIA (flujo, presion) -> ALARMA -> SILENCIADA */
     lv_timer_create(data_activity_cb, 1000, NULL);
     if (argc > 1 && strcmp(argv[1], "login") == 0) {
         lv_timer_create(open_login_cb, 4000, NULL);

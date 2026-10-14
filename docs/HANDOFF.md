@@ -91,6 +91,9 @@ migración de HMI y sesiones viejas: `docs/historial/`.
   del FPM (ajuste del FS7, ceros; EEPROM) es de fábrica: ningún nivel la toca. (5) Progreso en la tarjeta de
   flujo: valor "--" y "calentando N s" (`sensors_runtime_flow_warming_elapsed_ms`); no se alarga el splash a
   propósito: la presión y sus alarmas deben volver en segundos tras un corte (decisión 2026-10-11).
+- **1.6.5-dev (2026-10-14):** el banner superior decía siempre "ADVERTENCIA · vigilar" / "ALARMA · revisar
+  línea" → ahora dice la causa ("· presión baja", "· presión alta", "· flujo anormal", "· falla de sensores";
+  `banner_cause()`/`alarm_cause()` en `ui_mainScreen.c`, misma regla que `alarm_mgr`: solo límites habilitados).
 - **1.6.4-dev (2026-10-14):** login: la tarjeta de cada usuario cortaba el rol bajo el nombre → crece con
   el contenido (QA formal V1, P3). Lista para grabar (sin cambio de tabla de particiones: sirve OTA). QA formal
   V1: `MedGuard-12IoT/docs/entrega/QA_FORMAL_V1_2026-10-14.md` (P1 → V3; P2 pendiente con límites de presión).
