@@ -152,6 +152,13 @@ de estabilidad K1 cuenta desde el último arranque). No reiniciar hasta capturar
 
 ---
 
+## QA formal V1 (2026-10-14)
+
+Reclasificación de todos los casos con la evidencia de 1.6.x (a: con evidencia · b: prueba manual en V1 · c: V3/app):
+`MedGuard-12IoT/docs/entrega/QA_FORMAL_V1_2026-10-14.md` §2. Manuales pendientes en V1: **P1** (sensor
+desconectado → BAJA, cubre D3/D4/E4/B8), **P2** (silencio + escalada con el buzzer nuevo, F2/F3), **P3** (usuarios/PIN
+persisten). Release propuesto: **1.6.3** (código de 1.6.3-dev).
+
 ## Soak 2026-10-08/10 — FPM 1.5.31-dev (42 h, ESP-IDF 6.1) — CIERRE de pruebas en HW V1
 
 - **0 reinicios**; RAM interna plana 80.295 B; una sola sesión AWS en 42 h; 5.045 telemetrías (1/30 s).
