@@ -17,6 +17,11 @@ cmake --build Simulator/build --config Debug
 Simulator\build\Debug\fpm200_sim.exe
 ```
 
+**Ojo:** correrlo en una terminal **sin** el entorno de ESP-IDF. Ese entorno pone primero su propio CMake
+(4.0.3), que no conoce Visual Studio 2026 (`could not create CMAKE_GENERATOR "Visual Studio 18 2026"`). Si
+ya estás en la terminal de IDF, usar la ruta completa: `& "C:\Program Files\CMake\bin\cmake.exe" --build
+Simulator/build --config Debug`.
+
 La primera vez descarga LVGL en `Simulator/build/_deps/`. También se puede abrir la carpeta
 `Simulator/` en Visual Studio (*Archivo → Abrir → Carpeta*).
 
