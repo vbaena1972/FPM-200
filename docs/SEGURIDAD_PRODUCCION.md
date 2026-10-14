@@ -142,6 +142,15 @@ comandos en `MedGuard-12IoT/docs/entrega/ENSAYO_SECURE_BOOT_N16R2.md` (app en
 8. **Verificado:** la OTA (app) y el bootloader rechazan imágenes sin firma o firmadas con otra clave; la
    vuelta atrás automática/manual y la NVS cifrada sobreviven a reinicios, cortes y regrabaciones.
 
+### 4.2 Requisitos de producción pendientes (no se hacen en V1)
+
+1. **Passphrase de Fabricante única por equipo (2026-10-14).** Hoy la cuenta oculta de Fabricante sale con la
+   passphrase de demostración `axira-2026`, igual en todos los equipos (MedGuard y FPM), y
+   `general.factory.must_change_pin` (FPM) se guarda pero nada obliga a cambiarla. En producción la
+   passphrase se genera **única por equipo** y se graba por USB durante el aprovisionamiento (misma vía que la
+   calibración de fábrica, `tools/fcal`), registrada con el número de serie; así no depende de que el
+   cliente la cambie. Decisión del usuario: requisito de producción/V3, no se implementa en V1.
+
 ## 5. Mientras tanto: mitigación en la nube (sin tocar el chip)
 
 - **Un certificado AWS por equipo** con política IoT mínima (solo sus propios tópicos
