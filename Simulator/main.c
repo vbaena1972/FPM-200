@@ -30,6 +30,7 @@ static const scenario_t s_scen[] = {
     { "NORMAL", 965.3f, 59.0f, ALARM_STATE_NORMAL, false },
     { "ADVERTENCIA (flujo)", 951.5f, 86.0f, ALARM_STATE_WARNING, false },
     { "ADVERTENCIA (presion baja)", 330.0f, 59.0f, ALARM_STATE_WARNING, false },
+    { "ADVERTENCIA SILENCIADA", 330.0f, 59.0f, ALARM_STATE_WARNING, true },
     { "ALARMA (presion baja)", 289.6f, 44.0f, ALARM_STATE_ALERT, false },
     { "ALARMA SILENCIADA", 289.6f, 44.0f, ALARM_STATE_ALERT, true },
 };

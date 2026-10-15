@@ -91,6 +91,8 @@ migración de HMI y sesiones viejas: `docs/historial/`.
   del FPM (ajuste del FS7, ceros; EEPROM) es de fábrica: ningún nivel la toca. (5) Progreso en la tarjeta de
   flujo: valor "--" y "calentando N s" (`sensors_runtime_flow_warming_elapsed_ms`); no se alarga el splash a
   propósito: la presión y sus alarmas deben volver en segundos tras un corte (decisión 2026-10-11).
+- **1.6.6-dev (2026-10-14):** una ADVERTENCIA no se podía silenciar desde la pantalla (botón solo en ALARMA,
+  aunque `alarm_mgr` sí lo permite) → "Silenciar advertencia" en la pantalla de alarma y "silenciada" en el banner.
 - **1.6.5-dev (2026-10-14):** el banner superior decía siempre "ADVERTENCIA · vigilar" / "ALARMA · revisar
   línea" → ahora dice la causa ("· presión baja", "· presión alta", "· flujo anormal", "· falla de sensores";
   `banner_cause()`/`alarm_cause()` en `ui_mainScreen.c`, misma regla que `alarm_mgr`: solo límites habilitados).

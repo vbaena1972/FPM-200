@@ -464,7 +464,8 @@ static void alarm_overlay_open(void)
     lv_obj_t *ct=ui_box(s_alarm_overlay);lv_obj_set_width(ct,LV_PCT(100));lv_obj_set_flex_grow(ct,1);lv_obj_set_flex_flow(ct,LV_FLEX_FLOW_COLUMN);lv_obj_set_flex_align(ct,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_CENTER);lv_obj_set_style_pad_row(ct,5,0);ui_label(ct,alarm_condition(c),UI_FONT_XL,crit?UI_C_ALARM_SOFT:UI_C_WARN_SOFT);char val[24]="--",unit[12]="",lim[64]="";
     if(s_alarm_faults){snprintf(lim,sizeof(lim),"sin datos validos - revisar modulo y cable I2C");}else if(s_alarm_have_last&&c){bool p=s_alarm_last.pressure_kpa<c->sensors.alarm_limits.pressure_min||s_alarm_last.pressure_kpa>c->sensors.alarm_limits.pressure_max;if(p){float v=pressure_to_disp(s_alarm_last.pressure_kpa,c->sensors.pressure_unit);float t=pressure_to_disp(s_alarm_last.pressure_kpa<c->sensors.alarm_limits.pressure_min?c->sensors.alarm_limits.pressure_min:c->sensors.alarm_limits.pressure_max,c->sensors.pressure_unit);snprintf(val,sizeof(val),"%.0f",(double)v);snprintf(unit,sizeof(unit),"%s",c->sensors.pressure_unit);snprintf(lim,sizeof(lim),"valor %s %.0f %s",s_alarm_last.pressure_kpa<c->sensors.alarm_limits.pressure_min?"<":">",(double)t,c->sensors.pressure_unit);}else{snprintf(val,sizeof(val),"%.0f",(double)flow_to_disp(s_alarm_last.flow_lpm,c->sensors.flow_unit));snprintf(unit,sizeof(unit),"%s",c->sensors.flow_unit);snprintf(lim,sizeof(lim),"flujo por encima de lo habitual");}}
     lv_obj_t *vr=ui_box(ct);lv_obj_set_size(vr,LV_SIZE_CONTENT,LV_SIZE_CONTENT);lv_obj_set_flex_flow(vr,LV_FLEX_FLOW_ROW);lv_obj_set_flex_align(vr,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_END,LV_FLEX_ALIGN_END);lv_obj_set_style_pad_column(vr,7,0);ui_label(vr,val,UI_FONT_HUGE,UI_C_TEXT_STRONG);ui_label(vr,unit,UI_FONT_LG,UI_C_TEXT_2);ui_label(ct,lim,UI_FONT_SM,crit?UI_C_ALARM_SOFT:UI_C_WARN_DIM);
-    lv_obj_t *s=ui_box(s_alarm_overlay);lv_obj_set_size(s,LV_PCT(100),48);ui_style_button(s,0xf1f3f5);lv_obj_add_flag(s,LV_OBJ_FLAG_CLICKABLE);lv_obj_add_event_cb(s,crit?alarm_overlay_silence_cb:alarm_overlay_close_cb,LV_EVENT_CLICKED,NULL);lv_obj_center(ui_label(s,(!crit||s_alarm_muted)?"Volver":"Silenciar alarma",UI_FONT_MD,0x2a1416));
+    lv_obj_t *s=ui_box(s_alarm_overlay);lv_obj_set_size(s,LV_PCT(100),48);ui_style_button(s,0xf1f3f5);lv_obj_add_flag(s,LV_OBJ_FLAG_CLICKABLE);/* ADVERTENCIA tambien se silencia (alarm_mgr: por reannounce_minutes; si escala a ALARMA el silencio se rompe) */
+    lv_obj_add_event_cb(s,s_alarm_muted?alarm_overlay_close_cb:alarm_overlay_silence_cb,LV_EVENT_CLICKED,NULL);lv_obj_center(ui_label(s,s_alarm_muted?"Volver":(crit?"Silenciar alarma":"Silenciar advertencia"),UI_FONT_MD,0x2a1416));
 }
 
 /* ---------- construcción de la pantalla ---------- */
@@ -731,13 +732,19 @@ static void set_banner(alarm_clinical_state_t st, bool muted, const AppConfig *c
         set_label_if_changed(s_banner_icon, UI_SYM_ALERT_TRIANGLE); set_txt_color(s_banner_icon, UI_C_WARN);
         set_label_if_changed(s_banner_txt, _t("ADVERTENCIA")); set_txt_color(s_banner_txt, UI_C_WARN_SOFT);
         set_label_if_changed(s_banner_sub, banner_cause(cfg)); set_txt_color(s_banner_sub, UI_C_WARN_DIM);
-        set_hidden(s_banner_right, true);
+        set_hidden(s_banner_right, !muted);   /* silenciada: se indica (como en ALARMA) */
+        if (muted) {
+            set_label_if_changed(s_banner_right_ic, UI_SYM_BELL_OFF);
+            set_label_if_changed(s_banner_right_tx, _t("silenciada"));
+            set_txt_color(s_banner_right_ic, UI_C_WARN_SOFT); set_txt_color(s_banner_right_tx, UI_C_WARN_SOFT);
+        }
     } else { /* ALERT */
         set_bg(s_banner, UI_C_ALARM_BG); set_border(s_banner, UI_C_ALARM_BORDER);
         set_bg_opa_if(s_banner, LV_OPA_COVER);
         set_label_if_changed(s_banner_icon, UI_SYM_ALERT_TRIANGLE_FILLED); set_txt_color(s_banner_icon, UI_C_ALARM_SOFT);
         set_label_if_changed(s_banner_txt, _t("ALARMA")); set_txt_color(s_banner_txt, 0xffd3d3);
         set_label_if_changed(s_banner_sub, banner_cause(cfg)); set_txt_color(s_banner_sub, UI_C_ALARM_SOFT);
+        set_txt_color(s_banner_right_ic, UI_C_ALARM_SOFT); set_txt_color(s_banner_right_tx, UI_C_ALARM_SOFT);
         if (muted) {
             set_hidden(s_banner_right, false);
             set_label_if_changed(s_banner_right_ic, UI_SYM_BELL_OFF);

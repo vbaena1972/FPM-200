@@ -1,16 +1,16 @@
 # Graph Report - FPM-200  (2026-10-14)
 
 ## Corpus Check
-- 210 files · ~437,363 words
+- 210 files · ~437,500 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1691 nodes · 4438 edges · 96 communities (88 shown, 8 thin omitted)
+- 1691 nodes · 4438 edges · 98 communities (90 shown, 8 thin omitted)
 - Extraction: 74% EXTRACTED · 26% INFERRED · 0% AMBIGUOUS · INFERRED: 1136 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `30c17129`
+- Built from commit: `3acae88c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -84,8 +84,10 @@
 - Simulador de PC — HMI FPM-200
 - Microchip KSZ8851SNL Ethernet Driver
 - Q: Implement WiFi password visibility toggle, keep SSID/password above LVGL keyboard, refresh connectivity after WiFi save, suppress auth-screen buzzer, and publish device_status immediately on alarm changes
+- lv_event_t
 - AGENTS.md
 - CLAUDE.md
+- get_datetime
 - Q: Revisa cada cuando el FPM esta enviando los datos a AWS
 - appcfg_cache_peek
 - README_PARCHE.md
@@ -93,12 +95,12 @@
 - ads1115.c
 - ota_update.c
 - test_eeprom.c
+- get_info
 - fpm_i2c_guard
 - esp_err_to_name
 - bmp280.c
 - ui_open_useredit_cb
-- ui_open_confirm_cb
-- fresh_net_eth
+- fresh_net_ble
 
 ## God Nodes (most connected - your core abstractions)
 1. `appcfg_cache_peek()` - 78 edges
@@ -127,7 +129,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (96 total, 8 thin omitted)
+## Communities (98 total, 8 thin omitted)
 
 ### Community 1 - "wifi_mgr.c"
 Cohesion: 0.10
@@ -146,8 +148,8 @@ Cohesion: 0.05
 Nodes (55): alarm_state_change_cb_t, alarm_tone_out_t, alarm_tone_prio_t, esp_idf_version, esp_lcd_mipi_dsi, esp_lcd_panel_ops, esp_lcd_panel_vendor, esp_lcd_touch (+47 more)
 
 ### Community 5 - "ui.c"
-Cohesion: 0.16
-Nodes (16): ui_connectivityScreen_screen_destroy(), ui_infoScreen_screen_destroy(), ui_mainScreen_screen_destroy(), lv_timer_t, get_bleapp(), get_connectivity(), get_general(), get_info() (+8 more)
+Cohesion: 0.15
+Nodes (16): ui_keypadScreen_screen_destroy(), ui_mainScreen_screen_destroy(), ui_netEthScreen_screen_destroy(), ui_netWifiScreen_screen_destroy(), lv_timer_t, fresh_keypad(), fresh_net_eth(), fresh_net_wifi() (+8 more)
 
 ### Community 6 - "ui_loginScreen.c"
 Cohesion: 0.19
@@ -206,8 +208,8 @@ Cohesion: 0.26
 Nodes (10): esp_random, derive(), from_hex(), random_salt(), to_hex(), ui_pin_hash(), ui_pin_is_hashed(), ui_pin_normalize() (+2 more)
 
 ### Community 20 - "lv_obj_t"
-Cohesion: 0.17
-Nodes (12): ui_confirmScreen_screen_destroy(), ui_keypadScreen_screen_destroy(), ui_netWifiScreen_screen_destroy(), ui_usersScreen_screen_destroy(), lv_obj_t, fresh_confirm(), fresh_keypad(), fresh_net_wifi() (+4 more)
+Cohesion: 0.20
+Nodes (10): ui_confirmScreen_screen_destroy(), accept_cb(), lv_event_t, ui_usersScreen_screen_destroy(), lv_obj_t, ui_edit_set_new(), fresh_confirm(), get_users() (+2 more)
 
 ### Community 21 - "http_api.c"
 Cohesion: 0.08
@@ -250,8 +252,8 @@ Cohesion: 0.07
 Nodes (48): esp_check, esp_eth_com, esp_eth_handle_t, esp_eth_mac_ksz8851snl, esp_eth_mac_spi, esp_eth_phy, esp_eth_phy_ksz8851snl, esp_mac (+40 more)
 
 ### Community 31 - "ui_nav_load"
-Cohesion: 0.19
-Nodes (15): ui_datetimeScreen_screen_destroy(), ui_login_set_destination(), ui_loginScreen_screen_destroy(), ui_netBleScreen_screen_destroy(), lv_event_t, fresh_login(), fresh_net_ble(), get_datetime() (+7 more)
+Cohesion: 0.32
+Nodes (8): ui_login_set_destination(), ui_loginScreen_screen_destroy(), fresh_login(), ui_nav_load(), ui_open_config_ble_cb(), ui_open_config_pin_cb(), ui_open_login_cb(), open_login_cb()
 
 ### Community 32 - "stdint"
 Cohesion: 0.10
@@ -385,6 +387,14 @@ Nodes (3): ESP-IDF Usage, Microchip KSZ8851SNL Ethernet Driver, Overview
 Cohesion: 0.40
 Nodes (4): Answer, Outcome, Q: Implement WiFi password visibility toggle, keep SSID/password above LVGL keyboard, refresh connectivity after WiFi save, suppress auth-screen buzzer, and publish device_status immediately on alarm changes, Source Nodes
 
+### Community 72 - "lv_event_t"
+Cohesion: 0.33
+Nodes (7): ui_connectivityScreen_screen_destroy(), lv_event_t, get_connectivity(), get_general(), ui_open_connectivity_cb(), ui_open_general_authenticated_cb(), ui_open_general_cb()
+
+### Community 77 - "get_datetime"
+Cohesion: 0.67
+Nodes (3): ui_datetimeScreen_screen_destroy(), get_datetime(), ui_open_datetime_cb()
+
 ### Community 78 - "Q: Revisa cada cuando el FPM esta enviando los datos a AWS"
 Cohesion: 0.40
 Nodes (4): Answer, Outcome, Q: Revisa cada cuando el FPM esta enviando los datos a AWS, Source Nodes
@@ -409,6 +419,10 @@ Nodes (30): esp_app_format, esp_partition, esp_partition_t, FILE, cJSON, esp_err
 Cohesion: 0.26
 Nodes (11): at24c256, esp_err_t, i2c_device_config_t, i2c_master_bus_handle_t, i2c_master_dev_handle_t, TickType_t, fpm_i2c_bus_add_device(), fpm_i2c_bus_rm_device() (+3 more)
 
+### Community 92 - "get_info"
+Cohesion: 0.67
+Nodes (3): ui_infoScreen_screen_destroy(), get_info(), ui_open_info_cb()
+
 ### Community 93 - "fpm_i2c_guard"
 Cohesion: 0.29
 Nodes (9): bcd2dec(), esp_err_t, i2c_master_bus_handle_t, dec2bcd(), rtc_rv3028_get_time(), rtc_rv3028_init(), rtc_rv3028_set_time(), time_mgr_init() (+1 more)
@@ -425,13 +439,9 @@ Nodes (10): bmp280, bmp280_compensate_press(), bmp280_compensate_temp(), bmp280_
 Cohesion: 0.39
 Nodes (8): ui_userEditScreen_screen_destroy(), ui_userEditScreen_set_index(), add_cb(), lv_event_t, factory_pin_cb(), row_cb(), fresh_useredit(), ui_open_useredit_cb()
 
-### Community 102 - "ui_open_confirm_cb"
-Cohesion: 0.50
-Nodes (4): accept_cb(), lv_event_t, ui_edit_set_new(), ui_open_confirm_cb()
-
-### Community 104 - "fresh_net_eth"
+### Community 97 - "fresh_net_ble"
 Cohesion: 0.67
-Nodes (3): ui_netEthScreen_screen_destroy(), fresh_net_eth(), ui_open_net_eth_cb()
+Nodes (3): ui_netBleScreen_screen_destroy(), fresh_net_ble(), ui_open_net_ble_cb()
 
 ## Knowledge Gaps
 - **147 isolated node(s):** `gen_ota_signing_key.sh script`, `graphify`, `Estructura del repositorio (reorganizado 2026-09-15, mirror de MedGuard)`, `graphify`, `1. Compilar` (+142 more)
