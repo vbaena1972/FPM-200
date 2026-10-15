@@ -50,7 +50,7 @@ static char s_thing_name[32] = {0};
 // con el Last Will (lo publica AWS ~1,5 x keepalive despues de perder al equipo);
 // al reconectar se publica "normal" con el motivo y, si fue un corte de energia,
 // los valores de consumo del ultimo guardado anterior al corte.
-static char s_lwt_topic[192];
+static char s_lwt_topic[256];                 /* igual que alarm_topic: 5 campos de config */
 static char *s_lwt_msg;                       /* se arma una vez y vive siempre */
 static atomic_bool s_conn_event_pending = false;
 static bool s_boot_event_sent = false;        /* solo lo toca aws_pub */
