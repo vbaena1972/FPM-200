@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.6.10 (2026-10-15): RELEASE baseline V1 (1.6.9 ya grabada). TOUCH: el INT (GPIO39) va por
+#   INTERRUPCION (esp_lcd_touch_register_interrupt_callback + lvgl_port_task_wake); antes se
+#   muestreaba el nivel cada 20 ms y con INT por pulsos se perdian toques ("hay que tocar varias
+#   veces", lento). El soltado lo decide el chip (0 puntos). scroll_limit 10 -> 20 px (un toque
+#   que se desliza un poco ya no se vuelve scroll). Informacion: botones con respuesta visual;
+#   OTA explica por que no actua (sin sesion de Administrador / "Primero toque Buscar").
+#   Consumo: "00:00-HH:MM" (periodo de hoy hasta ahora, avanza) en vez de "desde 00:00" fijo.
 # 1.6.8-dev (2026-10-15): cierre de diseno V1 (lista del usuario tras el soak 1.6.7 de 11 h).
 #   (1) ADVERTENCIA muestra "buzzer activo" como ALARMA. (2) VARIAS ALARMAS: alarm_mgr expone las
 #   condiciones activas (alarm_mgr_get_active_conditions); el banner dice "2 ADVERTENCIAS / 3 ALARMAS
@@ -207,7 +214,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #   y un equipo que paso por 1.6.8 (total desde 0) se corrige solo al arrancar.
 # 1.6.8 (2026-10-15): RELEASE baseline V1 = codigo de 1.6.8-dev (+ buffer del topic del Last Will a
 #   256 B: -Werror=format-truncation en el build). Publicar en Estable tras su humo en HW (QA §7).
-set(PROJECT_VER "1.6.9")
+set(PROJECT_VER "1.6.10")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:

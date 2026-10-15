@@ -165,6 +165,7 @@ static void factory_btn(lv_obj_t *parent, const char *text, bool wipe)
     lv_obj_set_flex_align(b, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_style_pad_column(b, 8, 0);
     lv_obj_add_flag(b, LV_OBJ_FLAG_CLICKABLE);
+    ui_press_feedback(b);
     lv_obj_set_user_data(b, wipe ? (void *)1 : NULL);
     ui_icon(b, UI_SYM_ALERT_TRIANGLE, UI_ICON_SM, UI_C_ALARM);
     lv_obj_t *l = ui_label(b, text, UI_FONT_SM, UI_C_ALARM);
@@ -262,8 +263,25 @@ static void ota_start(bool install)
     }
 }
 
-static void ota_check_cb(lv_event_t *e) { (void)e; if (ui_auth_can(APP_ROLE_ADMIN)) ota_start(false); }
-static void ota_install_cb(lv_event_t *e) { (void)e; if (ui_auth_can(APP_ROLE_ADMIN) && s_ota_state == OTA_AVAILABLE) ota_start(true); }
+/* 1.6.10: antes un toque sin sesion de Administrador (o "Instalar" sin haber buscado)
+ * se ignoraba EN SILENCIO y parecia que el touch no respondia. Ahora se explica. */
+static bool ota_allowed(void)
+{
+    if (ui_auth_can(APP_ROLE_ADMIN)) return true;
+    if (s_ota_state != OTA_BUSY && s_ota_state != OTA_DONE)
+        snprintf(s_ota_msg, sizeof s_ota_msg, "%s",
+                 _t("Requiere sesion de Administrador (entrar por Configuracion)"));
+    return false;
+}
+static void ota_check_cb(lv_event_t *e) { (void)e; if (ota_allowed()) ota_start(false); }
+static void ota_install_cb(lv_event_t *e)
+{
+    (void)e;
+    if (!ota_allowed()) return;
+    if (s_ota_state == OTA_AVAILABLE) ota_start(true);
+    else if (s_ota_state != OTA_BUSY && s_ota_state != OTA_DONE)
+        snprintf(s_ota_msg, sizeof s_ota_msg, "%s", _t("Primero toque Buscar"));
+}
 static void ota_channel_cb(lv_event_t *e)
 {
     if (s_ota_state == OTA_BUSY || s_ota_state == OTA_DONE) return;
@@ -303,6 +321,7 @@ static lv_obj_t *ota_button(lv_obj_t *parent, const char *text, lv_event_cb_t cb
     lv_obj_set_style_radius(b, 10, 0);
     lv_obj_set_style_pad_ver(b, 9, 0);
     lv_obj_add_flag(b, LV_OBJ_FLAG_CLICKABLE);
+    ui_press_feedback(b);   /* 1.6.10: se ve que el toque se registro */
     lv_obj_add_event_cb(b, cb, LV_EVENT_CLICKED, user);
     lv_obj_center(ui_label(b, text, UI_FONT_SM, UI_C_TEXT));
     return b;
@@ -360,6 +379,8 @@ void ui_infoScreen_screen_init(void)
     lv_obj_set_style_pad_column(hb, 9, 0);
     lv_obj_t *back = ui_icon_badge(hb, UI_SYM_ARROW_LEFT, UI_ICON_SM, UI_C_TEXT, UI_C_CARD_BG, 28);
     lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
+    ui_press_feedback(back);
+    lv_obj_set_ext_click_area(back, 8);   /* 28 px es chico para el dedo */
     lv_obj_add_event_cb(back, ui_nav_back_event_cb, LV_EVENT_CLICKED, NULL);
     ui_label(hb, _t("Información del equipo"), UI_FONT_TITLE, UI_C_TEXT);
 
@@ -451,6 +472,7 @@ void ui_infoScreen_screen_init(void)
     lv_obj_set_flex_align(rb, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_style_pad_column(rb, 8, 0);
     lv_obj_add_flag(rb, LV_OBJ_FLAG_CLICKABLE);
+    ui_press_feedback(rb);
     ui_icon(rb, UI_SYM_REFRESH, UI_ICON_SM, UI_C_WARN_SOFT);
     lv_obj_t *rl = ui_label(rb, _t("Reiniciar equipo"), UI_FONT_SM, UI_C_WARN_SOFT);
     lv_obj_add_event_cb(rb, reboot_cb, LV_EVENT_CLICKED, rl);

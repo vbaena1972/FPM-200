@@ -91,6 +91,13 @@ migración de HMI y sesiones viejas: `docs/historial/`.
   del FPM (ajuste del FS7, ceros; EEPROM) es de fábrica: ningún nivel la toca. (5) Progreso en la tarjeta de
   flujo: valor "--" y "calentando N s" (`sensors_runtime_flow_warming_elapsed_ms`); no se alarga el splash a
   propósito: la presión y sus alarmas deben volver en segundos tras un corte (decisión 2026-10-11).
+- **1.6.10 (2026-10-15) — release baseline V1** (1.6.9 grabada). Touch "duro" (había que tocar varias veces,
+  lento; en todas las versiones, peor en Información/OTA): el INT del FT5x06 (GPIO39) solo se MUESTREABA cada
+  20 ms por nivel; ahora va por interrupción (`esp_lcd_touch_register_interrupt_callback` → `touch_isr` →
+  `lvgl_port_task_wake`) y se lee por I2C hasta que el chip reporta 0 puntos (`ft5x06.c`). `scroll_limit` 20 px.
+  Información: `ui_press_feedback` en todos los botones; OTA ya no ignora en silencio (sin sesión de
+  Administrador / "Primero toque Buscar"). Consumo: "00:00–HH:MM" (periodo de hoy hasta ahora) en lugar de
+  "desde 00:00" fijo. MedGuard: el glitch residual de pantalla se acepta (no se persigue en V1).
 - **1.6.9 (2026-10-15) — release baseline V1** (1.6.8 grabada; humo a–c OK en HW). (1) Fila de consumo
   pedida por el usuario: "CONSUMO TOTAL" primero y grande, luego "HOY … · desde HH:MM · N min sin medir",
   todo seguido. (2) TOTAL nunca < HOY: al actualizar desde ≤ 1.6.7 arranca con el consumo del día guardado

@@ -45,8 +45,8 @@
     "semantic_hash": ""
   },
   "firmware/components/display/ft5x06.c": {
-    "mtime": 1791738196.9506373,
-    "ast_hash": "027ba4d35e98e1cf572271c5f67b8033",
+    "mtime": 1792077782.2565246,
+    "ast_hash": "3063eec0f79acc4ab742e4b4689d4f34",
     "semantic_hash": ""
   },
   "firmware/components/display/include/display.h": {
@@ -470,8 +470,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_infoScreen.c": {
-    "mtime": 1791853026.011849,
-    "ast_hash": "38972e3f5d7a110f19280c4dde7f215d",
+    "mtime": 1792077821.0751565,
+    "ast_hash": "756f45ac978952e2669c30d1fdefc9df",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_infoScreen.h": {
@@ -500,8 +500,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_mainScreen.c": {
-    "mtime": 1792073934.1714518,
-    "ast_hash": "f75c61025b81a20d45d27ab8ee43e321",
+    "mtime": 1792077834.0181468,
+    "ast_hash": "de86eaf0c597b0734e8a126cbe613e4f",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_mainScreen.h": {
@@ -705,13 +705,13 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1792073972.8010337,
-    "ast_hash": "b34cb1924f73c4cba86e801521d860c6",
+    "mtime": 1792077903.3876774,
+    "ast_hash": "b8e6668db782a398ad75f08cc40bb269",
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1792073754.9234297,
-    "ast_hash": "5747a60a8b91365fffe3958b21858e04",
+    "mtime": 1792077857.155902,
+    "ast_hash": "1f19380c49ad5c93da00138c0945af31",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {

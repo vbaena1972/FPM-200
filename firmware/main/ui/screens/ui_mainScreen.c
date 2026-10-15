@@ -1097,9 +1097,15 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         set_label_if_changed(s_total_val, cb);
     }
     if (s_consumo_sub) {
-        /* Inicio real del conteo de hoy: 00:00, o la hora de arranque si el equipo
-         * arranco hoy sin un guardado del mismo dia (corte que cruzo la medianoche). */
-        if (meter.since_min >= 0)
+        /* Periodo del conteo de hoy: "00:00–HH:MM" (inicio real -> ahora, avanza con el
+         * reloj; 1.6.10, antes "desde 00:00" fijo parecia un reloj detenido). El inicio
+         * es 00:00, o la hora de arranque si el equipo arranco hoy sin un guardado del
+         * mismo dia (corte que cruzo la medianoche). */
+        const bool clock_ok = s_clock_prev[0] >= '0' && s_clock_prev[0] <= '9';
+        if (meter.since_min >= 0 && clock_ok)
+            snprintf(cb, sizeof(cb), "%02d:%02d\xE2\x80\x93%s", meter.since_min / 60, meter.since_min % 60,
+                     s_clock_prev);
+        else if (meter.since_min >= 0)
             snprintf(cb, sizeof(cb), "%s %02d:%02d", _t("desde"), meter.since_min / 60, meter.since_min % 60);
         else
             snprintf(cb, sizeof(cb), "%s", _t("sin hora"));

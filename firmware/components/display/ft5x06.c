@@ -35,6 +35,23 @@ static lv_indev_state_t s_last_state = LV_INDEV_STATE_RELEASED;
 static lv_point_t s_last_point;
 static uint8_t s_glitch_count;
 
+// 1.6.10: el INT (GPIO39, flanco de bajada) va por INTERRUPCION. Antes solo se
+// miraba el NIVEL del pin cada 20 ms: si el FT5x06 entrega el INT como pulso corto
+// (por cada reporte) la mayoria de los toques caian entre lecturas -> habia que
+// tocar varias veces y el toque se sentia lento (sobre todo en Informacion/OTA).
+// Ahora la ISR marca "toque pendiente" y DESPIERTA a taskLVGL al instante; desde
+// ahi se lee por I2C hasta que el propio chip reporta 0 puntos (el soltado lo
+// decide el dato, no el nivel del pin). En reposo sigue sin trafico I2C.
+static volatile bool s_touch_pending;   // lo pone la ISR
+static bool s_touch_active;             // hay dedo segun el ultimo dato del chip
+
+static void touch_isr(esp_lcd_touch_handle_t h)
+{
+    (void)h;
+    s_touch_pending = true;
+    lvgl_port_task_wake(LVGL_PORT_EVENT_TOUCH, NULL);
+}
+
 static void touch_glitch(lv_indev_data_t *data)
 {
     if (s_last_state == LV_INDEV_STATE_PRESSED && s_glitch_count < TOUCH_GLITCH_HOLD)
@@ -45,6 +62,7 @@ static void touch_glitch(lv_indev_data_t *data)
         return;
     }
     s_last_state = LV_INDEV_STATE_RELEASED;
+    s_touch_active = false;
     data->state = LV_INDEV_STATE_RELEASED;
 }
 
@@ -54,19 +72,17 @@ static void ft5x06_lvgl_read_cb(lv_indev_t *indev, lv_indev_data_t *data)
     esp_lcd_touch_point_data_t pt = {0};
     uint8_t cnt = 0;
 
-    // --- INT-gating: solo leemos el touch por I2C cuando el pin INT (GPIO39,
-    // activo en BAJO) esta asertado, es decir, cuando hay un dedo en la pantalla.
-    // En reposo (INT en alto) NO tocamos el bus I2C -> eliminamos el sondeo a
-    // ~30 Hz que satura el bus 1 compartido con los sensores (causa probable del
-    // cuelgue) y garantizamos que en reposo nunca bloqueamos el mutex de display.
-    if (gpio_get_level(BSP_LCD_TP_INT) != 0)
+    // Sin toque pendiente (ISR), sin dedo activo y con el INT en alto: reposo,
+    // no se toca el bus I2C (compartido con los sensores).
+    const bool int_low = gpio_get_level(BSP_LCD_TP_INT) == 0;
+    if (!s_touch_pending && !s_touch_active && !int_low)
     {
-        // INT en alto = sin dedo (soltado real).
         s_last_state = LV_INDEV_STATE_RELEASED;
         s_glitch_count = 0;
         data->state = LV_INDEV_STATE_RELEASED;
         return;
     }
+    s_touch_pending = false;
 
     // Avoid extra traffic while sensors recover the bus. All touch transfers
     // also have finite deadlines: a fault after this check cannot hang LVGL.
@@ -98,6 +114,7 @@ static void ft5x06_lvgl_read_cb(lv_indev_t *indev, lv_indev_data_t *data)
         data->state = LV_INDEV_STATE_RELEASED;
     }
     s_last_state = data->state;
+    s_touch_active = data->state == LV_INDEV_STATE_PRESSED;
 }
 
 lv_indev_t *bsp_display_indev_init(lv_display_t *disp, i2c_master_bus_handle_t bus_handle)
@@ -126,7 +143,19 @@ lv_indev_t *bsp_display_indev_init(lv_display_t *disp, i2c_master_bus_handle_t b
     lv_indev_set_type(disp_indev, LV_INDEV_TYPE_POINTER);
     lv_indev_set_read_cb(disp_indev, ft5x06_lvgl_read_cb);
     lv_indev_set_display(disp_indev, disp);
+    // 1.6.10: con el dedo, un toque se desliza unos px; con el limite por defecto
+    // (10 px) en pantallas desplazables (Informacion) el toque se volvia "scroll" y
+    // el boton no respondia. 20 px sigue permitiendo desplazar normalmente.
+    lv_indev_set_scroll_limit(disp_indev, 20);
     lvgl_port_unlock();
+
+    // 1.6.10: INT por interrupcion (flanco de bajada, ya configurado por el driver).
+    // Si falla, se sigue con el muestreo del nivel (comportamiento anterior).
+    esp_err_t ierr = esp_lcd_touch_register_interrupt_callback(tp, touch_isr);
+    if (ierr != ESP_OK)
+        ESP_LOGW(TAG, "INT del touch sin interrupcion (%s): se usa muestreo", esp_err_to_name(ierr));
+    else
+        ESP_LOGI(TAG, "INT del touch por interrupcion (GPIO%d)", (int)BSP_LCD_TP_INT);
 
     return disp_indev;
 }
