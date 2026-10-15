@@ -91,6 +91,30 @@ migración de HMI y sesiones viejas: `docs/historial/`.
   del FPM (ajuste del FS7, ceros; EEPROM) es de fábrica: ningún nivel la toca. (5) Progreso en la tarjeta de
   flujo: valor "--" y "calentando N s" (`sensors_runtime_flow_warming_elapsed_ms`); no se alarga el splash a
   propósito: la presión y sus alarmas deben volver en segundos tras un corte (decisión 2026-10-11).
+- **1.6.8-dev (2026-10-15) — cierre de diseño V1** (lista del usuario tras el soak 1.6.7/1.9.9 de ~11 h, sin
+  reinicios, RAM interna plana; la prueba de 1.6.7 pasó: "Nueva condicion (0x04/0x08) … se anula el silencio"):
+  (1) ADVERTENCIA muestra "buzzer activo" (oculto si el tono de ese nivel está deshabilitado). (2) **Varias
+  alarmas**: `alarm_mgr_get_active_conditions(&crit)` (bits `ALARM_COND_*` en `alarm_mgr.h`); banner "2
+  ADVERTENCIAS / 3 ALARMAS · presión + flujo"; tocar el banner abre la lista (una fila por condición: severidad,
+  límite, valor en vivo; se rearma si aparece otra o escala; se cierra al normalizar). Tarjeta de presión ámbar =
+  advertencia, roja = crítica; la de flujo dice "FLUJO ALTO"/"VARIACIÓN" según `alarm_mgr`. (3) **"24H"** era el
+  último minuto (`get_min_max(60000)`, que además descartaba la muestra entera ante cualquier bit inválido) →
+  `minmax24.h` (24 cubetas horarias por tiempo de arranque, presión/flujo independientes;
+  `sensors_runtime_get_min_max_24h`). No se persiste: tras un reinicio cuenta desde el arranque. (4)
+  **Totalizador** (`flow_meter_snapshot_t.total_m3`) en NVS `metrics` (blob v3: + `total_m3`, `saved_epoch`,
+  `since_min`; carga los blobs viejos). Ningún "Restablecer" borra el namespace `metrics`; solo `erase-flash` (o
+  el borrado automático de NVS llena/versión nueva de `main.c`). (5) HOY: guardado cada 2 min y al cambiar de día;
+  tras un corte se restaura y el tiempo apagado se suma a "sin medir"; "desde HH:MM" = inicio real del conteo (00:00
+  o la hora de arranque si el corte cruzó la medianoche). **Corte de energía → AWS**: Last Will MQTT en
+  `<base>/…/alarms` (canal 0 "Conexion", `state=fault`, `event=offline`; keepalive = `cloud.keepalive`, 60 s → aviso
+  ~90 s tras el corte) y al reconectar `state=normal` con `event=power_restored|reboot|reconnected` +
+  `detail`; en un corte (`esp_reset_reason` POWERON/BROWNOUT) lleva `outage_start`, `outage_s` y
+  `consumption_day/total_m3_at_cut` (último guardado, ≤ 2 min antes del corte; `flow_meter_boot_checkpoint`).
+  El alarm-router (repo MedGuard) incluye `detail` en el correo/push y en el canal 0 solo notifica cambios reales.
+  Pruebas de host (desde `firmware/`, gcc): `test_alarm.c` (+ condiciones), `test_minmax24.c`
+  (`gcc -std=c11 -Icomponents/sensors_runtime/include tests/host/test_minmax24.c`), `test_flow_meter.c`
+  (`gcc -std=gnu11 -Itests/host/stubs_fm -Itests/host/stubs -Icomponents/sensors_runtime/include
+  -Icomponents/storage/include tests/host/test_flow_meter.c`). Simulador: `fpm200_sim.exe esc N [det]`.
 - **1.6.7-dev (2026-10-14):** el silencio vale solo para las condiciones presentes al silenciar (bits
   `COND_*` en `alarm_mgr.c`): una condición NUEVA (flujo, falla de sensor, el otro límite) o una que vuelve
   tras 10 s ausente rompe el silencio; antes una ADVERTENCIA silenciada tapaba todo 15 min. Mojibake de

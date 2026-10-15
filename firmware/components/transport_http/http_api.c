@@ -440,6 +440,7 @@ static esp_err_t state_get_handler(httpd_req_t *req)
     cJSON *root = cJSON_CreateObject();
     flow_meter_snapshot_t meter = flow_meter_get();
     cJSON_AddNumberToObject(root, "consumption_m3", meter.volume_m3);
+    cJSON_AddNumberToObject(root, "consumption_total_m3", meter.total_m3);   // 1.6.8
     cJSON_AddNumberToObject(root, "consumption_missing_ms", (double)meter.missing_ms);
     cJSON_AddBoolToObject(root, "consumption_partial", meter.partial || !meter.dated);
     cJSON *chs = cJSON_AddArrayToObject(root, "channels");

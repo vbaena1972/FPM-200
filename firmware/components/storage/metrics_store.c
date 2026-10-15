@@ -3,6 +3,7 @@
 #include "nvs.h"
 #include <string.h>
 #include <stddef.h>
+#include <math.h>
 
 #define MET_NS  "metrics"
 #define MET_KEY "m"
@@ -21,8 +22,13 @@ esp_err_t appmetrics_load(app_metrics_t *out)
         size_t len = sizeof(*out);
         r = nvs_get_blob(h, MET_KEY, out, &len);
         nvs_close(h);
-        if (r != ESP_OK || (len != sizeof(*out) && len != offsetof(app_metrics_t, partial)))
+        /* Versiones aceptadas: actual, 1.5.x/1.6.7 (hasta missing_ms) y la primera
+         * (hasta service_min). La parte nueva queda en cero (memset de arriba). */
+        if (r != ESP_OK || (len != sizeof(*out) && len != offsetof(app_metrics_t, total_m3) &&
+                            len != offsetof(app_metrics_t, partial)))
             memset(out, 0, sizeof(*out));   /* primera vez / blob de otra versión */
+        else if (!isfinite(out->total_m3) || out->total_m3 < 0)
+            out->total_m3 = 0;
     }
     out->date[sizeof(out->date) - 1] = '\0';
     s_cache = *out;

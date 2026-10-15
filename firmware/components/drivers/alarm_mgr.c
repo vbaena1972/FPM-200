@@ -25,15 +25,16 @@ static alarm_clinical_state_t s_current_state = ALARM_STATE_NORMAL;
 static bool s_is_muted = false;
 static int64_t s_mute_end_time_us = 0;
 /* 1.6.7: condiciones de alarma (bits) para que el silencio no tape una condicion NUEVA. */
-#define COND_P_LOW      0x01u
-#define COND_P_HIGH     0x02u
-#define COND_FLOW_DELTA 0x04u
-#define COND_FLOW_HIGH  0x08u
-#define COND_SENSOR     0x10u
+#define COND_P_LOW      ALARM_COND_P_LOW
+#define COND_P_HIGH     ALARM_COND_P_HIGH
+#define COND_FLOW_DELTA ALARM_COND_FLOW_DELTA
+#define COND_FLOW_HIGH  ALARM_COND_FLOW_HIGH
+#define COND_SENSOR     ALARM_COND_SENSOR
 #define COND_COUNT      5
 #define COND_REARM_US   10000000LL   /* ausente 10 s = deja de estar silenciada */
 static uint32_t s_active_conds;      /* condiciones de la ultima evaluacion */
 static uint32_t s_muted_conds;       /* condiciones presentes al silenciar */
+static uint32_t s_crit_conds;        /* 1.6.8: las que estan en banda critica */
 static int64_t  s_cond_seen_us[COND_COUNT];
 /* 1.6.0: la cadencia del pitido la lleva alarm_tone (patrones IEC 60601-1-8 por
  * esp_timer); aqui solo se decide la prioridad: ALERT = ALTA, WARNING clinico
@@ -221,6 +222,8 @@ static void alarm_mgr_process_impl(float current_pressure, float current_flow, u
                      (flow_warning ? COND_FLOW_DELTA : 0u) | (flow_high ? COND_FLOW_HIGH : 0u) |
                      (sensor_faults != 0 ? COND_SENSOR : 0u);
     s_active_conds = conds;
+    s_crit_conds = ((p_min_enabled && current_pressure < (p_min - 15.0f)) ? COND_P_LOW : 0u) |
+                   ((p_max_enabled && current_pressure > (p_max + 15.0f)) ? COND_P_HIGH : 0u);
     for (int b = 0; b < COND_COUNT; b++)
         if (conds & (1u << b)) s_cond_seen_us[b] = now;
     if (s_is_muted) {
@@ -309,6 +312,18 @@ static void alarm_mgr_test_buzzer_impl(void) { s_test_end_time_us = esp_timer_ge
 static alarm_clinical_state_t alarm_mgr_get_current_state_impl(void) { return s_current_state; }
 static bool alarm_mgr_is_muted_impl(void) { return s_is_muted; }
 static uint32_t alarm_mgr_get_sensor_faults_impl(void) { return s_sensor_faults; }
+
+uint32_t alarm_mgr_get_active_conditions(uint32_t *critical)
+{
+    if (!s_alarm_lock || xSemaphoreTakeRecursive(s_alarm_lock, pdMS_TO_TICKS(100)) != pdTRUE) {
+        if (critical) *critical = 0;
+        return 0;
+    }
+    uint32_t active = s_active_conds;
+    if (critical) *critical = s_crit_conds & active;
+    xSemaphoreGiveRecursive(s_alarm_lock);
+    return active;
+}
 
 void alarm_mgr_set_audio_inhibit_noncritical(bool inhibit) {
     if (!s_alarm_lock || xSemaphoreTakeRecursive(s_alarm_lock, pdMS_TO_TICKS(100)) != pdTRUE) return;

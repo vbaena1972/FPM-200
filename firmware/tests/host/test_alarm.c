@@ -58,6 +58,10 @@ int main(void)
     at(12, 0.1f, 0, 0);
     assert(alarm_mgr_get_current_state() == ALARM_STATE_ALERT);
     assert(!alarm_mgr_is_muted() && tone == ALARM_TONE_HIGH);
+    {   /* 1.6.8: la presion baja esta en banda critica */
+        uint32_t c = 0;
+        assert(alarm_mgr_get_active_conditions(&c) == ALARM_COND_P_LOW && c == ALARM_COND_P_LOW);
+    }
 
     /* 1.6.7: con la presion baja silenciada, una condicion NUEVA de flujo rompe el silencio. */
     cfg.sensors.alarm_limits.pressure_min = 6.9f; cfg.sensors.alarm_limits.pressure_max = 20.7f;
@@ -71,6 +75,9 @@ int main(void)
     assert(alarm_mgr_is_muted());
     at(21.8, 0.1f, 60, 0);                                         /* flujo alto confirmado */
     assert(!alarm_mgr_is_muted() && tone == ALARM_TONE_MEDIUM);
+    /* 1.6.8: la UI ve las DOS condiciones (presion baja + flujo alto), ninguna critica. */
+    uint32_t crit = 0xFF;
+    assert(alarm_mgr_get_active_conditions(&crit) == (ALARM_COND_P_LOW | ALARM_COND_FLOW_HIGH) && crit == 0);
     cfg.sensors.alarm_limits.flow_high_enabled = false;
 
     /* Fallo de sensor nuevo con la presion silenciada: tambien rompe el silencio. */

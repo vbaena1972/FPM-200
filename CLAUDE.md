@@ -25,6 +25,17 @@
   vuelve tras `COND_REARM_US` (10 s) ausente, o WARNING→ALERT rompen el silencio. Prueba: `tests/host/test_alarm.c`.
 - **Logs solo en ASCII o UTF-8 correcto**: un literal con mojibake (UTF-8 releído como cp1252) puede llevar
   U+0081/U+008D y tumba `idf.py monitor` en Windows (`UnicodeEncodeError cp1252`). Para capturas: `$env:PYTHONUTF8=1`.
+- **Varias alarmas (1.6.8)**: la UI no recalcula causas; lee `alarm_mgr_get_active_conditions(&crit)` (bits
+  `ALARM_COND_*`). Banner "N ADVERTENCIAS/ALARMAS · presión + flujo", detalle = lista con valores en vivo
+  (`alarm_overlay_refresh`, rearmado por firma de condiciones). Sim: `fpm200_sim.exe esc N [det]`.
+
+## Consumo, totalizador y cortes de energía (1.6.8)
+- `flow_meter.c`: HOY (se reinicia a las 00:00 locales) + TOTAL de vida; checkpoint en NVS `metrics` cada 2 min
+  y al cambiar de día (`metrics_store.h`, blob v3; los blobs viejos cargan). `metrics` no lo borra ningún
+  "Restablecer" (no tocarlo en `factory_reset_apply`). Tras un corte: HOY se restaura si es el mismo día y el
+  tiempo apagado va a "sin medir". `flow_meter_boot_checkpoint()` = valores al corte → aviso MQTT
+  "power_restored" (canal 0 del topic `/alarms`); el corte en sí lo anuncia el Last Will. Pruebas:
+  `tests/host/test_flow_meter.c`, `test_minmax24.c` (min/max 24 h de las tarjetas).
 
 ## graphify
 

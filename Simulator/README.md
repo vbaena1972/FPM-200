@@ -1,8 +1,10 @@
 # Simulador de PC — HMI FPM-200
 
 Corre la **misma** HMI del firmware (`firmware/main/ui/**.c`: pantallas, widgets y fuentes) en una
-ventana de Windows de 480×320 (la del ST7796) con zoom 200 %. Cicla 6 escenarios cada 2,5 s:
-NORMAL → ADVERTENCIA (flujo) → ADVERTENCIA (presión baja) → ADVERTENCIA SILENCIADA → ALARMA → ALARMA SILENCIADA. Usa LVGL 9.5.0 (la de
+ventana de Windows de 480×320 (la del ST7796) con zoom 200 %. Cicla 8 escenarios cada 2,5 s:
+NORMAL → ADVERTENCIA (flujo) → ADVERTENCIA (presión baja) → ADVERTENCIA SILENCIADA → 2 ADVERTENCIAS
+(presión baja + flujo alto) → ALARMA → 3 ALARMAS → ALARMA SILENCIADA (0…7). `fpm200_sim.exe esc N` fija el
+escenario N; `esc N det` además abre el detalle de alarmas (como tocar el banner). Usa LVGL 9.5.0 (la de
 `firmware/dependencies.lock`) y el driver de Windows de LVGL: no necesita ESP-IDF ni SDL2.
 
 Desde 2026-10-14 es parte de este repo (antes era el repo aparte `FPM-200-Sim`).

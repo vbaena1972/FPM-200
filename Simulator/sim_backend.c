@@ -139,9 +139,19 @@ void sensors_runtime_get_debug(float *atm_kpa, float *sfm_slm, float *fs7_lpm)
     if (sfm_slm) *sfm_slm = 0.0f;
     if (fs7_lpm) *fs7_lpm = 59.0f;
 }
+/* Condiciones de alarma del escenario actual (las fija main.c con sim_set_conditions). */
+static uint32_t s_sim_conds, s_sim_crit;
+void sim_set_conditions(uint32_t active, uint32_t critical) { s_sim_conds = active; s_sim_crit = critical; }
+uint32_t alarm_mgr_get_active_conditions(uint32_t *critical)
+{
+    if (critical) *critical = s_sim_crit;
+    return s_sim_conds;
+}
+/* Consumo de demostracion: hoy desde las 00:00 con 3 min sin medir; total de vida. */
 flow_meter_snapshot_t flow_meter_get(void)
 {
-    flow_meter_snapshot_t s = { .volume_m3 = 12.84, .missing_ms = 0, .partial = false, .dated = true };
+    flow_meter_snapshot_t s = { .volume_m3 = 12.84, .total_m3 = 4821.37, .missing_ms = 3 * 60000,
+                                .since_min = 0, .partial = true, .dated = true };
     return s;
 }
 

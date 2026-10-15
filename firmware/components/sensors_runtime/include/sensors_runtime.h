@@ -148,6 +148,13 @@ bool sensors_runtime_get_min_max(int64_t window_ms,
                                  sensor_sample_t *max_out);
 
 /**
+ * 1.6.8: min/max de las ULTIMAS 24 h (cubetas horarias, minmax24.h). Rellena
+ * pressure_kpa y flow_lpm de min_out/max_out; NAN en la senal que no tuvo dato
+ * valido. Devuelve true si alguna de las dos tiene datos.
+ */
+bool sensors_runtime_get_min_max_24h(sensor_sample_t *min_out, sensor_sample_t *max_out);
+
+/**
  * Extrae una serie de muestras dentro de la ventana de tiempo (para gráficas).
  * - window_ms: ventana hacia atrás en ms desde "ahora".
  * - out: buffer donde se copiarán las muestras (en orden cronológico ascendente).

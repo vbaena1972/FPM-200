@@ -2,6 +2,7 @@
 #include "driver_delay.h"
 #include "fpm_i2c_guard.h"
 #include "sensors_runtime.h"
+#include "minmax24.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -164,6 +165,7 @@ static sensor_sample_t s_buf[SENSORS_BUFFER_LEN];
 static int64_t s_last_pressure_ms = -1, s_last_flow_ms = -1;
 static size_t s_head = 0;  // próxima posición de escritura
 static size_t s_count = 0; // nº de elementos válidos en buffer
+static mm24_t s_mm24;      // min/max de 24 h (1.6.8), bajo s_lock
 
 static SemaphoreHandle_t s_lock = NULL;
 
@@ -671,8 +673,22 @@ void sensors_runtime_push_sample(const sensor_sample_t *s)
     s_head = (s_head + 1) % SENSORS_BUFFER_LEN;
     if (s_count < SENSORS_BUFFER_LEN)
         s_count++;
+    mm24_push(&s_mm24, s->ts_ms, s->pressure_kpa, !(s->invalid_mask & SENSOR_INVALID_PRESSURE),
+              s->flow_lpm, !(s->invalid_mask & SENSOR_INVALID_FLOW));
 
     unlock();
+}
+
+bool sensors_runtime_get_min_max_24h(sensor_sample_t *min_out, sensor_sample_t *max_out)
+{
+    sensor_sample_t mn = {0}, mx = {0};
+    lock();
+    mm24_get(&s_mm24, esp_timer_get_time() / 1000, &mn.pressure_kpa, &mx.pressure_kpa,
+             &mn.flow_lpm, &mx.flow_lpm);
+    unlock();
+    if (min_out) *min_out = mn;
+    if (max_out) *max_out = mx;
+    return isfinite(mn.pressure_kpa) || isfinite(mn.flow_lpm);
 }
 
 void sensors_runtime_report_faults(uint32_t faults)

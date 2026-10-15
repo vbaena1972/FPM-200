@@ -8,6 +8,7 @@
 #include "mqtt_client.h"
 #include "freertos/task.h"
 #include "esp_timer.h"
+#include "esp_system.h"   // esp_reset_reason (aviso de corte de energia, 1.6.8)
 #include "cJSON.h"
 #include <string.h>
 #include <time.h>
@@ -43,6 +44,16 @@ static char *s_safe_key = NULL;
 
 // === NUEVO: Para guardar el Serial y armar el Topic del Shadow ===
 static char s_thing_name[32] = {0};
+
+// 1.6.8: avisos de conexion/energia al topic /alarms (canal 0, esquema
+// medguard.alarm.v1 -> el alarm-router manda email + push). El corte se anuncia
+// con el Last Will (lo publica AWS ~1,5 x keepalive despues de perder al equipo);
+// al reconectar se publica "normal" con el motivo y, si fue un corte de energia,
+// los valores de consumo del ultimo guardado anterior al corte.
+static char s_lwt_topic[192];
+static char *s_lwt_msg;                       /* se arma una vez y vive siempre */
+static atomic_bool s_conn_event_pending = false;
+static bool s_boot_event_sent = false;        /* solo lo toca aws_pub */
 
 // ------------------------------------------------------------------
 // Config remota por Device Shadow CON NOMBRE "config" (DEC-023), igual que
@@ -252,6 +263,9 @@ static void mqtt_event(void *handler_args, esp_event_base_t base, int32_t event_
             ESP_LOGI(TAG, "Suscrito al shadow config (ID: %d): %s", msg_id, s_shadow_delta_topic);
             s_shadow_get_sub_id = esp_mqtt_client_subscribe(event->client, s_shadow_get_acc_topic, 1);
         }
+        // 1.6.8: aws_pub publica el aviso de conexion/energia (necesita hora valida).
+        s_conn_event_pending = true;
+        if (s_pub_task) xTaskNotifyGive(s_pub_task);
         break;
 
     case MQTT_EVENT_DISCONNECTED:
@@ -366,6 +380,120 @@ static void publish_alarm_transition(const char *alarm_topic, const char *device
     }
 }
 
+static const char *reset_reason_name(esp_reset_reason_t r)
+{
+    switch (r) {
+    case ESP_RST_POWERON:  return "power_on";
+    case ESP_RST_BROWNOUT: return "brownout";
+    case ESP_RST_SW:       return "software";
+    case ESP_RST_PANIC:    return "panic";
+    case ESP_RST_INT_WDT:
+    case ESP_RST_TASK_WDT:
+    case ESP_RST_WDT:      return "watchdog";
+    case ESP_RST_EXT:      return "external";
+    case ESP_RST_DEEPSLEEP:return "deepsleep";
+    default:               return "other";
+    }
+}
+
+// 1.6.8: aviso de conexion restablecida (cierra el Last Will "fault" del canal 0).
+// El primero tras el arranque informa el motivo; si fue un corte de energia
+// (power-on o brownout) incluye el inicio aproximado del corte (= ultimo guardado,
+// max. 2 min antes) y el consumo del dia y el total a esa hora.
+static void publish_connection_event(const char *alarm_topic, const char *device_id)
+{
+    const bool first = !s_boot_event_sent;
+    const esp_reset_reason_t rr = esp_reset_reason();
+    const bool power = first && (rr == ESP_RST_POWERON || rr == ESP_RST_BROWNOUT);
+    const time_t now = time(NULL);
+    const flow_meter_checkpoint_t cp = flow_meter_boot_checkpoint();
+
+    cJSON *root = cJSON_CreateObject();
+    if (!root) return;
+    cJSON_AddStringToObject(root, "schema", "medguard.alarm.v1");
+    cJSON_AddStringToObject(root, "device_id", device_id);
+    cJSON_AddStringToObject(root, "thing_name", device_id);
+    cJSON_AddNumberToObject(root, "timestamp", (double)now);
+    cJSON_AddNumberToObject(root, "channel_id", 0);
+    cJSON_AddStringToObject(root, "channel", power ? "Energia" : "Conexion");
+    cJSON_AddStringToObject(root, "previous_state", "fault");
+    cJSON_AddStringToObject(root, "state", "normal");
+    cJSON_AddStringToObject(root, "event", power ? "power_restored" : first ? "reboot" : "reconnected");
+    if (first) cJSON_AddStringToObject(root, "reset_reason", reset_reason_name(rr));
+
+    char detail[200];
+    if (power && cp.valid) {
+        cJSON_AddNumberToObject(root, "value", cp.day_m3);
+        cJSON_AddStringToObject(root, "unit", "m3");
+        cJSON_AddStringToObject(root, "consumption_date_at_cut", cp.date);
+        cJSON_AddNumberToObject(root, "consumption_day_m3_at_cut", cp.day_m3);
+        cJSON_AddNumberToObject(root, "consumption_total_m3_at_cut", cp.total_m3);
+        if (cp.saved_epoch > 0) {
+            const int64_t boot_epoch = (int64_t)now - esp_timer_get_time() / 1000000;
+            const int64_t outage_s = boot_epoch > cp.saved_epoch ? boot_epoch - cp.saved_epoch : 0;
+            cJSON_AddNumberToObject(root, "outage_start", (double)cp.saved_epoch);
+            cJSON_AddNumberToObject(root, "outage_s", (double)outage_s);
+            struct tm t;
+            time_t ts = (time_t)cp.saved_epoch;
+            localtime_r(&ts, &t);
+            snprintf(detail, sizeof detail,
+                     "Energia restablecida. Corte desde ~%02d/%02d %02d:%02d (%lld min). "
+                     "Consumo del dia al corte: %.3f m3; total: %.3f m3.",
+                     t.tm_mday, t.tm_mon + 1, t.tm_hour, t.tm_min, (long long)(outage_s / 60),
+                     cp.day_m3, cp.total_m3);
+        } else {
+            snprintf(detail, sizeof detail,
+                     "Energia restablecida. Consumo del dia al corte: %.3f m3; total: %.3f m3.",
+                     cp.day_m3, cp.total_m3);
+        }
+    } else if (power) {
+        snprintf(detail, sizeof detail, "Energia restablecida (sin guardado previo de consumo).");
+    } else if (first) {
+        snprintf(detail, sizeof detail, "Equipo reiniciado (%s).", reset_reason_name(rr));
+    } else {
+        snprintf(detail, sizeof detail, "Conexion con AWS restablecida.");
+    }
+    cJSON_AddStringToObject(root, "detail", detail);
+    if (!cJSON_GetObjectItem(root, "value")) {
+        cJSON_AddNullToObject(root, "value");
+        cJSON_AddStringToObject(root, "unit", "");
+    }
+
+    char *payload = cJSON_PrintUnformatted(root);
+    cJSON_Delete(root);
+    if (!payload) return;
+    int id = esp_mqtt_client_enqueue(s_client, alarm_topic, payload, 0, 1, 0, true);
+    ESP_LOGI(TAG, "Aviso de conexion publicado (id=%d): %s", id, detail);
+    free(payload);
+    s_boot_event_sent = true;
+}
+
+// Mensaje del Last Will: lo publica AWS si pierde al equipo sin DISCONNECT
+// (corte de energia, de red o reinicio). Se arma una sola vez.
+static void lwt_prepare(const AppConfig *c)
+{
+    snprintf(s_lwt_topic, sizeof(s_lwt_topic), "%s/%s/%s/%s/%s/alarms",
+             c->cloud.topic_base, c->general.partner, c->general.client,
+             c->general.model, c->general.serial);
+    if (s_lwt_msg) return;
+    cJSON *root = cJSON_CreateObject();
+    if (!root) return;
+    cJSON_AddStringToObject(root, "schema", "medguard.alarm.v1");
+    cJSON_AddStringToObject(root, "device_id", c->general.serial);
+    cJSON_AddStringToObject(root, "thing_name", c->general.serial);
+    cJSON_AddNumberToObject(root, "channel_id", 0);
+    cJSON_AddStringToObject(root, "channel", "Conexion");
+    cJSON_AddStringToObject(root, "previous_state", "normal");
+    cJSON_AddStringToObject(root, "state", "fault");
+    cJSON_AddStringToObject(root, "event", "offline");
+    cJSON_AddStringToObject(root, "detail",
+                            "Equipo sin conexion con AWS (corte de energia, de red o reinicio).");
+    cJSON_AddNullToObject(root, "value");
+    cJSON_AddStringToObject(root, "unit", "");
+    s_lwt_msg = cJSON_PrintUnformatted(root);
+    cJSON_Delete(root);
+}
+
 static void aws_telemetry_task(void *pvParameters)
 {
     char topic[256] = {0};
@@ -444,6 +572,11 @@ static void aws_telemetry_task(void *pvParameters)
             xSemaphoreGive(s_client_gate);
             continue;
         }
+        // 1.6.8: aviso de conexion/energia, con hora valida (el corte se fecha).
+        if (s_conn_event_pending && time(NULL) > 1704067200 /* 2024-01-01 */) {
+            s_conn_event_pending = false;
+            publish_connection_event(alarm_topic, serial);
+        }
 
         sensor_sample_t last;
         if (!sensors_runtime_get_last(&last))
@@ -495,6 +628,7 @@ static void aws_telemetry_task(void *pvParameters)
         cJSON *root = cJSON_CreateObject();
         flow_meter_snapshot_t meter = flow_meter_get();
         cJSON_AddNumberToObject(root, "consumption_m3", meter.volume_m3);
+        cJSON_AddNumberToObject(root, "consumption_total_m3", meter.total_m3);   // 1.6.8 totalizador
         cJSON_AddNumberToObject(root, "consumption_missing_ms", (double)meter.missing_ms);
         cJSON_AddBoolToObject(root, "consumption_partial", meter.partial || !meter.dated);
         cJSON_AddNumberToObject(root, "timestamp", (double)time(NULL)); // epoch s (SNTP listo)
@@ -628,6 +762,17 @@ static void mqtt_start_locked(void)
         .credentials.authentication.certificate = s_safe_cert,
         .credentials.authentication.key = s_safe_key,
         .broker.verification.certificate = s_safe_ca};
+    // 1.6.8: Last Will = aviso de "sin conexion" (corte de energia/red) que AWS
+    // publica solo, ~1,5 x keepalive despues de perder al equipo.
+    lwt_prepare(cfg_app);
+    if (s_lwt_msg) {
+        cfg.session.last_will.topic = s_lwt_topic;
+        cfg.session.last_will.msg = s_lwt_msg;
+        cfg.session.last_will.qos = 1;
+        cfg.session.last_will.retain = 0;
+    }
+    if (cfg_app->cloud.keepalive >= 30 && cfg_app->cloud.keepalive <= 1200)
+        cfg.session.keepalive = cfg_app->cloud.keepalive;   // AWS IoT: 30-1200 s
 
     s_client = esp_mqtt_client_init(&cfg);
     if (!s_client) { free(cfg_app); ESP_LOGE(TAG, "MQTT init failed"); return; }

@@ -30,7 +30,9 @@ del sistema con la ruta completa:
 
 | Comando | Qué muestra |
 |---|---|
-| `Simulator\build\Debug\fpm200_sim.exe` | Pantalla principal (480×320 ×2); cicla NORMAL → ADVERTENCIA (flujo) → ADVERTENCIA (presión baja) → ADVERTENCIA SILENCIADA → ALARMA → SILENCIADA cada 2,5 s |
+| `Simulator\build\Debug\fpm200_sim.exe` | Pantalla principal (480×320 ×2); cicla NORMAL → ADVERTENCIA (flujo) → ADVERTENCIA (presión baja) → ADVERTENCIA SILENCIADA → 2 ADVERTENCIAS → ALARMA → 3 ALARMAS → SILENCIADA cada 2,5 s |
+| `Simulator\build\Debug\fpm200_sim.exe esc 4` | Fija un escenario (0…7; 4 = 2 advertencias, 6 = 3 alarmas) |
+| `Simulator\build\Debug\fpm200_sim.exe esc 6 det` | Igual y abre el **detalle de alarmas** a los 4 s (lista con valores en vivo) |
 | `Simulator\build\Debug\fpm200_sim.exe login` | Abre el **login** a los 4 s (tras el arranque) |
 
 - Toques = clic del ratón. La hora es la del PC.

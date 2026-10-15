@@ -40,6 +40,17 @@ alarm_clinical_state_t alarm_mgr_get_current_state(void);
 bool alarm_mgr_is_muted(void);
 uint32_t alarm_mgr_get_sensor_faults(void);
 
+// 1.6.8: condiciones de alarma activas (bits). Varias pueden estar activas a la
+// vez (p. ej. presion baja + flujo alto); la UI las cuenta y las lista.
+#define ALARM_COND_P_LOW      0x01u   // presion bajo el minimo
+#define ALARM_COND_P_HIGH     0x02u   // presion sobre el maximo
+#define ALARM_COND_FLOW_DELTA 0x04u   // variacion brusca de flujo (posible fuga)
+#define ALARM_COND_FLOW_HIGH  0x08u   // flujo sobre el limite
+#define ALARM_COND_SENSOR     0x10u   // falla de sensores (alarma tecnica)
+// Condiciones de la ultima evaluacion. *critical (opcional) marca las que estan
+// en banda CRITICA (presion mas de 15 kPa mas alla del limite).
+uint32_t alarm_mgr_get_active_conditions(uint32_t *critical);
+
 #ifdef __cplusplus
 }
 #endif

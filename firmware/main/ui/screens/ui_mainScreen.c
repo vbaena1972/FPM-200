@@ -94,9 +94,11 @@ static char    s_clock_prev[8] = "";
 /* --- Cabecera / banner / consumo / gas --- */
 static lv_obj_t *s_brand_lbl, *s_sub_lbl, *s_clock_lbl, *s_date_lbl;
 static lv_obj_t *s_banner, *s_banner_icon, *s_banner_txt, *s_banner_sub, *s_banner_right, *s_banner_right_ic, *s_banner_right_tx;
-static lv_obj_t *s_consumo_val, *s_consumo_badge, *s_consumo_badge_tx;
-static lv_obj_t *s_consumo_cap = NULL;   /* caption "CONSUMO" (retraducible) */
-static lv_obj_t *s_consumo_sub = NULL;   /* subtítulo "· desde 00:00 ..." */
+static lv_obj_t *s_consumo_val;
+static lv_obj_t *s_consumo_cap = NULL;   /* caption "HOY" (retraducible) */
+static lv_obj_t *s_consumo_sub = NULL;   /* "desde HH:MM" (inicio real del conteo de hoy) */
+static lv_obj_t *s_consumo_miss = NULL;  /* "N min sin medir" (antes la pildora PARCIAL) */
+static lv_obj_t *s_total_cap = NULL, *s_total_val = NULL;   /* totalizador (1.6.8) */
 static lv_obj_t *s_gas_banner, *s_gas_lbl;
 static lv_obj_t *s_menu_pop = NULL;
 static lv_obj_t *s_alarm_overlay = NULL;
@@ -105,6 +107,14 @@ static bool s_alarm_have_last = false;
 static alarm_clinical_state_t s_alarm_state = ALARM_STATE_NORMAL;
 static bool s_alarm_muted = false;
 static uint32_t s_alarm_faults = 0;
+static uint32_t s_alarm_conds = 0;    /* 1.6.8: condiciones activas (alarm_mgr) */
+static uint32_t s_alarm_crit = 0;     /* ... de esas, las de banda critica */
+/* Overlay de alarmas: firma con la que se armo + valores en vivo por condicion. */
+#define OV_MAX 5
+static uint32_t s_ov_sig = 0;
+static int s_ov_n = 0;
+static uint32_t s_ov_bit[OV_MAX];
+static lv_obj_t *s_ov_val[OV_MAX];
 
 
 /* ---------- helpers ---------- */
@@ -378,7 +388,11 @@ static void update_metric_card(metric_card_t *m, float value_disp, float frac,
     set_bg_opa_if(m->pill, LV_OPA_40);
     set_label_if_changed(m->pill_state, state_txt);
     set_txt_color(m->pill_state, accent);
-    snprintf(buf, sizeof(buf), "24H %.*f / %.*f", dec, mn_disp, dec, mx_disp);
+    /* 1.6.8: min/max de las ultimas 24 h (NAN = aun sin dato valido -> "--"). */
+    char mn_s[16] = "--", mx_s[16] = "--";
+    if (isfinite(mn_disp)) snprintf(mn_s, sizeof(mn_s), "%.*f", dec, mn_disp);
+    if (isfinite(mx_disp)) snprintf(mx_s, sizeof(mx_s), "%.*f", dec, mx_disp);
+    snprintf(buf, sizeof(buf), "24H %s / %s", mn_s, mx_s);
     set_label_if_changed(m->pill_mm, buf);
 
     /* 1.5.33: con un estado largo ("ESTABILIZANDO", "SIN DATO NUEVO") los dos
@@ -428,44 +442,170 @@ static void menu_open_cb(lv_event_t *e)
 {
     (void)e; if(s_menu_pop){menu_close();return;} s_menu_pop=lv_obj_create(lv_layer_top()); lv_obj_remove_style_all(s_menu_pop); lv_obj_set_size(s_menu_pop,LV_PCT(100),LV_PCT(100)); lv_obj_add_flag(s_menu_pop,LV_OBJ_FLAG_CLICKABLE); lv_obj_clear_flag(s_menu_pop,LV_OBJ_FLAG_SCROLLABLE); lv_obj_add_event_cb(s_menu_pop,menu_scrim_cb,LV_EVENT_CLICKED,NULL); lv_obj_t *p=ui_card(s_menu_pop); lv_obj_set_size(p,190,LV_SIZE_CONTENT); lv_obj_set_pos(p,278,46); lv_obj_set_style_pad_all(p,6,0); lv_obj_set_style_pad_row(p,2,0); lv_obj_set_style_shadow_width(p,24,0); lv_obj_set_style_shadow_opa(p,LV_OPA_40,0); lv_obj_set_flex_flow(p,LV_FLEX_FLOW_COLUMN); menu_add_item(p,LV_SYMBOL_EYE_OPEN,"Información",0,true); menu_add_item(p,LV_SYMBOL_FILE,"Logs",1,true); menu_add_item(p,LV_SYMBOL_SETTINGS,"Configuración",2,true); menu_add_item(p,LV_SYMBOL_BLUETOOTH,"Bluetooth",3,true);
 }
-/* Causa de la alarma (misma regla que alarm_mgr: solo cuentan los limites habilitados). */
-typedef enum { CAUSE_FAULT, CAUSE_NO_DATA, CAUSE_P_LOW, CAUSE_P_HIGH, CAUSE_FLOW } alarm_cause_t;
-static alarm_cause_t alarm_cause(const AppConfig *c)
+/* ---------- condiciones de alarma (1.6.8: pueden ser varias a la vez) ---------- */
+/* Orden de presentacion: presion, flujo, sensores. */
+static const uint32_t COND_ORDER[OV_MAX] = { ALARM_COND_P_LOW, ALARM_COND_P_HIGH, ALARM_COND_FLOW_HIGH,
+                                             ALARM_COND_FLOW_DELTA, ALARM_COND_SENSOR };
+static int cond_count(uint32_t c) { int n = 0; for (; c; c >>= 1) n += (int)(c & 1u); return n; }
+static const char *cond_title(uint32_t bit)
 {
-    if (s_alarm_faults) return CAUSE_FAULT;
-    if (!s_alarm_have_last || !c) return CAUSE_NO_DATA;
-    const float p = s_alarm_last.pressure_kpa;
-    if (c->sensors.alarm_limits.pressure_min_enabled && p < c->sensors.alarm_limits.pressure_min) return CAUSE_P_LOW;
-    if (c->sensors.alarm_limits.pressure_max_enabled && p > c->sensors.alarm_limits.pressure_max) return CAUSE_P_HIGH;
-    return CAUSE_FLOW;
-}
-static const char *alarm_condition(const AppConfig *c){static const char *const T[]={"FALLA MODULO SENSORES","FALLA DE MEDICION","PRESION BAJA","PRESION ALTA","ALARMA DE FLUJO"};return T[alarm_cause(c)];}
-/* Subtitulo corto del banner superior: la causa, no un generico "vigilar". */
-static const char *banner_cause(const AppConfig *c)
-{
-    switch (alarm_cause(c)) {
-    case CAUSE_FAULT:   return _t("· falla de sensores");
-    case CAUSE_NO_DATA: return _t("· sin medición");
-    case CAUSE_P_LOW:   return _t("· presión baja");
-    case CAUSE_P_HIGH:  return _t("· presión alta");
-    default:            return _t("· flujo anormal");
+    switch (bit) {
+    case ALARM_COND_P_LOW:      return _t("PRESIÓN BAJA");
+    case ALARM_COND_P_HIGH:     return _t("PRESIÓN ALTA");
+    case ALARM_COND_FLOW_HIGH:  return _t("FLUJO ALTO");
+    case ALARM_COND_FLOW_DELTA: return _t("VARIACIÓN DE FLUJO");
+    default:                    return _t("FALLA DE SENSORES");
     }
 }
-static void alarm_overlay_close(void){if(s_alarm_overlay){lv_obj_delete_async(s_alarm_overlay);s_alarm_overlay=NULL;}}
+/* Subtitulo corto del banner para UNA condicion (la causa, no un generico "vigilar"). */
+static const char *cond_banner(uint32_t bit)
+{
+    switch (bit) {
+    case ALARM_COND_P_LOW:      return _t("· presión baja");
+    case ALARM_COND_P_HIGH:     return _t("· presión alta");
+    case ALARM_COND_SENSOR:     return _t("· falla de sensores");
+    default:                    return _t("· flujo anormal");
+    }
+}
+/* Subtitulo del banner: la causa si es una; con varias, "· presión + flujo". */
+static const char *banner_cause(void)
+{
+    static char buf[64];
+    uint32_t c = s_alarm_conds;
+    int n = cond_count(c);
+    if (n == 0) return s_alarm_have_last ? _t("· revisar línea") : _t("· sin medición");
+    if (n == 1) return cond_banner(c);
+    const char *w[3]; int k = 0;
+    if (c & (ALARM_COND_P_LOW | ALARM_COND_P_HIGH))         w[k++] = _t("presión");
+    if (c & (ALARM_COND_FLOW_HIGH | ALARM_COND_FLOW_DELTA)) w[k++] = _t("flujo");
+    if (c & ALARM_COND_SENSOR)                              w[k++] = _t("sensores");
+    size_t used = (size_t)snprintf(buf, sizeof(buf), "·");
+    for (int i = 0; i < k && used < sizeof(buf); i++)
+        used += (size_t)snprintf(buf + used, sizeof(buf) - used, "%s%s", i ? " + " : " ", w[i]);
+    return buf;
+}
+/* Valor actual y texto de limite de una condicion, en las unidades configuradas. */
+static void cond_detail(uint32_t bit, const AppConfig *c, char *val, size_t vn,
+                        char *unit, size_t un, char *lim, size_t ln)
+{
+    snprintf(val, vn, "--"); unit[0] = '\0'; lim[0] = '\0';
+    if (bit == ALARM_COND_SENSOR) {
+        snprintf(lim, ln, "%s", _t("sin datos válidos: revisar módulo y cable I2C"));
+        return;
+    }
+    if (!s_alarm_have_last || !c) return;
+    const char *pu = c->sensors.pressure_unit, *fu = c->sensors.flow_unit;
+    if (bit == ALARM_COND_P_LOW || bit == ALARM_COND_P_HIGH) {
+        int dec = press_unit_min_dec(pu); if (s_decimals > dec) dec = s_decimals;
+        bool lo = bit == ALARM_COND_P_LOW;
+        float lim_kpa = lo ? c->sensors.alarm_limits.pressure_min : c->sensors.alarm_limits.pressure_max;
+        snprintf(val, vn, "%.*f", dec, (double)pressure_to_disp(s_alarm_last.pressure_kpa, pu));
+        snprintf(unit, un, "%s", pu);
+        snprintf(lim, ln, "%s %.*f %s", lo ? _t("mínimo") : _t("máximo"), dec,
+                 (double)pressure_to_disp(lim_kpa, pu), pu);
+        return;
+    }
+    int dec = flow_unit_min_dec(fu); if (s_decimals > dec) dec = s_decimals;
+    snprintf(val, vn, "%.*f", dec, (double)flow_to_disp(s_alarm_last.flow_lpm, fu));
+    snprintf(unit, un, "%s", fu);
+    if (bit == ALARM_COND_FLOW_HIGH)
+        snprintf(lim, ln, "%s %.*f %s", _t("límite"), dec,
+                 (double)flow_to_disp(c->sensors.alarm_limits.flow_high_limit, fu), fu);
+    else
+        snprintf(lim, ln, "%s", _t("cambio brusco de flujo: posible fuga"));
+}
+static uint32_t overlay_signature(void)
+{
+    return s_alarm_conds | (s_alarm_crit << 8) | ((uint32_t)s_alarm_state << 16) |
+           ((uint32_t)s_alarm_muted << 20);
+}
+static void alarm_overlay_close(void)
+{
+    if (s_alarm_overlay) { lv_obj_delete_async(s_alarm_overlay); s_alarm_overlay = NULL; }
+    s_ov_n = 0;
+}
 static void alarm_overlay_close_cb(lv_event_t *e){(void)e;alarm_overlay_close();}
 static void alarm_overlay_silence_cb(lv_event_t *e){(void)e;if(!s_alarm_muted)alarm_mgr_press_mute();alarm_overlay_close();}
+/* Fila de la lista (2 o mas condiciones): punto de severidad, nombre + limite, valor en vivo. */
+static void overlay_row(lv_obj_t *list, uint32_t bit, const AppConfig *c)
+{
+    bool crit = (s_alarm_crit & bit) != 0;
+    char val[24], unit[12], lim[64];
+    cond_detail(bit, c, val, sizeof val, unit, sizeof unit, lim, sizeof lim);
+    lv_obj_t *r = ui_box(list);
+    lv_obj_set_size(r, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_obj_set_style_bg_color(r, ui_col(0x000000), 0);
+    lv_obj_set_style_bg_opa(r, LV_OPA_30, 0);
+    lv_obj_set_style_radius(r, 8, 0);
+    lv_obj_set_style_border_width(r, 1, 0);
+    lv_obj_set_style_border_color(r, ui_col(crit ? UI_C_ALARM : UI_C_WARN), 0);
+    lv_obj_set_style_pad_hor(r, 10, 0);
+    lv_obj_set_style_pad_ver(r, 4, 0);
+    lv_obj_set_style_pad_column(r, 9, 0);
+    lv_obj_set_flex_flow(r, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(r, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_t *dot = ui_box(r);
+    lv_obj_set_size(dot, 10, 10);
+    lv_obj_set_style_radius(dot, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_bg_color(dot, ui_col(crit ? UI_C_ALARM : UI_C_WARN), 0);
+    lv_obj_set_style_bg_opa(dot, LV_OPA_COVER, 0);
+    lv_obj_t *col = ui_box(r);
+    lv_obj_set_height(col, LV_SIZE_CONTENT);
+    lv_obj_set_flex_grow(col, 1);
+    lv_obj_set_flex_flow(col, LV_FLEX_FLOW_COLUMN);
+    ui_label(col, cond_title(bit), UI_FONT_MD, crit ? UI_C_ALARM_SOFT : UI_C_WARN_SOFT);
+    ui_label(col, lim, UI_FONT_XS, UI_C_TEXT_3);
+    lv_obj_t *v = ui_label(r, val, UI_FONT_LG, UI_C_TEXT_STRONG);
+    ui_label(r, unit, UI_FONT_XS, UI_C_TEXT_2);
+    if (s_ov_n < OV_MAX) { s_ov_bit[s_ov_n] = bit; s_ov_val[s_ov_n] = v; s_ov_n++; }
+}
 static void alarm_overlay_open(void)
 {
     if (s_alarm_overlay || s_alarm_state == ALARM_STATE_NORMAL) return;
     const AppConfig *c=appcfg_cache_peek(); bool crit=s_alarm_state==ALARM_STATE_ALERT; uint32_t ac=crit?UI_C_ALARM:UI_C_WARN;
+    const int n = cond_count(s_alarm_conds);
+    s_ov_sig = overlay_signature();
+    s_ov_n = 0;
     s_alarm_overlay=lv_obj_create(lv_layer_top()); lv_obj_set_size(s_alarm_overlay,LV_PCT(100),LV_PCT(100)); lv_obj_set_style_bg_color(s_alarm_overlay,ui_col(crit?0x210d10:0x211a08),0); set_bg_opa_if(s_alarm_overlay, LV_OPA_COVER);
-    lv_obj_set_style_border_width(s_alarm_overlay,5,0); lv_obj_set_style_border_color(s_alarm_overlay,ui_col(ac),0); lv_obj_set_style_pad_all(s_alarm_overlay,14,0); lv_obj_set_flex_flow(s_alarm_overlay,LV_FLEX_FLOW_COLUMN); lv_obj_clear_flag(s_alarm_overlay,LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_t *h=ui_box(s_alarm_overlay);lv_obj_set_size(h,LV_PCT(100),36);lv_obj_set_flex_flow(h,LV_FLEX_FLOW_ROW);lv_obj_set_flex_align(h,LV_FLEX_ALIGN_SPACE_BETWEEN,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_CENTER);lv_obj_t *hl=ui_box(h);lv_obj_set_size(hl,LV_SIZE_CONTENT,36);lv_obj_set_flex_flow(hl,LV_FLEX_FLOW_ROW);lv_obj_set_flex_align(hl,LV_FLEX_ALIGN_START,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_CENTER);lv_obj_set_style_pad_column(hl,8,0);ui_icon(hl,UI_SYM_ALERT_TRIANGLE,UI_ICON_MD,ac);ui_label(hl,crit?"ALARMA":"ADVERTENCIA",UI_FONT_XL,0xffe3e3);lv_obj_t *bk=ui_icon_badge(h,UI_SYM_ARROW_LEFT,UI_ICON_SM,UI_C_TEXT,0x35191c,34);lv_obj_add_flag(bk,LV_OBJ_FLAG_CLICKABLE);lv_obj_add_event_cb(bk,alarm_overlay_close_cb,LV_EVENT_CLICKED,NULL);
-    lv_obj_t *ct=ui_box(s_alarm_overlay);lv_obj_set_width(ct,LV_PCT(100));lv_obj_set_flex_grow(ct,1);lv_obj_set_flex_flow(ct,LV_FLEX_FLOW_COLUMN);lv_obj_set_flex_align(ct,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_CENTER);lv_obj_set_style_pad_row(ct,5,0);ui_label(ct,alarm_condition(c),UI_FONT_XL,crit?UI_C_ALARM_SOFT:UI_C_WARN_SOFT);char val[24]="--",unit[12]="",lim[64]="";
-    if(s_alarm_faults){snprintf(lim,sizeof(lim),"sin datos validos - revisar modulo y cable I2C");}else if(s_alarm_have_last&&c){bool p=s_alarm_last.pressure_kpa<c->sensors.alarm_limits.pressure_min||s_alarm_last.pressure_kpa>c->sensors.alarm_limits.pressure_max;if(p){float v=pressure_to_disp(s_alarm_last.pressure_kpa,c->sensors.pressure_unit);float t=pressure_to_disp(s_alarm_last.pressure_kpa<c->sensors.alarm_limits.pressure_min?c->sensors.alarm_limits.pressure_min:c->sensors.alarm_limits.pressure_max,c->sensors.pressure_unit);snprintf(val,sizeof(val),"%.0f",(double)v);snprintf(unit,sizeof(unit),"%s",c->sensors.pressure_unit);snprintf(lim,sizeof(lim),"valor %s %.0f %s",s_alarm_last.pressure_kpa<c->sensors.alarm_limits.pressure_min?"<":">",(double)t,c->sensors.pressure_unit);}else{snprintf(val,sizeof(val),"%.0f",(double)flow_to_disp(s_alarm_last.flow_lpm,c->sensors.flow_unit));snprintf(unit,sizeof(unit),"%s",c->sensors.flow_unit);snprintf(lim,sizeof(lim),"flujo por encima de lo habitual");}}
-    lv_obj_t *vr=ui_box(ct);lv_obj_set_size(vr,LV_SIZE_CONTENT,LV_SIZE_CONTENT);lv_obj_set_flex_flow(vr,LV_FLEX_FLOW_ROW);lv_obj_set_flex_align(vr,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_END,LV_FLEX_ALIGN_END);lv_obj_set_style_pad_column(vr,7,0);ui_label(vr,val,UI_FONT_HUGE,UI_C_TEXT_STRONG);ui_label(vr,unit,UI_FONT_LG,UI_C_TEXT_2);ui_label(ct,lim,UI_FONT_SM,crit?UI_C_ALARM_SOFT:UI_C_WARN_DIM);
-    lv_obj_t *s=ui_box(s_alarm_overlay);lv_obj_set_size(s,LV_PCT(100),48);ui_style_button(s,0xf1f3f5);lv_obj_add_flag(s,LV_OBJ_FLAG_CLICKABLE);/* ADVERTENCIA tambien se silencia (alarm_mgr: por reannounce_minutes; si escala a ALARMA el silencio se rompe) */
-    lv_obj_add_event_cb(s,s_alarm_muted?alarm_overlay_close_cb:alarm_overlay_silence_cb,LV_EVENT_CLICKED,NULL);lv_obj_center(ui_label(s,s_alarm_muted?"Volver":(crit?"Silenciar alarma":"Silenciar advertencia"),UI_FONT_MD,0x2a1416));
+    lv_obj_set_style_border_width(s_alarm_overlay,5,0); lv_obj_set_style_border_color(s_alarm_overlay,ui_col(ac),0); lv_obj_set_style_pad_all(s_alarm_overlay,14,0); lv_obj_set_style_pad_row(s_alarm_overlay,6,0); lv_obj_set_flex_flow(s_alarm_overlay,LV_FLEX_FLOW_COLUMN); lv_obj_clear_flag(s_alarm_overlay,LV_OBJ_FLAG_SCROLLABLE);
+    /* Encabezado: "ALARMA"/"ADVERTENCIA", o "N ALARMAS"/"N ADVERTENCIAS" si hay varias. */
+    char head[32];
+    if (n >= 2) snprintf(head, sizeof head, "%d %s", n, crit ? _t("ALARMAS") : _t("ADVERTENCIAS"));
+    else snprintf(head, sizeof head, "%s", crit ? _t("ALARMA") : _t("ADVERTENCIA"));
+    lv_obj_t *h=ui_box(s_alarm_overlay);lv_obj_set_size(h,LV_PCT(100),36);lv_obj_set_flex_flow(h,LV_FLEX_FLOW_ROW);lv_obj_set_flex_align(h,LV_FLEX_ALIGN_SPACE_BETWEEN,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_CENTER);lv_obj_t *hl=ui_box(h);lv_obj_set_size(hl,LV_SIZE_CONTENT,36);lv_obj_set_flex_flow(hl,LV_FLEX_FLOW_ROW);lv_obj_set_flex_align(hl,LV_FLEX_ALIGN_START,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_CENTER);lv_obj_set_style_pad_column(hl,8,0);ui_icon(hl,UI_SYM_ALERT_TRIANGLE,UI_ICON_MD,ac);ui_label(hl,head,UI_FONT_XL,0xffe3e3);lv_obj_t *bk=ui_icon_badge(h,UI_SYM_ARROW_LEFT,UI_ICON_SM,UI_C_TEXT,0x35191c,34);lv_obj_add_flag(bk,LV_OBJ_FLAG_CLICKABLE);lv_obj_add_event_cb(bk,alarm_overlay_close_cb,LV_EVENT_CLICKED,NULL);
+    lv_obj_t *ct=ui_box(s_alarm_overlay);lv_obj_set_width(ct,LV_PCT(100));lv_obj_set_flex_grow(ct,1);lv_obj_set_flex_flow(ct,LV_FLEX_FLOW_COLUMN);lv_obj_clear_flag(ct,LV_OBJ_FLAG_SCROLLABLE);
+    if (n >= 2) {
+        /* Varias condiciones: lista (como "Alarmas activas" de MedGuard). */
+        lv_obj_set_flex_align(ct,LV_FLEX_ALIGN_START,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_CENTER);
+        lv_obj_set_style_pad_row(ct,5,0);
+        for (int i = 0; i < OV_MAX; i++)
+            if (s_alarm_conds & COND_ORDER[i]) overlay_row(ct, COND_ORDER[i], c);
+    } else {
+        /* Una condicion: nombre, valor grande en vivo y limite. */
+        uint32_t bit = s_alarm_conds ? s_alarm_conds : ALARM_COND_SENSOR;
+        char val[24], unit[12], lim[64];
+        cond_detail(bit, c, val, sizeof val, unit, sizeof unit, lim, sizeof lim);
+        lv_obj_set_flex_align(ct,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_CENTER);lv_obj_set_style_pad_row(ct,5,0);
+        ui_label(ct,s_alarm_conds?cond_title(bit):_t("FALLA DE MEDICIÓN"),UI_FONT_XL,crit?UI_C_ALARM_SOFT:UI_C_WARN_SOFT);
+        lv_obj_t *vr=ui_box(ct);lv_obj_set_size(vr,LV_SIZE_CONTENT,LV_SIZE_CONTENT);lv_obj_set_flex_flow(vr,LV_FLEX_FLOW_ROW);lv_obj_set_flex_align(vr,LV_FLEX_ALIGN_CENTER,LV_FLEX_ALIGN_END,LV_FLEX_ALIGN_END);lv_obj_set_style_pad_column(vr,7,0);
+        lv_obj_t *v=ui_label(vr,val,UI_FONT_HUGE,UI_C_TEXT_STRONG);ui_label(vr,unit,UI_FONT_LG,UI_C_TEXT_2);ui_label(ct,lim,UI_FONT_SM,crit?UI_C_ALARM_SOFT:UI_C_WARN_DIM);
+        if (s_alarm_conds) { s_ov_bit[0] = bit; s_ov_val[0] = v; s_ov_n = 1; }
+    }
+    lv_obj_t *s=ui_box(s_alarm_overlay);lv_obj_set_size(s,LV_PCT(100),44);ui_style_button(s,0xf1f3f5);lv_obj_add_flag(s,LV_OBJ_FLAG_CLICKABLE);/* ADVERTENCIA tambien se silencia (alarm_mgr: por reannounce_minutes; si escala a ALARMA el silencio se rompe) */
+    lv_obj_add_event_cb(s,s_alarm_muted?alarm_overlay_close_cb:alarm_overlay_silence_cb,LV_EVENT_CLICKED,NULL);lv_obj_center(ui_label(s,s_alarm_muted?_t("Volver"):(crit?_t("Silenciar alarma"):_t("Silenciar advertencia")),UI_FONT_MD,0x2a1416));
+}
+/* Llamada desde ui_main_update: valores en vivo y reconstruccion si cambiaron las
+ * condiciones (aparece una nueva, escala, se silencia). Sin alarma, se cierra. */
+static void alarm_overlay_refresh(const AppConfig *c)
+{
+    if (!s_alarm_overlay) return;
+    if (s_alarm_state == ALARM_STATE_NORMAL) { alarm_overlay_close(); return; }
+    if (overlay_signature() != s_ov_sig) { alarm_overlay_close(); alarm_overlay_open(); return; }
+    for (int i = 0; i < s_ov_n; i++) {
+        char val[24], unit[12], lim[64];
+        cond_detail(s_ov_bit[i], c, val, sizeof val, unit, sizeof unit, lim, sizeof lim);
+        set_label_if_changed(s_ov_val[i], val);
+    }
 }
 
 /* ---------- construcción de la pantalla ---------- */
@@ -602,21 +742,27 @@ void ui_mainScreen_screen_init(void)
     lv_obj_set_flex_flow(cons, LV_FLEX_FLOW_ROW);
     lv_obj_set_flex_align(cons, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_style_pad_column(cons, 7, 0);
+    /* 1.6.8: HOY (se reinicia a las 00:00; persistido cada 2 min) | TOTAL (totalizador
+     * de vida, persistente, ningun restablecer lo borra). La pildora "PARCIAL" se
+     * reemplazo por "N min sin medir" (lo que en realidad significaba). */
     ui_icon(cons, UI_SYM_CHART_BAR, UI_ICON_SM, UI_C_TEXT_3);
-    s_consumo_cap = ui_label(cons, _t("CONSUMO"), UI_FONT_XS, UI_C_TEXT_3);
+    s_consumo_cap = ui_label(cons, _t("HOY"), UI_FONT_XS, UI_C_TEXT_3);
     lv_obj_set_style_text_letter_space(s_consumo_cap, 1, 0);
-    s_consumo_val = ui_label(cons, "-- m³ hoy", UI_FONT_XXL, UI_C_TEXT_STRONG);
-    lv_obj_set_style_margin_left(s_consumo_val, 4, 0);
-    /* Subtítulo como el mockup ("· desde 00:00 · acum. mes ...").
-     * El acumulado mensual necesita un contador persistente (pendiente); por
-     * ahora se muestra el origen del conteo diario. flex_grow empuja el badge. */
-    s_consumo_sub = ui_label(cons, _t("· desde 00:00"), UI_FONT_XS, UI_C_TEXT_MUTED);
-    lv_obj_set_style_margin_left(s_consumo_sub, 6, 0);
-    lv_obj_set_flex_grow(s_consumo_sub, 1);
-    s_consumo_badge = ui_pill(cons, "--", UI_FONT_XS, UI_C_OK_DIM, UI_C_OK_BG, UI_C_OK_BORDER);
-    lv_obj_set_style_margin_left(s_consumo_badge, 8, 0);
-    s_consumo_badge_tx = lv_obj_get_child(s_consumo_badge, 0);
-    set_hidden(s_consumo_badge, true); /* oculto hasta tener datos reales (consumo m³) */
+    s_consumo_val = ui_label(cons, "--", UI_FONT_XL, UI_C_TEXT_STRONG);
+    lv_obj_t *since = ui_box(cons);
+    lv_obj_set_size(since, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_flex_flow(since, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_grow(since, 1);
+    s_consumo_sub = ui_label(since, _t("sin hora"), UI_FONT_XS, UI_C_TEXT_MUTED);
+    s_consumo_miss = ui_label(since, "", UI_FONT_XS, UI_C_WARN_DIM);
+    set_hidden(s_consumo_miss, true);
+    lv_obj_t *vsep = ui_box(cons);
+    lv_obj_set_size(vsep, 1, 26);
+    lv_obj_set_style_bg_color(vsep, ui_col(UI_C_BORDER), 0);
+    set_bg_opa_if(vsep, LV_OPA_COVER);
+    s_total_cap = ui_label(cons, _t("TOTAL"), UI_FONT_XS, UI_C_TEXT_3);
+    lv_obj_set_style_text_letter_space(s_total_cap, 1, 0);
+    s_total_val = ui_label(cons, "--", UI_FONT_XL, UI_C_TEXT_STRONG);
 
     /* ===== Banner de gas ===== */
     s_gas_banner = ui_box(ui_mainScreen);
@@ -712,13 +858,26 @@ void ui_main_apply_config(const AppConfig *cfg)
      * recrean al abrirse y no lo necesitan). save_and_refresh() pasa por aquí. */
     if (s_press.title)  set_label_if_changed(s_press.title, _t("PRESIÓN"));
     if (s_flow.title)   set_label_if_changed(s_flow.title, _t("FLUJO"));
-    if (s_consumo_cap)  set_label_if_changed(s_consumo_cap, _t("CONSUMO"));
-    if (s_consumo_sub)  set_label_if_changed(s_consumo_sub, _t("· desde 00:00"));
+    if (s_consumo_cap)  set_label_if_changed(s_consumo_cap, _t("HOY"));
+    if (s_total_cap)    set_label_if_changed(s_total_cap, _t("TOTAL"));
 }
 
 /* Banner por estado */
 static void set_banner(alarm_clinical_state_t st, bool muted, const AppConfig *cfg)
 {
+    /* 1.6.8: con 2 o mas condiciones el titulo las cuenta ("2 ADVERTENCIAS",
+     * "2 ALARMAS" si alguna es critica) y el subtitulo nombra las causas. */
+    const int n = cond_count(s_alarm_conds);
+    char title[32];
+    if (st != ALARM_STATE_NORMAL && n >= 2)
+        snprintf(title, sizeof title, "%d %s", n,
+                 st == ALARM_STATE_ALERT ? _t("ALARMAS") : _t("ADVERTENCIAS"));
+    else
+        snprintf(title, sizeof title, "%s", st == ALARM_STATE_ALERT ? _t("ALARMA") : _t("ADVERTENCIA"));
+    /* Pildora derecha: "silenciada" o "buzzer activo" (ADVERTENCIA y ALARMA por igual),
+     * salvo que el tono de ese nivel este deshabilitado en la config. */
+    const bool tone_on = st == ALARM_STATE_ALERT ? cfg->general.alarm.tone_alert
+                                                 : cfg->general.alarm.tone_warn;
     if (st == ALARM_STATE_NORMAL) {
         set_bg(s_banner, UI_C_OK_BG); set_border(s_banner, UI_C_OK_BORDER);
         set_bg_opa_if(s_banner, LV_OPA_COVER);
@@ -730,30 +889,21 @@ static void set_banner(alarm_clinical_state_t st, bool muted, const AppConfig *c
         set_bg(s_banner, UI_C_WARN_BG); set_border(s_banner, UI_C_WARN_BORDER);
         set_bg_opa_if(s_banner, LV_OPA_COVER);
         set_label_if_changed(s_banner_icon, UI_SYM_ALERT_TRIANGLE); set_txt_color(s_banner_icon, UI_C_WARN);
-        set_label_if_changed(s_banner_txt, _t("ADVERTENCIA")); set_txt_color(s_banner_txt, UI_C_WARN_SOFT);
-        set_label_if_changed(s_banner_sub, banner_cause(cfg)); set_txt_color(s_banner_sub, UI_C_WARN_DIM);
-        set_hidden(s_banner_right, !muted);   /* silenciada: se indica (como en ALARMA) */
-        if (muted) {
-            set_label_if_changed(s_banner_right_ic, UI_SYM_BELL_OFF);
-            set_label_if_changed(s_banner_right_tx, _t("silenciada"));
-            set_txt_color(s_banner_right_ic, UI_C_WARN_SOFT); set_txt_color(s_banner_right_tx, UI_C_WARN_SOFT);
-        }
+        set_label_if_changed(s_banner_txt, title); set_txt_color(s_banner_txt, UI_C_WARN_SOFT);
+        set_label_if_changed(s_banner_sub, banner_cause()); set_txt_color(s_banner_sub, UI_C_WARN_DIM);
+        set_txt_color(s_banner_right_ic, UI_C_WARN_SOFT); set_txt_color(s_banner_right_tx, UI_C_WARN_SOFT);
     } else { /* ALERT */
         set_bg(s_banner, UI_C_ALARM_BG); set_border(s_banner, UI_C_ALARM_BORDER);
         set_bg_opa_if(s_banner, LV_OPA_COVER);
         set_label_if_changed(s_banner_icon, UI_SYM_ALERT_TRIANGLE_FILLED); set_txt_color(s_banner_icon, UI_C_ALARM_SOFT);
-        set_label_if_changed(s_banner_txt, _t("ALARMA")); set_txt_color(s_banner_txt, 0xffd3d3);
-        set_label_if_changed(s_banner_sub, banner_cause(cfg)); set_txt_color(s_banner_sub, UI_C_ALARM_SOFT);
+        set_label_if_changed(s_banner_txt, title); set_txt_color(s_banner_txt, 0xffd3d3);
+        set_label_if_changed(s_banner_sub, banner_cause()); set_txt_color(s_banner_sub, UI_C_ALARM_SOFT);
         set_txt_color(s_banner_right_ic, UI_C_ALARM_SOFT); set_txt_color(s_banner_right_tx, UI_C_ALARM_SOFT);
-        if (muted) {
-            set_hidden(s_banner_right, false);
-            set_label_if_changed(s_banner_right_ic, UI_SYM_BELL_OFF);
-            set_label_if_changed(s_banner_right_tx, _t("silenciada"));
-        } else {
-            set_hidden(s_banner_right, false);
-            set_label_if_changed(s_banner_right_ic, UI_SYM_BELL_RINGING);
-            set_label_if_changed(s_banner_right_tx, _t("buzzer activo"));
-        }
+    }
+    if (st != ALARM_STATE_NORMAL) {
+        set_hidden(s_banner_right, !muted && !tone_on);
+        set_label_if_changed(s_banner_right_ic, muted ? UI_SYM_BELL_OFF : UI_SYM_BELL_RINGING);
+        set_label_if_changed(s_banner_right_tx, muted ? _t("silenciada") : _t("buzzer activo"));
     }
 }
 
@@ -769,6 +919,8 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
     s_alarm_muted = muted;
     s_alarm_have_last = have_last;
     s_alarm_faults = alarm_mgr_get_sensor_faults();
+    s_alarm_conds = state == ALARM_STATE_NORMAL ? 0 : alarm_mgr_get_active_conditions(&s_alarm_crit);
+    if (!s_alarm_conds) s_alarm_crit = 0;
     if (have_last) s_alarm_last = *last;
 
     /* ui_main_update ya corre bajo el lock del display. Un timestamp nuevo
@@ -780,6 +932,7 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
     }
 
     set_banner(state, muted, cfg);
+    alarm_overlay_refresh(cfg);
 
     if (have_last) {
         /* --- Presión --- */
@@ -799,14 +952,19 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
 
         /* La etiqueta se pinta de alarma y aparecen las bandas SOLO si el limite
          * correspondiente esta habilitado (#3). */
+        /* 1.6.8: ambar = ADVERTENCIA, rojo = ALARMA (> 15 kPa mas alla del limite,
+         * misma banda que alarm_mgr). Antes todo cruce se pintaba rojo. */
         card_state_t pst = CARD_OK; const char *ptx = _t("NORMAL");
-        if (pmin_en && last->pressure_kpa < p_min) { pst = CARD_ALARM; ptx = _t("BAJA"); }
-        else if (pmax_en && last->pressure_kpa > p_max) { pst = CARD_ALARM; ptx = _t("ALTA"); }
+        if (pmin_en && last->pressure_kpa < p_min) {
+            pst = last->pressure_kpa < p_min - 15.0f ? CARD_ALARM : CARD_WARN; ptx = _t("BAJA");
+        } else if (pmax_en && last->pressure_kpa > p_max) {
+            pst = last->pressure_kpa > p_max + 15.0f ? CARD_ALARM : CARD_WARN; ptx = _t("ALTA");
+        }
 
         const char *pu = cfg->sensors.pressure_unit;
         int pdec = s_decimals; if (press_unit_min_dec(pu) > pdec) pdec = press_unit_min_dec(pu);
-        float pmn = have_mm ? pressure_to_disp(mn->pressure_kpa, pu) : p_disp;
-        float pmx = have_mm ? pressure_to_disp(mx->pressure_kpa, pu) : p_disp;
+        float pmn = have_mm ? pressure_to_disp(mn->pressure_kpa, pu) : NAN;
+        float pmx = have_mm ? pressure_to_disp(mx->pressure_kpa, pu) : NAN;
         if (last->invalid_mask & SENSOR_INVALID_PRESSURE) { pst = CARD_WARN; ptx = _t("SIN DATO NUEVO"); }
         update_metric_card(&s_press, p_show, p_frac, safe_lo, safe_hi, true,
                            pmin_en, pmax_en, pdec, pst, ptx, pmn, pmx);
@@ -839,10 +997,13 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         const char *fu = cfg->sensors.flow_unit;
         int fdec = s_decimals; if (flow_unit_min_dec(fu) > fdec) fdec = flow_unit_min_dec(fu);
         bool fhi_en = cfg->sensors.alarm_limits.flow_high_enabled;
+        /* 1.6.8: la pildora sigue a las condiciones de alarm_mgr (flujo alto con su
+         * limite real y la variacion brusca); antes miraba el 80 % del eje. */
         card_state_t fst = CARD_OK; const char *ftx = _t("NORMAL");
-        if (fhi_en && last->flow_lpm > f_axis * FLOW_HIGH_ZONE_FRAC) { fst = CARD_WARN; ftx = _t("CONSUMO ALTO"); }
-        float fmn = have_mm ? flow_to_disp(mn->flow_lpm, fu) : f_disp;
-        float fmx = have_mm ? flow_to_disp(mx->flow_lpm, fu) : f_disp;
+        if (s_alarm_conds & ALARM_COND_FLOW_HIGH)       { fst = CARD_WARN; ftx = _t("FLUJO ALTO"); }
+        else if (s_alarm_conds & ALARM_COND_FLOW_DELTA) { fst = CARD_WARN; ftx = _t("VARIACIÓN"); }
+        float fmn = have_mm ? flow_to_disp(mn->flow_lpm, fu) : NAN;
+        float fmx = have_mm ? flow_to_disp(mx->flow_lpm, fu) : NAN;
         /* 1.5.33: durante el calentamiento del FS7 el valor grande es "--" (no
          * 0.00, que parece un flujo real) y la etiqueta central muestra el
          * progreso. La EMA se reinicia para arrancar del primer valor valido. */
@@ -902,21 +1063,42 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
             set_label_if_changed(s_flow.dbg, dbgb);
         }
 
-        flow_meter_snapshot_t meter = flow_meter_get();
-        double s_consumo_m3 = meter.volume_m3;
-        if (s_consumo_badge) {
-            if (meter.partial || !meter.dated) {
-                set_label_if_changed(s_consumo_badge_tx, _t("PARCIAL"));
-                set_hidden(s_consumo_badge, false);
-            } else set_hidden(s_consumo_badge, true);
-        }
-        if (s_consumo_val) {
-            char cb[40];
-            if (s_consumo_m3 < 0.1f)
-                snprintf(cb, sizeof(cb), "%.1f %s", (double)(s_consumo_m3 * 1000.f), _t("L hoy"));
-            else
-                snprintf(cb, sizeof(cb), "%.2f %s", (double)s_consumo_m3, _t("m\xC2\xB3 hoy"));
-            set_label_if_changed(s_consumo_val, cb);
-        }
+    }
+
+    /* --- Consumo: HOY + TOTAL (1.6.8) --- */
+    flow_meter_snapshot_t meter = flow_meter_get();
+    char cb[40];
+    if (s_consumo_val) {
+        if (meter.volume_m3 < 0.1)
+            snprintf(cb, sizeof(cb), "%.1f L", meter.volume_m3 * 1000.0);
+        else
+            snprintf(cb, sizeof(cb), "%.2f m\xC2\xB3", meter.volume_m3);
+        set_label_if_changed(s_consumo_val, cb);
+    }
+    if (s_total_val) {
+        double t = meter.total_m3;
+        if (t < 1.0)          snprintf(cb, sizeof(cb), "%.1f L", t * 1000.0);
+        else if (t < 1000.0)  snprintf(cb, sizeof(cb), "%.2f m\xC2\xB3", t);
+        else if (t < 1e5)     snprintf(cb, sizeof(cb), "%.1f m\xC2\xB3", t);
+        else                  snprintf(cb, sizeof(cb), "%.0f m\xC2\xB3", t);
+        set_label_if_changed(s_total_val, cb);
+    }
+    if (s_consumo_sub) {
+        /* Inicio real del conteo de hoy: 00:00, o la hora de arranque si el equipo
+         * arranco hoy sin un guardado del mismo dia (corte que cruzo la medianoche). */
+        if (meter.since_min >= 0)
+            snprintf(cb, sizeof(cb), "%s %02d:%02d", _t("desde"), meter.since_min / 60, meter.since_min % 60);
+        else
+            snprintf(cb, sizeof(cb), "%s", _t("sin hora"));
+        set_label_if_changed(s_consumo_sub, cb);
+    }
+    if (s_consumo_miss) {
+        /* Tiempo de hoy sin medicion (calentamiento del FS7, reinicios, cortes de
+         * energia). Bajo 1 min no se muestra. */
+        unsigned m = (unsigned)(meter.missing_ms / 60000);
+        if (m >= 60) snprintf(cb, sizeof(cb), "%u h %u min %s", m / 60, m % 60, _t("sin medir"));
+        else         snprintf(cb, sizeof(cb), "%u min %s", m, _t("sin medir"));
+        set_label_if_changed(s_consumo_miss, cb);
+        set_hidden(s_consumo_miss, m == 0);
     }
 }

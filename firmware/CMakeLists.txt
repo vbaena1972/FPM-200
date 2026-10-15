@@ -1,5 +1,19 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.6.8-dev (2026-10-15): cierre de diseno V1 (lista del usuario tras el soak 1.6.7 de 11 h).
+#   (1) ADVERTENCIA muestra "buzzer activo" como ALARMA. (2) VARIAS ALARMAS: alarm_mgr expone las
+#   condiciones activas (alarm_mgr_get_active_conditions); el banner dice "2 ADVERTENCIAS / 3 ALARMAS
+#   · presion + flujo" y el detalle (tocar el banner) lista cada una con su valor EN VIVO, como
+#   "Alarmas activas" de MedGuard; se rearma si aparece otra. Tarjetas: ambar = advertencia, rojo =
+#   critica; la de flujo sigue a flujo alto / variacion. (3) "24H" de las tarjetas: era el ULTIMO
+#   MINUTO (get_min_max(60000)) y descartaba muestras con cualquier bit invalido; ahora 24 cubetas
+#   horarias (minmax24.h) con presion y flujo independientes. (4) TOTALIZADOR de vida en la fila de
+#   consumo ("HOY | TOTAL"), en NVS "metrics" (ningun restablecer lo borra). (5) HOY se guarda cada
+#   2 min (antes 10) y al cambiar de dia; "desde HH:MM" real; la pildora PARCIAL pasa a "N min sin
+#   medir" (incluye el tiempo apagado). Corte de energia -> AWS: Last Will MQTT (canal 0, "fault"
+#   ~1,5 x keepalive tras perder al equipo; keepalive de la config, 60 s) y al volver un aviso
+#   "Energia restablecida" con la hora aprox. del corte y el consumo del dia/total a esa hora.
+#   Telemetria/LAN: + consumption_total_m3. Pruebas host: test_minmax24, test_flow_meter, test_alarm.
 # 1.6.7-dev (2026-10-14): (1) el silencio tapaba CUALQUIER alarma nueva hasta vencer (15 min en
 #   ADVERTENCIA): ahora vale solo para las condiciones presentes al silenciar; una condicion nueva
 #   (flujo, falla de sensor, el otro limite de presion) o una que vuelve tras 10 s ausente rompe el
@@ -187,7 +201,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.6.7-dev")
+set(PROJECT_VER "1.6.8-dev")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:

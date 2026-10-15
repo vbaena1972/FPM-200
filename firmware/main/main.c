@@ -887,7 +887,8 @@ static void ui_refresh_task(void *arg)
     while (true)
     {
         bool have_last = sensors_runtime_get_last(&last);
-        bool have_mm = sensors_runtime_get_min_max(60000, &min_s, &max_s);
+        // 1.6.8: pildora "24H" = ultimas 24 h (antes la ventana era de 60 s).
+        bool have_mm = sensors_runtime_get_min_max_24h(&min_s, &max_s);
 
         // Alarm processing runs independently in app_main.
         alarm_clinical_state_t current_state = alarm_mgr_get_current_state();
