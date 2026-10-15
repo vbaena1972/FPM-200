@@ -1,6 +1,7 @@
 #include "flow_meter.h"
 #include "flow_integrator.h"
 #include "metrics_store.h"
+#include "sensors_runtime.h"   // cubetas de la "24H" (1.6.9)
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "esp_timer.h"
@@ -58,6 +59,9 @@ void flow_meter_record(int64_t sample_us, float lpm, bool valid) {
             if (s_saved.saved_epoch > 0 && boot_wall > s_saved.saved_epoch)
                 s_meter.missing_us += (uint64_t)(boot_wall - s_saved.saved_epoch) * 1000000ULL;
             s_since_min = s_saved.since_min < 1440 ? (int)s_saved.since_min : 0;
+            // 1.6.9: el total de vida nunca es menor que el consumo de hoy (equipos que
+            // pasaron por 1.6.8, donde el total arrancaba en 0 con HOY ya acumulado).
+            if (s_total_m3 < s_meter.volume_m3) s_total_m3 = s_meter.volume_m3;
             // A periodic checkpoint cannot reconstruct measurements lost on reboot.
             s_partial = true;
         } else {
@@ -117,9 +121,34 @@ flow_meter_snapshot_t flow_meter_get(void) {
 
 flow_meter_checkpoint_t flow_meter_boot_checkpoint(void) { return s_boot_cp; }
 
+// 1.6.9: min/max de 24 h ("24H" de las tarjetas) en NVS: se recupera en el primer
+// ciclo de servicio (ya corre la adquisicion: se FUSIONA con lo medido desde el
+// arranque) y se guarda cada 10 min (~0,8 KB; perder <= 10 min de min/max ante un
+// corte es aceptable y el desgaste de NVS queda en decenas de anios).
+#define MM24_SAVE_US 600000000LL
+static mm24_t s_mm24_buf;              // solo lo usa el worker de time_mgr
+static bool s_mm24_restored;
+static int64_t s_mm24_save_us;
+static void mm24_service(int64_t now)
+{
+    if (!s_mm24_restored) {
+        s_mm24_restored = true;
+        s_mm24_save_us = now;
+        if (appmetrics_load_blob("mm24", &s_mm24_buf, sizeof s_mm24_buf) == ESP_OK)
+            sensors_runtime_mm24_restore(&s_mm24_buf);
+        return;
+    }
+    if (now - s_mm24_save_us < MM24_SAVE_US) return;
+    s_mm24_save_us = now;
+    sensors_runtime_mm24_copy(&s_mm24_buf);
+    esp_err_t err = appmetrics_store_blob("mm24", &s_mm24_buf, sizeof s_mm24_buf);
+    if (err != ESP_OK) ESP_LOGW("flow_meter", "24H checkpoint failed: %s", esp_err_to_name(err));
+}
+
 void flow_meter_service(void) {
     if (!s_gate) return;
     int64_t now = esp_timer_get_time();
+    mm24_service(now);
     if (!s_force_save && now - s_save_us < CHECKPOINT_US) return;
     app_metrics_t snapshot = s_saved;      // sin hora valida: conserva el dia guardado
     xSemaphoreTake(s_gate, portMAX_DELAY);

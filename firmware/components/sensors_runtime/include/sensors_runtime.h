@@ -154,6 +154,12 @@ bool sensors_runtime_get_min_max(int64_t window_ms,
  */
 bool sensors_runtime_get_min_max_24h(sensor_sample_t *min_out, sensor_sample_t *max_out);
 
+/* 1.6.9: copia / restauracion (fusion) de las cubetas de 24 h, para que flow_meter
+ * las guarde en NVS y las recupere tras un reinicio. */
+#include "minmax24.h"
+void sensors_runtime_mm24_copy(mm24_t *out);
+void sensors_runtime_mm24_restore(const mm24_t *in);
+
 /**
  * Extrae una serie de muestras dentro de la ventana de tiempo (para gráficas).
  * - window_ms: ventana hacia atrás en ms desde "ahora".

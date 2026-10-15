@@ -36,6 +36,9 @@
   tiempo apagado va a "sin medir". `flow_meter_boot_checkpoint()` = valores al corte → aviso MQTT
   "power_restored" (canal 0 del topic `/alarms`); el corte en sí lo anuncia el Last Will. Pruebas:
   `tests/host/test_flow_meter.c`, `test_minmax24.c` (min/max 24 h de las tarjetas).
+- "24H" (1.6.9): cubetas por hora de reloj, guardadas en NVS `metrics`/`mm24` cada 10 min y fusionadas al
+  arrancar. Fila de consumo: TOTAL primero (grande), HOY después. TOTAL nunca < HOY.
+- **Verificar compilando a objeto**, no solo `-fsyntax-only`: `-Werror=format-truncation` aparece con -O2.
 
 ## graphify
 

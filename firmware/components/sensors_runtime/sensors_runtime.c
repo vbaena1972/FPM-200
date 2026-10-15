@@ -5,6 +5,7 @@
 #include "minmax24.h"
 
 #include <string.h>
+#include <time.h>
 #include <stdio.h>
 #include <math.h>
 #include "freertos/FreeRTOS.h"
@@ -166,6 +167,14 @@ static int64_t s_last_pressure_ms = -1, s_last_flow_ms = -1;
 static size_t s_head = 0;  // próxima posición de escritura
 static size_t s_count = 0; // nº de elementos válidos en buffer
 static mm24_t s_mm24;      // min/max de 24 h (1.6.8), bajo s_lock
+
+// 1.6.9: la "24H" va por hora de RELOJ (se guarda en NVS y sobrevive al reinicio).
+// Sin hora valida (RTC sin respaldo y aun sin NTP) no se registra.
+static int64_t mm24_clock_ms(void)
+{
+    time_t now = time(NULL);
+    return now > 1704067200 /* 2024-01-01 */ ? (int64_t)now * 1000 : -1;
+}
 
 static SemaphoreHandle_t s_lock = NULL;
 
@@ -673,8 +682,10 @@ void sensors_runtime_push_sample(const sensor_sample_t *s)
     s_head = (s_head + 1) % SENSORS_BUFFER_LEN;
     if (s_count < SENSORS_BUFFER_LEN)
         s_count++;
-    mm24_push(&s_mm24, s->ts_ms, s->pressure_kpa, !(s->invalid_mask & SENSOR_INVALID_PRESSURE),
-              s->flow_lpm, !(s->invalid_mask & SENSOR_INVALID_FLOW));
+    const int64_t wall_ms = mm24_clock_ms();
+    if (wall_ms >= 0)
+        mm24_push(&s_mm24, wall_ms, s->pressure_kpa, !(s->invalid_mask & SENSOR_INVALID_PRESSURE),
+                  s->flow_lpm, !(s->invalid_mask & SENSOR_INVALID_FLOW));
 
     unlock();
 }
@@ -682,13 +693,27 @@ void sensors_runtime_push_sample(const sensor_sample_t *s)
 bool sensors_runtime_get_min_max_24h(sensor_sample_t *min_out, sensor_sample_t *max_out)
 {
     sensor_sample_t mn = {0}, mx = {0};
+    mn.pressure_kpa = mx.pressure_kpa = mn.flow_lpm = mx.flow_lpm = NAN;
+    const int64_t wall_ms = mm24_clock_ms();
     lock();
-    mm24_get(&s_mm24, esp_timer_get_time() / 1000, &mn.pressure_kpa, &mx.pressure_kpa,
-             &mn.flow_lpm, &mx.flow_lpm);
+    if (wall_ms >= 0)
+        mm24_get(&s_mm24, wall_ms, &mn.pressure_kpa, &mx.pressure_kpa, &mn.flow_lpm, &mx.flow_lpm);
     unlock();
     if (min_out) *min_out = mn;
     if (max_out) *max_out = mx;
     return isfinite(mn.pressure_kpa) || isfinite(mn.flow_lpm);
+}
+
+void sensors_runtime_mm24_copy(mm24_t *out)
+{
+    if (!out) return;
+    lock(); *out = s_mm24; unlock();
+}
+
+void sensors_runtime_mm24_restore(const mm24_t *in)
+{
+    if (!in) return;
+    lock(); mm24_merge(&s_mm24, in); unlock();
 }
 
 void sensors_runtime_report_faults(uint32_t faults)

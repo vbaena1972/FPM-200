@@ -24,6 +24,14 @@ static app_metrics_t g_nvs;
 static int g_stores;
 esp_err_t appmetrics_load(app_metrics_t *out) { *out = g_nvs; return ESP_OK; }
 esp_err_t appmetrics_store(const app_metrics_t *in) { g_nvs = *in; g_stores++; return ESP_OK; }
+/* "24H" (1.6.9): aqui solo se comprueba que el servicio la restaura y la guarda. */
+#include "minmax24.h"
+static int g_mm24_restores, g_mm24_stores;
+esp_err_t appmetrics_load_blob(const char *k, void *b, size_t n) { (void)k; (void)b; (void)n; return ESP_OK; }
+esp_err_t appmetrics_store_blob(const char *k, const void *b, size_t n) { (void)k; (void)b; (void)n; g_mm24_stores++; return ESP_OK; }
+void sensors_runtime_mm24_copy(mm24_t *o) { (void)o; }
+void sensors_runtime_mm24_restore(const mm24_t *i) { (void)i; g_mm24_restores++; }
+#define SENSORS_RUNTIME_H 1   /* evita el header real (AppConfig, I2C); arriba van los stubs */
 
 #include "../../components/sensors_runtime/flow_meter.c"
 
@@ -64,8 +72,9 @@ int main(void)
     near(s.volume_m3, 0.0599); near(s.total_m3, 0.0599);     /* 1a muestra sin previa */
     assert(s.since_min == 8 * 60);
 
-    /* 2) Guardado: el de la siembra (forzado) y luego cada 2 min, no antes. */
-    flow_meter_service(); assert(g_stores == 1);
+    /* 2) Guardado: el de la siembra (forzado) y luego cada 2 min, no antes.
+     *    1.6.9: el primer servicio recupera la "24H" de NVS. */
+    flow_meter_service(); assert(g_stores == 1 && g_mm24_restores == 1 && g_mm24_stores == 0);
     flow_for(30); flow_meter_service(); assert(g_stores == 1);
     flow_for(100); flow_meter_service(); assert(g_stores == 2);
     assert(!strcmp(g_nvs.date, "2025-10-15") && g_nvs.saved_epoch == g_wall);
@@ -86,6 +95,20 @@ int main(void)
     near(s.volume_m3, (float)day_at_cut + 0.0599);
     assert(s.since_min == 8 * 60);       /* sigue contando desde las 08:00 */
     assert(s.missing_ms >= 1800 * 1000ULL && s.missing_ms < 1900 * 1000ULL);
+
+    /* 3b) 1.6.9: un TOTAL guardado menor que HOY (equipo que paso por 1.6.8) se corrige. */
+    {
+        s_force_save = true; flow_meter_service();      /* NVS al dia antes de copiarla */
+        app_metrics_t keep = g_nvs;
+        g_nvs.total_m3 = 0.001;
+        reboot(0);
+        flow_for(1);
+        s = flow_meter_get();
+        assert(s.total_m3 >= s.volume_m3);
+        g_nvs = keep;
+        reboot(0);
+        flow_for(1);
+    }
 
     /* 4) Medianoche: HOY se reinicia (desde 00:00), TOTAL sigue, y se guarda enseguida. */
     g_wall = 1760486400 + 86400 - 5;     /* 23:59:55 */
@@ -108,6 +131,13 @@ int main(void)
     assert(!strcmp(g_nvs.date, "2025-10-16") && g_nvs.saved_epoch == 0);
     near(g_nvs.total_m3, total_now + 0.0099);
 
-    puts("PASS: flow_meter (totalizador, guardado 2 min, corte de energia, medianoche, sin hora)");
+    /* 6) 1.6.9: la "24H" se guarda cada 10 min (no en cada checkpoint de 2 min). */
+    {
+        int st = g_mm24_stores;
+        g_up_us += 300000000; flow_meter_service(); assert(g_mm24_stores == st);
+        g_up_us += 400000000; flow_meter_service(); assert(g_mm24_stores == st + 1);
+    }
+
+    puts("PASS: flow_meter (totalizador, guardado 2 min, corte de energia, medianoche, sin hora, 24H en NVS)");
     return 0;
 }

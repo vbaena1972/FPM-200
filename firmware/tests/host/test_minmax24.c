@@ -42,6 +42,26 @@ int main(void)
     mm24_get(&m, 61 * H, &pmin, &pmax, &fmin, &fmax);
     assert(isnan(pmin) && isnan(fmin));
 
-    puts("PASS: min/max 24 h (vacio, validez independiente, ventana 24 h, NAN)");
+    /* 1.6.9: guardado en NVS + reinicio = fusion de lo guardado con lo medido desde el
+     * arranque (misma hora: combina; hora mas nueva: manda la mas nueva). */
+    {
+        static mm24_t saved, live;
+        const int64_t t0 = 480000LL * H;                /* hora de reloj (epoch) */
+        mm24_push(&saved, t0, 300.f, true, 2.f, true);   /* antes del corte, hora t0 */
+        mm24_push(&saved, t0 + H, 310.f, true, 3.f, true);
+        mm24_push(&live, t0 + H + 60000, 305.f, true, 9.f, true);   /* tras reiniciar, misma hora */
+        mm24_merge(&live, &saved);
+        mm24_get(&live, t0 + H + 120000, &pmin, &pmax, &fmin, &fmax);
+        assert(pmin == 300.f && pmax == 310.f && fmin == 2.f && fmax == 9.f);
+        /* Lo guardado de hace mas de 24 h no revive. */
+        static mm24_t stale, fresh;
+        mm24_push(&stale, t0, 100.f, true, 0.f, false);
+        mm24_push(&fresh, t0 + 30 * H, 200.f, true, 0.f, false);
+        mm24_merge(&fresh, &stale);
+        mm24_get(&fresh, t0 + 30 * H, &pmin, &pmax, &fmin, &fmax);
+        assert(pmin == 200.f && pmax == 200.f);
+    }
+
+    puts("PASS: min/max 24 h (vacio, validez independiente, ventana 24 h, NAN, fusion tras reinicio)");
     return 0;
 }

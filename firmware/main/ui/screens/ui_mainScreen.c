@@ -99,6 +99,7 @@ static lv_obj_t *s_consumo_cap = NULL;   /* caption "HOY" (retraducible) */
 static lv_obj_t *s_consumo_sub = NULL;   /* "desde HH:MM" (inicio real del conteo de hoy) */
 static lv_obj_t *s_consumo_miss = NULL;  /* "N min sin medir" (antes la pildora PARCIAL) */
 static lv_obj_t *s_total_cap = NULL, *s_total_val = NULL;   /* totalizador (1.6.8) */
+static lv_obj_t *s_consumo_title = NULL; /* "CONSUMO" sobre "TOTAL" (1.6.9) */
 static lv_obj_t *s_gas_banner, *s_gas_lbl;
 static lv_obj_t *s_menu_pop = NULL;
 static lv_obj_t *s_alarm_overlay = NULL;
@@ -741,28 +742,39 @@ void ui_mainScreen_screen_init(void)
     lv_obj_set_style_pad_ver(cons, 3, 0);
     lv_obj_set_flex_flow(cons, LV_FLEX_FLOW_ROW);
     lv_obj_set_flex_align(cons, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-    lv_obj_set_style_pad_column(cons, 7, 0);
-    /* 1.6.8: HOY (se reinicia a las 00:00; persistido cada 2 min) | TOTAL (totalizador
-     * de vida, persistente, ningun restablecer lo borra). La pildora "PARCIAL" se
-     * reemplazo por "N min sin medir" (lo que en realidad significaba). */
+    lv_obj_set_style_pad_column(cons, 8, 0);
+    /* 1.6.9 (pedido del usuario): "CONSUMO TOTAL" primero y grande (totalizador de vida,
+     * persistente, ningun restablecer lo borra) y a continuacion, mas pequeno, el de HOY
+     * (se reinicia a las 00:00; guardado cada 2 min) con "desde HH:MM" y "N min sin
+     * medir" (antes la pildora PARCIAL). Todo seguido, sin hueco en el medio. */
     ui_icon(cons, UI_SYM_CHART_BAR, UI_ICON_SM, UI_C_TEXT_3);
-    s_consumo_cap = ui_label(cons, _t("HOY"), UI_FONT_XS, UI_C_TEXT_3);
-    lv_obj_set_style_text_letter_space(s_consumo_cap, 1, 0);
-    s_consumo_val = ui_label(cons, "--", UI_FONT_XL, UI_C_TEXT_STRONG);
-    lv_obj_t *since = ui_box(cons);
-    lv_obj_set_size(since, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-    lv_obj_set_flex_flow(since, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_grow(since, 1);
-    s_consumo_sub = ui_label(since, _t("sin hora"), UI_FONT_XS, UI_C_TEXT_MUTED);
-    s_consumo_miss = ui_label(since, "", UI_FONT_XS, UI_C_WARN_DIM);
-    set_hidden(s_consumo_miss, true);
-    lv_obj_t *vsep = ui_box(cons);
-    lv_obj_set_size(vsep, 1, 26);
-    lv_obj_set_style_bg_color(vsep, ui_col(UI_C_BORDER), 0);
-    set_bg_opa_if(vsep, LV_OPA_COVER);
-    s_total_cap = ui_label(cons, _t("TOTAL"), UI_FONT_XS, UI_C_TEXT_3);
+    lv_obj_t *capcol = ui_box(cons);
+    lv_obj_set_size(capcol, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_flex_flow(capcol, LV_FLEX_FLOW_COLUMN);
+    s_consumo_title = ui_label(capcol, _t("CONSUMO"), UI_FONT_XS, UI_C_TEXT_3);
+    lv_obj_set_style_text_letter_space(s_consumo_title, 1, 0);
+    s_total_cap = ui_label(capcol, _t("TOTAL"), UI_FONT_XS, UI_C_TEXT_3);
     lv_obj_set_style_text_letter_space(s_total_cap, 1, 0);
-    s_total_val = ui_label(cons, "--", UI_FONT_XL, UI_C_TEXT_STRONG);
+    s_total_val = ui_label(cons, "--", UI_FONT_XXL, UI_C_TEXT_STRONG);
+    lv_obj_t *today = ui_box(cons);
+    lv_obj_set_size(today, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_flex_flow(today, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_style_margin_left(today, 8, 0);
+    lv_obj_t *trow = ui_box(today);
+    lv_obj_set_size(trow, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_flex_flow(trow, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(trow, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_END);
+    lv_obj_set_style_pad_column(trow, 5, 0);
+    s_consumo_cap = ui_label(trow, _t("HOY"), UI_FONT_XS, UI_C_TEXT_3);
+    lv_obj_set_style_text_letter_space(s_consumo_cap, 1, 0);
+    s_consumo_val = ui_label(trow, "--", UI_FONT_MD, UI_C_TEXT_2);
+    lv_obj_t *srow = ui_box(today);
+    lv_obj_set_size(srow, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_flex_flow(srow, LV_FLEX_FLOW_ROW);
+    lv_obj_set_style_pad_column(srow, 6, 0);
+    s_consumo_sub = ui_label(srow, _t("sin hora"), UI_FONT_XS, UI_C_TEXT_MUTED);
+    s_consumo_miss = ui_label(srow, "", UI_FONT_XS, UI_C_WARN_DIM);
+    set_hidden(s_consumo_miss, true);
 
     /* ===== Banner de gas ===== */
     s_gas_banner = ui_box(ui_mainScreen);
@@ -860,6 +872,7 @@ void ui_main_apply_config(const AppConfig *cfg)
     if (s_flow.title)   set_label_if_changed(s_flow.title, _t("FLUJO"));
     if (s_consumo_cap)  set_label_if_changed(s_consumo_cap, _t("HOY"));
     if (s_total_cap)    set_label_if_changed(s_total_cap, _t("TOTAL"));
+    if (s_consumo_title) set_label_if_changed(s_consumo_title, _t("CONSUMO"));
 }
 
 /* Banner por estado */
@@ -1096,8 +1109,8 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
         /* Tiempo de hoy sin medicion (calentamiento del FS7, reinicios, cortes de
          * energia). Bajo 1 min no se muestra. */
         unsigned m = (unsigned)(meter.missing_ms / 60000);
-        if (m >= 60) snprintf(cb, sizeof(cb), "%u h %u min %s", m / 60, m % 60, _t("sin medir"));
-        else         snprintf(cb, sizeof(cb), "%u min %s", m, _t("sin medir"));
+        if (m >= 60) snprintf(cb, sizeof(cb), "· %u h %u min %s", m / 60, m % 60, _t("sin medir"));
+        else         snprintf(cb, sizeof(cb), "· %u min %s", m, _t("sin medir"));
         set_label_if_changed(s_consumo_miss, cb);
         set_hidden(s_consumo_miss, m == 0);
     }

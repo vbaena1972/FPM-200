@@ -10,8 +10,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1792065820.6443987,
-    "ast_hash": "fdbf26a2c34011dcf2a40633eef03c9c",
+    "mtime": 1792073972.8779035,
+    "ast_hash": "4441487faee83c3275005c0314e4f416",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/cert_store.c": {
@@ -205,8 +205,8 @@
     "semantic_hash": ""
   },
   "firmware/components/network_core/transport_mqtt.c": {
-    "mtime": 1792065482.2218692,
-    "ast_hash": "de2670e6bb160fcd02b2833e7bbcef73",
+    "mtime": 1792066400.2080772,
+    "ast_hash": "f53406757b8b96f89ee0866ef1e0bf9e",
     "semantic_hash": ""
   },
   "firmware/components/network_core/wifi_mgr.c": {
@@ -215,13 +215,13 @@
     "semantic_hash": ""
   },
   "firmware/components/sensors_runtime/include/sensors_runtime.h": {
-    "mtime": 1792065092.9686193,
-    "ast_hash": "fe3070d1cb5128737df3bb3dc4df1316",
+    "mtime": 1792073819.3086855,
+    "ast_hash": "2a582abf99bd74f86c6526f3c6d9ee36",
     "semantic_hash": ""
   },
   "firmware/components/sensors_runtime/sensors_runtime.c": {
-    "mtime": 1792065104.7173173,
-    "ast_hash": "b88eba91d4091fb3757adaf9cf964d4a",
+    "mtime": 1792073819.26217,
+    "ast_hash": "ed5fa5a076469263b3930bf9bc9068ee",
     "semantic_hash": ""
   },
   "firmware/components/state_pub/include/state_pub.h": {
@@ -235,8 +235,8 @@
     "semantic_hash": ""
   },
   "firmware/components/storage/include/metrics_store.h": {
-    "mtime": 1792065120.6121838,
-    "ast_hash": "4a27ee77cd66ca18454bfe0e441e74dd",
+    "mtime": 1792073829.8719296,
+    "ast_hash": "9c1c731537104ee0bb02ae1bf9efa502",
     "semantic_hash": ""
   },
   "firmware/components/storage/include/storage.h": {
@@ -245,8 +245,8 @@
     "semantic_hash": ""
   },
   "firmware/components/storage/metrics_store.c": {
-    "mtime": 1792065129.7454767,
-    "ast_hash": "b7898d16394098af6e2fb65b9196b258",
+    "mtime": 1792073829.9177158,
+    "ast_hash": "85dbb84a526d3f1493e4f5a060cbe791",
     "semantic_hash": ""
   },
   "firmware/components/storage/storage.c": {
@@ -500,8 +500,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_mainScreen.c": {
-    "mtime": 1792065382.2240746,
-    "ast_hash": "057d95ea45e72b25d1e67792e4054b24",
+    "mtime": 1792073934.1714518,
+    "ast_hash": "f75c61025b81a20d45d27ab8ee43e321",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_mainScreen.h": {
@@ -705,13 +705,13 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1792065820.5779269,
-    "ast_hash": "3ca64c63251263032d4af29bc7ba6aac",
+    "mtime": 1792073972.8010337,
+    "ast_hash": "b34cb1924f73c4cba86e801521d860c6",
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1792065790.431849,
-    "ast_hash": "30a16aeba3a1e36c5dd25ed1c69781fb",
+    "mtime": 1792073754.9234297,
+    "ast_hash": "5747a60a8b91365fffe3958b21858e04",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {
@@ -860,8 +860,8 @@
     "semantic_hash": ""
   },
   "firmware/components/sensors_runtime/flow_meter.c": {
-    "mtime": 1792065493.681961,
-    "ast_hash": "09c2f53a9d48e6642cf5e02cee5411d8",
+    "mtime": 1792073841.103745,
+    "ast_hash": "0ae6837cc67930b6313c5d404e389fd0",
     "semantic_hash": ""
   },
   "firmware/components/sensors_runtime/include/flow_integrator.h": {
@@ -1185,8 +1185,8 @@
     "semantic_hash": ""
   },
   "firmware/components/sensors_runtime/include/minmax24.h": {
-    "mtime": 1792065087.2672524,
-    "ast_hash": "b07db2ab0ac8fb0bed8431c6d9b629d7",
+    "mtime": 1792073804.1086295,
+    "ast_hash": "561e995bee227cf015dc61ea20ccb7aa",
     "semantic_hash": ""
   },
   "firmware/tests/host/stubs_fm/freertos/FreeRTOS.h": {
@@ -1200,13 +1200,13 @@
     "semantic_hash": ""
   },
   "firmware/tests/host/test_flow_meter.c": {
-    "mtime": 1792065704.0377762,
-    "ast_hash": "ee8512c5f3abcac7c41d3ddc207c6e63",
+    "mtime": 1792073882.137637,
+    "ast_hash": "14f83f61c7f988ab92c77dc5f4873b60",
     "semantic_hash": ""
   },
   "firmware/tests/host/test_minmax24.c": {
-    "mtime": 1792065648.270243,
-    "ast_hash": "3d9c3511ef34a0373d03e558cb3fe86f",
+    "mtime": 1792073856.0239973,
+    "ast_hash": "b2e852895704420484e847c7fc3eb416",
     "semantic_hash": ""
   }
 }

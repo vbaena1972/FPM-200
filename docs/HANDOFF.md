@@ -91,6 +91,15 @@ migración de HMI y sesiones viejas: `docs/historial/`.
   del FPM (ajuste del FS7, ceros; EEPROM) es de fábrica: ningún nivel la toca. (5) Progreso en la tarjeta de
   flujo: valor "--" y "calentando N s" (`sensors_runtime_flow_warming_elapsed_ms`); no se alarga el splash a
   propósito: la presión y sus alarmas deben volver en segundos tras un corte (decisión 2026-10-11).
+- **1.6.9 (2026-10-15) — release baseline V1** (1.6.8 grabada; humo a–c OK en HW). (1) Fila de consumo
+  pedida por el usuario: "CONSUMO TOTAL" primero y grande, luego "HOY … · desde HH:MM · N min sin medir",
+  todo seguido. (2) TOTAL nunca < HOY: al actualizar desde ≤ 1.6.7 arranca con el consumo del día guardado
+  (`metrics_store.c`) y un equipo que pasó por 1.6.8 (total desde 0) se corrige al arrancar (`flow_meter.c`).
+  (3) **"24H" persistente**: las cubetas van por hora de RELOJ (epoch; sin hora válida no se registra) y
+  `flow_meter_service` las guarda en NVS `metrics`/`mm24` cada 10 min y las fusiona al arrancar
+  (`mm24_merge`); antes se perdían con cada reinicio. (4) Topic del Last Will a 256 B (el build de 1.6.8
+  fallaba con `-Werror=format-truncation`). Pruebas: `test_minmax24` (+ fusión), `test_flow_meter` (+ 24H en
+  NVS, total ≥ hoy).
 - **1.6.8-dev (2026-10-15) — cierre de diseño V1** (lista del usuario tras el soak 1.6.7/1.9.9 de ~11 h, sin
   reinicios, RAM interna plana; la prueba de 1.6.7 pasó: "Nueva condicion (0x04/0x08) … se anula el silencio"):
   (1) ADVERTENCIA muestra "buzzer activo" (oculto si el tono de ese nivel está deshabilitado). (2) **Varias

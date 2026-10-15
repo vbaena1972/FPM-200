@@ -1,5 +1,6 @@
 #pragma once
 #include "esp_err.h"
+#include <stddef.h>
 #include <stdint.h>
 
 /* Métricas operativas persistentes (NVS, namespace "metrics"), separadas de
@@ -31,6 +32,11 @@ typedef struct {
 
 esp_err_t appmetrics_load(app_metrics_t *out);       /* ceros si no existe aún */
 esp_err_t appmetrics_store(const app_metrics_t *in); /* persiste + actualiza caché */
+
+/* 1.6.9: blob auxiliar en el mismo namespace "metrics" (min/max 24 h, key "mm24").
+ * load devuelve ESP_ERR_NOT_FOUND / ESP_ERR_INVALID_SIZE si no existe o es de otro tamaño. */
+esp_err_t appmetrics_load_blob(const char *key, void *buf, size_t len);
+esp_err_t appmetrics_store_blob(const char *key, const void *buf, size_t len);
 
 /* Lecturas rápidas desde la caché en RAM (para la UI). */
 uint32_t appmetrics_service_min(void);
