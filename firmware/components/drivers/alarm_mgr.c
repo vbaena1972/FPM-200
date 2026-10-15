@@ -12,18 +12,29 @@
 static SemaphoreHandle_t s_alarm_lock;
 static const char *TAG = "alarm_mgr";
 
-// ParÃƒÆ’Ã‚Â¡metros de PWM adaptados para el Driver PAM8906
+// Parámetros de PWM adaptados para el Driver PAM8906
 #define LEDC_SPEED_MODE         LEDC_LOW_SPEED_MODE
 #define LEDC_CHANNEL            LEDC_CHANNEL_0
 #define LEDC_TIMER              LEDC_TIMER_0
 #define LEDC_DUTY_RES           LEDC_TIMER_10_BIT
-#define BUZZER_FREQ_HZ          2000    // Resonancia ÃƒÆ’Ã‚Â³ptima para mÃƒÆ’Ã‚Â¡xima presiÃƒÆ’Ã‚Â³n sonora
+#define BUZZER_FREQ_HZ          2000    // Resonancia óptima para máxima presión sonora
 #define BUZZER_DUTY_50_PERCENT  512     // 50% de 1024 para onda cuadrada perfecta
 
 // Variables operacionales de control
 static alarm_clinical_state_t s_current_state = ALARM_STATE_NORMAL;
 static bool s_is_muted = false;
 static int64_t s_mute_end_time_us = 0;
+/* 1.6.7: condiciones de alarma (bits) para que el silencio no tape una condicion NUEVA. */
+#define COND_P_LOW      0x01u
+#define COND_P_HIGH     0x02u
+#define COND_FLOW_DELTA 0x04u
+#define COND_FLOW_HIGH  0x08u
+#define COND_SENSOR     0x10u
+#define COND_COUNT      5
+#define COND_REARM_US   10000000LL   /* ausente 10 s = deja de estar silenciada */
+static uint32_t s_active_conds;      /* condiciones de la ultima evaluacion */
+static uint32_t s_muted_conds;       /* condiciones presentes al silenciar */
+static int64_t  s_cond_seen_us[COND_COUNT];
 /* 1.6.0: la cadencia del pitido la lleva alarm_tone (patrones IEC 60601-1-8 por
  * esp_timer); aqui solo se decide la prioridad: ALERT = ALTA, WARNING clinico
  * (limite de presion o flujo) = MEDIA, solo fallo de sensor (tecnica) = BAJA. */
@@ -52,7 +63,7 @@ static void alarm_mgr_set_state_change_cb_impl(alarm_state_change_cb_t cb)
     s_state_cb = cb;
 }
 
-// Variables para el anÃƒÆ’Ã‚Â¡lisis matemÃƒÆ’Ã‚Â¡tico diferencial de flujo (Delta)
+// Variables para el análisis matemático diferencial de flujo (Delta)
 static float s_baseline_flow = 0.0f;
 static int64_t s_baseline_time_us = 0;
 
@@ -94,7 +105,7 @@ esp_err_t alarm_mgr_init(int buzzer_gpio)
 
 static void set_buzzer_acoustic(bool turn_on)
 {
-    // El PAM8906 amplifica la seÃƒÆ’Ã‚Â±al cuadrada diferencial cuando detecta pulsos en DIN
+    // El PAM8906 amplifica la señal cuadrada diferencial cuando detecta pulsos en DIN
     uint32_t duty = turn_on ? (uint32_t)(102 + (s_volume - 30) * 410 / 70) : 0;
     ledc_set_duty(LEDC_SPEED_MODE, LEDC_CHANNEL, duty);
     ledc_update_duty(LEDC_SPEED_MODE, LEDC_CHANNEL);
@@ -117,19 +128,19 @@ static void alarm_mgr_process_impl(float current_pressure, float current_flow, u
     if (s_volume > 100) s_volume = 100;
     if (now < s_test_end_time_us) { alarm_tone_set(ALARM_TONE_HIGH); return; }
 
-    // --- EVALUACIÃƒÆ’Ã¢â‚¬Å“N DE PRESIÃƒÆ’Ã¢â‚¬Å“N ---
+    // --- EVALUACIÓN DE PRESIÓN ---
     bool p_min_enabled = cfg->sensors.alarm_limits.pressure_min_enabled;
     bool p_max_enabled = cfg->sensors.alarm_limits.pressure_max_enabled;
     float p_min = cfg->sensors.alarm_limits.pressure_min;
     float p_max = cfg->sensors.alarm_limits.pressure_max;
 
-    // --- EVALUACIÃƒÆ’Ã¢â‚¬Å“N DE FLUJO (AnÃƒÆ’Ã‚Â¡lisis de Delta temporal) ---
+    // --- EVALUACIÓN DE FLUJO (Análisis de Delta temporal) ---
     float flow_delta_thresh = cfg->sensors.alarm_limits.flow_delta_threshold;
     int flow_window_ms = cfg->sensors.alarm_limits.flow_delta_window_ms;
     bool flow_warning = false;
     bool flow_high = cfg->sensors.alarm_limits.flow_high_enabled && current_flow > cfg->sensors.alarm_limits.flow_high_limit;
 
-    // Si la ventana de tiempo ya caducÃƒÆ’Ã‚Â³ o es el primer arranque, tomamos una nueva lÃƒÆ’Ã‚Â­nea base de flujo
+    // Si la ventana de tiempo ya caducó o es el primer arranque, tomamos una nueva línea base de flujo
     if (!isfinite(current_flow)) {
         // Invalid flow: restart the delta window once valid data returns.
         s_baseline_time_us = 0;
@@ -137,7 +148,7 @@ static void alarm_mgr_process_impl(float current_pressure, float current_flow, u
         s_baseline_flow = current_flow;
         s_baseline_time_us = now;
     } else {
-        // Evaluamos si el flujo tuvo un pico o caÃƒÆ’Ã‚Â­da abrupta dentro de la ventana de tiempo actual
+        // Evaluamos si el flujo tuvo un pico o caída abrupta dentro de la ventana de tiempo actual
         float delta = current_flow - s_baseline_flow;
         if (delta < 0) delta = -delta; // Convertimos a valor absoluto para detectar cambios hacia arriba o abajo
 
@@ -174,15 +185,15 @@ static void alarm_mgr_process_impl(float current_pressure, float current_flow, u
         s_high_since_us = 0;
     }
 
-    // 2. ClasificaciÃƒÆ’Ã‚Â³n del peor escenario segÃƒÆ’Ã‚Âºn norma hospitalaria
+    // 2. Clasificación del peor escenario según norma hospitalaria
     alarm_clinical_state_t target_state = ALARM_STATE_NORMAL;
 
-    // Escenario crÃƒÆ’Ã‚Â­tico (ALERT - Rojo): VariaciÃƒÆ’Ã‚Â³n severa de presiÃƒÆ’Ã‚Â³n fuera de rangos vitales
+    // Escenario crítico (ALERT - Rojo): Variación severa de presión fuera de rangos vitales
     if ((p_min_enabled && current_pressure < (p_min - 15.0f)) ||
         (p_max_enabled && current_pressure > (p_max + 15.0f))) {
         target_state = ALARM_STATE_ALERT;
     }
-    // Escenario moderado (WARNING - Amarillo): Cruce de lÃƒÆ’Ã‚Â­mites de presiÃƒÆ’Ã‚Â³n O variaciÃƒÆ’Ã‚Â³n sÃƒÆ’Ã‚Âºbita de flujo (Fuga)
+    // Escenario moderado (WARNING - Amarillo): Cruce de límites de presión O variación súbita de flujo (Fuga)
     else if ((p_min_enabled && current_pressure < p_min) ||
              (p_max_enabled && current_pressure > p_max) || flow_warning || flow_high ||
              sensor_faults != 0) {
@@ -193,10 +204,35 @@ static void alarm_mgr_process_impl(float current_pressure, float current_flow, u
                        !((p_min_enabled && current_pressure < p_min) ||
                          (p_max_enabled && current_pressure > p_max) || flow_warning || flow_high);
 
-    // 3. ClÃƒÆ’Ã‚Â¡usula de Seguridad NFPA 99: Si pasa de Warning a Alert, se anula el Mute
+    // 3. Cláusula de Seguridad NFPA 99: Si pasa de Warning a Alert, se anula el Mute
     if (target_state == ALARM_STATE_ALERT && s_current_state == ALARM_STATE_WARNING) {
         if (s_is_muted) {
-            ESP_LOGW(TAG, "Ãƒâ€šÃ‚Â¡CondiciÃƒÆ’Ã‚Â³n mÃƒÆ’Ã‚Â©dica escalÃƒÆ’Ã‚Â³ a CRÃƒÆ’Ã‚ÂTICA! Rompiendo Mute automÃƒÆ’Ã‚Â¡ticamente.");
+            ESP_LOGW(TAG, "Condicion medica escalo a CRITICA: se anula el silencio.");
+            s_is_muted = false;
+        }
+    }
+
+    // 3b. (1.6.7) El silencio vale SOLO para las condiciones presentes al silenciar
+    //     (IEC 60601-1-8): una condicion NUEVA (p. ej. flujo con la presion baja ya
+    //     silenciada) lo anula. Una condicion silenciada que desaparece por
+    //     COND_REARM_US deja de estar reconocida: si vuelve, tambien suena.
+    uint32_t conds = ((p_min_enabled && current_pressure < p_min) ? COND_P_LOW : 0u) |
+                     ((p_max_enabled && current_pressure > p_max) ? COND_P_HIGH : 0u) |
+                     (flow_warning ? COND_FLOW_DELTA : 0u) | (flow_high ? COND_FLOW_HIGH : 0u) |
+                     (sensor_faults != 0 ? COND_SENSOR : 0u);
+    s_active_conds = conds;
+    for (int b = 0; b < COND_COUNT; b++)
+        if (conds & (1u << b)) s_cond_seen_us[b] = now;
+    if (s_is_muted) {
+        for (int b = 0; b < COND_COUNT; b++) {
+            uint32_t bit = 1u << b;
+            if ((s_muted_conds & bit) && !(conds & bit) && now - s_cond_seen_us[b] >= COND_REARM_US)
+                s_muted_conds &= ~bit;
+        }
+        uint32_t fresh = conds & ~s_muted_conds;
+        if (fresh) {
+            ESP_LOGW(TAG, "Nueva condicion de alarma (0x%02lX) con el buzzer silenciado: se anula el silencio.",
+                     (unsigned long)fresh);
             s_is_muted = false;
         }
     }
@@ -221,7 +257,7 @@ static void alarm_mgr_process_impl(float current_pressure, float current_flow, u
 
     // 4. Evaluar fin del tiempo de silencio (Mute Timeout)
     if (s_is_muted && now >= s_mute_end_time_us) {
-        ESP_LOGI(TAG, "Tiempo de Mute vencido. Reactivando seÃƒÆ’Ã‚Â±al sonora.");
+        ESP_LOGI(TAG, "Tiempo de silencio vencido. Reactivando senal sonora.");
         s_is_muted = false;
     }
 
@@ -254,15 +290,17 @@ static void alarm_mgr_press_mute_impl(void)
 
     const AppConfig *cfg = appcfg_cache_peek();   // snapshot en RAM (sin copiar)
 
-    // Extraemos el tiempo exacto que el usuario configurÃƒÆ’Ã‚Â³ desde AWS o SD
+    // Extraemos el tiempo exacto que el usuario configuró desde AWS o SD
     int timeout_seconds = 60 * ((s_current_state == ALARM_STATE_ALERT) ? cfg->general.alarm.max_silence_minutes : cfg->general.alarm.reannounce_minutes);
 
     s_is_muted = true;
+    s_muted_conds = s_active_conds;   // solo estas quedan silenciadas (3b)
     alarm_tone_set(ALARM_TONE_OFF);
     s_mute_end_time_us = esp_timer_get_time() + ((int64_t)timeout_seconds * 1000000ULL);
 
-    ESP_LOGW(TAG, "Buzzer silenciado vÃƒÆ’Ã‚Â­a software por %d segundos.", timeout_seconds);
-    set_buzzer_acoustic(false); // Apagado instantÃƒÆ’Ã‚Â¡neo
+    ESP_LOGW(TAG, "Buzzer silenciado por %d s (condiciones 0x%02lX).", timeout_seconds,
+             (unsigned long)s_muted_conds);
+    set_buzzer_acoustic(false); // Apagado instantáneo
 }
 
 /* 3 s: alcanza para una rafaga ALTA completa (2,6 s), como la prueba de MedGuard. */

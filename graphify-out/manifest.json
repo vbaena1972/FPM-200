@@ -10,8 +10,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1792008790.7523954,
-    "ast_hash": "7fc445d19c3f895ecf9a6cdf53a37128",
+    "mtime": 1792024163.8134778,
+    "ast_hash": "ad7690dfb87dd7770da432261328c8d6",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/cert_store.c": {
@@ -90,8 +90,8 @@
     "semantic_hash": ""
   },
   "firmware/components/drivers/alarm_mgr.c": {
-    "mtime": 1791852953.8232045,
-    "ast_hash": "f7a5bab8d262daf7d8d597808f486b23",
+    "mtime": 1792023965.3314326,
+    "ast_hash": "aea96923ff8fdfaee040f7b41108a197",
     "semantic_hash": ""
   },
   "firmware/components/drivers/at24c256.c": {
@@ -110,8 +110,8 @@
     "semantic_hash": ""
   },
   "firmware/components/drivers/include/alarm_mgr.h": {
-    "mtime": 1790310287.7615235,
-    "ast_hash": "a35e6771ce2ad7e73370f450c4024de3",
+    "mtime": 1792023921.2100136,
+    "ast_hash": "f38a8b688fd2e2cee72aa07ca18668d1",
     "semantic_hash": ""
   },
   "firmware/components/drivers/include/at24c256.h": {
@@ -215,13 +215,13 @@
     "semantic_hash": ""
   },
   "firmware/components/sensors_runtime/include/sensors_runtime.h": {
-    "mtime": 1791730732.1846983,
-    "ast_hash": "4dd9ef8e440411ada93f0d71fa1259bd",
+    "mtime": 1792023921.2160814,
+    "ast_hash": "c0054972ddf0c1541ba2399f55982ca7",
     "semantic_hash": ""
   },
   "firmware/components/sensors_runtime/sensors_runtime.c": {
-    "mtime": 1791730732.1846983,
-    "ast_hash": "9bd7c464d8254a96b6459895993d73b1",
+    "mtime": 1792023921.2140768,
+    "ast_hash": "ba16fc0fccd9aa40a5a18ac3a229f9fd",
     "semantic_hash": ""
   },
   "firmware/components/state_pub/include/state_pub.h": {
@@ -240,8 +240,8 @@
     "semantic_hash": ""
   },
   "firmware/components/storage/include/storage.h": {
-    "mtime": 1790563213.9162183,
-    "ast_hash": "30c3c38cbdca4398cf3bb89e61becb2f",
+    "mtime": 1792023921.2190926,
+    "ast_hash": "0f97b88e06bef42b0ea13fb2f415089f",
     "semantic_hash": ""
   },
   "firmware/components/storage/metrics_store.c": {
@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "firmware/components/storage/storage.c": {
-    "mtime": 1791845077.6540816,
-    "ast_hash": "bde28be79710fc7c81ec40975c067639",
+    "mtime": 1792023921.218088,
+    "ast_hash": "967728e3eb318b405ad988d024a49880",
     "semantic_hash": ""
   },
   "firmware/components/storage/storage_extras.c": {
@@ -355,8 +355,8 @@
     "semantic_hash": ""
   },
   "firmware/main/main.c": {
-    "mtime": 1791856672.2053387,
-    "ast_hash": "6730487f104abe902aa9a129e309de7d",
+    "mtime": 1792023921.1894884,
+    "ast_hash": "6343278cacbdba2a6a349866b29d9557",
     "semantic_hash": ""
   },
   "firmware/main/pinmap.h": {
@@ -705,13 +705,13 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1792022526.9423718,
-    "ast_hash": "648eb23368d48a033d155f103118ea5c",
+    "mtime": 1792024163.8118787,
+    "ast_hash": "d9467331e1792cf15e70664a0099dd98",
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1792022526.9423718,
-    "ast_hash": "f36d96adc888284ee7115be344327d69",
+    "mtime": 1792024163.8084,
+    "ast_hash": "d47ec2e07163d1efbe4b060ed279e734",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {
@@ -925,8 +925,8 @@
     "semantic_hash": ""
   },
   "firmware/tests/host/test_alarm.c": {
-    "mtime": 1790563213.9162183,
-    "ast_hash": "7c4522b3a2ee4bdfe1066a14b0b719e3",
+    "mtime": 1792024062.3388946,
+    "ast_hash": "e688fdc0e7b6c6ef2b0d42c1a59017a6",
     "semantic_hash": ""
   },
   "firmware/tests/host/test_eeprom.c": {

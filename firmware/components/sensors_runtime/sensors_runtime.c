@@ -21,18 +21,18 @@
 #include "bmp280.h"  // barometro de referencia atmosferica (cero de presion)
 
 //------------------------------------------------------------------
-// ParÃ¡metros del buffer y tarea de adquisiciÃ³n
+// Parámetros del buffer y tarea de adquisición
 //------------------------------------------------------------------
 
 #define SENSORS_BUFFER_LEN 600      // ~600 muestras
-#define SENSORS_DEFAULT_PERIOD_MS 100 // 10 Hz de adquisiciÃ³n real
+#define SENSORS_DEFAULT_PERIOD_MS 100 // 10 Hz de adquisición real
 #define SENSORS_TASK_STACK 4096
 #define SENSORS_TASK_PRIO 6
 
-// AntirrebÃ³te de fault de I2C: un NACK puntual en el bus compartido
-// (MS5803/ADS/EEPROM) es comÃºn y NO debe disparar la alarma crÃ­tica ni
+// Antirrebóte de fault de I2C: un NACK puntual en el bus compartido
+// (MS5803/ADS/EEPROM) es común y NO debe disparar la alarma crítica ni
 // parpadear la lectura a 0. Solo declaramos fault tras N ciclos seguidos
-// fallidos (a 100 ms/ciclo, 3 = ~300 ms). Una pÃ©rdida sostenida sÃ­ alarma.
+// fallidos (a 100 ms/ciclo, 3 = ~300 ms). Una pérdida sostenida sí alarma.
 #define SENSORS_FAULT_DEBOUNCE 3
 
 // Si el SFM3300 (bus 2) falla lecturas de forma sostenida, reintentamos
@@ -44,18 +44,18 @@
 // cada N ciclos mientras siga caido (a 100 ms, 5 = ~500 ms). Antes eran 30 (~3 s),
 // demasiado lento: mientras tanto la tarea LVGL martillaba el touch (mismo bus 1)
 // y re-colgaba el bus antes de que el reset lo recuperara. Con el touch ahora
-// respetando el flag bus1_hung (ver ft5x06.c), un reset frecuente sÃ­ recupera.
+// respetando el flag bus1_hung (ver ft5x06.c), un reset frecuente sí recupera.
 #define BUS_RECOVER_EVERY 5
 
-// Hook de prueba: si es 1, hace una tara automÃ¡tica ~2 s despuÃ©s del arranque
-// (con la lÃ­nea a la atmÃ³sfera) para validar el modo gauge por log. Ponlo a 0
-// en producciÃ³n: la tara real se dispara bajo demanda (BLE / servicio).
+// Hook de prueba: si es 1, hace una tara automática ~2 s después del arranque
+// (con la línea a la atmósfera) para validar el modo gauge por log. Ponlo a 0
+// en producción: la tara real se dispara bajo demanda (BLE / servicio).
 #define SENSORS_TARE_ON_BOOT 0
 
 static const char *TAG = "sensors_runtime";
 
 //------------------------------------------------------------------
-// ConfiguraciÃ³n de calibraciÃ³n persistida en EEPROM AT24C256C
+// Configuración de calibración persistida en EEPROM AT24C256C
 //------------------------------------------------------------------
 
 #define SENS_CFG_EEPROM_ADDR 0x0000
@@ -72,9 +72,9 @@ static const char *TAG = "sensors_runtime";
 #define FS7_V7_N     0.75f
 #define FS7_V7_SCALE 253.4f
 
-// Modos de presiÃ³n
+// Modos de presión
 #define PRESSURE_MODE_ABS   0 // absoluta (por defecto)
-#define PRESSURE_MODE_GAUGE 1 // manomÃ©trica: absoluta - referencia tarada
+#define PRESSURE_MODE_GAUGE 1 // manométrica: absoluta - referencia tarada
 
 // Modelo de flujo FS7 (CTA / ley de King): U = U0 + k * v^n
 //   U       = salida CTA reconstruida = V_ain0 / divider
@@ -87,37 +87,37 @@ typedef struct __attribute__((packed))
     uint16_t version;
     uint16_t size;
 
-    // PresiÃ³n (MS5803) -> ajuste lineal opcional sobre kPa
+    // Presión (MS5803) -> ajuste lineal opcional sobre kPa
     float pressure_offset_kpa; // sumado
     float pressure_scale;      // multiplicativo (1.0 = sin cambio)
-    float pressure_ref_kpa;    // referencia gauge (atmosfÃ©rica tarada, cero manomÃ©trico)
+    float pressure_ref_kpa;    // referencia gauge (atmosférica tarada, cero manométrico)
 
     // Flujo (FS7 va ADS1115 AIN0)
     float fs7_divider;   // V_ain0 = U * divider
     float fs7_u0;        // salida CTA a flujo cero (V)
-    float fs7_k;         // constante fluÃ­dica
+    float fs7_k;         // constante fluídica
     float fs7_n;         // exponente (~0.5)
     float flow_scale;    // v(m/s) -> L/min
     float flow_offset;   // sumado (L/min)
 
     uint8_t flow_enabled;      // 0 = FS7 no conectado -> flujo=0 (evita ruido)
     uint8_t pressure_mode;     // PRESSURE_MODE_ABS / PRESSURE_MODE_GAUGE
-    uint16_t sample_period_ms; // periodo de adquisiciÃ³n
+    uint16_t sample_period_ms; // periodo de adquisición
     uint16_t crc16;            // CRC16-CCITT de todo lo anterior
 } sensor_eeprom_cfg_t;
 
 static sensor_eeprom_cfg_t s_scfg;
 static bool s_scfg_valid = false;
 
-// Ãšltima presiÃ³n ABSOLUTA calibrada (kPa), la usa la tara. NAN si aÃºn no hay.
+// Última presión ABSOLUTA calibrada (kPa), la usa la tara. NAN si aún no hay.
 static volatile float s_last_pressure_abs_kpa = NAN;
 
-// Ãšltimo voltaje CTA reconstruido del FS7 (U = Vain0/divider). Lo usa la tara
-// de flujo (auto-cero) y la calibraciÃ³n de 1 punto. NAN si aÃºn no hay lectura.
+// Último voltaje CTA reconstruido del FS7 (U = Vain0/divider). Lo usa la tara
+// de flujo (auto-cero) y la calibración de 1 punto. NAN si aún no hay lectura.
 static volatile float s_last_ucta = NAN;
 
 // Valores de DIAGNOSTICO en vivo para mostrar en el dashboard (temporales):
-// presiÃ³n atmosfÃ©rica del BMP280, referencia SFM3300 y flujo del FS7.
+// presión atmosférica del BMP280, referencia SFM3300 y flujo del FS7.
 static volatile float s_dbg_atm_kpa = NAN;
 static volatile float s_dbg_sfm_slm = NAN;
 static volatile float s_dbg_fs7_lpm = NAN;
@@ -162,12 +162,12 @@ static volatile int64_t s_fs7_warm_start_ms = 0;
 
 static sensor_sample_t s_buf[SENSORS_BUFFER_LEN];
 static int64_t s_last_pressure_ms = -1, s_last_flow_ms = -1;
-static size_t s_head = 0;  // prÃ³xima posiciÃ³n de escritura
-static size_t s_count = 0; // nÂº de elementos vÃ¡lidos en buffer
+static size_t s_head = 0;  // próxima posición de escritura
+static size_t s_count = 0; // nº de elementos válidos en buffer
 
 static SemaphoreHandle_t s_lock = NULL;
 
-// Config cachÃ© (por si luego quieres usar cal.* aquÃ­)
+// Config caché (por si luego quieres usar cal.* aquí)
 static AppConfig s_cfg_cache;
 static bool s_cfg_valid = false;
 static uint32_t s_reported_faults = SENSOR_FAULT_NONE;
@@ -180,13 +180,13 @@ static i2c_master_bus_handle_t s_i2c_bus = NULL;
 // mutex de display. volatile: escrito por sensors_acq, leido por la tarea LVGL.
 static volatile bool s_bus1_hung = false;
 
-// Tarea de adquisiciÃ³n real
+// Tarea de adquisición real
 static TaskHandle_t s_acq_task_handle = NULL;
 
 static void sensors_acq_task(void *arg);
 
 //------------------------------------------------------------------
-// Helpers de sincronizaciÃ³n
+// Helpers de sincronización
 //------------------------------------------------------------------
 
 static inline void lock(void)
@@ -202,7 +202,7 @@ static inline void unlock(void)
 }
 
 //------------------------------------------------------------------
-// ConfiguraciÃ³n de calibraciÃ³n (EEPROM)
+// Configuración de calibración (EEPROM)
 //------------------------------------------------------------------
 
 static uint16_t crc16_ccitt(const uint8_t *data, size_t len)
@@ -226,7 +226,7 @@ static void sensor_cfg_set_defaults(sensor_eeprom_cfg_t *c)
 
     c->pressure_offset_kpa = 0.415f;
     c->pressure_scale = 1.0f;
-    c->pressure_ref_kpa = 0.0f; // sin tarar todavÃ­a
+    c->pressure_ref_kpa = 0.0f; // sin tarar todavía
 
     // Divisor R2/(R1+R2) = 100k/340k
     c->fs7_divider = 100.0f / (240.0f + 100.0f); // 0.294118
@@ -243,8 +243,8 @@ static void sensor_cfg_set_defaults(sensor_eeprom_cfg_t *c)
     c->flow_offset = 0.0f;
 
     c->flow_enabled = 1;   // FS7 conectado y calibrado (salida analog. a 3.6 V @ 0 flujo)
-    // Gauge por defecto: presiÃ³n de lÃ­nea RELATIVA a la atmosfÃ©rica. Con el BMP280
-    // presente resta la atmosfÃ©rica en vivo (abs - atm); si no hay BMP cae a la
+    // Gauge por defecto: presión de línea RELATIVA a la atmosférica. Con el BMP280
+    // presente resta la atmosférica en vivo (abs - atm); si no hay BMP cae a la
     // tara (pressure_ref_kpa, 0 por defecto -> muestra absoluta).
     c->pressure_mode = PRESSURE_MODE_GAUGE;
     c->sample_period_ms = SENSORS_DEFAULT_PERIOD_MS;
@@ -435,12 +435,12 @@ static float median5f(const float v[5])
     return s[2];
 }
 
-// Convierte el voltaje leÃ­do en AIN0 a flujo (L/min) usando el modelo FS7.
+// Convierte el voltaje leído en AIN0 a flujo (L/min) usando el modelo FS7.
 static float sensor_flow_from_voltage(float v_ain0, float *v_out_cta)
 {
     float divider = (s_scfg.fs7_divider > 1e-4f) ? s_scfg.fs7_divider : 0.294118f;
     float u = v_ain0 / divider; // salida CTA reconstruida
-    s_last_ucta = u;            // para la tara de flujo / calibraciÃ³n
+    s_last_ucta = u;            // para la tara de flujo / calibración
     if (v_out_cta)
         *v_out_cta = u;
 
@@ -455,25 +455,25 @@ static float sensor_flow_from_voltage(float v_ain0, float *v_out_cta)
     return velocity * s_scfg.flow_scale + s_scfg.flow_offset;
 }
 
-// Recalcula el CRC y persiste s_scfg en la EEPROM. Devuelve ESP_OK si se guardÃ³.
+// Recalcula el CRC y persiste s_scfg en la EEPROM. Devuelve ESP_OK si se guardó.
 static esp_err_t sensor_cfg_persist(void)
 {
     s_scfg.crc16 = crc16_ccitt((const uint8_t *)&s_scfg, offsetof(sensor_eeprom_cfg_t, crc16));
     if (!at24c256_is_ready())
     {
         s_scfg_valid = false;
-        ESP_LOGW(TAG, "EEPROM no disponible: cambios de calibraciÃ³n solo en RAM");
+        ESP_LOGW(TAG, "EEPROM no disponible: cambios de calibración solo en RAM");
         return ESP_ERR_INVALID_STATE;
     }
     esp_err_t err = at24c256_write(SENS_CFG_EEPROM_ADDR, (const uint8_t *)&s_scfg, sizeof(s_scfg));
     s_scfg_valid = (err == ESP_OK);
     if (err != ESP_OK)
-        ESP_LOGW(TAG, "No se pudo persistir calibraciÃ³n en EEPROM: %s", esp_err_to_name(err));
+        ESP_LOGW(TAG, "No se pudo persistir calibración en EEPROM: %s", esp_err_to_name(err));
     return err;
 }
 
 //------------------------------------------------------------------
-// Tara / modo de presiÃ³n (opciÃ³n B: gauge por referencia local)
+// Tara / modo de presión (opción B: gauge por referencia local)
 //------------------------------------------------------------------
 
 esp_err_t sensors_runtime_tare_pressure(void)
@@ -481,12 +481,12 @@ esp_err_t sensors_runtime_tare_pressure(void)
     float p_abs = s_last_pressure_abs_kpa;
     if (!isfinite(p_abs))
     {
-        ESP_LOGW(TAG, "Tara abortada: aÃºn no hay lectura de presiÃ³n vÃ¡lida");
+        ESP_LOGW(TAG, "Tara abortada: aún no hay lectura de presión válida");
         return ESP_ERR_INVALID_STATE;
     }
 
     // Fijamos primero la referencia y luego el modo (para que la tarea de
-    // adquisiciÃ³n nunca reste una referencia a medio actualizar).
+    // adquisición nunca reste una referencia a medio actualizar).
     s_scfg.pressure_ref_kpa = p_abs;
     s_scfg.pressure_mode = PRESSURE_MODE_GAUGE;
 
@@ -497,14 +497,14 @@ esp_err_t sensors_runtime_tare_pressure(void)
 }
 
 // Auto-cero del flujo (tara): fija el voltaje CTA ACTUAL como u0 (flujo cero).
-// El cero del FS7 deriva con temperatura/alimentaciÃ³n, asÃ­ que esto se dispara
-// con la lÃ­nea SIN flujo (por BLE al comisionar, como la tara de presiÃ³n).
+// El cero del FS7 deriva con temperatura/alimentación, así que esto se dispara
+// con la línea SIN flujo (por BLE al comisionar, como la tara de presión).
 esp_err_t sensors_runtime_tare_flow(void)
 {
     float u = s_last_ucta;
     if (!isfinite(u))
     {
-        ESP_LOGW(TAG, "Tara de flujo abortada: aÃºn no hay lectura del FS7");
+        ESP_LOGW(TAG, "Tara de flujo abortada: aún no hay lectura del FS7");
         return ESP_ERR_INVALID_STATE;
     }
     s_scfg.fs7_u0 = u;
@@ -514,7 +514,7 @@ esp_err_t sensors_runtime_tare_flow(void)
     return ESP_OK; // queda activa aunque falle la persistencia
 }
 
-// CalibraciÃ³n de 1 punto: con un caudal CONOCIDO (p.ej. el patrÃ³n SFM3300),
+// Calibración de 1 punto: con un caudal CONOCIDO (p.ej. el patrón SFM3300),
 // ajusta flow_scale para que la lectura del FS7 coincida con ref_slm.
 esp_err_t sensors_runtime_cal_flow_point(float ref_slm)
 {
@@ -545,7 +545,7 @@ esp_err_t sensors_runtime_cal_flow_point(float ref_slm)
 
 esp_err_t sensors_runtime_set_pressure_gauge(bool gauge)
 {
-    // La atmosfÃ©rica siempre es > 0; ref_kpa <= 0 significa "nunca tarado".
+    // La atmosférica siempre es > 0; ref_kpa <= 0 significa "nunca tarado".
     if (gauge && s_scfg.pressure_ref_kpa <= 0.0f)
     {
         ESP_LOGW(TAG, "No hay referencia tarada; usa sensors_runtime_tare_pressure() primero");
@@ -553,7 +553,7 @@ esp_err_t sensors_runtime_set_pressure_gauge(bool gauge)
     }
     s_scfg.pressure_mode = gauge ? PRESSURE_MODE_GAUGE : PRESSURE_MODE_ABS;
     esp_err_t err = sensor_cfg_persist();
-    ESP_LOGI(TAG, "Modo de presiÃ³n = %s. Persist=%s",
+    ESP_LOGI(TAG, "Modo de presión = %s. Persist=%s",
              gauge ? "gauge" : "absoluta", esp_err_to_name(err));
     return ESP_OK;
 }
@@ -564,7 +564,7 @@ bool sensors_runtime_is_pressure_gauge(void)
 }
 
 //------------------------------------------------------------------
-// API pÃºblica
+// API pública
 //------------------------------------------------------------------
 
 bool sensors_runtime_init(const AppConfig *cfg)
@@ -596,16 +596,16 @@ bool sensors_runtime_init(const AppConfig *cfg)
     }
     unlock();
 
-    // Cargamos la calibraciÃ³n desde la EEPROM (o escribimos defaults la 1a vez).
+    // Cargamos la calibración desde la EEPROM (o escribimos defaults la 1a vez).
     sensors_runtime_preload_calibration();
 
-    // Estado de los sensores fÃ­sicos (los drivers se inicializan en main.c).
+    // Estado de los sensores físicos (los drivers se inicializan en main.c).
     ESP_LOGI(TAG, "Sensores: MS5803=%s  ADS1115=%s  EEPROM=%s",
              ms5803_is_ready() ? "OK" : "NO",
              ads1115_is_ready() ? "OK" : "NO",
              !at24c256_is_ready() ? "ABSENT" : (s_scfg_valid ? "VERIFIED" : "CALIBRATION_UNVERIFIED"));
 
-    // Arrancamos la tarea de adquisiciÃ³n real.
+    // Arrancamos la tarea de adquisición real.
     if (!s_acq_task_handle)
     {
         BaseType_t ok = xTaskCreatePinnedToCore(
@@ -618,12 +618,12 @@ bool sensors_runtime_init(const AppConfig *cfg)
             /* xCoreID      */ tskNO_AFFINITY); // 1.5.17: back to HEAD; core-0 pin coincided with PHY-cal hang
         if (ok != pdPASS)
         {
-            ESP_LOGE(TAG, "No se pudo crear la tarea de adquisiciÃ³n de sensores");
+            ESP_LOGE(TAG, "No se pudo crear la tarea de adquisición de sensores");
             s_acq_task_handle = NULL;
         }
     }
 
-    ESP_LOGI(TAG, "Init ok (tarea adquisiciÃ³n %s)",
+    ESP_LOGI(TAG, "Init ok (tarea adquisición %s)",
              s_acq_task_handle ? "ON" : "OFF");
     return true;
 }
@@ -767,14 +767,14 @@ bool sensors_runtime_get_min_max(int64_t window_ms,
     bool has = false;
     sensor_sample_t min_s = {0}, max_s = {0};
 
-    // Recorremos desde la muestra mÃ¡s reciente hacia atrÃ¡s
+    // Recorremos desde la muestra más reciente hacia atrás
     for (size_t i = 0; i < s_count; ++i)
     {
         size_t idx = (s_head + SENSORS_BUFFER_LEN - 1 - i) % SENSORS_BUFFER_LEN;
         const sensor_sample_t *s = &s_buf[idx];
 
         if (s->ts_ms < from_ms)
-            break; // mÃ¡s allÃ¡ de la ventana
+            break; // más allá de la ventana
 
         if (s->invalid_mask) continue;
 
@@ -785,7 +785,7 @@ bool sensors_runtime_get_min_max(int64_t window_ms,
         }
         else
         {
-            // PresiÃ³n
+            // Presión
             if (s->pressure_kpa < min_s.pressure_kpa)
                 min_s.pressure_kpa = s->pressure_kpa;
             if (s->pressure_kpa > max_s.pressure_kpa)
@@ -931,7 +931,7 @@ bool sensors_runtime_get_series(int64_t window_ms,
 }
 
 //------------------------------------------------------------------
-// Tarea de adquisiciÃ³n real (MS5803 + ADS1115/FS7)
+// Tarea de adquisición real (MS5803 + ADS1115/FS7)
 //------------------------------------------------------------------
 
 static void sensors_acq_task(void *arg)
@@ -940,7 +940,7 @@ static void sensors_acq_task(void *arg)
 
     uint32_t period_ms = s_scfg.sample_period_ms ? s_scfg.sample_period_ms
                                                  : SENSORS_DEFAULT_PERIOD_MS;
-    ESP_LOGI(TAG, "Tarea de adquisiciÃ³n iniciada (periodo %u ms)", period_ms);
+    ESP_LOGI(TAG, "Tarea de adquisición iniciada (periodo %u ms)", period_ms);
 
     uint32_t log_decim = 0; // logueamos ~1 vez por segundo para no saturar
     uint32_t log_every = (period_ms > 0) ? (1000 / period_ms) : 10;
@@ -952,8 +952,8 @@ static void sensors_acq_task(void *arg)
     uint32_t boot_ticks = 0;
 #endif
 
-    // Estado persistente entre ciclos para el antirrebÃ³te de fault de I2C.
-    // Retenemos el Ãºltimo valor bueno para no parpadear a 0 ante un NACK puntual.
+    // Estado persistente entre ciclos para el antirrebóte de fault de I2C.
+    // Retenemos el último valor bueno para no parpadear a 0 ante un NACK puntual.
     float last_good_pressure = NAN;
     float last_good_temp = NAN;
     float last_good_flow = NAN;
@@ -992,14 +992,14 @@ static void sensors_acq_task(void *arg)
         float flow_lpm = NAN;
         int64_t flow_sample_us = 0;
         float sfm_slm = NAN; // caudalimetro de referencia SFM3300 (slm)
-        float atm_kpa = NAN; // presiÃ³n atmosfÃ©rica de referencia (BMP280)
+        float atm_kpa = NAN; // presión atmosférica de referencia (BMP280)
         bool ms5803_read_ok = false;
         bool ads_read_ok = false;
         bool flow_valid = false; // lectura OK y mediana ya llena (ver warm-up abajo)
         // Phase timestamps (ms) to locate any long stall (e.g. ~2 s during AWS connect).
         int64_t t_bmp = 0, t_ms58 = 0, t_ads = 0, t_meter = 0;
 
-        // --- Referencia atmosfÃ©rica (BMP280) para el cero de presiÃ³n de lÃ­nea ---
+        // --- Referencia atmosférica (BMP280) para el cero de presión de línea ---
         if (bmp280_is_ready())
         {
             float ap = 0.0f;
@@ -1009,14 +1009,14 @@ static void sensors_acq_task(void *arg)
         s_dbg_atm_kpa = atm_kpa;
         t_bmp = esp_timer_get_time() / 1000;
 
-        // --- PresiÃ³n / temperatura (MS5803-14BA) ---
+        // --- Presión / temperatura (MS5803-14BA) ---
         if (ms5803_is_ready())
         {
             float p = 0.0f, t = 0.0f;
             esp_err_t err = ms5803_read(&p, &t);
             if (err != ESP_OK && ms5803_miss < SENSORS_FAULT_DEBOUNCE)
             {
-                // Un NACK puntual en el bus compartido es comÃºn: reintentamos 1 vez.
+                // Un NACK puntual en el bus compartido es común: reintentamos 1 vez.
                 // Solo en la fase transitoria: si el fault ya esta latcheado (bus
                 // colgado) NO duplicamos trafico -> deja actuar al recovery.
                 driver_delay_ms(2);
@@ -1024,7 +1024,7 @@ static void sensors_acq_task(void *arg)
             }
             if (err == ESP_OK)
             {
-                // PresiÃ³n absoluta calibrada (para la tara y el modo absoluto)
+                // Presión absoluta calibrada (para la tara y el modo absoluto)
                 float p_abs = p * s_scfg.pressure_scale + s_scfg.pressure_offset_kpa;
                 s_last_pressure_abs_kpa = p_abs;
                 temp_c = t;
@@ -1032,8 +1032,8 @@ static void sensors_acq_task(void *arg)
                 ms5803_read_ok = true;
                 ms5803_miss = 0;
 
-                // Modo gauge: cero por referencia atmosfÃ©rica. Preferimos el
-                // barÃ³metro en vivo (BMP280); si no hay, caemos a la tara (opciÃ³n B).
+                // Modo gauge: cero por referencia atmosférica. Preferimos el
+                // barómetro en vivo (BMP280); si no hay, caemos a la tara (opción B).
                 if (s_scfg.pressure_mode == PRESSURE_MODE_GAUGE)
                 {
                     float ref = isfinite(atm_kpa) ? atm_kpa : s_scfg.pressure_ref_kpa;
@@ -1066,8 +1066,8 @@ static void sensors_acq_task(void *arg)
             }
             else
             {
-                // Fallo transitorio: retenemos el Ãºltimo valor bueno y solo
-                // declaramos fault tras varios ciclos seguidos (antirrebÃ³te).
+                // Fallo transitorio: retenemos el último valor bueno y solo
+                // declaramos fault tras varios ciclos seguidos (antirrebóte).
                 if (++ms5803_miss >= SENSORS_FAULT_DEBOUNCE)
                     faults |= SENSOR_FAULT_MODULE_I2C;
                 if (isfinite(last_good_pressure)) pressure_kpa = last_good_pressure;
@@ -1119,7 +1119,7 @@ static void sensors_acq_task(void *arg)
             esp_err_t err = ads1115_read_voltage(ADS1115_MUX_AIN0, &v);
             if (err != ESP_OK && ads_miss < SENSORS_FAULT_DEBOUNCE)
             {
-                // Reintento Ãºnico ante un NACK puntual (solo fase transitoria).
+                // Reintento único ante un NACK puntual (solo fase transitoria).
                 driver_delay_ms(2);
                 err = ads1115_read_voltage(ADS1115_MUX_AIN0, &v);
             }
@@ -1220,8 +1220,8 @@ static void sensors_acq_task(void *arg)
             }
             else
             {
-                // Fallo transitorio: retenemos el Ãºltimo flujo y solo declaramos
-                // fault tras varios ciclos seguidos (antirrebÃ³te anti-alarma).
+                // Fallo transitorio: retenemos el último flujo y solo declaramos
+                // fault tras varios ciclos seguidos (antirrebóte anti-alarma).
                 if (++ads_miss >= SENSORS_FAULT_DEBOUNCE)
                     faults |= SENSOR_FAULT_MODULE_I2C;
                 if (isfinite(last_good_flow)) flow_lpm = last_good_flow;
@@ -1261,11 +1261,11 @@ static void sensors_acq_task(void *arg)
             // Un NACK/CRC puntual no es fault: solo significa "sin dato nuevo".
         }
 
-        // Diagnostico en vivo para el dashboard (temporal, se quita en producciÃ³n).
+        // Diagnostico en vivo para el dashboard (temporal, se quita en producción).
         s_dbg_sfm_slm = sfm_slm;
         s_dbg_fs7_lpm = flow_lpm;
 
-        // Publicamos la muestra (usamos 0 cuando un canal no tiene lectura vÃ¡lida
+        // Publicamos la muestra (usamos 0 cuando un canal no tiene lectura válida
         // para no romper a los consumidores que esperan floats finitos).
         sensor_sample_t s = {
             .invalid_mask = (ms5803_read_ok ? 0 : SENSOR_INVALID_PRESSURE | SENSOR_INVALID_TEMP) |
@@ -1301,7 +1301,7 @@ static void sensors_acq_task(void *arg)
         }
 
 #if SENSORS_TARE_ON_BOOT
-        // Tara automÃ¡tica de prueba tras ~2 s con lectura vÃ¡lida.
+        // Tara automática de prueba tras ~2 s con lectura válida.
         if (!boot_tare_done)
         {
             boot_ticks++;
@@ -1313,7 +1313,7 @@ static void sensors_acq_task(void *arg)
         }
 #endif
 
-        // Log periÃ³dico (por defecto ~1 Hz). Ãštil mientras no hay pantalla.
+        // Log periódico (por defecto ~1 Hz). Útil mientras no hay pantalla.
         if (++log_decim >= log_every)
         {
             log_decim = 0;

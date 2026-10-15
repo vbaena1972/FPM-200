@@ -14,7 +14,7 @@ extern "C"
     typedef enum
     {
         APP_BT_SEC_JW = 0,     // Just Works
-        APP_BT_SEC_PASSKEY = 1 // Passkey (PIN de 6 dÃƒÂ­gitos)
+        APP_BT_SEC_PASSKEY = 1 // Passkey (PIN de 6 dígitos)
     } app_bt_sec_mode_t;
 
     typedef enum
@@ -68,7 +68,7 @@ extern "C"
             char serial[24];
             char hw_version[16];
 
-            // VersiÃƒÂ³n del Software (Fijada por compilaciÃƒÂ³n)
+            // Versión del Software (Fijada por compilación)
             char fw_version[16];
 
             // Datos de despliegue comercial (Modificables por SD)
@@ -147,7 +147,7 @@ extern "C"
         {
 
             bool enabled;
-            bool advertise;             // control explÃƒÂ­cito de advertising
+            bool advertise;             // control explícito de advertising
             app_bt_tx_power_t tx_power; // 0..7 (o el rango que uses)
             struct
             {

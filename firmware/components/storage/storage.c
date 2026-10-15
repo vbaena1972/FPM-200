@@ -55,7 +55,7 @@ void appcfg_defaults(AppConfig *c)
     set_str(c->general.serial, sizeof(c->general.serial), "fpm-0001");
     set_str(c->general.hw_version, sizeof(c->general.hw_version), "1.1");
 
-    // VersiÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n del Software (Fijada por compilaciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n)
+    // Versión del Software (Fijada por compilación)
     set_str(c->general.fw_version, sizeof(c->general.fw_version), "1.0.0");
 
     // Datos de despliegue comercial (Modificables por SD)
@@ -150,14 +150,14 @@ void appcfg_defaults(AppConfig *c)
     // cloud
     c->cloud.enabled = false;
     set_str(c->cloud.type, sizeof(c->cloud.type), "mqtt");
-    // Tu endpoint real de AWS IoT Core (ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡Este estÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ perfecto, dÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©jalo asÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­!)
+    // Tu endpoint real de AWS IoT Core (¡Este está perfecto, déjalo así!)
     set_str(c->cloud.broker_url, sizeof(c->cloud.broker_url), "mqtts://a13o0atpzl606i-ats.iot.us-east-1.amazonaws.com:8883");
-    // RaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­z del tÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³pico MQTT (El cÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³digo en transport_mqtt.c le agregarÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ automÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ticamente "/telemetry" al final)
+    // Raíz del tópico MQTT (El código en transport_mqtt.c le agregará automáticamente "/telemetry" al final)
     set_str(c->cloud.topic_base, sizeof(c->cloud.topic_base), "vexel");
     /* Servidor de firmware OTA (DEC-029, salida FirmwareBaseUrl del stack medguard-mvp). */
     set_str(c->cloud.ota_url, sizeof(c->cloud.ota_url), "https://d2ylj1vxo50l8q.cloudfront.net");
-    c->cloud.qos = 1;        // QOS 1 es ideal para asegurar que AWS reciba la telemetrÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­a
-    c->cloud.keepalive = 60; // 60 segundos es el estÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ndar mÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡s estable para AWS IoT (30s es un poco agresivo y puede causar reconexiones)
+    c->cloud.qos = 1;        // QOS 1 es ideal para asegurar que AWS reciba la telemetría
+    c->cloud.keepalive = 60; // 60 segundos es el estándar más estable para AWS IoT (30s es un poco agresivo y puede causar reconexiones)
 }
 
 static cJSON *user_to_json(const app_user_t *u)
@@ -215,7 +215,7 @@ cJSON *json_from_cfg(const AppConfig *c)
     cJSON_AddStringToObject(gen, "model", c->general.model);
     cJSON_AddStringToObject(gen, "serial", c->general.serial);
     cJSON_AddStringToObject(gen, "hw_version", c->general.hw_version);
-    // VersiÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n del Software (Fijada por compilaciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n)
+    // Versión del Software (Fijada por compilación)
     cJSON_AddStringToObject(gen, "fw_version", c->general.fw_version);
     // Datos de despliegue comercial (Modificables por SD)
     cJSON_AddStringToObject(gen, "partner", c->general.partner);
@@ -332,7 +332,7 @@ void cfg_from_json(AppConfig *c, const cJSON *root)
 
     ESP_LOGI("STORAGE", "Iniciando parseo profundo de AppConfig.json...");
 
-    // Obtener versiÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n raÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­z
+    // Obtener versión raíz
     const cJSON *ver = cJSON_GetObjectItemCaseSensitive(root, "ver");
     if (cJSON_IsNumber(ver))
         c->ver = ver->valueint;
@@ -401,7 +401,7 @@ void cfg_from_json(AppConfig *c, const cJSON *root)
         }
         else if (c->general.admin.user[0] && c->general.admin.pass[0])
         {
-            /* MigraciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n config@2: admin simple -> primera cuenta administradora. */
+            /* Migración config@2: admin simple -> primera cuenta administradora. */
             c->general.users_count = 1;
             set_str(c->general.users[0].name, sizeof(c->general.users[0].name), c->general.admin.user);
             set_str(c->general.users[0].pin, sizeof(c->general.users[0].pin), c->general.admin.pass);
@@ -658,7 +658,7 @@ esp_err_t appcfg_load(AppConfig *out)
     cfg_from_json(out, root);
     cJSON_Delete(root);
 
-    // migraciones si subimos de versiÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n
+    // migraciones si subimos de versión
     appcfg_migrate(out);
     return ESP_OK;
 }
@@ -694,10 +694,10 @@ esp_err_t appcfg_save(const AppConfig *in)
 
 esp_err_t appcfg_migrate(AppConfig *io)
 {
-    // ejemplo de migraciÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n entre versiones (ahora solo ver==1)
+    // ejemplo de migración entre versiones (ahora solo ver==1)
     if (io->ver < 1)
     {
-        // ... ajustes si venÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­as de 0 (no lo usamos)
+        // ... ajustes si venías de 0 (no lo usamos)
         io->ver = 1;
     }
     // Saneo de campos nuevos: configs viejas en NVS no traen "brightness"
@@ -715,7 +715,7 @@ esp_err_t appcfg_migrate(AppConfig *io)
     return ESP_OK;
 }
 
-// Snapshot interno en DRAM (estÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡tico)
+// Snapshot interno en DRAM (estático)
 static AppConfig s_cfg_snapshot;
 static bool s_cfg_snapshot_inited = false;
 
@@ -781,5 +781,5 @@ AppConfig *appcfg_cache_peek(void)
         appcfg_defaults(&s_cfg_snapshot);
         s_cfg_snapshot_inited = true;
     }
-    return &s_cfg_snapshot; // ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â  No modificar desde fuera
+    return &s_cfg_snapshot; // ⚠ No modificar desde fuera
 }

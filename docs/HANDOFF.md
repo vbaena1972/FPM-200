@@ -91,6 +91,12 @@ migración de HMI y sesiones viejas: `docs/historial/`.
   del FPM (ajuste del FS7, ceros; EEPROM) es de fábrica: ningún nivel la toca. (5) Progreso en la tarjeta de
   flujo: valor "--" y "calentando N s" (`sensors_runtime_flow_warming_elapsed_ms`); no se alarga el splash a
   propósito: la presión y sus alarmas deben volver en segundos tras un corte (decisión 2026-10-11).
+- **1.6.7-dev (2026-10-14):** el silencio vale solo para las condiciones presentes al silenciar (bits
+  `COND_*` en `alarm_mgr.c`): una condición NUEVA (flujo, falla de sensor, el otro límite) o una que vuelve
+  tras 10 s ausente rompe el silencio; antes una ADVERTENCIA silenciada tapaba todo 15 min. Mojibake de
+  logs/comentarios reparado (el log de escalada tumbaba `idf.py monitor`). Prueba de host nueva:
+  `gcc -std=c11 -Itests/host/stubs -Icomponents/drivers/include tests/host/test_alarm.c components/drivers/alarm_mgr.c -o test_alarm.exe`
+  (desde `firmware/`; o `tests/host/run.ps1` con MSVC).
 - **1.6.6-dev (2026-10-14):** una ADVERTENCIA no se podía silenciar desde la pantalla (botón solo en ALARMA,
   aunque `alarm_mgr` sí lo permite) → "Silenciar advertencia" en la pantalla de alarma y "silenciada" en el banner.
 - **1.6.5-dev (2026-10-14):** el banner superior decía siempre "ADVERTENCIA · vigilar" / "ALARMA · revisar

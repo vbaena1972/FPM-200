@@ -18,6 +18,14 @@
 - Los docs históricos (`docs/HANDOFF.md` etc.) referencian rutas viejas tipo
   `main/ui/...`; hoy son `firmware/main/ui/...` (breadcrumbs, no build-crítico).
 
+## Alarmas: silencio (1.6.7)
+- `alarm_mgr.c`: WARNING = presión fuera de límite, flujo (delta/alto) o falla de sensor (solo falla = técnica,
+  patrón BAJA); ALERT = presión > 15 kPa más allá del límite. Silenciar dura `reannounce_minutes` (WARNING) o
+  `max_silence_minutes` (ALERT) y vale SOLO para las condiciones presentes (`s_muted_conds`): una nueva, una que
+  vuelve tras `COND_REARM_US` (10 s) ausente, o WARNING→ALERT rompen el silencio. Prueba: `tests/host/test_alarm.c`.
+- **Logs solo en ASCII o UTF-8 correcto**: un literal con mojibake (UTF-8 releído como cp1252) puede llevar
+  U+0081/U+008D y tumba `idf.py monitor` en Windows (`UnicodeEncodeError cp1252`). Para capturas: `$env:PYTHONUTF8=1`.
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.

@@ -9,8 +9,8 @@
 #include "driver/i2c_master.h" // Para el handle del bus (recuperacion de bus)
 
 /**
- * Muestra bÃƒÂ¡sica de sensores en unidades internas (SI):
- *  - PresiÃƒÂ³n: kPa
+ * Muestra básica de sensores en unidades internas (SI):
+ *  - Presión: kPa
  *  - Flujo:   L/min
  */
 typedef enum {
@@ -28,9 +28,9 @@ typedef enum {
 typedef struct
 {
     int64_t ts_ms;        ///< timestamp en milisegundos (esp_timer_get_time()/1000)
-    float   pressure_kpa; ///< presiÃƒÂ³n en kPa
+    float   pressure_kpa; ///< presión en kPa
     float   flow_lpm;     ///< flujo en L/min
-    float   temp_c;       ///< temperatura del sensor de presiÃ³n (MS5803) en Â°C
+    float   temp_c;       ///< temperatura del sensor de presión (MS5803) en °C
     uint32_t invalid_mask; // Retained values are not fresh measurements.
 } sensor_sample_t;
 
@@ -38,11 +38,11 @@ typedef struct
  * Inicializa el runtime de sensores:
  *  - Crea el buffer circular
  *  - Inicializa mutex
- *  - Arranca la tarea dummy de generaciÃƒÂ³n de muestras (opcional, para pruebas)
+ *  - Arranca la tarea dummy de generación de muestras (opcional, para pruebas)
  *
  * IMPORTANTE:
  *  - cfg puede ser NULL; en ese caso se usan defaults internos para la tarea dummy.
- *  - Cuando luego tengas el driver real, podrÃƒÂ¡s llamar a sensors_runtime_push_sample()
+ *  - Cuando luego tengas el driver real, podrás llamar a sensors_runtime_push_sample()
  *    desde tu propia tarea en vez de usar la dummy.
  */
 // Call once after EEPROM init, before touch/display and acquisition tasks.
@@ -67,8 +67,8 @@ void sensors_runtime_set_bus(i2c_master_bus_handle_t bus);
 bool sensors_runtime_bus1_hung(void);
 
 /**
- * Actualiza la configuraciÃƒÂ³n (por si cambias calibraciÃƒÂ³n, etc).
- * Por ahora la guardamos solo por si luego quieres usar cal.* aquÃƒÂ­.
+ * Actualiza la configuración (por si cambias calibración, etc).
+ * Por ahora la guardamos solo por si luego quieres usar cal.* aquí.
  */
 void sensors_runtime_update_config(const AppConfig *cfg);
 
@@ -81,8 +81,8 @@ void sensors_runtime_update_config(const AppConfig *cfg);
 void sensors_runtime_push_sample(const sensor_sample_t *s);
 
 /**
- * Obtiene la ÃƒÂºltima muestra disponible (la mÃƒÂ¡s reciente).
- * Devuelve true si hay datos vÃƒÂ¡lidos, false si el buffer estÃƒÂ¡ vacÃƒÂ­o.
+ * Obtiene la última muestra disponible (la más reciente).
+ * Devuelve true si hay datos válidos, false si el buffer está vacío.
  */
 bool sensors_runtime_get_last(sensor_sample_t *out);
 void sensors_runtime_get_ages(int64_t *pressure_ms, int64_t *flow_ms);
@@ -96,61 +96,61 @@ bool sensors_runtime_flow_warming(void);
 uint32_t sensors_runtime_flow_warming_elapsed_ms(void);
 
 /**
- * Tara de presiÃ³n (opciÃ³n B, gauge por offset local):
- * captura la presiÃ³n absoluta actual (atmosfÃ©rica, con la lÃ­nea venteada)
- * como el cero manomÃ©trico, activa el modo gauge y lo persiste en la EEPROM.
- * A partir de ahÃ­, la presiÃ³n reportada es: absoluta - referencia_tarada.
+ * Tara de presión (opción B, gauge por offset local):
+ * captura la presión absoluta actual (atmosférica, con la línea venteada)
+ * como el cero manométrico, activa el modo gauge y lo persiste en la EEPROM.
+ * A partir de ahí, la presión reportada es: absoluta - referencia_tarada.
  *
- * Debe llamarse con la lÃ­nea DESPRESURIZADA (abierta a la atmÃ³sfera).
- * Devuelve ESP_OK si habÃ­a una lectura vÃ¡lida y se guardÃ³.
+ * Debe llamarse con la línea DESPRESURIZADA (abierta a la atmósfera).
+ * Devuelve ESP_OK si había una lectura válida y se guardó.
  */
 esp_err_t sensors_runtime_tare_pressure(void);
 
 /**
- * Cambia el modo de presiÃ³n: false = absoluta, true = gauge (usa la referencia
- * ya tarada). Persiste en EEPROM. Ãštil para volver a absoluta sin re-tarar.
+ * Cambia el modo de presión: false = absoluta, true = gauge (usa la referencia
+ * ya tarada). Persiste en EEPROM. Útil para volver a absoluta sin re-tarar.
  */
 esp_err_t sensors_runtime_set_pressure_gauge(bool gauge);
 
-/** true si el modo actual es gauge (manomÃ©trica). */
+/** true si el modo actual es gauge (manométrica). */
 bool sensors_runtime_is_pressure_gauge(void);
 
 /**
  * Auto-cero (tara) del flujo: fija el voltaje CTA actual del FS7 como el cero
- * (u0). Dispara con la lÃ­nea SIN flujo. El cero del FS7 deriva, asÃ­ que esto lo
- * corrige sin reflashear. Devuelve ESP_OK si habÃ­a lectura vÃ¡lida.
+ * (u0). Dispara con la línea SIN flujo. El cero del FS7 deriva, así que esto lo
+ * corrige sin reflashear. Devuelve ESP_OK si había lectura válida.
  */
 esp_err_t sensors_runtime_tare_flow(void);
 
 /**
- * CalibraciÃ³n de 1 punto del flujo: con un caudal CONOCIDO (ref_slm, p.ej. del
- * patrÃ³n SFM3300) ajusta flow_scale para que el FS7 coincida. Hacer la tara de
+ * Calibración de 1 punto del flujo: con un caudal CONOCIDO (ref_slm, p.ej. del
+ * patrón SFM3300) ajusta flow_scale para que el FS7 coincida. Hacer la tara de
  * flujo primero (cero), luego este a un caudal estable. Persiste en EEPROM.
  */
 esp_err_t sensors_runtime_cal_flow_point(float ref_slm);
 
 /**
  * Valores de DIAGNOSTICO en vivo para el dashboard (temporales, se quitan en
- * producciÃ³n): presiÃ³n atmosfÃ©rica del BMP280 (kPa), referencia SFM3300 (slm)
+ * producción): presión atmosférica del BMP280 (kPa), referencia SFM3300 (slm)
  * y flujo del FS7 (L/min). Cualquier puntero puede ser NULL. Devuelve NAN si
- * aÃºn no hay lectura del sensor correspondiente.
+ * aún no hay lectura del sensor correspondiente.
  */
 void sensors_runtime_get_debug(float *atm_kpa, float *sfm_slm, float *fs7_lpm);
 
 /**
- * Calcula min y max de presiÃƒÂ³n y flujo en una ventana de tiempo [now - window_ms, now].
+ * Calcula min y max de presión y flujo en una ventana de tiempo [now - window_ms, now].
  * - window_ms: ventana en milisegundos (ej: 60000 para 1 minuto).
  * - min_out / max_out pueden ser NULL si no te interesa alguno.
- * Devuelve true si encontrÃƒÂ³ muestras en la ventana, false si no hay datos.
+ * Devuelve true si encontró muestras en la ventana, false si no hay datos.
  */
 bool sensors_runtime_get_min_max(int64_t window_ms,
                                  sensor_sample_t *min_out,
                                  sensor_sample_t *max_out);
 
 /**
- * Extrae una serie de muestras dentro de la ventana de tiempo (para grÃƒÂ¡ficas).
- * - window_ms: ventana hacia atrÃƒÂ¡s en ms desde "ahora".
- * - out: buffer donde se copiarÃƒÂ¡n las muestras (en orden cronolÃƒÂ³gico ascendente).
+ * Extrae una serie de muestras dentro de la ventana de tiempo (para gráficas).
+ * - window_ms: ventana hacia atrás en ms desde "ahora".
+ * - out: buffer donde se copiarán las muestras (en orden cronológico ascendente).
  * - max: capacidad del buffer out.
  * - out_count: cantidad real copiada.
  * Devuelve true si hay al menos 1 muestra copiada.

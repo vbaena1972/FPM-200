@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.6.7-dev (2026-10-14): (1) el silencio tapaba CUALQUIER alarma nueva hasta vencer (15 min en
+#   ADVERTENCIA): ahora vale solo para las condiciones presentes al silenciar; una condicion nueva
+#   (flujo, falla de sensor, el otro limite de presion) o una que vuelve tras 10 s ausente rompe el
+#   silencio (IEC 60601-1-8). (2) Textos con UTF-8 doble/triple (mojibake) en logs y comentarios de
+#   alarm_mgr/main/sensors_runtime/storage: el de "escalo a CRITICA" llevaba U+008D y TUMBABA
+#   idf.py monitor en Windows (cp1252) justo al escalar. (3) tests/host/test_alarm.c reescrita
+#   (la anterior no compilaba desde alarm_tone, 1.6.0). QA formal V1, P2.
 # 1.6.6-dev (2026-10-14): una ADVERTENCIA no se podia silenciar desde la pantalla (el boton solo
 #   existia en ALARMA, aunque alarm_mgr si lo permite: silencio por reannounce_minutes que se rompe si
 #   escala a ALARMA). Ahora "Silenciar advertencia" y el banner muestra "silenciada". QA formal V1, P2.
@@ -180,7 +187,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #     (OS!=1) y loguea; sensors_runtime avisa flujo alto sospechoso con v_ain0.
 # 1.4.0: sensores reales estables (SFM3300 leyendo, touch tolerante a I2C,
 # recuperacion de bus, 1er paso calibracion FS7, decimales de dashboard).
-set(PROJECT_VER "1.6.6-dev")
+set(PROJECT_VER "1.6.7-dev")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:
