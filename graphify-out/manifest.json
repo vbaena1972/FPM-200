@@ -10,8 +10,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1792073972.8779035,
-    "ast_hash": "4441487faee83c3275005c0314e4f416",
+    "mtime": 1792192914.1842048,
+    "ast_hash": "5b5e7552bef7b296a41d720245f65eb9",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/cert_store.c": {
@@ -45,8 +45,8 @@
     "semantic_hash": ""
   },
   "firmware/components/display/ft5x06.c": {
-    "mtime": 1792077782.2565246,
-    "ast_hash": "3063eec0f79acc4ab742e4b4689d4f34",
+    "mtime": 1792192871.3366485,
+    "ast_hash": "819934c181b1a634a334767c3d07a04f",
     "semantic_hash": ""
   },
   "firmware/components/display/include/display.h": {
@@ -705,13 +705,13 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1792192479.104409,
-    "ast_hash": "0bc747ddd5dfe130d5eb86214b8ac017",
+    "mtime": 1792192914.1139514,
+    "ast_hash": "eb59169a054086e46dcb1c6bc43156c1",
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1792192417.313432,
-    "ast_hash": "399d909263674c42ac0f42b1b86eb94c",
+    "mtime": 1792192888.7450304,
+    "ast_hash": "3aa90ad5be25d9bbc5ef91e4975fd607",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {

@@ -39,6 +39,9 @@
 - "24H" (1.6.9): cubetas por hora de reloj, guardadas en NVS `metrics`/`mm24` cada 10 min y fusionadas al
   arrancar. Fila de consumo: TOTAL primero (grande), HOY después. TOTAL nunca < HOY.
 - **Verificar compilando a objeto**, no solo `-fsyntax-only`: `-Werror=format-truncation` aparece con -O2.
+- **ISR de GPIO (INT del touch, `ft5x06.c`)**: SOLO escribir variables. Nada de FreeRTOS (event groups,
+  `lvgl_port_task_wake`), LVGL, I2C ni logs: en 1.6.10 eso trabó el core 0 durante la calibración del Wi-Fi
+  (`Interrupt wdt timeout on CPU0`) y la OTA volvió a 1.6.9.
 
 ## graphify
 

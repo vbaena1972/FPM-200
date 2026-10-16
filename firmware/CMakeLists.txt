@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.6.12 (2026-10-16): CORRIGE el reinicio de 1.6.10/1.6.11 al arrancar ("Interrupt wdt timeout on
+#   CPU0"; la OTA a 1.6.10 volvia sola a 1.6.9): la ISR del INT del touch llamaba a
+#   lvgl_port_task_wake (event group -> spinlock) y se trababa durante la calibracion de la radio
+#   Wi-Fi. Ahora la ISR solo marca la bandera; el indev la atiende en <= 20 ms. Incluye 1.6.11.
 # 1.6.11 (2026-10-16): (1) tarjeta de flujo: la zona alta y "N alto" usan el LIMITE de flujo alto
 #   configurado (antes 80 % fijo del eje: el "80.00 alto" no salia de la config). (2) Botones
 #   chicos (28-30 px, Sensores y otras): ui_style_button amplia la zona tocable 5 px por lado y los
@@ -218,7 +222,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #   y un equipo que paso por 1.6.8 (total desde 0) se corrige solo al arrancar.
 # 1.6.8 (2026-10-15): RELEASE baseline V1 = codigo de 1.6.8-dev (+ buffer del topic del Last Will a
 #   256 B: -Werror=format-truncation en el build). Publicar en Estable tras su humo en HW (QA §7).
-set(PROJECT_VER "1.6.11")
+set(PROJECT_VER "1.6.12")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:

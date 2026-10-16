@@ -1,16 +1,16 @@
 # Graph Report - FPM-200  (2026-10-16)
 
 ## Corpus Check
-- 215 files · ~446,107 words
+- 215 files · ~446,359 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1756 nodes · 4619 edges · 98 communities (89 shown, 9 thin omitted)
+- 1756 nodes · 4619 edges · 99 communities (90 shown, 9 thin omitted)
 - Extraction: 74% EXTRACTED · 26% INFERRED · 0% AMBIGUOUS · INFERRED: 1186 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7d177a46`
+- Built from commit: `09a894e4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -77,6 +77,7 @@
 - ui_wifi_main_icon.c
 - string
 - assert
+- app_main
 - lvgl
 - ws_stream.c
 - PUBLICAR_FIRMWARE.md
@@ -89,7 +90,7 @@
 - Q: Revisa cada cuando el FPM esta enviando los datos a AWS
 - ui_cfg.c
 - README_PARCHE.md
-- app_main
+- mem_diag.c
 - ads1115.c
 - ota_update.c
 - test_eeprom.c
@@ -128,7 +129,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (98 total, 9 thin omitted)
+## Communities (99 total, 9 thin omitted)
 
 ### Community 0 - "transport_ble.c"
 Cohesion: 0.07
@@ -144,7 +145,7 @@ Nodes (16): alarm_mgr_press_mute_impl(), set_buzzer_acoustic(), tone_out(), alar
 
 ### Community 3 - "transport_mqtt.c"
 Cohesion: 0.11
-Nodes (25): esp_mqtt_event_handle_t, esp_reset_reason_t, add_channel(), AppConfig, cJSON, esp_event_base_t, sensor_signal_stats_t, lwt_prepare() (+17 more)
+Nodes (26): esp_mqtt_event_handle_t, esp_reset_reason_t, add_channel(), AppConfig, cJSON, esp_event_base_t, sensor_signal_stats_t, lwt_prepare() (+18 more)
 
 ### Community 4 - "alarm_mgr.c"
 Cohesion: 0.15
@@ -223,8 +224,8 @@ Cohesion: 0.17
 Nodes (25): mm24_t, sensor_sample_t, sensor_signal_stats_t, lock(), mm24_clock_ms(), sensors_runtime_flow_warming(), sensors_runtime_flow_warming_elapsed_ms(), sensors_runtime_get_ages() (+17 more)
 
 ### Community 23 - "test_flow_meter.c"
-Cohesion: 0.12
-Nodes (21): esp_err_t, flow_meter_boot_checkpoint(), flow_meter_init(), flow_meter_record(), appmetrics_load(), appmetrics_load_blob(), appmetrics_store(), appmetrics_store_blob() (+13 more)
+Cohesion: 0.13
+Nodes (20): esp_err_t, flow_meter_boot_checkpoint(), flow_meter_init(), appmetrics_load(), appmetrics_load_blob(), appmetrics_store(), appmetrics_store_blob(), app_metrics_t (+12 more)
 
 ### Community 24 - "Handoff — FPM-200 (firmware + HMI)"
 Cohesion: 0.14
@@ -259,8 +260,8 @@ Cohesion: 0.16
 Nodes (23): esp_err_t, i2c_device_config_t, i2c_master_bus_handle_t, i2c_master_dev_handle_t, fpm_i2c_bus_add_device(), fpm_i2c_bus_reset(), fpm_i2c_bus_rm_device(), fpm_i2c_multi_buffer_transmit() (+15 more)
 
 ### Community 32 - "xSemaphoreTake"
-Cohesion: 0.18
-Nodes (18): alarm_tone_get(), alarm_tone_set(), apply_step_locked(), alarm_tone_prio_t, timer_cb(), aws_telemetry_task(), publish_alarm_transition(), shadow_apply_pending() (+10 more)
+Cohesion: 0.21
+Nodes (16): alarm_tone_get(), alarm_tone_set(), apply_step_locked(), alarm_tone_prio_t, timer_cb(), aws_telemetry_task(), shadow_apply_pending(), flow_meter_snapshot_t (+8 more)
 
 ### Community 33 - "HANDOFF FPM-200 — sesiones del 2026-08 al 2026-10-08"
 Cohesion: 0.08
@@ -358,6 +359,10 @@ Nodes (11): cert_store, eth_mgr, stdio, stdlib, storage, string, transport_ble, 
 Cohesion: 0.24
 Nodes (5): assert, flow_integrator_push(), close_to(), main(), flow_integrator_t
 
+### Community 64 - "app_main"
+Cohesion: 0.20
+Nodes (11): fpm_i2c_init(), transport_mqtt_runtime_init(), i2c_master_bus_handle_t, sensors_runtime_set_bus(), app_main(), factory_btn_cb(), reboot_cb(), ui_infoScreen_ota_busy() (+3 more)
+
 ### Community 66 - "lvgl"
 Cohesion: 0.09
 Nodes (9): alarm_mgr, lv_event_t, key_cb(), refresh_value(), lvgl, ui, ui_cfg, ui_i18n (+1 more)
@@ -394,9 +399,9 @@ Nodes (4): Answer, Outcome, Q: Revisa cada cuando el FPM esta enviando los datos
 Cohesion: 0.13
 Nodes (33): appcfg_cache_peek(), lv_event_t, next(), app_user_t, AppConfig, save_and_refresh(), set_str(), ui_auth_factory() (+25 more)
 
-### Community 88 - "app_main"
-Cohesion: 0.12
-Nodes (17): eTaskState, diag_worker(), mem_diag_report_full(), mem_diag_report_heap_full(), mem_diag_report_tasks(), mem_diag_start_periodic(), task_state_str(), fpm_i2c_init() (+9 more)
+### Community 88 - "mem_diag.c"
+Cohesion: 0.23
+Nodes (8): eTaskState, diag_worker(), mem_diag_report_full(), mem_diag_report_heap_full(), mem_diag_report_tasks(), mem_diag_start_periodic(), task_state_str(), mem_diag
 
 ### Community 89 - "ads1115.c"
 Cohesion: 0.38
@@ -447,11 +452,11 @@ Nodes (6): mm24_t, mm24_get(), mm24_merge(), mm24_push(), main(), math
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `appcfg_cache_peek()` connect `ui_cfg.c` to `transport_ble.c`, `esp_err_to_name`, `test_alarm.c`, `alarm_mgr.c`, `screen_init_task`, `storage.c`, `ui_edit_begin`, `fpm_ble_config.c`, `ui_label`, `appcfg_save`, `http_api.c`, `eth_mgr.c`, `display_idle_cb`, `xSemaphoreTake`, `ui_connectivityScreen.c`, `ui_cfg_apply_visual_mode`, `gas_label_color`, `ui_mainScreen.c`, `ui_sensorEditScreen.c`, `ui_cfg_flow_unit`, `on_network_ready`, `app_main`, `ota_update.c`?**
+- **Why does `appcfg_cache_peek()` connect `ui_cfg.c` to `transport_ble.c`, `esp_err_to_name`, `test_alarm.c`, `alarm_mgr.c`, `screen_init_task`, `storage.c`, `ui_edit_begin`, `fpm_ble_config.c`, `ui_label`, `appcfg_save`, `http_api.c`, `eth_mgr.c`, `display_idle_cb`, `xSemaphoreTake`, `ui_connectivityScreen.c`, `ui_cfg_apply_visual_mode`, `gas_label_color`, `ui_mainScreen.c`, `ui_sensorEditScreen.c`, `ui_cfg_flow_unit`, `app_main`, `on_network_ready`, `ota_update.c`?**
   _High betweenness centrality (0.053) - this node is a cross-community bridge._
-- **Why does `esp_err_to_name()` connect `esp_err_to_name` to `transport_ble.c`, `sim_backend.c`, `screen_init_task`, `storage.c`, `fpm_ble_config.c`, `http_api.c`, `touch_io_bounded.c`, `eth_mgr.c`, `fpm_i2c_guard.c`, `sensors_acq_task`, `driver_delay_ms`, `at24c256.c`, `on_network_ready`, `app_main`, `ads1115.c`, `ota_update.c`, `sd_monitor_task`, `time_mgr.c`, `sensor_cfg_persist`, `bmp280.c`?**
+- **Why does `esp_err_to_name()` connect `esp_err_to_name` to `transport_ble.c`, `sim_backend.c`, `screen_init_task`, `storage.c`, `fpm_ble_config.c`, `http_api.c`, `touch_io_bounded.c`, `eth_mgr.c`, `fpm_i2c_guard.c`, `sensors_acq_task`, `driver_delay_ms`, `at24c256.c`, `app_main`, `on_network_ready`, `ads1115.c`, `ota_update.c`, `sd_monitor_task`, `time_mgr.c`, `sensor_cfg_persist`, `bmp280.c`?**
   _High betweenness centrality (0.051) - this node is a cross-community bridge._
-- **Why does `app_main()` connect `app_main` to `esp_err_to_name`, `alarm_mgr.c`, `sensors_acq_task`, `on_network_ready`, `main/main.c`, `esp_eth_mac_ksz8851snl.c`, `storage.c`, `net_core.c`, `ui_cfg.c`, `alarm_mgr_init`, `sensors_runtime.c`, `test_flow_meter.c`, `at24c256.c`, `fpm_i2c_guard.c`?**
+- **Why does `app_main()` connect `app_main` to `esp_err_to_name`, `alarm_mgr.c`, `sensors_acq_task`, `on_network_ready`, `main/main.c`, `esp_eth_mac_ksz8851snl.c`, `storage.c`, `net_core.c`, `ui_cfg.c`, `alarm_mgr_init`, `sensors_runtime.c`, `test_flow_meter.c`, `mem_diag.c`, `at24c256.c`, `fpm_i2c_guard.c`?**
   _High betweenness centrality (0.033) - this node is a cross-community bridge._
 - **Are the 75 inferred relationships involving `appcfg_cache_peek()` (e.g. with `alarm_mgr_press_mute_impl()` and `alarm_mgr_process_impl()`) actually correct?**
   _`appcfg_cache_peek()` has 75 INFERRED edges - model-reasoned connections that need verification._

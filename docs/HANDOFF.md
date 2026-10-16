@@ -91,6 +91,11 @@ migración de HMI y sesiones viejas: `docs/historial/`.
   del FPM (ajuste del FS7, ceros; EEPROM) es de fábrica: ningún nivel la toca. (5) Progreso en la tarjeta de
   flujo: valor "--" y "calentando N s" (`sensors_runtime_flow_warming_elapsed_ms`); no se alarga el splash a
   propósito: la presión y sus alarmas deben volver en segundos tras un corte (decisión 2026-10-11).
+- **1.6.12 (2026-10-16) — release baseline V1.** La OTA a 1.6.10 (publicada en Estable) reiniciaba al
+  arrancar y volvía sola a 1.6.9 (`logFPM_1.6.9_UpgradeError_20261015_1121.txt`: `Interrupt wdt timeout on
+  CPU0`, backtrace `touch_isr` → `lvgl_port_task_wake` → spinlock del event group, con `ppTask` calibrando la
+  PHY del Wi-Fi). La ISR del INT del touch ya no llama a nada: solo pone `s_touch_pending`; el indev lo
+  atiende en ≤ 20 ms. La vuelta atrás de OTA funcionó como se diseñó. Reemplazar la 1.6.10 de Estable por 1.6.12.
 - **1.6.11 (2026-10-16) — release baseline V1.** Tarjeta de flujo: la zona alta y "N alto" usan
   `flow_high_limit` (antes el 80 % fijo del eje, `FLOW_HIGH_ZONE_FRAC`, eliminado). Botones chicos (28–30 px en
   Sensores y otras): `ui_style_button` amplía la zona tocable 5 px por lado; los "volver" de las cabeceras

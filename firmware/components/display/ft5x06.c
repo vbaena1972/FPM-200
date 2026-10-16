@@ -39,9 +39,14 @@ static uint8_t s_glitch_count;
 // miraba el NIVEL del pin cada 20 ms: si el FT5x06 entrega el INT como pulso corto
 // (por cada reporte) la mayoria de los toques caian entre lecturas -> habia que
 // tocar varias veces y el toque se sentia lento (sobre todo en Informacion/OTA).
-// Ahora la ISR marca "toque pendiente" y DESPIERTA a taskLVGL al instante; desde
-// ahi se lee por I2C hasta que el propio chip reporta 0 puntos (el soltado lo
-// decide el dato, no el nivel del pin). En reposo sigue sin trafico I2C.
+// Ahora la ISR marca "toque pendiente"; la siguiente lectura del indev (cada
+// 20 ms) lo atiende y lee por I2C hasta que el propio chip reporta 0 puntos (el
+// soltado lo decide el dato, no el nivel del pin). En reposo sigue sin trafico I2C.
+// 1.6.12: la ISR SOLO escribe la bandera. En 1.6.10/1.6.11 tambien llamaba a
+// lvgl_port_task_wake (event group de FreeRTOS -> spinlock) y un toque durante la
+// calibracion de la radio Wi-Fi al arrancar trababa el core 0: "Interrupt wdt
+// timeout on CPU0" y la OTA a 1.6.10 volvia a 1.6.9 (logFPM_1.6.9_UpgradeError_*).
+// Nada de APIs de FreeRTOS/LVGL/I2C/log aqui.
 static volatile bool s_touch_pending;   // lo pone la ISR
 static bool s_touch_active;             // hay dedo segun el ultimo dato del chip
 
@@ -49,7 +54,6 @@ static void touch_isr(esp_lcd_touch_handle_t h)
 {
     (void)h;
     s_touch_pending = true;
-    lvgl_port_task_wake(LVGL_PORT_EVENT_TOUCH, NULL);
 }
 
 static void touch_glitch(lv_indev_data_t *data)
