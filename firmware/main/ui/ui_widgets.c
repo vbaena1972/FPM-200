@@ -22,6 +22,8 @@ lv_obj_t *ui_nav_header(lv_obj_t *parent, const char *title)
     lv_obj_set_style_border_width(back, 1, 0);
     lv_obj_set_style_border_color(back, ui_col(0x3a3f47), 0);
     lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
+    ui_press_feedback(back);              /* 1.6.11: se ve que el toque entro */
+    lv_obj_set_ext_click_area(back, 9);   /* 28 px es chico para el dedo */
     lv_obj_add_event_cb(back, ui_nav_back_event_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_t *bi = ui_icon(back, UI_SYM_ARROW_LEFT, UI_ICON_SM, 0xcfd3d9);
     lv_obj_center(bi);
@@ -169,6 +171,10 @@ void ui_style_button(lv_obj_t *obj, uint32_t bg_hex)
     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     /* Efecto "push" bien visible al presionar cualquier boton (~88%). */
     ui_press_push(obj, 226);
+    /* 1.6.11: muchos botones miden 28-30 px (~4-5 mm en la pantalla de 3,5"): el
+     * dedo caia justo afuera. Se amplia la ZONA TOCABLE 5 px por lado sin cambiar
+     * el dibujo (con separaciones >= 5 px no invade al boton vecino). */
+    lv_obj_set_ext_click_area(obj, 5);
 }
 
 lv_obj_t *ui_notice(lv_obj_t *parent, const char *msg)
@@ -203,6 +209,8 @@ lv_obj_t *ui_header_back(lv_obj_t *parent, const char *title, const char *subtit
 
     lv_obj_t *back = ui_icon_badge(h, UI_SYM_ARROW_LEFT, UI_ICON_MD, UI_C_TEXT, UI_C_CARD_BG, 32);
     lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
+    ui_press_feedback(back);              /* 1.6.11 */
+    lv_obj_set_ext_click_area(back, 8);
     if (out_back) *out_back = back;
 
     lv_obj_t *col = ui_box(h);

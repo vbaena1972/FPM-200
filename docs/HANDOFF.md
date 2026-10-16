@@ -91,6 +91,10 @@ migración de HMI y sesiones viejas: `docs/historial/`.
   del FPM (ajuste del FS7, ceros; EEPROM) es de fábrica: ningún nivel la toca. (5) Progreso en la tarjeta de
   flujo: valor "--" y "calentando N s" (`sensors_runtime_flow_warming_elapsed_ms`); no se alarga el splash a
   propósito: la presión y sus alarmas deben volver en segundos tras un corte (decisión 2026-10-11).
+- **1.6.11 (2026-10-16) — release baseline V1.** Tarjeta de flujo: la zona alta y "N alto" usan
+  `flow_high_limit` (antes el 80 % fijo del eje, `FLOW_HIGH_ZONE_FRAC`, eliminado). Botones chicos (28–30 px en
+  Sensores y otras): `ui_style_button` amplía la zona tocable 5 px por lado; los "volver" de las cabeceras
+  (`ui_nav_header`, `ui_header_back`) tienen respuesta visual y zona tocable mayor.
 - **1.6.10 (2026-10-15) — release baseline V1** (1.6.9 grabada). Touch "duro" (había que tocar varias veces,
   lento; en todas las versiones, peor en Información/OTA): el INT del FT5x06 (GPIO39) solo se MUESTREABA cada
   20 ms por nivel; ahora va por interrupción (`esp_lcd_touch_register_interrupt_callback` → `touch_isr` →

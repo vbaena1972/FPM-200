@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.6.11 (2026-10-16): (1) tarjeta de flujo: la zona alta y "N alto" usan el LIMITE de flujo alto
+#   configurado (antes 80 % fijo del eje: el "80.00 alto" no salia de la config). (2) Botones
+#   chicos (28-30 px, Sensores y otras): ui_style_button amplia la zona tocable 5 px por lado y los
+#   botones "volver" de las cabeceras tienen respuesta visual y zona tocable mayor.
 # 1.6.10 (2026-10-15): RELEASE baseline V1 (1.6.9 ya grabada). TOUCH: el INT (GPIO39) va por
 #   INTERRUPCION (esp_lcd_touch_register_interrupt_callback + lvgl_port_task_wake); antes se
 #   muestreaba el nivel cada 20 ms y con INT por pulsos se perdian toques ("hay que tocar varias
@@ -214,7 +218,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #   y un equipo que paso por 1.6.8 (total desde 0) se corrige solo al arrancar.
 # 1.6.8 (2026-10-15): RELEASE baseline V1 = codigo de 1.6.8-dev (+ buffer del topic del Last Will a
 #   256 B: -Werror=format-truncation en el build). Publicar en Estable tras su humo en HW (QA §7).
-set(PROJECT_VER "1.6.10")
+set(PROJECT_VER "1.6.11")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:

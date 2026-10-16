@@ -29,7 +29,6 @@ static void set_label_if_changed(lv_obj_t *label, const char *text)
  * (sensors.flow_fullscale_lpm, calibrable sin recompilar); este define
  * queda solo como respaldo si la config trae un valor inválido. */
 #define FLOW_AXIS_FULLSCALE_LPM   100.0f  /* respaldo (L/min) */
-#define FLOW_HIGH_ZONE_FRAC       0.80f   /* inicio de zona "alta" (ámbar) en la barra */
 #define PRESS_AXIS_FULLSCALE_KPA  1378.951f /* fixed 0..200 psi pressure sensor */
 
 /* --- Globals del contrato (ui_bind / main.c) --- */
@@ -1027,7 +1026,11 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
             fst = CARD_WARN;
             ftx = f_warming ? _t("ESTABILIZANDO") : _t("SIN DATO NUEVO");
         }
-        update_metric_card(&s_flow, f_show, f_frac, 0.f, FLOW_HIGH_ZONE_FRAC, false,
+        /* 1.6.11: la zona alta y la etiqueta usan el LIMITE configurado de flujo alto
+         * (antes un 80 % fijo del eje: el "80.00 alto" no salia de la config). */
+        const float f_hi_lim = cfg->sensors.alarm_limits.flow_high_limit;
+        const float f_hi_frac = clampf(f_hi_lim / f_axis, 0.f, 1.f);
+        update_metric_card(&s_flow, f_show, f_frac, 0.f, f_hi_frac, false,
                            false, fhi_en, fdec, fst, ftx, fmn, fmx);
         char fb[24];
         snprintf(fb, sizeof(fb), "%.*f", fdec, flow_to_disp(f_axis, fu));
@@ -1040,7 +1043,7 @@ void ui_main_update(const sensor_sample_t *last, bool have_last,
                      (unsigned)(sensors_runtime_flow_warming_elapsed_ms() / 1000));
         else if (fhi_en)
             snprintf(fmb, sizeof(fmb), "%.*f %s",
-                     fdec, (double)flow_to_disp(f_axis * FLOW_HIGH_ZONE_FRAC, fu), _t("alto"));
+                     fdec, (double)flow_to_disp(f_hi_lim, fu), _t("alto"));
         else
             snprintf(fmb, sizeof(fmb), "%s", _t("sin limites"));
         set_label_if_changed(s_flow.ax_mid, fmb);
