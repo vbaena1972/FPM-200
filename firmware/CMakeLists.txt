@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.6.13 (2026-10-16): Sensores y Audio de alarmas: los +/- RECONSTRUIAN la pantalla completa y
+#   guardaban la config en NVS en cada toque -> se perdia el scroll (volvia arriba) y los toques
+#   durante la reconstruccion/escritura ("hay que tocar muchas veces"). Ahora actualizan solo el
+#   numero (cache en vivo: el limite rige al instante), guardan una vez 1,5 s despues del ultimo
+#   toque o al salir (ui_edit_apply_unsaved / ui_cfg_save_now), mantener presionado repite, y
+#   botones 36x36. Unidades/decimales/norma reconstruyen pero conservan el scroll. Sin limites < 0.
 # 1.6.12 (2026-10-16): CORRIGE el reinicio de 1.6.10/1.6.11 al arrancar ("Interrupt wdt timeout on
 #   CPU0"; la OTA a 1.6.10 volvia sola a 1.6.9): la ISR del INT del touch llamaba a
 #   lvgl_port_task_wake (event group -> spinlock) y se trababa durante la calibracion de la radio
@@ -222,7 +228,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #   y un equipo que paso por 1.6.8 (total desde 0) se corrige solo al arrancar.
 # 1.6.8 (2026-10-15): RELEASE baseline V1 = codigo de 1.6.8-dev (+ buffer del topic del Last Will a
 #   256 B: -Werror=format-truncation en el build). Publicar en Estable tras su humo en HW (QA §7).
-set(PROJECT_VER "1.6.12")
+set(PROJECT_VER "1.6.13")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:

@@ -89,6 +89,13 @@ static void open_login_cb(lv_timer_t *t)
     ui_open_login_cb(NULL);
 }
 
+/* fpm200_sim.exe sens: abre la pantalla Sensores (limites con +/-) a los 4 s. */
+static void open_sensor_cb(lv_timer_t *t)
+{
+    lv_timer_delete(t);
+    ui_open_sensor_cb(NULL);
+}
+
 /* fpm200_sim.exe esc N [det]: fija el escenario N (sin ciclar); "det" abre el detalle de
  * alarmas (como tocar el banner) a los 4 s. */
 static void refresh_cb(lv_timer_t *t) { (void)t; apply_scenario(s_idx); }
@@ -125,6 +132,9 @@ int main(int argc, char **argv)
     lv_timer_create(data_activity_cb, 1000, NULL);
     if (argc > 1 && strcmp(argv[1], "login") == 0) {
         lv_timer_create(open_login_cb, 4000, NULL);
+    }
+    if (argc > 1 && strcmp(argv[1], "sens") == 0) {
+        lv_timer_create(open_sensor_cb, 4000, NULL);
     }
 
     /* El driver de Windows asigna el buffer de dibujo DIFERIDO: bombear timers hasta que exista y

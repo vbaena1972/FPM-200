@@ -133,6 +133,8 @@ float       ui_edit_old(void);                      /* en unidad de DISPLAY */
 float       ui_edit_new(void);                      /* en unidad de DISPLAY */
 void        ui_edit_set_new(float v);               /* en unidad de DISPLAY */
 void        ui_edit_apply(void);
+void        ui_edit_apply_unsaved(void);            /* 1.6.13: al cache, sin NVS */
+void        ui_cfg_save_now(void);                  /* 1.6.13: guarda el cache en NVS */
 bool        ui_edit_is_audio(void);                    /* convierte a kPa, NVS + refresca main */
 
 #ifdef __cplusplus

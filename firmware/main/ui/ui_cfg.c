@@ -459,10 +459,35 @@ bool ui_edit_is_audio(void)
 {
     return s_target == UI_EDIT_AUDIO_REANNOUNCE || s_target == UI_EDIT_AUDIO_SILENCE;
 }
+/* 1.6.13: aplica al cache SIN guardar en NVS. Los +/- de Sensores lo usan y guardan
+ * una sola vez al final (ui_cfg_save_now): antes cada toque escribia la config
+ * completa en flash y en ese rato el touch no respondia. alarm_mgr y la pantalla
+ * principal leen el cache en vivo, asi que el limite rige de inmediato. */
+static void edit_store(AppConfig *c);
+void ui_edit_apply_unsaved(void)
+{
+    AppConfig *c = appcfg_cache_peek();
+    if (!c || s_target == UI_EDIT_NONE) return;
+    edit_store(c);
+    s_target = UI_EDIT_NONE;
+}
+void ui_cfg_save_now(void)
+{
+    AppConfig *c = appcfg_cache_peek();
+    if (c) save_and_refresh(c);
+}
+
 void ui_edit_apply(void)
 {
     AppConfig *c = appcfg_cache_peek();
     if (!c || s_target == UI_EDIT_NONE) return;
+    edit_store(c);
+    save_and_refresh(c);
+    s_target = UI_EDIT_NONE;
+}
+
+static void edit_store(AppConfig *c)
+{
     if (s_target == UI_EDIT_PRES_MAX || s_target == UI_EDIT_PRES_MIN) {
         float kpa = ui_cfg_press_from_disp(s_new);
         if (s_target == UI_EDIT_PRES_MAX) c->sensors.alarm_limits.pressure_max = kpa;
@@ -479,6 +504,4 @@ void ui_edit_apply(void)
     } else if (s_target == UI_EDIT_AUDIO_SILENCE) {
         c->general.alarm.max_silence_minutes = (int)s_new;
     }
-    save_and_refresh(c);
-    s_target = UI_EDIT_NONE;
 }

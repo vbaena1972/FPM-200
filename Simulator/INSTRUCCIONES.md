@@ -34,6 +34,7 @@ del sistema con la ruta completa:
 | `Simulator\build\Debug\fpm200_sim.exe esc 4` | Fija un escenario (0…7; 4 = 2 advertencias, 6 = 3 alarmas) |
 | `Simulator\build\Debug\fpm200_sim.exe esc 6 det` | Igual y abre el **detalle de alarmas** a los 4 s (lista con valores en vivo) |
 | `Simulator\build\Debug\fpm200_sim.exe login` | Abre el **login** a los 4 s (tras el arranque) |
+| `Simulator\build\Debug\fpm200_sim.exe sens` | Abre **Sensores** (límites con +/−) a los 4 s |
 
 - Toques = clic del ratón. La hora es la del PC.
 - Usuarios de demostración (en `sim_backend.c`): Técnico `4321`, Administrador `1234`; Fabricante

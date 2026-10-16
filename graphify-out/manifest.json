@@ -560,8 +560,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_sensorDiagScreen.c": {
-    "mtime": 1789600271.3250635,
-    "ast_hash": "ff75d1005aa63a192a6c4a39043d33b7",
+    "mtime": 1792194039.6182163,
+    "ast_hash": "339681c455184f552e09ffb3a324f79b",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_sensorDiagScreen.h": {
@@ -570,8 +570,8 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_sensorEditScreen.c": {
-    "mtime": 1789595855.3905687,
-    "ast_hash": "e04797e50ee78dd3e301e3ed4ef3e9d4",
+    "mtime": 1792194051.3540032,
+    "ast_hash": "0af9e90c8cb40e9b655dbb51e3435de3",
     "semantic_hash": ""
   },
   "firmware/main/ui/screens/ui_sensorEditScreen.h": {
@@ -620,13 +620,13 @@
     "semantic_hash": ""
   },
   "firmware/main/ui/ui_cfg.c": {
-    "mtime": 1790563213.9162183,
-    "ast_hash": "0fdb6f0e84014cec6317dda7f4c2c2f2",
+    "mtime": 1792193937.6860783,
+    "ast_hash": "d2c528680b9c3307bab653e47326b16c",
     "semantic_hash": ""
   },
   "firmware/main/ui/ui_cfg.h": {
-    "mtime": 1789589898.9697213,
-    "ast_hash": "c99ab9f1a67d15702d46827ef92ea5c8",
+    "mtime": 1792193943.700788,
+    "ast_hash": "ba645321af25a7bc98a101143b69d62a",
     "semantic_hash": ""
   },
   "firmware/main/ui/ui_events.c": {
@@ -705,13 +705,13 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1792192914.1139514,
-    "ast_hash": "eb59169a054086e46dcb1c6bc43156c1",
+    "mtime": 1792194184.8351858,
+    "ast_hash": "556a50f3783d686c37a45a11096106ec",
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {
-    "mtime": 1792192888.7450304,
-    "ast_hash": "3aa90ad5be25d9bbc5ef91e4975fd607",
+    "mtime": 1792194060.8653398,
+    "ast_hash": "59bc995ee846ccff8cc5ce4cb95a1723",
     "semantic_hash": ""
   },
   "firmware/components/cert_store/CMakeLists.txt": {
@@ -1095,8 +1095,8 @@
     "semantic_hash": ""
   },
   "Simulator/main.c": {
-    "mtime": 1792065547.0912633,
-    "ast_hash": "8192246d7e4f9353c29dc1db2bbaebc5",
+    "mtime": 1792194083.7639475,
+    "ast_hash": "bac3124677c98c289d37befa35fd9ec4",
     "semantic_hash": ""
   },
   "Simulator/sim_backend.c": {
@@ -1175,8 +1175,8 @@
     "semantic_hash": ""
   },
   "Simulator/INSTRUCCIONES.md": {
-    "mtime": 1792065832.8981032,
-    "ast_hash": "c88ed608e3c6cdcad3b6f2f6c284d1ec",
+    "mtime": 1792194184.9329426,
+    "ast_hash": "395f59102818999bdfe0a69fd2272901",
     "semantic_hash": ""
   },
   "docs/PUBLICAR_FIRMWARE.md": {

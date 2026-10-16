@@ -91,6 +91,13 @@ migración de HMI y sesiones viejas: `docs/historial/`.
   del FPM (ajuste del FS7, ceros; EEPROM) es de fábrica: ningún nivel la toca. (5) Progreso en la tarjeta de
   flujo: valor "--" y "calentando N s" (`sensors_runtime_flow_warming_elapsed_ms`); no se alarga el splash a
   propósito: la presión y sus alarmas deben volver en segundos tras un corte (decisión 2026-10-11).
+- **1.6.13 (2026-10-16) — release baseline V1.** Sensores y Audio de alarmas: cada +/- RECONSTRUÍA la
+  pantalla (`rebuild()`) y guardaba la config completa en NVS → el scroll volvía arriba y se perdían los toques
+  durante la reconstrucción/escritura ("hay que tocar muchas veces"). Ahora: solo se actualiza el número
+  (`refresh_values`), el cambio va al cache (`ui_edit_apply_unsaved`, rige al instante para `alarm_mgr`) y la NVS
+  se escribe una vez 1,5 s después del último toque o al borrar la pantalla (`ui_cfg_save_now`); mantener
+  presionado repite (`LONG_PRESSED_REPEAT`); botones 36×36; unidades/decimales/norma reconstruyen conservando el
+  scroll; límites no negativos (flujo ≥ 1). Verificado en el simulador con mouse real (`fpm200_sim.exe sens`).
 - **1.6.12 (2026-10-16) — release baseline V1.** La OTA a 1.6.10 (publicada en Estable) reiniciaba al
   arrancar y volvía sola a 1.6.9 (`logFPM_1.6.9_UpgradeError_20261015_1121.txt`: `Interrupt wdt timeout on
   CPU0`, backtrace `touch_isr` → `lvgl_port_task_wake` → spinlock del event group, con `ppTask` calibrando la
