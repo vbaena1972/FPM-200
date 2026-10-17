@@ -1,16 +1,16 @@
 # Graph Report - FPM-200  (2026-10-16)
 
 ## Corpus Check
-- 215 files · ~447,800 words
+- 215 files · ~447,831 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1773 nodes · 4669 edges · 101 communities (95 shown, 6 thin omitted)
+- 1773 nodes · 4669 edges · 102 communities (96 shown, 6 thin omitted)
 - Extraction: 74% EXTRACTED · 26% INFERRED · 0% AMBIGUOUS · INFERRED: 1194 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0b0c4be7`
+- Built from commit: `50f80a04`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -77,7 +77,7 @@
 - ui
 - stdio
 - ui_netCloudScreen.c
-- app_main
+- sensors_runtime_init
 - lvgl
 - ws_stream.c
 - PUBLICAR_FIRMWARE.md
@@ -103,6 +103,7 @@
 - alarm_mgr_set_state_change_cb
 - alarm_mgr_get_current_state
 - get_users
+- esp_app_desc
 
 ## God Nodes (most connected - your core abstractions)
 1. `appcfg_cache_peek()` - 80 edges
@@ -131,15 +132,15 @@
 ## Import Cycles
 - None detected.
 
-## Communities (101 total, 6 thin omitted)
+## Communities (102 total, 6 thin omitted)
 
 ### Community 0 - "transport_ble.c"
 Cohesion: 0.06
 Nodes (49): ble_cmd_handler_t, ble_gap, ble_gatt, ble_hs, ble_svc_gap, ble_svc_gatt, esp_bt, fpm_ble_config_set_clock_cb() (+41 more)
 
 ### Community 1 - "esp_err_to_name"
-Cohesion: 0.10
-Nodes (35): esp_task_wdt, esp_wifi_types, mem_diag_report(), eth_mgr_is_up(), apply_ip_mode(), AppConfig, esp_err_t, esp_event_base_t (+27 more)
+Cohesion: 0.09
+Nodes (40): esp_task_wdt, esp_wifi_types, mem_diag_report(), esp_event_base_t, eth_mgr_is_up(), on_eth_event(), on_ip_event(), apply_ip_mode() (+32 more)
 
 ### Community 2 - "test_alarm.c"
 Cohesion: 0.11
@@ -194,8 +195,8 @@ Cohesion: 0.11
 Nodes (17): 1. GATT, 2. Dos esquemas de canal (importante), 3. Correspondencia de campos (firmware `AppConfig` ↔ JSON ↔ Flutter), 4. Límites de longitud (deben coincidir), 5. Secretos y versión, 6. Cambios aplicados en el firmware (esta tanda), 7. Pendiente, alarms ↔ `general.alarm` / `AlarmsConfig` (+9 more)
 
 ### Community 15 - "net_core.c"
-Cohesion: 0.10
-Nodes (21): device_state_t, esp_eth, esp_event, esp_wifi, esp_event_base_t, on_eth_event(), on_ip_event(), esp_event_base_t (+13 more)
+Cohesion: 0.13
+Nodes (16): device_state_t, esp_eth, esp_event, esp_wifi, esp_event_base_t, on_eth_event(), on_ip_event(), on_wifi_event() (+8 more)
 
 ### Community 16 - "ui_label"
 Cohesion: 0.07
@@ -222,8 +223,8 @@ Cohesion: 0.23
 Nodes (21): esp_chip_info, add_channel(), alarms_get_handler(), cJSON, esp_err_t, httpd_handle_t, httpd_req_t, cfg_get_handler() (+13 more)
 
 ### Community 22 - "sensors_runtime.c"
-Cohesion: 0.17
-Nodes (25): mm24_t, sensor_sample_t, sensor_signal_stats_t, lock(), mm24_clock_ms(), sensors_runtime_flow_warming(), sensors_runtime_flow_warming_elapsed_ms(), sensors_runtime_get_ages() (+17 more)
+Cohesion: 0.14
+Nodes (30): esp_err_t, net_core_init(), i2c_master_bus_handle_t, mm24_t, sensor_sample_t, sensor_signal_stats_t, lock(), mm24_clock_ms() (+22 more)
 
 ### Community 23 - "test_flow_meter.c"
 Cohesion: 0.12
@@ -298,8 +299,8 @@ Cohesion: 0.33
 Nodes (10): lv_event_t, factory_btn_cb(), ota_allowed(), ota_channel_cb(), ota_check_cb(), ota_install_cb(), ota_screen_del_cb(), ota_start() (+2 more)
 
 ### Community 41 - "main/main.c"
-Cohesion: 0.06
-Nodes (38): errno, esp_app_desc, esp_app_trace, esp_core_dump, esp_heap_trace, esp_trace, esp_trace_open_params_t, esp_vfs_fat (+30 more)
+Cohesion: 0.07
+Nodes (32): errno, esp_app_trace, esp_core_dump, esp_heap_trace, esp_trace, esp_trace_open_params_t, esp_vfs_fat, ui_statusbar_controller_deinit() (+24 more)
 
 ### Community 42 - "ui_connectivityScreen.c"
 Cohesion: 0.23
@@ -369,9 +370,9 @@ Nodes (10): eth_mgr, lv_event_t, save_cb(), set_str(), set_str(), stdio, storage
 Cohesion: 0.29
 Nodes (8): cert_store, lv_event_t, cert_erase_cb(), cert_pills_refresh(), cert_presence(), save_cb(), set_str(), ui_form
 
-### Community 64 - "app_main"
-Cohesion: 0.17
-Nodes (13): BaseType_t, ads1115_is_ready(), ms5803_is_ready(), esp_err_t, net_core_init(), AppConfig, i2c_master_bus_handle_t, sensors_runtime_init() (+5 more)
+### Community 64 - "sensors_runtime_init"
+Cohesion: 0.25
+Nodes (8): BaseType_t, ads1115_is_ready(), ms5803_is_ready(), AppConfig, sensors_runtime_init(), xTaskCreatePinnedToCore(), TaskFunction_t, UBaseType_t
 
 ### Community 66 - "lvgl"
 Cohesion: 0.08
@@ -461,6 +462,10 @@ Nodes (3): alarm_mgr_get_current_state(), alarm_mgr_get_current_state_impl(), al
 Cohesion: 0.67
 Nodes (3): ui_usersScreen_screen_destroy(), get_users(), ui_open_users_cb()
 
+### Community 101 - "esp_app_desc"
+Cohesion: 0.25
+Nodes (6): esp_app_desc, esp_err_t, mdns_svc_start(), on_network_ready(), mdns, mdns_svc
+
 ## Knowledge Gaps
 - **149 isolated node(s):** `gen_ota_signing_key.sh script`, `graphify`, `Estructura del repositorio (reorganizado 2026-09-15, mirror de MedGuard)`, `Alarmas: silencio (1.6.7)`, `Consumo, totalizador y cortes de energía (1.6.8)` (+144 more)
   These have ≤1 connection - possible missing edges or undocumented components.
@@ -474,11 +479,11 @@ Nodes (3): ui_usersScreen_screen_destroy(), get_users(), ui_open_users_cb()
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `appcfg_cache_peek()` connect `ui_cfg.c` to `transport_ble.c`, `esp_err_to_name`, `transport_mqtt.c`, `alarm_mgr.c`, `sim_backend.c`, `screen_init_task`, `fpm_ble_config.c`, `ui_sensorDiagScreen.c`, `ui_label`, `ui_auth_can`, `http_api.c`, `eth_mgr.c`, `display_idle_cb`, `xSemaphoreTake`, `main/main.c`, `ui_connectivityScreen.c`, `gas_label_color`, `ui_mainScreen.c`, `ui_sensorEditScreen.c`, `ui_edit_begin`, `stdio`, `ui_netCloudScreen.c`, `app_main`, `ui_cfg_apply_visual_mode`?**
+- **Why does `appcfg_cache_peek()` connect `ui_cfg.c` to `transport_ble.c`, `esp_err_to_name`, `transport_mqtt.c`, `alarm_mgr.c`, `sim_backend.c`, `screen_init_task`, `fpm_ble_config.c`, `ui_sensorDiagScreen.c`, `ui_label`, `ui_auth_can`, `http_api.c`, `sensors_runtime.c`, `eth_mgr.c`, `display_idle_cb`, `xSemaphoreTake`, `ui_connectivityScreen.c`, `gas_label_color`, `ui_mainScreen.c`, `ui_sensorEditScreen.c`, `ui_edit_begin`, `stdio`, `ui_netCloudScreen.c`, `ui_cfg_apply_visual_mode`, `esp_app_desc`?**
   _High betweenness centrality (0.057) - this node is a cross-community bridge._
-- **Why does `esp_err_to_name()` connect `esp_err_to_name` to `transport_ble.c`, `transport_mqtt.c`, `sim_backend.c`, `screen_init_task`, `fpm_ble_config.c`, `http_api.c`, `test_flow_meter.c`, `touch_io_bounded.c`, `eth_mgr.c`, `fpm_i2c_guard.c`, `sensors_acq_task`, `main/main.c`, `ms5803.c`, `driver_delay_ms`, `app_main`, `sensor_cfg_persist`, `ads1115.c`, `ota_update.c`, `time_mgr.c`, `fpm_i2c_guard`?**
+- **Why does `esp_err_to_name()` connect `esp_err_to_name` to `transport_ble.c`, `transport_mqtt.c`, `sim_backend.c`, `screen_init_task`, `fpm_ble_config.c`, `http_api.c`, `sensors_runtime.c`, `test_flow_meter.c`, `touch_io_bounded.c`, `eth_mgr.c`, `fpm_i2c_guard.c`, `sensors_acq_task`, `main/main.c`, `ms5803.c`, `driver_delay_ms`, `sensor_cfg_persist`, `ads1115.c`, `ota_update.c`, `time_mgr.c`, `fpm_i2c_guard`, `esp_app_desc`?**
   _High betweenness centrality (0.041) - this node is a cross-community bridge._
-- **Why does `app_main()` connect `app_main` to `xSemaphoreTake`, `esp_err_to_name`, `alarm_mgr_set_state_change_cb`, `esp_timer.h`, `alarm_mgr.c`, `sim_backend.c`, `sensors_acq_task`, `main/main.c`, `esp_eth_mac_ksz8851snl.c`, `ui_cfg.c`, `alarm_mgr_init`, `sensors_runtime.c`, `test_flow_meter.c`, `mem_diag.c`?**
+- **Why does `app_main()` connect `sensors_runtime.c` to `xSemaphoreTake`, `esp_err_to_name`, `alarm_mgr_set_state_change_cb`, `sensors_runtime_init`, `alarm_mgr.c`, `esp_timer.h`, `esp_app_desc`, `sim_backend.c`, `sensors_acq_task`, `main/main.c`, `esp_eth_mac_ksz8851snl.c`, `ui_cfg.c`, `alarm_mgr_init`, `test_flow_meter.c`, `mem_diag.c`?**
   _High betweenness centrality (0.033) - this node is a cross-community bridge._
 - **Are the 77 inferred relationships involving `appcfg_cache_peek()` (e.g. with `alarm_mgr_press_mute_impl()` and `alarm_mgr_process_impl()`) actually correct?**
   _`appcfg_cache_peek()` has 77 INFERRED edges - model-reasoned connections that need verification._

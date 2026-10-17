@@ -705,8 +705,8 @@
     "semantic_hash": ""
   },
   "docs/HANDOFF.md": {
-    "mtime": 1792197676.1016362,
-    "ast_hash": "099cfa986fed5100c5380ddf64147428",
+    "mtime": 1792198808.5387814,
+    "ast_hash": "75157ac7f95923dfeedf92898c0a4bb5",
     "semantic_hash": ""
   },
   "firmware/CMakeLists.txt": {

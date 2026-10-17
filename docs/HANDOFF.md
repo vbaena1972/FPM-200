@@ -91,6 +91,8 @@ migración de HMI y sesiones viejas: `docs/historial/`.
   del FPM (ajuste del FS7, ceros; EEPROM) es de fábrica: ningún nivel la toca. (5) Progreso en la tarjeta de
   flujo: valor "--" y "calentando N s" (`sensors_runtime_flow_warming_elapsed_ms`); no se alarga el splash a
   propósito: la presión y sus alarmas deben volver en segundos tras un corte (decisión 2026-10-11).
+- **2026-10-16, cierre del día:** `fpm200_1.6.14.bin` publicada en **Estable** (reemplaza la 1.6.10 que reiniciaba)
+  y grabada en el equipo, junto con SensorKeeper 1.9.11. Pendiente: soak > 24 h y tag `fpm200-v1.6.14`.
 - **1.6.14 (2026-10-16) — FASE 4: GasLineKeeper 200** (antes FPM-200; empresa Axira provisional). Nombre
   comercial en `FPM_PRODUCT_NAME` (`storage.h`): cabecera, splash, Información, API BLE (`model`) y mDNS.
   **`general.model` se queda "FPM-200"**: es `char[16]` y forma el tópico MQTT `base/partner/cliente/MODELO/serial`
