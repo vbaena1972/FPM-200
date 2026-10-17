@@ -10,7 +10,7 @@ void state_init(const char *hostname) {
     if (hostname && *hostname) {
         snprintf(g_state.hostname, sizeof(g_state.hostname), "%s", hostname);
     } else {
-        snprintf(g_state.hostname, sizeof(g_state.hostname), "%s", "axira");
+        snprintf(g_state.hostname, sizeof(g_state.hostname), "%s", "gaslinekeeper");
     }
 }
 

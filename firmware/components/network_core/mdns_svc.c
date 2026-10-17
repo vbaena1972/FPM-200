@@ -3,6 +3,7 @@
 #include "esp_app_desc.h"
 #include "esp_log.h"
 #include "mdns.h"
+#include "storage.h"   /* FPM_PRODUCT_NAME (Fase 4) */
 
 static const char *TAG = "mdns_svc";
 
@@ -34,7 +35,7 @@ esp_err_t mdns_svc_start(const char *instance_id)
     const esp_app_desc_t *app = esp_app_get_description();
     mdns_txt_item_t txt[] = {
         {"id", (char *)id},
-        {"model", "FPM-200"},
+        {"model", FPM_PRODUCT_NAME},
         {"fw", (char *)(app ? app->version : "")},
     };
     err = mdns_service_add(id, MDNS_SERVICE_TYPE, MDNS_PROTO, MDNS_HTTP_PORT,

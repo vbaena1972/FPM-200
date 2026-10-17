@@ -32,7 +32,7 @@ static bool s_mesh_enabled = false;
 
 static uint16_t s_conn = BLE_HS_CONN_HANDLE_NONE;
 
-static char s_dev_name[32] = "Axira-BLE";
+static char s_dev_name[32] = "GasLineKeeper";
 
 static ble_cmd_handler_t s_handler = NULL;
 

@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+# 1.6.14 (2026-10-16): FASE 4 — renombrado comercial FPM-200 -> GasLineKeeper 200 (empresa: Axira,
+#   provisional). Nombre comercial en FPM_PRODUCT_NAME (storage.h): cabecera, splash, Informacion, API BLE
+#   y mDNS. general.model se QUEDA "FPM-200": es tecnico (char[16]) y forma el topico MQTT. Bluetooth
+#   "GasLineKeeper", hostname "gaslinekeeper", info "Axira" (valores de fabrica viejos migrados solos).
+#   Sin cambios tecnicos: esp32s3_hmi_skeleton (OTA), fpm200_<ver>.bin, fpm-0001, topicos, esquemas.
 # 1.6.13 (2026-10-16): Sensores y Audio de alarmas: los +/- RECONSTRUIAN la pantalla completa y
 #   guardaban la config en NVS en cada toque -> se perdia el scroll (volvia arriba) y los toques
 #   durante la reconstruccion/escritura ("hay que tocar muchas veces"). Ahora actualizan solo el
@@ -228,7 +233,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 #   y un equipo que paso por 1.6.8 (total desde 0) se corrige solo al arrancar.
 # 1.6.8 (2026-10-15): RELEASE baseline V1 = codigo de 1.6.8-dev (+ buffer del topic del Last Will a
 #   256 B: -Werror=format-truncation en el build). Publicar en Estable tras su humo en HW (QA §7).
-set(PROJECT_VER "1.6.13")
+set(PROJECT_VER "1.6.14")
 project(esp32s3_hmi_skeleton)
 
 # Copia del binario FIRMADO con nombre versionado para la microSD:

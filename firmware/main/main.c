@@ -490,7 +490,7 @@ static void sd_monitor_task(void *pvParameters)
                     ota_failed = true;
                     snprintf(ota_msg, sizeof(ota_msg),
                              "Firmware rechazado (%s). El equipo sigue con su versión actual.",
-                             ota_err == ESP_ERR_INVALID_VERSION ? "no es de FPM-200"
+                             ota_err == ESP_ERR_INVALID_VERSION ? "no es de GasLineKeeper"
                                                                 : esp_err_to_name(ota_err));
                     ESP_LOGE("SD_CD", "%s", ota_msg);
                 }

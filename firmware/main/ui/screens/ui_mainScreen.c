@@ -642,7 +642,7 @@ void ui_mainScreen_screen_init(void)
     lv_obj_set_size(bcol, 116, 32);
     s_brand_lbl = ui_label(bcol, "Ubicacion", UI_FONT_SM, UI_C_TEXT);
     lv_obj_set_size(s_brand_lbl, 116, 16); lv_obj_set_pos(s_brand_lbl, 0, 0);
-    s_sub_lbl   = ui_label(bcol, "Axira - FPM-200", UI_FONT_XS, UI_C_TEXT_3);
+    s_sub_lbl   = ui_label(bcol, FPM_PRODUCT_NAME, UI_FONT_XS, UI_C_TEXT_3);
     lv_obj_set_size(s_sub_lbl, 116, 16); lv_obj_set_pos(s_sub_lbl, 0, 16);
 
     /* fila de estado (iconos + reloj + settings) */
@@ -854,7 +854,8 @@ void ui_main_apply_config(const AppConfig *cfg)
     if (!cfg) return;
 
     if (cfg->general.client[0]) set_label_if_changed(s_brand_lbl, cfg->general.client);
-    if (cfg->general.model[0])  lv_label_set_text_fmt(s_sub_lbl, "Axira - %s", cfg->general.model);
+    /* Fase 4: nombre comercial (general.model es tecnico: topico MQTT). */
+    set_label_if_changed(s_sub_lbl, FPM_PRODUCT_NAME);
 
     const char *glabel; uint32_t gcolor; bool gdark = false;
     gas_label_color(cfg->sensors.gas_type, &glabel, &gcolor, &gdark);

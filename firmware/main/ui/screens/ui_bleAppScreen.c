@@ -29,7 +29,7 @@ static lv_obj_t   *s_badge_ic    = NULL;
 static lv_obj_t   *s_status_ic   = NULL;   /* icono del pill de estado */
 static lv_obj_t   *s_status_tx   = NULL;   /* texto del pill de estado */
 static lv_obj_t   *s_count_tx    = NULL;   /* cuenta atrás / "conectado" */
-static char        s_bname[32]   = "AXIRA";
+static char        s_bname[32]   = "GasLineKeeper";
 static int         s_secs_left   = BLEAPP_TIMEOUT_S;
 static bool        s_connected   = false;
 static bool        s_ever_conn   = false;  /* ¿llegó a conectarse una app? */
@@ -182,7 +182,7 @@ void ui_bleAppScreen_screen_init(void)
 {
     /* Identidad del equipo para la etiqueta y el QR (nombre BLE + PIN guía). */
     const AppConfig *cfg = appcfg_cache_peek();
-    const char *bname = (cfg && cfg->bt.legacy.name[0]) ? cfg->bt.legacy.name : "AXIRA";
+    const char *bname = (cfg && cfg->bt.legacy.name[0]) ? cfg->bt.legacy.name : "GasLineKeeper";
     snprintf(s_bname, sizeof(s_bname), "%s", bname);
     char pin[7];
     bleapp_pair_pin(cfg, pin);

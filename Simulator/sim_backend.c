@@ -29,7 +29,7 @@ static void ensure_cfg(void)
     if (s_init) return;
     memset(&s_cfg, 0, sizeof(s_cfg));
 
-    strcpy(s_cfg.general.info_text, "Axira Equipos");
+    strcpy(s_cfg.general.info_text, "Axira");
     strcpy(s_cfg.general.client,    "UCI Torre A");
     strcpy(s_cfg.general.model,     "FPM-200");
     strcpy(s_cfg.general.serial,    "AX-4200-01847");

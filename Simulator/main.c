@@ -111,7 +111,7 @@ int main(int argc, char **argv)
     SetConsoleCP(CP_UTF8);
     SetConsoleOutputCP(CP_UTF8);
 
-    lv_display_t *display = lv_windows_create_display(L"FPM-200 — HMI (simulador, 480x320)", 480, 320,
+    lv_display_t *display = lv_windows_create_display(L"GasLineKeeper 200 — HMI (simulador, 480x320)", 480, 320,
                                                       200, false, true);
     if (display == NULL || lv_windows_acquire_pointer_indev(display) == NULL) {
         return -1;

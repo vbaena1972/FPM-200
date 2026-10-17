@@ -150,7 +150,7 @@ char *fpm_ble_info_json(void)
     const AppConfig *c = appcfg_cache_peek();
     cJSON *o = cJSON_CreateObject();
     /* "model" DEBE contener "axira" para que la app lo clasifique como Axira. */
-    cJSON_AddStringToObject(o, "model", (c && c->general.model[0]) ? c->general.model : "Axira");
+    cJSON_AddStringToObject(o, "model", FPM_PRODUCT_NAME);   /* la app reconoce tambien "FPM-200" */
     cJSON_AddStringToObject(o, "name", (c && c->bt.legacy.name[0]) ? c->bt.legacy.name
                                        : (c && c->general.client[0]) ? c->general.client : "Axira");
     cJSON_AddStringToObject(o, "serial", c ? c->general.serial : "");

@@ -5,6 +5,12 @@
 #include "cJSON.h" // <-- importa cJSON para los prototipos
 #include "ui_pin_hash.h" // PIN como hash con sal (igual que MedGuard)
 
+/* Fase 4 (2026-10-16): nombre COMERCIAL del equipo (antes FPM-200), el que se muestra en
+ * pantalla, Bluetooth, mDNS y la app. NO usar general.model para mostrar: ese campo es
+ * tecnico (char[16]) y forma el topico MQTT base/partner/cliente/MODELO/serial: se queda
+ * "FPM-200" para no cambiar el topico ni chocar con la policy de AWS IoT. */
+#define FPM_PRODUCT_NAME "GasLineKeeper 200"
+
 #ifdef __cplusplus
 extern "C"
 {

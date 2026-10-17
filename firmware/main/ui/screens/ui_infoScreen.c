@@ -240,7 +240,7 @@ static void ota_task(void *arg)
         const char *why = err == ESP_ERR_INVALID_ARG ? "configure la URL OTA (https://) en Nube"
                         : err == ESP_ERR_NOT_FOUND ? "no hay firmware publicado en ese canal"
                         : err == ESP_ERR_NOT_SUPPORTED ? "no hay una version mas nueva"
-                        : err == ESP_ERR_INVALID_VERSION ? "el firmware no es de FPM-200"
+                        : err == ESP_ERR_INVALID_VERSION ? "el firmware no es de GasLineKeeper"
                         : err == ESP_ERR_OTA_VALIDATE_FAILED ? "firma invalida o archivo danado"
                         : esp_err_to_name(err);
         snprintf(s_ota_msg, sizeof s_ota_msg, "Error: %s. Sigue la version actual.", why);
@@ -406,10 +406,10 @@ void ui_infoScreen_screen_init(void)
     lv_obj_set_flex_align(dev, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_t *db = ui_icon_badge(dev, UI_SYM_ACTIVITY, UI_ICON_LG, 0x9fe1cb, UI_C_HEADER_ICONBG, 44);
     lv_obj_set_style_radius(db, 12, 0);
-    lv_obj_t *dm = ui_label(dev, cfg && cfg->general.model[0] ? cfg->general.model : "MPF-4200",
+    lv_obj_t *dm = ui_label(dev, FPM_PRODUCT_NAME,   /* nombre comercial (general.model es tecnico) */
                             UI_FONT_MD, UI_C_TEXT);
     lv_obj_set_style_margin_top(dm, 8, 0);
-    ui_label(dev, cfg && cfg->general.info_text[0] ? cfg->general.info_text : "Axira Equipos",
+    ui_label(dev, cfg && cfg->general.info_text[0] ? cfg->general.info_text : "Axira",
              UI_FONT_XS, UI_C_TEXT_MUTED);
 
     lv_obj_t *kvg = ui_box(toprow);

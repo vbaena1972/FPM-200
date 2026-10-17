@@ -43,7 +43,7 @@ void appcfg_defaults(AppConfig *c)
     c->updated_ts_ms = 0;
     c->ver = 2;
     // general
-    set_str(c->general.info_text, sizeof(c->general.info_text), "Axira Flow monitor");
+    set_str(c->general.info_text, sizeof(c->general.info_text), "Axira");
     set_str(c->general.datetime, sizeof(c->general.datetime), "");
     set_str(c->general.timezone, sizeof(c->general.timezone), "America/Bogota");
     set_str(c->general.lang, sizeof(c->general.lang), "es");
@@ -51,7 +51,7 @@ void appcfg_defaults(AppConfig *c)
     set_str(c->general.theme, sizeof(c->general.theme), "dark" );
     c->general.dim_minutes = 5;
     // Identidad fija del Hardware (Solo lectura desde el exterior)
-    set_str(c->general.model, sizeof(c->general.model), "FPM-200");
+    set_str(c->general.model, sizeof(c->general.model), "FPM-200");   /* tecnico (topico MQTT); el nombre comercial es FPM_PRODUCT_NAME */
     set_str(c->general.serial, sizeof(c->general.serial), "fpm-0001");
     set_str(c->general.hw_version, sizeof(c->general.hw_version), "1.1");
 
@@ -121,7 +121,7 @@ void appcfg_defaults(AppConfig *c)
 
     // eth
     c->eth.enabled = false;
-    set_str(c->eth.hostname, sizeof(c->eth.hostname), "axira_host");
+    set_str(c->eth.hostname, sizeof(c->eth.hostname), "gaslinekeeper");
     set_str(c->eth.ip_mode, sizeof(c->eth.ip_mode), "dhcp");
     set_str(c->eth.ip, sizeof(c->eth.ip), "192.168.1.248");
     set_str(c->eth.mask, sizeof(c->eth.mask), "255.255.255.0");
@@ -143,7 +143,7 @@ void appcfg_defaults(AppConfig *c)
     set_str(c->bt.mesh.dev_uuid, sizeof(c->bt.mesh.dev_uuid), "123e4567-e89b-12d3-a456-426614174000");
     c->bt.mesh.unicast_addr = 0x0002;
 
-    set_str(c->bt.legacy.name, sizeof(c->bt.legacy.name), "AXIRAsystem");
+    set_str(c->bt.legacy.name, sizeof(c->bt.legacy.name), "GasLineKeeper");
     set_str(c->bt.legacy.pin, sizeof(c->bt.legacy.pin), "0000");
     c->bt.legacy.sec_mode = APP_BT_SEC_JW;
 
@@ -708,6 +708,17 @@ esp_err_t appcfg_migrate(AppConfig *io)
     if (io->general.alarm.volume < 30 || io->general.alarm.volume > 100) io->general.alarm.volume = 80;
     if (io->general.alarm.reannounce_minutes < 1) io->general.alarm.reannounce_minutes = 15;
     if (io->general.alarm.max_silence_minutes < 1) io->general.alarm.max_silence_minutes = 2;
+    /* Fase 4 (2026-10-16): FPM-200 -> GasLineKeeper 200 (nombre comercial: FPM_PRODUCT_NAME).
+       Solo se reemplazan los valores de FABRICA viejos visibles (uno elegido por el usuario
+       se respeta). general.model, serial/thing (fpm-0001), partner y topicos NO cambian:
+       son la identidad en AWS (el modelo forma el topico MQTT). */
+    if (strcmp(io->general.info_text, "Axira Flow monitor") == 0 ||
+        strcmp(io->general.info_text, "axira equipos electronicos") == 0)
+        set_str(io->general.info_text, sizeof(io->general.info_text), "Axira");
+    if (strcmp(io->bt.legacy.name, "AXIRAsystem") == 0 || strcmp(io->bt.legacy.name, "AXIRA") == 0)
+        set_str(io->bt.legacy.name, sizeof(io->bt.legacy.name), "GasLineKeeper");
+    if (strcmp(io->eth.hostname, "axira_host") == 0)
+        set_str(io->eth.hostname, sizeof(io->eth.hostname), "gaslinekeeper");
     if (!(io->sensors.alarm_limits.flow_high_limit > 0.f)) io->sensors.alarm_limits.flow_high_limit = io->sensors.flow_fullscale_lpm * 0.9f;
     // ... ni "flow_fullscale_lpm"
     if (!(io->sensors.flow_fullscale_lpm > 0.f) || io->sensors.flow_fullscale_lpm > 10000.f)

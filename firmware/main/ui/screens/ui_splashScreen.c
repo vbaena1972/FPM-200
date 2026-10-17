@@ -33,7 +33,7 @@ void ui_splashScreen_screen_init(void)
     lv_obj_t *badge = ui_icon_badge(ui_splashScreen, UI_SYM_ACTIVITY, UI_ICON_LG, 0x9fe1cb, UI_C_HEADER_ICONBG, 64);
     lv_obj_set_style_radius(badge, 18, 0);
 
-    lv_obj_t *title = ui_label(ui_splashScreen, "Axira Equipos", UI_FONT_XL, UI_C_TEXT);
+    lv_obj_t *title = ui_label(ui_splashScreen, "Axira", UI_FONT_XL, UI_C_TEXT);
     lv_obj_set_style_margin_top(title, 14, 0);
     lv_obj_t *sub = ui_label(ui_splashScreen, "Medidor de presión y flujo de gases medicinales",
                              UI_FONT_SM, UI_C_TEXT_3);
@@ -75,9 +75,9 @@ void ui_splashScreen_screen_init(void)
      * v1.8.0"/"FW ctrl v2.4.1" que no correspondía a nada. */
     const AppConfig *cfg = appcfg_cache_peek();
     const esp_app_desc_t *appdesc = esp_app_get_description();
-    const char *model  = (cfg && cfg->general.model[0])  ? cfg->general.model  : "FPM-200";
+    const char *model  = FPM_PRODUCT_NAME;   /* nombre comercial (general.model es tecnico) */
     const char *serial = (cfg && cfg->general.serial[0]) ? cfg->general.serial : "—";
-    char verline[96];
+    char verline[128];   /* nombre comercial largo (Fase 4) */
     snprintf(verline, sizeof(verline), "Modelo: %s · S/N: %s · FW: v%s",
              model, serial, appdesc ? appdesc->version : "—");
     lv_obj_t *ver = ui_label(ui_splashScreen, verline, UI_FONT_XS, 0x4a5058);

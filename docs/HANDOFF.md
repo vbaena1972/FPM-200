@@ -91,6 +91,13 @@ migración de HMI y sesiones viejas: `docs/historial/`.
   del FPM (ajuste del FS7, ceros; EEPROM) es de fábrica: ningún nivel la toca. (5) Progreso en la tarjeta de
   flujo: valor "--" y "calentando N s" (`sensors_runtime_flow_warming_elapsed_ms`); no se alarga el splash a
   propósito: la presión y sus alarmas deben volver en segundos tras un corte (decisión 2026-10-11).
+- **1.6.14 (2026-10-16) — FASE 4: GasLineKeeper 200** (antes FPM-200; empresa Axira provisional). Nombre
+  comercial en `FPM_PRODUCT_NAME` (`storage.h`): cabecera, splash, Información, API BLE (`model`) y mDNS.
+  **`general.model` se queda "FPM-200"**: es `char[16]` y forma el tópico MQTT `base/partner/cliente/MODELO/serial`
+  (cambiarlo movería el tópico y podría chocar con la policy de AWS IoT). Bluetooth "GasLineKeeper", hostname
+  "gaslinekeeper", info "Axira"; `appcfg_migrate` reemplaza solo los valores de FÁBRICA viejos ("AXIRAsystem",
+  "AXIRA", "axira_host", "Axira Flow monitor"). La app reconoce nombres nuevos y viejos. Sin cambios técnicos
+  (esp32s3_hmi_skeleton, fpm200_<ver>.bin, fpm-0001, tópicos vexel/..., esquemas medguard.*.v1).
 - **1.6.13 (2026-10-16) — release baseline V1.** Sensores y Audio de alarmas: cada +/- RECONSTRUÍA la
   pantalla (`rebuild()`) y guardaba la config completa en NVS → el scroll volvía arriba y se perdían los toques
   durante la reconstrucción/escritura ("hay que tocar muchas veces"). Ahora: solo se actualiza el número
